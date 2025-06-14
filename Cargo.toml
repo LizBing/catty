@@ -3,6 +3,10 @@ name = "catty"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "java"
+path = "src/main.rs"
+
 [dependencies]
 jni = { version = "0.21.1", features = ["invocation"] }
 zip = "4.0.0"
