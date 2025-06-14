@@ -1,0 +1,40 @@
+Usage: java [options] <mainclass> [args...]
+           (to execute a class)
+   or  java [options] -jar <jarfile> [args...]
+           (to execute a JAR file)
+   or  java [options] -cp <class search path> <mainclass> [args...]
+       java [options] -classpath <class search path> <mainclass> [args...]
+           (to execute a class with a specific classpath)
+   or  java [options] -m <module>[/<mainclass>] [args...]
+       java [options] --module <module>[/<mainclass>] [args...]
+           (to execute the main class in a named module)
+
+Standard options:
+
+    -version                      print product version and exit
+    -showversion                  print product version and continue
+    -help, -?                     print this help message and exit
+    -cp <path>                    specify classpath (alias: -classpath)
+    -classpath <path>             specify classpath
+    -D<name>=<value>              set a system property
+    -jar <jarfile>                execute a program in a JAR file
+    -ea[:<packagename>...|:<classname>]
+    -enableassertions[:...]       enable assertions
+    -da[:...]
+    -disableassertions[:...]      disable assertions
+    -m <module>[/<mainclass>]     execute the main class in a module
+    --module <module>[/<mainclass>] same as -m
+    --module-path <path>          specify the module path
+    --add-modules <module>(,<module>)* 
+                                  specify additional modules to resolve
+    --list-modules                list observable modules on the module path
+    --validate-modules            validate module graph without executing
+    --dry-run                     parse and validate but do not execute
+    -d <module>
+    --describe-module <module>    describe a module
+
+Notes:
+    - The <mainclass> argument should be the fully qualified name of the class containing the main method.
+    - The -cp and -classpath options are equivalent.
+    - Use a colon (:) to separate classpath or module path entries on UNIX/Linux/macOS,
+      or a semicolon (;) on Windows.
