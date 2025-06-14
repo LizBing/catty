@@ -1,0 +1,9 @@
+# Catty, A JVM Launcher written in Rust  
+
+## In memory of one of my best friends Catherine Young.
+
+I am writing a JVM in rust recently. I found that the JVM Launcher of OpenJDK
+is specified for HotSpot VM, so I would like to implement one that restrictly
+supports the standard.  
+
+Have a Nice Day!
