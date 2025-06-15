@@ -83,7 +83,7 @@ impl ArgsProcessor {
 
         let mut index = 1;
         if args.len() > 1 {
-            while index <= args.len() {
+            while index < args.len() {
                 let arg = &args[index];
 
                 match arg.as_str() {
@@ -179,14 +179,17 @@ impl ArgsProcessor {
                 index += 1;
             }
 
-            if index <= args.len() {
+            if index < args.len() {
                 if let None = this._main_class {
                     this._main_class = Some(args[index].clone());
+                    index += 1;
                 }
             }
-
-            for n in &args[index + 1..] {
-                this._app_args.push(n.clone());
+            
+            if index < args.len() {
+                for n in &args[index + 1..] {
+                    this._app_args.push(n.clone());
+                }
             }
         } else {
             exit_for_bad_arg();
