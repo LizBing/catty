@@ -7,6 +7,41 @@ The plan that governs this work lives in `plans/go-jvm-go-mvp-humming-bonbon.md`
 
 ## [Unreleased]
 
+### A2.1 — Fresh-per-def, type-aware emitter (refs + arrays)
+
+The emitter rewrites from A1's position-stable slots (all `int32`) to
+**fresh-per-def temps**: each def is a new typed Go local; uses reference the
+defining temp. This resolves the slot-type-reuse that broke ref methods under A1
+(`aload; arraylength` writes a `*Object` then an `int32` into the *same* slot).
+Refs, arrays, and typed params/returns now emit correctly — the foundation for
+transpiling real (object-using) programs.
+
+### Changed (A2.1)
+- **`transpile/emit.go`** rewritten: typed params + return (from the descriptor),
+  fresh-per-def temps declared at the top by type (goto never crosses a `var`),
+  trailing sink + `return <zero>` terminator, and a **merge-free gate** (methods
+  with control-flow merges — loops/diamonds, which need phi insertion — return an
+  error instead of wrong code; that's A2.3).
+- New emitted opcodes: `aload`/`astore`/`areturn`, `aconst_null`, `arraylength`,
+  `iaload`/`iastore`/`aaload`/`aastore` (typed array access); `invokestatic`
+  emits a direct Go call to the mangled (emitted) target. Emitted code imports
+  `catty/rtda` for `*rtda.Object` + array accessors.
+- `tests/fixtures/ArrayOps.java` — `first(int[])I` (merge-free, ref+array) and
+  `sum(int[])I` (loop, for the merge gate).
+
+### Scope (A2.1)
+Static, merge-free methods; int + ref(+array) types. Long/float/double, fields
+(`getfield`/`putfield`), the invoke bridge (native/interpreted targets), and
+merges/loops are later (A2.1b / A2.2 / A2.3).
+
+### Validation
+- `fib` still executes natively (`fib(35)==9227465`, ~43 ms) — the rewrite
+  didn't break int code.
+- `first` emits correct ref+array code **and it compiles** (compile-checked; it
+  isn't executed because running it needs the runtime bridge — A2.2).
+- `sum` (loop) → `Emit` returns a "has merges" error.
+- `go vet` clean; e2e 8/8; all unit tests green.
+
 ### A1.5 — Type tracking in the lowering (the A2 enabler)
 
 The lowering now carries, per IR instruction, the operand-stack slot types

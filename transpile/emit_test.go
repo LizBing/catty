@@ -93,3 +93,65 @@ func TestEmitFib(t *testing.T) {
 	}
 	t.Logf("emitted fib(35) ran in %v (interpreter ≈ 4.5s, java -Xint ≈ 0.6s)", time.Since(start))
 }
+
+// TestEmitFirst is A2.1's ref+array validation: emit ArrayOps.first(int[])I
+// (aload the array ref, iaload, ireturn) and confirm the fresh-per-def emitter
+// produces a ref-typed signature and array-element access that compiles. (We
+// compile-check rather than execute: running it needs an int[] *rtda.Object,
+// which needs the runtime bridge — A2.2.)
+func TestEmitFirst(t *testing.T) {
+	dir := compileFixtures(t)
+	cl := classloader.New(classpath.Parse(dir))
+	first := cl.LoadClass("ArrayOps").GetMethod("first", "([I)I")
+	if first == nil {
+		t.Fatal("ArrayOps.first not found")
+	}
+	ir, err := lowering.Lower(first)
+	if err != nil {
+		t.Fatalf("lower: %v", err)
+	}
+	src, err := Emit(first, ir)
+	if err != nil {
+		t.Fatalf("emit: %v", err)
+	}
+	t.Logf("emitted first:\n%s", src)
+
+	if !strings.Contains(src, "func ArrayOps_first(l0 *rtda.Object) int32") {
+		t.Errorf("ref-typed signature missing:\n%s", src)
+	}
+	if !strings.Contains(src, "ArrayElementSlot") {
+		t.Errorf("array-element access missing:\n%s", src)
+	}
+
+	// Compile-check: the emitted func must be valid Go (gate for the Go-source
+	// rules on ref code). main calls first(nil) — compiles, not run.
+	out := t.TempDir()
+	program := "package main\n\nimport \"catty/rtda\"\n\n" + src +
+		"\nfunc main() { _ = ArrayOps_first((*rtda.Object)(nil)) }\n"
+	mainPath := filepath.Join(out, "main.go")
+	if err := os.WriteFile(mainPath, []byte(program), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if buildOut, buildErr := exec.Command("go", "build", "-o", filepath.Join(out, "bin"), mainPath).CombinedOutput(); buildErr != nil {
+		t.Fatalf("emitted first does not compile: %v\n%s\n--- source ---\n%s", buildErr, buildOut, program)
+	}
+}
+
+// TestEmitMergeGate confirms the merge-free gate refuses methods with control-
+// flow merges (loops/diamonds need phi insertion — A2.3), rather than emitting
+// wrong code.
+func TestEmitMergeGate(t *testing.T) {
+	dir := compileFixtures(t)
+	cl := classloader.New(classpath.Parse(dir))
+	sum := cl.LoadClass("ArrayOps").GetMethod("sum", "([I)I")
+	if sum == nil {
+		t.Fatal("ArrayOps.sum not found")
+	}
+	ir, err := lowering.Lower(sum)
+	if err != nil {
+		t.Fatalf("lower: %v", err)
+	}
+	if _, err := Emit(sum, ir); err == nil {
+		t.Error("expected a merge error for ArrayOps.sum (it has a loop), got nil")
+	}
+}
