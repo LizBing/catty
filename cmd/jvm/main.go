@@ -115,7 +115,11 @@ func build(args []string) {
 	}
 
 	if *run {
-		runCmd := exec.Command(*out)
+		runPath, err := filepath.Abs(*out)
+		if err != nil {
+			runPath = *out
+		}
+		runCmd := exec.Command(runPath)
 		runCmd.Stdout = os.Stdout
 		runCmd.Stderr = os.Stderr
 		if err := runCmd.Run(); err != nil {
