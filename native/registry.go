@@ -19,6 +19,24 @@ func NativeClass(loader rtda.Loader, name string) *rtda.Class {
 		return buildPrintStreamClass(loader)
 	case "java/lang/System":
 		return buildSystemClass(loader)
+	case "java/lang/Throwable":
+		return buildThrowable(loader)
+	case "java/lang/Exception":
+		return buildException(loader)
+	case "java/lang/RuntimeException":
+		return buildRuntimeException(loader)
+	case "java/lang/NullPointerException":
+		return buildNPE(loader)
+	case "java/lang/ArithmeticException":
+		return buildArithmeticException(loader)
+	case "java/lang/IndexOutOfBoundsException":
+		return buildIndexOutOfBounds(loader)
+	case "java/lang/ArrayIndexOutOfBoundsException":
+		return buildAIOOBE(loader)
+	case "java/lang/ClassCastException":
+		return buildCCE(loader)
+	case "java/lang/IllegalArgumentException":
+		return buildIAE(loader)
 	}
 	return nil
 }

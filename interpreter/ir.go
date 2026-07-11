@@ -40,7 +40,12 @@ func LoopIR(thread *rtda.Thread) {
 			}
 			lastFrame = frame
 		}
+		pc := frame.PC()
 		execIR(thread, frame, ir)
+		if thread.HasException() {
+			handleException(thread, pc)
+			lastFrame = nil // force IR re-lookup after frame changes
+		}
 	}
 }
 
@@ -216,6 +221,10 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 		opcode.Iand, opcode.Ior, opcode.Ixor:
 		a := frame.StackSlotNum(int(inst.Uses[0]))
 		b := frame.StackSlotNum(int(inst.Uses[1]))
+		if (inst.Op == opcode.Idiv || inst.Op == opcode.Irem) && b == 0 {
+			throwRuntime(thread, pc, "java/lang/ArithmeticException", "/ by zero")
+			return
+		}
 		frame.SetStackSlotNum(int(inst.Defs[0]), iapply(inst.Op, a, b))
 	case opcode.Ishl, opcode.Ishr, opcode.Iushr:
 		s := uint32(frame.StackSlotNum(int(inst.Uses[1])))
@@ -470,7 +479,8 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 		spec := class.LookupMethod(name, desc)
 		receiver := frame.PeekRef(int(spec.ArgSlotCount()))
 		if receiver == nil {
-			panic("catty: NullPointerException")
+			throwRuntime(thread, pc, "java/lang/NullPointerException", "")
+			return
 		}
 		invokeMethod(thread, receiver.Class().LookupMethod(name, desc))
 	case opcode.Invokespecial:
@@ -500,7 +510,8 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 		target := thread.Loader().LoadClass(cp.ClassName(inst.Index))
 		obj := frame.PeekRef(0)
 		if obj != nil && !obj.IsInstanceOf(target) {
-			panic("catty: ClassCastException")
+			throwRuntime(thread, pc, "java/lang/ClassCastException", "")
+			return
 		}
 	case opcode.Instanceof:
 		target := thread.Loader().LoadClass(cp.ClassName(inst.Index))
@@ -512,6 +523,14 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 		}
 	case opcode.Monitorenter, opcode.Monitorexit:
 		frame.PopRef()
+
+	case opcode.Athrow:
+		excObj := frame.PopRef()
+		if excObj == nil {
+			throwRuntime(thread, pc, "java/lang/NullPointerException", "")
+			return
+		}
+		thread.Throw(excObj, pc)
 
 	default:
 		panic(fmt.Sprintf("catty: IR opcode 0x%02x (%s) not implemented", byte(inst.Op), opcode.Name(inst.Op)))

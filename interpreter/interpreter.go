@@ -2,6 +2,7 @@ package interpreter
 
 import (
 	"fmt"
+	"os"
 
 	"catty/opcode"
 	"catty/rtda"
@@ -22,7 +23,131 @@ func Loop(thread *rtda.Thread) {
 		op := opcode.Opcode(frame.Code()[opcodePc])
 		frame.SetPC(opcodePc + 1)
 		exec(thread, frame, op, opcodePc)
+		if thread.HasException() {
+			handleException(thread, opcodePc)
+		}
 	}
+}
+
+// handleException searches exception tables frame-by-frame for a handler
+// matching the throw PC and exception type. If found, it clears the operand
+// stack, pushes the exception object, and jumps to the handler. If no frame
+// catches it, the exception is uncaught — print a message and exit.
+func handleException(thread *rtda.Thread, throwPC int) {
+	excObj := thread.ClearException()
+
+	for !thread.IsStackEmpty() {
+		frame := thread.CurrentFrame()
+		method := frame.Method()
+
+		for _, entry := range method.ExceptionTable() {
+			if throwPC >= entry.StartPc() && throwPC < entry.EndPc() {
+				// catchType "" = catch-all (finally); otherwise check type.
+				if entry.CatchType() == "" || excObj.IsInstanceOf(thread.Loader().LoadClass(entry.CatchType())) {
+					// Found a handler: clear operand stack, push exception, jump.
+					frame.ClearStack()
+					frame.PushRef(excObj)
+					frame.SetPC(entry.HandlerPc())
+					return
+				}
+			}
+		}
+
+		// Not caught in this frame — pop it and try the caller.
+		thread.PopFrame()
+		if !thread.IsStackEmpty() {
+			throwPC = thread.CurrentFrame().PC() - 1 // PC was advanced past the invoke opcode
+		}
+	}
+
+	// Uncaught exception — print and exit.
+	fmt.Fprintf(os.Stderr, "Exception in thread \"main\" %s", javaClassName(excObj.Class().Name()))
+	msgSlot := findDetailMessage(excObj)
+	if msgSlot >= 0 && excObj.Fields()[msgSlot].Ref() != nil {
+		if s, ok := excObj.Fields()[msgSlot].Ref().Extra().(string); ok && s != "" {
+			fmt.Fprintf(os.Stderr, ": %s", s)
+		}
+	}
+	fmt.Fprintln(os.Stderr)
+	os.Exit(1)
+}
+
+// findDetailMessage returns the slot offset of Throwable's detailMessage, or -1.
+func findDetailMessage(obj *rtda.Object) int {
+	for cls := obj.Class(); cls != nil; cls = cls.SuperClass() {
+		if f := cls.LookupField("detailMessage", "Ljava/lang/String;"); f != nil {
+			return int(f.SlotID())
+		}
+	}
+	return -1
+}
+
+func javaClassName(internal string) string {
+	out := make([]byte, len(internal))
+	for i := 0; i < len(internal); i++ {
+		if internal[i] == '/' {
+			out[i] = '.'
+		} else {
+			out[i] = internal[i]
+		}
+	}
+	return string(out)
+}
+
+// throwRuntime creates an exception object of the given class with an optional
+// message and signals it on the thread. Used for runtime exceptions (NPE,
+// ArithmeticException, ClassCastException, etc.).
+func throwRuntime(thread *rtda.Thread, pc int, className, message string) {
+	cls := thread.Loader().LoadClass(className)
+	obj := rtda.NewObject(cls)
+	if message != "" {
+		// Set detailMessage on the Throwable ancestor.
+		for c := cls; c != nil; c = c.SuperClass() {
+			if f := c.LookupField("detailMessage", "Ljava/lang/String;"); f != nil {
+				strClass := thread.Loader().LoadClass("java/lang/String")
+				msgObj := rtda.NewObject(strClass)
+				msgObj.SetExtra(message)
+				obj.Fields()[f.SlotID()].SetRef(msgObj)
+				break
+			}
+		}
+	}
+	thread.Throw(obj, pc)
+}
+
+// checkArrayBounds verifies array access bounds, throwing the appropriate
+// exception if out of range. Returns true if an exception was thrown (caller
+// should return immediately).
+func checkArrayBounds(thread *rtda.Thread, pc int, arr *rtda.Object, index int) bool {
+	length := arr.ArrayLength()
+	if index < 0 || index >= length {
+		msg := "Index " + itoaInt(index) + " out of bounds for length " + itoaInt(length)
+		throwRuntime(thread, pc, "java/lang/ArrayIndexOutOfBoundsException", msg)
+		return true
+	}
+	return false
+}
+
+func itoaInt(n int) string {
+	if n == 0 {
+		return "0"
+	}
+	neg := n < 0
+	if neg {
+		n = -n
+	}
+	var b [20]byte
+	i := len(b)
+	for n > 0 {
+		i--
+		b[i] = byte('0' + n%10)
+		n /= 10
+	}
+	if neg {
+		i--
+		b[i] = '-'
+	}
+	return string(b[i:])
 }
 
 // exec runs one instruction. Split out of Loop only for readability; it is the
@@ -95,22 +220,57 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 	case opcode.Iaload, opcode.Baload, opcode.Caload, opcode.Saload:
 		i := frame.PopInt()
 		arr := frame.PopRef()
+		if arr == nil {
+			throwRuntime(thread, opcodePc, "java/lang/NullPointerException", "")
+			return
+		}
+		if err := checkArrayBounds(thread, opcodePc, arr, int(i)); err {
+			return
+		}
 		frame.PushInt(arr.ArrayElementSlot(int(i)).Num())
 	case opcode.Laload:
 		i := frame.PopInt()
 		arr := frame.PopRef()
+		if arr == nil {
+			throwRuntime(thread, opcodePc, "java/lang/NullPointerException", "")
+			return
+		}
+		if err := checkArrayBounds(thread, opcodePc, arr, int(i)); err {
+			return
+		}
 		frame.PushLong(readTwoSlots(arr, int(i)))
 	case opcode.Faload:
 		i := frame.PopInt()
 		arr := frame.PopRef()
+		if arr == nil {
+			throwRuntime(thread, opcodePc, "java/lang/NullPointerException", "")
+			return
+		}
+		if err := checkArrayBounds(thread, opcodePc, arr, int(i)); err {
+			return
+		}
 		frame.PushFloat(float32frombits(uint32(arr.ArrayElementSlot(int(i)).Num())))
 	case opcode.Daload:
 		i := frame.PopInt()
 		arr := frame.PopRef()
+		if arr == nil {
+			throwRuntime(thread, opcodePc, "java/lang/NullPointerException", "")
+			return
+		}
+		if err := checkArrayBounds(thread, opcodePc, arr, int(i)); err {
+			return
+		}
 		frame.PushDouble(float64frombits(uint64(readTwoSlots(arr, int(i)))))
 	case opcode.Aaload:
 		i := frame.PopInt()
 		arr := frame.PopRef()
+		if arr == nil {
+			throwRuntime(thread, opcodePc, "java/lang/NullPointerException", "")
+			return
+		}
+		if err := checkArrayBounds(thread, opcodePc, arr, int(i)); err {
+			return
+		}
 		frame.PushRef(arr.ArrayElementSlot(int(i)).Ref())
 
 	// ---------- array store ----------
@@ -118,26 +278,61 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		v := frame.PopInt()
 		i := frame.PopInt()
 		arr := frame.PopRef()
+		if arr == nil {
+			throwRuntime(thread, opcodePc, "java/lang/NullPointerException", "")
+			return
+		}
+		if err := checkArrayBounds(thread, opcodePc, arr, int(i)); err {
+			return
+		}
 		arr.ArrayElementSlot(int(i)).SetNum(v)
 	case opcode.Lastore:
 		v := frame.PopLong()
 		i := frame.PopInt()
 		arr := frame.PopRef()
+		if arr == nil {
+			throwRuntime(thread, opcodePc, "java/lang/NullPointerException", "")
+			return
+		}
+		if err := checkArrayBounds(thread, opcodePc, arr, int(i)); err {
+			return
+		}
 		writeTwoSlots(arr, int(i), v)
 	case opcode.Fastore:
 		v := frame.PopFloat()
 		i := frame.PopInt()
 		arr := frame.PopRef()
+		if arr == nil {
+			throwRuntime(thread, opcodePc, "java/lang/NullPointerException", "")
+			return
+		}
+		if err := checkArrayBounds(thread, opcodePc, arr, int(i)); err {
+			return
+		}
 		arr.ArrayElementSlot(int(i)).SetNum(int32(float32bits(v)))
 	case opcode.Dastore:
 		v := frame.PopDouble()
 		i := frame.PopInt()
 		arr := frame.PopRef()
+		if arr == nil {
+			throwRuntime(thread, opcodePc, "java/lang/NullPointerException", "")
+			return
+		}
+		if err := checkArrayBounds(thread, opcodePc, arr, int(i)); err {
+			return
+		}
 		writeTwoSlots(arr, int(i), int64(float64bits(v)))
 	case opcode.Aastore:
 		v := frame.PopRef()
 		i := frame.PopInt()
 		arr := frame.PopRef()
+		if arr == nil {
+			throwRuntime(thread, opcodePc, "java/lang/NullPointerException", "")
+			return
+		}
+		if err := checkArrayBounds(thread, opcodePc, arr, int(i)); err {
+			return
+		}
 		arr.ArrayElementSlot(int(i)).SetRef(v)
 
 	// ---------- stack manipulation ----------
@@ -193,10 +388,18 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 	case opcode.Idiv:
 		b := frame.PopInt()
 		a := frame.PopInt()
+		if b == 0 {
+			throwRuntime(thread, opcodePc, "java/lang/ArithmeticException", "/ by zero")
+			return
+		}
 		frame.PushInt(a / b) // Go integer division truncates toward zero, matching Java
 	case opcode.Irem:
 		b := frame.PopInt()
 		a := frame.PopInt()
+		if b == 0 {
+			throwRuntime(thread, opcodePc, "java/lang/ArithmeticException", "/ by zero")
+			return
+		}
 		frame.PushInt(a % b)
 	case opcode.Ineg:
 		frame.PushInt(-frame.PopInt())
@@ -524,7 +727,8 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		spec := class.LookupMethod(name, desc)
 		receiver := frame.PeekRef(int(spec.ArgSlotCount()))
 		if receiver == nil {
-			panic("catty: NullPointerException")
+			throwRuntime(thread, opcodePc, "java/lang/NullPointerException", "")
+			return
 		}
 		invokeMethod(thread, receiver.Class().LookupMethod(name, desc))
 	case opcode.Invokespecial:
@@ -562,7 +766,8 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		target := thread.Loader().LoadClass(frame.Method().Owner().ConstantPool().ClassName(idx))
 		obj := frame.PeekRef(0)
 		if obj != nil && !obj.IsInstanceOf(target) {
-			panic("catty: ClassCastException")
+			throwRuntime(thread, opcodePc, "java/lang/ClassCastException", "")
+			return
 		}
 	case opcode.Instanceof:
 		idx := frame.ReadUint16()
@@ -575,6 +780,14 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		}
 	case opcode.Monitorenter, opcode.Monitorexit:
 		frame.PopRef() // concurrency deferred: monitors are nops in the single-threaded MVP
+
+	case opcode.Athrow:
+		excObj := frame.PopRef()
+		if excObj == nil {
+			throwRuntime(thread, opcodePc, "java/lang/NullPointerException", "")
+			return
+		}
+		thread.Throw(excObj, opcodePc)
 
 	default:
 		panic(fmt.Sprintf("catty: opcode 0x%02x (%s) not implemented", op, opcode.Name(opcode.Opcode(op))))

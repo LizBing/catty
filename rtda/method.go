@@ -27,6 +27,14 @@ type exceptionEntry struct {
 	catchType string // internal class name, "" for catch-all (finally via any)
 }
 
+// ExceptionEntry is the exported form for the interpreter's exception handler.
+type ExceptionEntry = exceptionEntry
+
+func (e *exceptionEntry) StartPc() int    { return e.startPc }
+func (e *exceptionEntry) EndPc() int      { return e.endPc }
+func (e *exceptionEntry) HandlerPc() int  { return e.handlerPc }
+func (e *exceptionEntry) CatchType() string { return e.catchType }
+
 // NativeMethod builds a Method backed by a Go function. Used for the synthetic
 // core classes (java.lang.Object/System/...) that catty implements natively.
 // argSlotCount counts parameters only; the interpreter adds 1 for `this` on

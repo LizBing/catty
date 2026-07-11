@@ -19,6 +19,11 @@ type Thread struct {
 	// (interpreter.RunMethod): there is no caller frame, so the return helpers
 	// write here instead of pushing. nil outside bridge mode.
 	bridgeReturn *Slot
+	// pendingException is non-nil when an exception is in flight (athrow or a
+	// runtime error like NPE). The interpreter Loop checks HasException after
+	// each instruction and dispatches to handleException.
+	pendingException *Object
+	throwPC          int // PC of the instruction that threw (for exception-table search)
 }
 
 func NewThread(loader Loader) *Thread {
@@ -52,6 +57,21 @@ func (t *Thread) IsStackEmpty() bool {
 func (t *Thread) SetBridgeReturn(s *Slot) { t.bridgeReturn = s }
 func (t *Thread) HasBridgeReturn() bool    { return t.bridgeReturn != nil }
 func (t *Thread) BridgeReturn(s Slot)      { *t.bridgeReturn = s }
+
+// --- Exception handling ---
+//
+// Exceptions use a signal on the Thread (not Go panic/recover): the opcode
+// handler sets the pending exception + throwPC, returns from exec, and the
+// Loop's handleException searches exception tables frame-by-frame.
+
+func (t *Thread) Throw(obj *Object, pc int) { t.pendingException = obj; t.throwPC = pc }
+func (t *Thread) HasException() bool        { return t.pendingException != nil }
+func (t *Thread) ClearException() *Object {
+	obj := t.pendingException
+	t.pendingException = nil
+	return obj
+}
+func (t *Thread) ThrowPC() int { return t.throwPC }
 
 // NewFrame allocates a frame for a method on this thread.
 func (t *Thread) NewFrame(method *Method) *Frame {

@@ -28,7 +28,7 @@ func Lower(method *rtda.Method) (*IR, error) {
 	cp := method.Owner().ConstantPool()
 
 	starts := decode(code, ir)
-	depth, err := depthDataflow(code, cp, ir, starts)
+	depth, err := depthDataflow(code, cp, ir, starts, method.ExceptionTable())
 	if err != nil {
 		return nil, err
 	}
@@ -42,6 +42,7 @@ func Lower(method *rtda.Method) (*IR, error) {
 		assignVregs(inst, cp)
 	}
 	typeDataflow(method, ir, starts, cp)
+
 	return ir, nil
 }
 
@@ -132,7 +133,7 @@ func decodeInst(code []byte, pc int) (IRInst, int) {
 // on entry. A pc reached at two different depths ⇒ malformed bytecode (javac
 // output is verifier-valid, so this won't fire on the fixtures). Returns the
 // depth slice (−1 at unreachable pcs).
-func depthDataflow(code []byte, cp *classfile.ConstantPool, ir *IR, starts []int) ([]int, error) {
+func depthDataflow(code []byte, cp *classfile.ConstantPool, ir *IR, starts []int, exTable []rtda.ExceptionEntry) ([]int, error) {
 	const unset = -1
 	depth := make([]int, len(code))
 	for i := range depth {
@@ -156,6 +157,15 @@ func depthDataflow(code []byte, cp *classfile.ConstantPool, ir *IR, starts []int
 		if hasFall {
 			if err := propagate(depth, fall, next, &worklist); err != nil {
 				return nil, err
+			}
+		}
+		// Exception edges: if this PC is inside any protected range, the
+		// handler is a successor with depth 1 (the exception on the stack).
+		for _, entry := range exTable {
+			if pc >= entry.StartPc() && pc < entry.EndPc() {
+				if err := propagate(depth, entry.HandlerPc(), 1, &worklist); err != nil {
+					return nil, err
+				}
 			}
 		}
 	}

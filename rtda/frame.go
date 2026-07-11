@@ -171,6 +171,15 @@ func (f *Frame) GetDouble(index int) float64      { return math.Float64frombits(
 // a callee frame (the slot's category is the callee's concern).
 func (f *Frame) SetSlot(index int, s Slot) { f.locals[index] = s }
 
+// ClearStack resets the operand stack to empty (used by exception handling
+// before pushing the exception object at the handler).
+func (f *Frame) ClearStack() {
+	for i := 0; i < f.stackTop; i++ {
+		f.stack[i] = Slot{}
+	}
+	f.stackTop = 0
+}
+
 // --- indexed operand-stack access (for the IR executor) ---
 //
 // The lowering pass eliminates the operand stack into slot-indexed virtual

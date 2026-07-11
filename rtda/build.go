@@ -118,8 +118,15 @@ func (c *Class) SetStaticRef(slotID uint, ref *Object) {
 	c.staticVars[slotID].ref = ref
 }
 
-func (c *Class) SetStaticInt(slotID uint, val int32) {
-	c.staticVars[slotID].num = val
+// AddInstanceField declares an instance field on a synthetic class, allocating
+// the next slot in the layout. Used by native exception classes (Throwable's
+// detailMessage).
+func (c *Class) AddInstanceField(name, descriptor string) *Field {
+	slot := c.instSlotCount
+	c.instSlotCount += uint(fieldSlotSize(descriptor))
+	f := NewField(c, name, descriptor, 0, false, slot)
+	c.instanceFields = append(c.instanceFields, f)
+	return f
 }
 
 func (c *Class) SetSuper(super *Class) { c.superClass = super }
