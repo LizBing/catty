@@ -41,6 +41,7 @@ func Lower(method *rtda.Method) (*IR, error) {
 		inst.Depth = d
 		assignVregs(inst, cp)
 	}
+	typeDataflow(method, ir, starts, cp)
 	return ir, nil
 }
 

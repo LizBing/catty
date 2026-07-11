@@ -7,6 +7,37 @@ The plan that governs this work lives in `plans/go-jvm-go-mvp-humming-bonbon.md`
 
 ## [Unreleased]
 
+### A1.5 — Type tracking in the lowering (the A2 enabler)
+
+The lowering now carries, per IR instruction, the operand-stack slot types
+(`IRInst.InTypes`) — the prerequisite for A2's emitter to declare correct Go
+types (int/long/float/double/ref) instead of int-only. Lowering-only; no
+runtime/emitter change, no visible speedup yet.
+
+### Added (A1.5)
+- **`classfile/stackmap.go`** — parses the `StackMapTable` attribute (JVMS
+  §4.7.4): delta-encoded frames reconstructed via `Reconstruct(initialLocals)`,
+  exposed through `CodeAttribute.StackMapTable()`.
+- **`lowering/types.go`** — `SlotType` (Int/Long/Float/Double/Ref/Top), a
+  `typeDataflow` linear pass that propagates operand-stack types per opcode,
+  pinning merges at `StackMapTable` frames. Loads are opcode-derived (the verifier
+  guarantees them), so only the operand stack is tracked, not locals.
+
+### Design notes
+- **No type lattice / merge logic**: the `StackMapTable` gives the exact merged
+  frame at every branch target (Java 6+), so catty only propagates types within
+  basic blocks and resets at frames.
+- The pass **always runs** (linear propagation); branch-free methods without a
+  `StackMapTable` (e.g. `HelloWorld.main`) still get correct `InTypes`. Methods
+  with branches but no table (pre-Java-6) may get imprecise types — acceptable;
+  A2 will just skip AOT for them.
+
+### Validation
+- `classfile` test: `fib`'s table parses to one SAME frame at pc 7 (vs `javap`).
+- `lowering` test: `fib` is all-`TypeInt`; `HelloWorld.main` shows `TypeRef`
+  (System.out/String); `Factorial.fact` shows `TypeLong`. Existing depth/Uses/Defs
+  tests unchanged; `go vet` clean; e2e 8/8.
+
 ### A1 — AOT emitter: bytecode → Go source (run a method natively)
 
 The first executable proof of the performance thesis: lower a method's IR to Go

@@ -236,9 +236,14 @@ The pipeline (`lowering.Lower`):
 3. **vreg assignment** — turn each instruction's (entry depth, slot effect) into
    concrete `Uses`/`Defs` slot indices.
 
-A0 is **depth-only** and needs **no SSA or phis**: vregs are position-stable
-slot indices, and JVMS guarantees equal stack depth at every merge point, so a
-single path's definitions are always the live ones at execution time.
+A0 is **depth-only** for vreg assignment and needs **no SSA or phis**: vregs are
+position-stable slot indices, and JVMS guarantees equal stack depth at every
+merge point, so a single path's definitions are always the live ones at
+execution time. **A1.5 adds type tracking** on top: a linear pass propagates
+operand-stack slot types (`IRInst.InTypes`), pinning merges at the
+`StackMapTable`'s frames — no type-lattice/merge logic needed. Loads are
+opcode-derived, so only the stack is tracked. This is what A2's emitter consumes
+to declare the right Go type per slot.
 
 `interpreter.LoopIR` runs the lowered form (opt-in via `-ir`). Every instruction
 seeds the operand-stack pointer from the IR's known depth; pure ops read/write

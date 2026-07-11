@@ -136,3 +136,71 @@ func TestLowerHelloWorldInit(t *testing.T) {
 		t.Errorf("invokespecial defs = %v, want []", spec.Defs)
 	}
 }
+
+// TestTypeTracking is the A1.5 gate: the IR carries correct operand-stack slot
+// types at every instruction. fib is all-int throughout; HelloWorld.main (no
+// branches, no StackMapTable) still yields TypeRef via linear propagation;
+// Factorial.fact yields TypeLong from its long arithmetic.
+func TestTypeTracking(t *testing.T) {
+	dir := compileFixtures(t)
+	cl := classloader.New(classpath.Parse(dir))
+
+	// fib: every slot is TypeInt (and the type pass actually ran).
+	fib := lower(cl, "Fibonacci", "fib", "(I)I", t)
+	sawTyped := false
+	for pc := 0; pc < len(fib.Insts); pc++ {
+		inst := &fib.Insts[pc]
+		if !inst.Present || len(inst.InTypes) == 0 {
+			continue
+		}
+		sawTyped = true
+		for i, ty := range inst.InTypes {
+			if ty != TypeInt {
+				t.Errorf("fib pc %d slot %d: type %v, want Int", pc, i, ty)
+			}
+		}
+	}
+	if !sawTyped {
+		t.Error("fib: no typed instructions (type dataflow didn't run?)")
+	}
+
+	// HelloWorld.main: System.out / ldc String → TypeRef must appear somewhere.
+	hw := lower(cl, "HelloWorld", "main", "([Ljava/lang/String;)V", t)
+	if !irHasType(hw, TypeRef) {
+		t.Error("HelloWorld.main: no TypeRef on the stack (expected System.out / String)")
+	}
+
+	// Factorial.fact: long arithmetic → TypeLong.
+	fact := lower(cl, "Factorial", "fact", "(J)J", t)
+	if !irHasType(fact, TypeLong) {
+		t.Error("Factorial.fact: no TypeLong on the stack (expected long arithmetic)")
+	}
+}
+
+func lower(cl *classloader.ClassLoader, class, name, desc string, t *testing.T) *IR {
+	t.Helper()
+	m := cl.LoadClass(class).GetMethod(name, desc)
+	if m == nil {
+		t.Fatalf("%s.%s%s not found", class, name, desc)
+	}
+	ir, err := Lower(m)
+	if err != nil {
+		t.Fatalf("lower %s.%s: %v", class, name, err)
+	}
+	return ir
+}
+
+func irHasType(ir *IR, want SlotType) bool {
+	for pc := 0; pc < len(ir.Insts); pc++ {
+		inst := &ir.Insts[pc]
+		if !inst.Present || inst.InTypes == nil {
+			continue
+		}
+		for _, ty := range inst.InTypes {
+			if ty == want {
+				return true
+			}
+		}
+	}
+	return false
+}

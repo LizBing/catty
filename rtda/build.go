@@ -53,8 +53,12 @@ func NewClass(cf *classfile.ClassFile, loader Loader) *Class {
 			bytecode = code.Code()
 			exTable = convertExceptionTable(code.ExceptionTable(), c.cp)
 		}
-		c.AddMethod(InterpretedMethod(c, m.Name(), m.Descriptor(),
-			m.AccessFlags(), maxStack, maxLocals, bytecode, exTable))
+		method := InterpretedMethod(c, m.Name(), m.Descriptor(),
+			m.AccessFlags(), maxStack, maxLocals, bytecode, exTable)
+		if code != nil {
+			method.SetStackMap(code.StackMapTable())
+		}
+		c.AddMethod(method)
 	}
 	return c
 }

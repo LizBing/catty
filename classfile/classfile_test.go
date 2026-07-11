@@ -25,8 +25,7 @@ func compileFixture(t *testing.T, name string) []byte {
 	return data
 }
 
-func TestParseHelloWorld(t *testing.T) {
-	cf, err := Parse(compileFixture(t, "HelloWorld"))
+func TestParseHelloWorld(t *testing.T) {	cf, err := Parse(compileFixture(t, "HelloWorld"))
 	if err != nil {
 		t.Fatalf("Parse: %v", err)
 	}
@@ -63,5 +62,42 @@ func TestParseHelloWorld(t *testing.T) {
 	}
 	if code.MaxLocals() < 3 { // args + a + b
 		t.Errorf("MaxLocals = %d, want >= 3", code.MaxLocals())
+	}
+}
+
+// TestParseStackMapTable verifies the delta-frame parser against javap's output:
+// Fibonacci.fib has a single SAME frame at pc 7 (the if_icmpge target), with
+// locals [int] and an empty stack.
+func TestParseStackMapTable(t *testing.T) {
+	cf, err := Parse(compileFixture(t, "Fibonacci"))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	var fib *MemberInfo
+	for _, m := range cf.Methods() {
+		if m.Name() == "fib" && m.Descriptor() == "(I)I" {
+			fib = m
+		}
+	}
+	if fib == nil {
+		t.Fatal("fib not found")
+	}
+	smt := fib.Code().StackMapTable()
+	if smt == nil {
+		t.Fatal("fib has no StackMapTable")
+	}
+	// fib is static with one int arg, so the initial locals = [Integer].
+	frames := smt.Reconstruct([]VerifType{{Tag: ItemInteger}})
+	if len(frames) != 1 {
+		t.Fatalf("got %d frames, want 1", len(frames))
+	}
+	if frames[0].Offset != 7 {
+		t.Errorf("frame offset = %d, want 7", frames[0].Offset)
+	}
+	if len(frames[0].Locals) != 1 || frames[0].Locals[0].Tag != ItemInteger {
+		t.Errorf("frame locals = %+v, want [Integer]", frames[0].Locals)
+	}
+	if len(frames[0].Stack) != 0 {
+		t.Errorf("frame stack = %+v, want empty", frames[0].Stack)
 	}
 }

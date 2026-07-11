@@ -1,20 +1,23 @@
 package rtda
 
+import "catty/classfile"
+
 // Method is the runtime representation of a class method. Non-native methods
 // carry their bytecode; native methods carry a Go implementation invoked in lieu
 // of interpretation.
 type Method struct {
-	owner         *Class
-	name          string
-	descriptor    string
-	accessFlags   uint16
-	maxStack      uint
-	maxLocals     uint
-	code          []byte
+	owner          *Class
+	name           string
+	descriptor     string
+	accessFlags    uint16
+	maxStack       uint
+	maxLocals      uint
+	code           []byte
 	exceptionTable []exceptionEntry
-	argSlotCount  uint
-	native        bool
-	nativeFunc    func(*Frame)
+	stackMap       *classfile.StackMapTableAttribute
+	argSlotCount   uint
+	native         bool
+	nativeFunc     func(*Frame)
 }
 
 type exceptionEntry struct {
@@ -88,6 +91,12 @@ func (m *Method) ExceptionTable() []exceptionEntry { return m.exceptionTable }
 func (m *Method) MaxStack() uint   { return m.maxStack }
 func (m *Method) MaxLocals() uint  { return m.maxLocals }
 func (m *Method) Code() []byte     { return m.code }
+
+// StackMap returns the parsed StackMapTable (for type tracking) or nil.
+func (m *Method) StackMap() *classfile.StackMapTableAttribute { return m.stackMap }
+
+// SetStackMap attaches the parsed StackMapTable (called during class loading).
+func (m *Method) SetStackMap(smt *classfile.StackMapTableAttribute) { m.stackMap = smt }
 
 // JVM access flags (JVMS §4.6 / §4.5), reused by Method, Field, Class.
 const (

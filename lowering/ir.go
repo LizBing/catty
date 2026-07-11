@@ -31,6 +31,7 @@ type IRInst struct {
 	Depth  int    // operand-stack depth (in slots) on entry, from the depth dataflow
 	Uses   []uint8 // slot indices this instruction reads
 	Defs   []uint8 // slot indices this instruction writes
+	InTypes []SlotType // operand-stack slot types at entry (A1.5); nil if the method had no StackMapTable
 
 	// Predecoded immediate operands (only the relevant field is set per op).
 	Index    uint16       // local index / constant-pool index

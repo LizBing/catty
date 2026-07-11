@@ -29,6 +29,8 @@ func readAttribute(reader *ClassReader, cp *ConstantPool) AttributeInfo {
 	switch cp.UTF8(nameIndex) {
 	case "Code":
 		return readCodeAttribute(info, cp)
+	case "StackMapTable":
+		return readStackMapTable(info)
 	default:
 		return &UnparsedAttribute{}
 	}
@@ -88,6 +90,17 @@ func (a *CodeAttribute) MaxStack() uint16          { return a.maxStack }
 func (a *CodeAttribute) MaxLocals() uint16         { return a.maxLocals }
 func (a *CodeAttribute) Code() []byte              { return a.code }
 func (a *CodeAttribute) ExceptionTable() []*ExceptionTableEntry { return a.exceptionTable }
+
+// StackMapTable returns the parsed StackMapTable attribute, or nil if the method
+// has none (e.g. no branches, or pre-Java-6 class files).
+func (a *CodeAttribute) StackMapTable() *StackMapTableAttribute {
+	for _, attr := range a.attributes {
+		if smt, ok := attr.(*StackMapTableAttribute); ok {
+			return smt
+		}
+	}
+	return nil
+}
 
 // CodeAttributeOf finds and returns the Code attribute among a method's
 // attributes, or nil if absent (native/abstract methods have no Code).
