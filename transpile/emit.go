@@ -34,6 +34,7 @@ func Emit(method *rtda.Method, ir *lowering.IR, loader rtda.Loader) (string, err
 		slotTemp: map[int]string{}, slotType: map[int]string{}, loader: loader,
 		merges: map[int]bool{}, fallThrough: map[int]bool{},
 		mergeTemps: map[int][]string{}, mergeTempTypes: map[int][]string{},
+		localMap: buildLocalMap(method),
 	}
 	e.merges, e.fallThrough = cfgAnalysis(ir)
 	if err := e.allocMergeTemps(ir, method); err != nil { // validates + refuses deferred cases
@@ -86,6 +87,7 @@ type emitter struct {
 	fallThrough    map[int]bool      // pcs reached by fall-through from a predecessor
 	mergeTemps     map[int][]string  // merge pc → temp name per stack slot (the phi)
 	mergeTempTypes map[int][]string  // merge pc → Go type per stack slot
+	localMap       map[int]string    // JVM local slot → Go param name (cat-2 aware)
 }
 
 type tempDecl struct{ name, gotype string }
@@ -98,6 +100,15 @@ func (e *emitter) defTemp(slot int, goType string) string {
 	e.temps = append(e.temps, tempDecl{name, goType})
 	e.slotTemp[slot] = name
 	e.slotType[slot] = goType
+	return name
+}
+
+// defTempCat2 allocates one temp for a category-2 def (long/double spanning 2
+// slots) and binds BOTH slots to it — the Go value is one int64/float64.
+func (e *emitter) defTempCat2(slot int, goType string) string {
+	name := e.defTemp(slot, goType)
+	e.slotTemp[slot+1] = name
+	e.slotType[slot+1] = goType
 	return name
 }
 
@@ -124,11 +135,25 @@ func (e *emitter) emitOne(b *strings.Builder, inst *lowering.IRInst, cp *classfi
 		case classfile.ConstantInteger:
 			t := e.defTemp(int(inst.Defs[0]), "int32")
 			w("%s = %d", t, cp.Integer(inst.Index))
+		case classfile.ConstantFloat:
+			t := e.defTemp(int(inst.Defs[0]), "float32")
+			w("%s = %g", t, cp.Float(inst.Index))
 		case classfile.ConstantString:
 			t := e.defTemp(int(inst.Defs[0]), "*rtda.Object")
 			w("%s = runtime.NewString(%q)", t, cp.String(inst.Index))
 		default:
-			return fmt.Errorf("ldc: A2.2 supports int/String constants only (tag %d)", cp.Tag(inst.Index))
+			return fmt.Errorf("ldc: unsupported constant tag %d", cp.Tag(inst.Index))
+		}
+	case opcode.Ldc2W:
+		switch cp.Tag(inst.Index) {
+		case classfile.ConstantLong:
+			t := e.defTempCat2(int(inst.Defs[0]), "int64")
+			w("%s = %d", t, cp.Long(inst.Index))
+		case classfile.ConstantDouble:
+			t := e.defTempCat2(int(inst.Defs[0]), "float64")
+			w("%s = %g", t, cp.Double(inst.Index))
+		default:
+			return fmt.Errorf("ldc2_w: unsupported constant tag %d", cp.Tag(inst.Index))
 		}
 
 	// --- getstatic (via the runtime bridge) ---
@@ -169,16 +194,16 @@ func (e *emitter) emitOne(b *strings.Builder, inst *lowering.IRInst, cp *classfi
 	// --- loads ---
 	case opcode.Iload, opcode.Iload0, opcode.Iload1, opcode.Iload2, opcode.Iload3:
 		t := e.defTemp(int(inst.Defs[0]), "int32")
-		w("%s = %s", t, localName(inst))
+		w("%s = %s", t, e.localName(inst))
 	case opcode.Aload, opcode.Aload0, opcode.Aload1, opcode.Aload2, opcode.Aload3:
 		t := e.defTemp(int(inst.Defs[0]), "*rtda.Object")
-		w("%s = %s", t, localName(inst))
+		w("%s = %s", t, e.localName(inst))
 
 	// --- stores ---
 	case opcode.Istore, opcode.Istore0, opcode.Istore1, opcode.Istore2, opcode.Istore3:
-		w("%s = %s", localName(inst), e.use(int(inst.Uses[0])))
+		w("%s = %s", e.localName(inst), e.use(int(inst.Uses[0])))
 	case opcode.Astore, opcode.Astore0, opcode.Astore1, opcode.Astore2, opcode.Astore3:
-		w("%s = %s", localName(inst), e.use(int(inst.Uses[0])))
+		w("%s = %s", e.localName(inst), e.use(int(inst.Uses[0])))
 
 	// --- int arithmetic ---
 	case opcode.Iadd, opcode.Isub, opcode.Imul, opcode.Idiv, opcode.Irem,
@@ -197,7 +222,7 @@ func (e *emitter) emitOne(b *strings.Builder, inst *lowering.IRInst, cp *classfi
 		t := e.defTemp(int(inst.Defs[0]), "int32")
 		w("%s = %s", t, shiftExpr(inst.Op, a, b))
 	case opcode.Iinc:
-		w("%s += %d", localName(inst), int32(inst.Const8))
+		w("%s += %d", e.localName(inst), int32(inst.Const8))
 
 	// --- arrays ---
 	case opcode.Iaload, opcode.Baload, opcode.Caload, opcode.Saload:
@@ -249,9 +274,16 @@ func (e *emitter) emitOne(b *strings.Builder, inst *lowering.IRInst, cp *classfi
 	case opcode.Invokestatic:
 		className, name, desc := cp.MemberRef(inst.Index)
 		md := rtda.ParseMethodDescriptor(desc)
-		args := make([]string, md.ArgSlots())
-		for i := range args {
-			args[i] = e.use(int(inst.Uses[i]))
+		// One Go arg per logical param (long/double = 1 Go value, not 2 JVM slots).
+		args := make([]string, 0, len(md.ParameterTypes))
+		slot := 0
+		for _, p := range md.ParameterTypes {
+			args = append(args, e.use(int(inst.Uses[slot])))
+			if p == "J" || p == "D" {
+				slot += 2
+			} else {
+				slot++
+			}
 		}
 		call := fmt.Sprintf("%s(%s)", mangle(className, name), strings.Join(args, ", "))
 		if md.ReturnType == "V" {
@@ -261,8 +293,13 @@ func (e *emitter) emitOne(b *strings.Builder, inst *lowering.IRInst, cp *classfi
 			if err != nil {
 				return err
 			}
-			t := e.defTemp(int(inst.Defs[0]), goType)
-			w("%s = %s", t, call)
+			if md.ReturnType == "J" || md.ReturnType == "D" {
+				t := e.defTempCat2(int(inst.Defs[0]), goType)
+				w("%s = %s", t, call)
+			} else {
+				t := e.defTemp(int(inst.Defs[0]), goType)
+				w("%s = %s", t, call)
+			}
 		}
 
 	// --- OOP: new / dup / invokespecial / getfield / putfield (A2.2b) ---
@@ -310,37 +347,229 @@ func (e *emitter) emitOne(b *strings.Builder, inst *lowering.IRInst, cp *classfi
 		obj, val := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[1]))
 		w("%s.Fields()[%d].%s(%s)", obj, field.SlotID(), setAccessor(desc), val)
 
+	// --- float (category-1, float32) ---
+	case opcode.Fload, opcode.Fload0, opcode.Fload1, opcode.Fload2, opcode.Fload3:
+		t := e.defTemp(int(inst.Defs[0]), "float32")
+		w("%s = %s", t, e.localName(inst))
+	case opcode.Fstore, opcode.Fstore0, opcode.Fstore1, opcode.Fstore2, opcode.Fstore3:
+		w("%s = %s", e.localName(inst), e.use(int(inst.Uses[0])))
+	case opcode.Fconst0, opcode.Fconst1, opcode.Fconst2:
+		t := e.defTemp(int(inst.Defs[0]), "float32")
+		w("%s = %d", t, int(inst.Op-opcode.Fconst0))
+	case opcode.Fadd, opcode.Fsub, opcode.Fmul, opcode.Fdiv:
+		a, b := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[1]))
+		t := e.defTemp(int(inst.Defs[0]), "float32")
+		w("%s = %s %s %s", t, a, binop(inst.Op), b)
+	case opcode.Fneg:
+		t := e.defTemp(int(inst.Defs[0]), "float32")
+		w("%s = -%s", t, e.use(int(inst.Uses[0])))
+	case opcode.Fcmpl, opcode.Fcmpg:
+		a, bVal := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[1]))
+		t := e.defTemp(int(inst.Defs[0]), "int32")
+		emitCompare(b, t, a, bVal)
+	case opcode.Freturn:
+		w("return %s", e.use(int(inst.Uses[0])))
+	case opcode.Faload:
+		arr, idx := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[1]))
+		t := e.defTemp(int(inst.Defs[0]), "float32")
+		w("%s = %s.GetFloatElement(int(%s))", t, arr, idx)
+	case opcode.Fastore:
+		arr, idx, val := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[1])), e.use(int(inst.Uses[2]))
+		w("%s.SetFloatElement(int(%s), %s)", arr, idx, val)
+
+	// --- long (category-2, int64) ---
+	case opcode.Lload, opcode.Lload0, opcode.Lload1, opcode.Lload2, opcode.Lload3:
+		t := e.defTempCat2(int(inst.Defs[0]), "int64")
+		w("%s = %s", t, e.localName(inst))
+	case opcode.Lstore, opcode.Lstore0, opcode.Lstore1, opcode.Lstore2, opcode.Lstore3:
+		w("%s = %s", e.localName(inst), e.use(int(inst.Uses[0])))
+	case opcode.Lconst0, opcode.Lconst1:
+		t := e.defTempCat2(int(inst.Defs[0]), "int64")
+		w("%s = %d", t, int(inst.Op-opcode.Lconst0))
+	case opcode.Ladd, opcode.Lsub, opcode.Lmul, opcode.Ldiv, opcode.Lrem,
+		opcode.Land, opcode.Lor, opcode.Lxor:
+		a, b := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[2]))
+		t := e.defTempCat2(int(inst.Defs[0]), "int64")
+		w("%s = %s %s %s", t, a, binop(inst.Op), b)
+	case opcode.Lneg:
+		t := e.defTempCat2(int(inst.Defs[0]), "int64")
+		w("%s = -%s", t, e.use(int(inst.Uses[0])))
+	case opcode.Lshl, opcode.Lshr, opcode.Lushr:
+		a, s := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[2]))
+		t := e.defTempCat2(int(inst.Defs[0]), "int64")
+		w("%s = %s", t, longShiftExpr(inst.Op, a, s))
+	case opcode.Lcmp:
+		a, bVal := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[2]))
+		t := e.defTemp(int(inst.Defs[0]), "int32")
+		emitCompare(b, t, a, bVal)
+	case opcode.Lreturn:
+		w("return %s", e.use(int(inst.Uses[0])))
+	case opcode.Laload:
+		arr, idx := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[1]))
+		t := e.defTempCat2(int(inst.Defs[0]), "int64")
+		w("%s = %s.GetLongElement(int(%s))", t, arr, idx)
+	case opcode.Lastore:
+		arr, idx, val := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[1])), e.use(int(inst.Uses[2]))
+		w("%s.SetLongElement(int(%s), %s)", arr, idx, val)
+
+	// --- double (category-2, float64) ---
+	case opcode.Dload, opcode.Dload0, opcode.Dload1, opcode.Dload2, opcode.Dload3:
+		t := e.defTempCat2(int(inst.Defs[0]), "float64")
+		w("%s = %s", t, e.localName(inst))
+	case opcode.Dstore, opcode.Dstore0, opcode.Dstore1, opcode.Dstore2, opcode.Dstore3:
+		w("%s = %s", e.localName(inst), e.use(int(inst.Uses[0])))
+	case opcode.Dconst0, opcode.Dconst1:
+		t := e.defTempCat2(int(inst.Defs[0]), "float64")
+		w("%s = %d", t, int(inst.Op-opcode.Dconst0))
+	case opcode.Dadd, opcode.Dsub, opcode.Dmul, opcode.Ddiv:
+		a, b := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[2]))
+		t := e.defTempCat2(int(inst.Defs[0]), "float64")
+		w("%s = %s %s %s", t, a, binop(inst.Op), b)
+	case opcode.Dneg:
+		t := e.defTempCat2(int(inst.Defs[0]), "float64")
+		w("%s = -%s", t, e.use(int(inst.Uses[0])))
+	case opcode.Dcmpl, opcode.Dcmpg:
+		a, bVal := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[2]))
+		t := e.defTemp(int(inst.Defs[0]), "int32")
+		emitCompare(b, t, a, bVal)
+	case opcode.Dreturn:
+		w("return %s", e.use(int(inst.Uses[0])))
+	case opcode.Daload:
+		arr, idx := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[1]))
+		t := e.defTempCat2(int(inst.Defs[0]), "float64")
+		w("%s = %s.GetDoubleElement(int(%s))", t, arr, idx)
+	case opcode.Dastore:
+		arr, idx, val := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[1])), e.use(int(inst.Uses[2]))
+		w("%s.SetDoubleElement(int(%s), %s)", arr, idx, val)
+
+	// --- conversions ---
+	case opcode.I2b:
+		t := e.defTemp(int(inst.Defs[0]), "int32")
+		w("%s = int32(int8(%s))", t, e.use(int(inst.Uses[0])))
+	case opcode.I2c:
+		t := e.defTemp(int(inst.Defs[0]), "int32")
+		w("%s = int32(uint16(%s))", t, e.use(int(inst.Uses[0])))
+	case opcode.I2s:
+		t := e.defTemp(int(inst.Defs[0]), "int32")
+		w("%s = int32(int16(%s))", t, e.use(int(inst.Uses[0])))
+	case opcode.I2l:
+		t := e.defTempCat2(int(inst.Defs[0]), "int64")
+		w("%s = int64(%s)", t, e.use(int(inst.Uses[0])))
+	case opcode.I2f:
+		t := e.defTemp(int(inst.Defs[0]), "float32")
+		w("%s = float32(%s)", t, e.use(int(inst.Uses[0])))
+	case opcode.I2d:
+		t := e.defTempCat2(int(inst.Defs[0]), "float64")
+		w("%s = float64(%s)", t, e.use(int(inst.Uses[0])))
+	case opcode.L2i:
+		t := e.defTemp(int(inst.Defs[0]), "int32")
+		w("%s = int32(%s)", t, e.use(int(inst.Uses[0])))
+	case opcode.L2f:
+		t := e.defTemp(int(inst.Defs[0]), "float32")
+		w("%s = float32(%s)", t, e.use(int(inst.Uses[0])))
+	case opcode.L2d:
+		t := e.defTempCat2(int(inst.Defs[0]), "float64")
+		w("%s = float64(%s)", t, e.use(int(inst.Uses[0])))
+	case opcode.F2i:
+		t := e.defTemp(int(inst.Defs[0]), "int32")
+		w("%s = int32(%s)", t, e.use(int(inst.Uses[0])))
+	case opcode.F2l:
+		t := e.defTempCat2(int(inst.Defs[0]), "int64")
+		w("%s = int64(%s)", t, e.use(int(inst.Uses[0])))
+	case opcode.F2d:
+		t := e.defTempCat2(int(inst.Defs[0]), "float64")
+		w("%s = float64(%s)", t, e.use(int(inst.Uses[0])))
+	case opcode.D2i:
+		t := e.defTemp(int(inst.Defs[0]), "int32")
+		w("%s = int32(%s)", t, e.use(int(inst.Uses[0])))
+	case opcode.D2l:
+		t := e.defTempCat2(int(inst.Defs[0]), "int64")
+		w("%s = int64(%s)", t, e.use(int(inst.Uses[0])))
+	case opcode.D2f:
+		t := e.defTemp(int(inst.Defs[0]), "float32")
+		w("%s = float32(%s)", t, e.use(int(inst.Uses[0])))
+
 	default:
-		return fmt.Errorf("opcode %s not supported (A2.2b: int/ref/arrays, loops, OOP)", opcode.Name(inst.Op))
+		return fmt.Errorf("opcode %s not supported", opcode.Name(inst.Op))
 	}
 	return nil
 }
 
-// localName returns the Go name for the local an iload/istore/iinc references.
-func localName(inst *lowering.IRInst) string {
+// localName returns the Go name for the local a load/store/iinc references.
+// Uses the JVM-local→Go-param map (cat-2 aware: a double at slots 2-3 is one
+// Go param "l1"); falls back to l{idx} for extra locals not in the map.
+func (e *emitter) localName(inst *lowering.IRInst) string {
 	if inst.Op == opcode.Iinc {
-		return fmt.Sprintf("l%d", inst.IncIndex) // iinc's local index lives in IncIndex, not Index
+		return fmt.Sprintf("l%d", inst.IncIndex)
 	}
 	idx := int(inst.Index)
 	switch inst.Op {
-	case opcode.Iload0, opcode.Istore0:
+	case opcode.Iload0, opcode.Istore0, opcode.Aload0, opcode.Astore0,
+		opcode.Lload0, opcode.Lstore0, opcode.Fload0, opcode.Fstore0,
+		opcode.Dload0, opcode.Dstore0:
 		idx = 0
-	case opcode.Iload1, opcode.Istore1:
+	case opcode.Iload1, opcode.Istore1, opcode.Aload1, opcode.Astore1,
+		opcode.Lload1, opcode.Lstore1, opcode.Fload1, opcode.Fstore1,
+		opcode.Dload1, opcode.Dstore1:
 		idx = 1
-	case opcode.Iload2, opcode.Istore2:
+	case opcode.Iload2, opcode.Istore2, opcode.Aload2, opcode.Astore2,
+		opcode.Lload2, opcode.Lstore2, opcode.Fload2, opcode.Fstore2,
+		opcode.Dload2, opcode.Dstore2:
 		idx = 2
-	case opcode.Iload3, opcode.Istore3:
-		idx = 3
-	case opcode.Aload0, opcode.Astore0:
-		idx = 0
-	case opcode.Aload1, opcode.Astore1:
-		idx = 1
-	case opcode.Aload2, opcode.Astore2:
-		idx = 2
-	case opcode.Aload3, opcode.Astore3:
+	case opcode.Iload3, opcode.Istore3, opcode.Aload3, opcode.Astore3,
+		opcode.Lload3, opcode.Lstore3, opcode.Fload3, opcode.Fstore3,
+		opcode.Dload3, opcode.Dstore3:
 		idx = 3
 	}
+	if name, ok := e.localMap[idx]; ok {
+		return name
+	}
 	return fmt.Sprintf("l%d", idx)
+}
+
+// buildLocalMap maps JVM local slot indices to Go param names, accounting for
+// category-2 params (long/double span 2 slots → one Go var).
+func buildLocalMap(method *rtda.Method) map[int]string {
+	md := rtda.ParseMethodDescriptor(method.Descriptor())
+	m := map[int]string{}
+	slot := 0
+	paramIdx := 0
+	if !method.IsStatic() {
+		m[0] = "l0"
+		slot = 1
+		paramIdx = 1
+	}
+	for _, p := range md.ParameterTypes {
+		sz := 1
+		if p == "J" || p == "D" {
+			sz = 2
+		}
+		name := fmt.Sprintf("l%d", paramIdx)
+		for j := 0; j < sz; j++ {
+			m[slot+j] = name
+		}
+		slot += sz
+		paramIdx++
+	}
+	return m
+}
+
+// totalParamSlots returns the total JVM local slots consumed by the method's
+// parameters (long/double = 2 each; +1 for `this` on instance methods).
+func totalParamSlots(method *rtda.Method) int {
+	md := rtda.ParseMethodDescriptor(method.Descriptor())
+	n := 0
+	for _, p := range md.ParameterTypes {
+		if p == "J" || p == "D" {
+			n += 2
+		} else {
+			n++
+		}
+	}
+	if !method.IsStatic() {
+		n++
+	}
+	return n
 }
 
 // --- signature / declarations / sink / terminator ---
@@ -362,7 +591,7 @@ func emitSignature(b *strings.Builder, method *rtda.Method, temps []tempDecl, lo
 	}
 	// Extra locals beyond params: type inferred from the store opcodes that write
 	// them (astore → *rtda.Object, istore → int32); default int32.
-	for i := len(params); i < int(method.MaxLocals()); i++ {
+	for i := totalParamSlots(method); i < int(method.MaxLocals()); i++ {
 		gt := localTypes[i]
 		if gt == "" {
 			gt = "int32"
@@ -397,10 +626,22 @@ func storeLocalType(inst *lowering.IRInst) (int, string, bool) {
 		return int(inst.Index), "int32", true
 	case opcode.Astore:
 		return int(inst.Index), "*rtda.Object", true
+	case opcode.Lstore:
+		return int(inst.Index), "int64", true
+	case opcode.Fstore:
+		return int(inst.Index), "float32", true
+	case opcode.Dstore:
+		return int(inst.Index), "float64", true
 	case opcode.Istore0, opcode.Istore1, opcode.Istore2, opcode.Istore3:
 		return int(inst.Op - opcode.Istore0), "int32", true
 	case opcode.Astore0, opcode.Astore1, opcode.Astore2, opcode.Astore3:
 		return int(inst.Op - opcode.Astore0), "*rtda.Object", true
+	case opcode.Lstore0, opcode.Lstore1, opcode.Lstore2, opcode.Lstore3:
+		return int(inst.Op - opcode.Lstore0), "int64", true
+	case opcode.Fstore0, opcode.Fstore1, opcode.Fstore2, opcode.Fstore3:
+		return int(inst.Op - opcode.Fstore0), "float32", true
+	case opcode.Dstore0, opcode.Dstore1, opcode.Dstore2, opcode.Dstore3:
+		return int(inst.Op - opcode.Dstore0), "float64", true
 	}
 	return 0, "", false
 }
@@ -541,12 +782,12 @@ func goTypeOf(st lowering.SlotType) (string, error) {
 		return "int32", nil
 	case lowering.TypeRef:
 		return "*rtda.Object", nil
-	case lowering.TypeLong:
-		return "", fmt.Errorf("long merge slot (deferred)")
 	case lowering.TypeFloat:
-		return "", fmt.Errorf("float merge slot (deferred)")
+		return "float32", nil
+	case lowering.TypeLong:
+		return "", fmt.Errorf("long merge slot (cat-2 phi — deferred)")
 	case lowering.TypeDouble:
-		return "", fmt.Errorf("double merge slot (deferred)")
+		return "", fmt.Errorf("double merge slot (cat-2 phi — deferred)")
 	case lowering.TypeTop:
 		return "", fmt.Errorf("unused (Top) merge slot")
 	}
@@ -604,11 +845,11 @@ func descToGo(desc string) (string, error) {
 	case "I", "B", "C", "S", "Z":
 		return "int32", nil
 	case "J":
-		return "", fmt.Errorf("long not supported in A2.1")
+		return "int64", nil
 	case "F":
-		return "", fmt.Errorf("float not supported in A2.1")
+		return "float32", nil
 	case "D":
-		return "", fmt.Errorf("double not supported in A2.1")
+		return "float64", nil
 	case "V", "":
 		return "", nil
 	default: // L...; or [
@@ -651,21 +892,21 @@ func collectTargets(ir *lowering.IR) map[int]bool {
 
 func binop(op opcode.Opcode) string {
 	switch op {
-	case opcode.Iadd:
+	case opcode.Iadd, opcode.Ladd, opcode.Fadd, opcode.Dadd:
 		return "+"
-	case opcode.Isub:
+	case opcode.Isub, opcode.Lsub, opcode.Fsub, opcode.Dsub:
 		return "-"
-	case opcode.Imul:
+	case opcode.Imul, opcode.Lmul, opcode.Fmul, opcode.Dmul:
 		return "*"
-	case opcode.Idiv:
+	case opcode.Idiv, opcode.Ldiv, opcode.Fdiv, opcode.Ddiv:
 		return "/"
-	case opcode.Irem:
+	case opcode.Irem, opcode.Lrem:
 		return "%"
-	case opcode.Iand:
+	case opcode.Iand, opcode.Land:
 		return "&"
-	case opcode.Ior:
+	case opcode.Ior, opcode.Lor:
 		return "|"
-	case opcode.Ixor:
+	case opcode.Ixor, opcode.Lxor:
 		return "^"
 	}
 	return "?"
@@ -681,6 +922,27 @@ func shiftExpr(op opcode.Opcode, v, amount string) string {
 		return fmt.Sprintf("int32(uint32(%s) >> (%s & 31))", v, amount)
 	}
 	return v
+}
+
+// longShiftExpr renders a long shift with the JVM's 6-bit mask.
+func longShiftExpr(op opcode.Opcode, v, amount string) string {
+	switch op {
+	case opcode.Lshl:
+		return fmt.Sprintf("%s << (%s & 63)", v, amount)
+	case opcode.Lshr:
+		return fmt.Sprintf("%s >> (%s & 63)", v, amount)
+	case opcode.Lushr:
+		return fmt.Sprintf("int64(uint64(%s) >> (%s & 63))", v, amount)
+	}
+	return v
+}
+
+// emitCompare writes the 3-line compare (result = 0; if a>b result=1; if a<b
+// result=-1) — Go has no ternary. Used by lcmp/fcmp/dcmp.
+func emitCompare(b *strings.Builder, result, a, bVal string) {
+	fmt.Fprintf(b, "\t%s = 0\n", result)
+	fmt.Fprintf(b, "\tif %s > %s { %s = 1 }\n", a, bVal, result)
+	fmt.Fprintf(b, "\tif %s < %s { %s = -1 }\n", a, bVal, result)
 }
 
 func cmp0(op opcode.Opcode) string {

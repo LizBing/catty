@@ -21,4 +21,14 @@ public class ArrayOps {
     static int max(int a, int b) {
         return a > b ? a : b;
     }
+
+    // Float (category-1, float32) — straight-line, no merges.
+    static float fadd(float a, float b) {
+        return a + b;
+    }
+
+    // Double (category-2, float64) — straight-line, no merges.
+    static double dmul(double a, double b) {
+        return a * b;
+    }
 }

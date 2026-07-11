@@ -7,6 +7,43 @@ The plan that governs this work lives in `plans/go-jvm-go-mvp-humming-bonbon.md`
 
 ## [Unreleased]
 
+### A2.5 — long / float / double type support (all primitives covered)
+
+The emitter now handles all Java primitive types: long (int64), float (float32),
+double (float64) — the last **type** gap. After this, the emitter covers int/
+long/float/double/ref + arrays, all control flow (loops/diamonds), OOP, and the
+native+interpreted invoke bridge.
+
+### Added (A2.5)
+- **`defTempCat2`** — allocates one Go temp for a category-2 def (long/double
+  spanning 2 JVM slots → one int64/float64 Go value); binds both slots to it.
+- **~50 new opcode cases** (float/long/double families): loads/stores, constants,
+  arithmetic (add/sub/mul/div/rem for int64; add/sub/mul/div for float32/float64),
+  shifts (long), comparisons (lcmp/fcmp/dcmp → int via 3-line if chain),
+  conversions (i2l/l2i/i2f/f2i/... all 12), returns, array access, `ldc2_w`.
+- **`buildLocalMap` + `totalParamSlots`** — maps JVM local slots to Go param
+  names, accounting for category-2 (a double at slots 2-3 is one Go param "l1").
+- **`invokestatic`** uses logical params (one Go arg per param, not per JVM slot).
+- **`rtda.Object`** typed array accessors: `GetLongElement/SetLongElement`,
+  `GetFloatElement/SetFloatElement`, `GetDoubleElement/SetDoubleElement`.
+- `descToGo`/`goTypeOf`/`localTypes`/`storeLocalType` extended for J/F/D.
+
+### Fixes
+- `localName` switch dropped `Aload/Astore` _n variants during the A2.5 rewrite
+  — restored (OOP's `astore_1` was resolving to `l0` instead of `l1`).
+
+### Validation
+- `TestEmitFact`: emitted `Factorial.fact(long)` compiles + runs natively;
+  `fact(10) == 3628800` (long recursive — lload/lconst/lcmp/ifgt/lsub/lmul/
+  invokestatic/lreturn).
+- `TestEmitFloatDouble`: `fadd(1.5, 2.5) == 4`, `dmul(1.5, 2.5) == 3.75`
+  (float cat1 + double cat2 arithmetic).
+- fib/first/HelloWorld/sum/OOP/max still pass; `go vet` clean; e2e 8/8.
+
+### Scope (A2.5)
+All primitive types + refs. `frem`/`drem` (Go has no float `%`) and cat-2 merge
+temps (long/double phi) deferred. `cmd/jvm` integration is A4.
+
 ### A2.4 — Diamonds / ternary (phi via copy-insertion)
 
 The last control-flow gap: merges that leave a value on the operand stack

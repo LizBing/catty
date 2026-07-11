@@ -1,5 +1,7 @@
 package rtda
 
+import "math"
+
 // Object is the runtime representation of a Java object OR array. Both are
 // references on the operand stack and in fields/locals.
 //
@@ -68,4 +70,40 @@ func (o *Object) ArrayElementSlot(i int) *Slot {
 		width = 2
 	}
 	return &o.fields[i*width]
+}
+
+// --- Typed array-element accessors (for AOT-emitted code) ---
+// These let the emitted Go read/write long/float/double array elements without
+// importing "math" or knowing the 2-slot layout — the Object handles it.
+
+func (o *Object) GetLongElement(i int) int64 {
+	base := i * 2
+	return int64(uint32(o.fields[base].num))<<32 | int64(uint32(o.fields[base+1].num))
+}
+
+func (o *Object) SetLongElement(i int, v int64) {
+	base := i * 2
+	o.fields[base].num = int32(uint64(v) >> 32)
+	o.fields[base+1].num = int32(v)
+}
+
+func (o *Object) GetFloatElement(i int) float32 {
+	return math.Float32frombits(uint32(o.fields[i].num))
+}
+
+func (o *Object) SetFloatElement(i int, v float32) {
+	o.fields[i].num = int32(math.Float32bits(v))
+}
+
+func (o *Object) GetDoubleElement(i int) float64 {
+	base := i * 2
+	bits := uint64(uint32(o.fields[base].num))<<32 | uint64(uint32(o.fields[base+1].num))
+	return math.Float64frombits(bits)
+}
+
+func (o *Object) SetDoubleElement(i int, v float64) {
+	base := i * 2
+	bits := math.Float64bits(v)
+	o.fields[base].num = int32(bits >> 32)
+	o.fields[base+1].num = int32(bits)
 }

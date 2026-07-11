@@ -308,3 +308,89 @@ func TestEmitOOP(t *testing.T) {
 		t.Errorf("emitted OOPAot output = %q, want %q", string(got), want)
 	}
 }
+
+// TestEmitFact is the A2.5 long milestone: transpile Factorial.fact(long) and
+// run it natively. fact uses lload/lconst/lcmp/ifgt/lsub/lmul/ldc2_w/invokestatic/
+// lreturn — the full long (category-2, int64) subset.
+func TestEmitFact(t *testing.T) {
+	dir := compileFixtures(t)
+	cl := classloader.New(classpath.Parse(dir))
+	fact := cl.LoadClass("Factorial").GetMethod("fact", "(J)J")
+	if fact == nil {
+		t.Fatal("Factorial.fact not found")
+	}
+	ir, err := lowering.Lower(fact)
+	if err != nil {
+		t.Fatalf("lower: %v", err)
+	}
+	src, err := Emit(fact, ir, cl)
+	if err != nil {
+		t.Fatalf("emit: %v", err)
+	}
+	t.Logf("emitted fact:\n%s", src)
+
+	out := t.TempDir()
+	program := "package main\n\nimport \"fmt\"\n\n" + src +
+		"\nfunc main() { fmt.Println(Factorial_fact(10)) }\n"
+	mainPath := filepath.Join(out, "fact.go")
+	if err := os.WriteFile(mainPath, []byte(program), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	bin := filepath.Join(out, "factbin")
+	if buildOut, buildErr := exec.Command("go", "build", "-o", bin, mainPath).CombinedOutput(); buildErr != nil {
+		t.Fatalf("go build emitted fact failed: %v\n%s\n--- source ---\n%s", buildErr, buildOut, program)
+	}
+	got, err := exec.Command(bin).Output()
+	if err != nil {
+		t.Fatalf("run emitted fact: %v", err)
+	}
+	if want := "3628800\n"; string(got) != want {
+		t.Errorf("emitted fact(10) = %q, want %q", string(got), want)
+	}
+}
+
+// TestEmitFloatDouble validates float (category-1, float32) and double
+// (category-2, float64) arithmetic: fadd(1.5, 2.5) == 4, dmul(1.5, 2.5) == 3.75.
+func TestEmitFloatDouble(t *testing.T) {
+	dir := compileFixtures(t)
+	cl := classloader.New(classpath.Parse(dir))
+
+	fadd := cl.LoadClass("ArrayOps").GetMethod("fadd", "(FF)F")
+	ir1, err := lowering.Lower(fadd)
+	if err != nil {
+		t.Fatalf("lower fadd: %v", err)
+	}
+	src1, err := Emit(fadd, ir1, cl)
+	if err != nil {
+		t.Fatalf("emit fadd: %v", err)
+	}
+
+	dmul := cl.LoadClass("ArrayOps").GetMethod("dmul", "(DD)D")
+	ir2, err := lowering.Lower(dmul)
+	if err != nil {
+		t.Fatalf("lower dmul: %v", err)
+	}
+	src2, err := Emit(dmul, ir2, cl)
+	if err != nil {
+		t.Fatalf("emit dmul: %v", err)
+	}
+
+	out := t.TempDir()
+	program := "package main\n\nimport \"fmt\"\n\n" + src1 + "\n" + src2 +
+		"\nfunc main() { fmt.Println(ArrayOps_fadd(1.5, 2.5), ArrayOps_dmul(1.5, 2.5)) }\n"
+	mainPath := filepath.Join(out, "fd.go")
+	if err := os.WriteFile(mainPath, []byte(program), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	bin := filepath.Join(out, "fdbin")
+	if buildOut, buildErr := exec.Command("go", "build", "-o", bin, mainPath).CombinedOutput(); buildErr != nil {
+		t.Fatalf("go build failed: %v\n%s\n--- source ---\n%s", buildErr, buildOut, program)
+	}
+	got, err := exec.Command(bin).Output()
+	if err != nil {
+		t.Fatalf("run: %v", err)
+	}
+	if want := "4 3.75\n"; string(got) != want {
+		t.Errorf("fadd(1.5,2.5), dmul(1.5,2.5) = %q, want %q", string(got), want)
+	}
+}
