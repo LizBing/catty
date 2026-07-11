@@ -7,6 +7,35 @@ The plan that governs this work lives in `plans/go-jvm-go-mvp-humming-bonbon.md`
 
 ## [Unreleased]
 
+### A2.2 — The invoke bridge: HelloWorld via AOT (first full-program native run)
+
+The AOT path can now serve a real program: emitted Go calls back into catty's
+runtime (the "world transition" of ADR-0007) to resolve classes/fields/methods
+and run native code. Milestone: **HelloWorld transpiled and run natively**,
+output byte-identical to `java`.
+
+### Added (A2.2)
+- **`catty/runtime`** — the bridge package: `Bootstrap` (load main class + deps,
+  run `<clinit>`), `GetStatic`, `InvokeVirtual` (dynamic dispatch on the
+  receiver), `NewString`, `runNative`/`popReturn`. Targets are resolved by
+  (class, name, descriptor) at run time via the loader — no method registry.
+- **`rtda.RefSlot`/`IntSlot`** — slot constructors (fields are unexported; emitted
+  code boxes call args with these).
+- **`transpile/emit.go`** — `getstatic` → `runtime.GetStatic`, `ldc`-String →
+  `runtime.NewString`, `invokevirtual` → `runtime.InvokeVirtual` (typed arg slots
+  + return extract); void `return`.
+
+### Validation
+- `TestEmitHelloWorld`: emitted `HelloWorld.main` (getstatic / ldc-String /
+  invokevirtual-println / int math) compiles + runs natively, printing
+  `Hello, World!\n42\n` (== `java`). fib still runs natively; `go vet` clean;
+  e2e 8/8; all tests green.
+
+### Scope (A2.2)
+The bridge runs **native** targets (covers `println`). Interpreted targets via
+the bridge (catcher frame), `new`/`invokespecial`/fields (OOP), and merges/loops
+(phi) are later. `invokestatic` stays a direct Go call (emitted targets).
+
 ### A2.1 — Fresh-per-def, type-aware emitter (refs + arrays)
 
 The emitter rewrites from A1's position-stable slots (all `int32`) to

@@ -96,11 +96,51 @@ func (e *emitter) emitOne(b *strings.Builder, inst *lowering.IRInst, cp *classfi
 		t := e.defTemp(int(inst.Defs[0]), "int32")
 		w("%s = %d", t, int32(inst.Const16))
 	case opcode.Ldc, opcode.LdcW:
-		if cp.Tag(inst.Index) != classfile.ConstantInteger {
-			return fmt.Errorf("ldc: A2.1 supports int constants only (tag %d)", cp.Tag(inst.Index))
+		switch cp.Tag(inst.Index) {
+		case classfile.ConstantInteger:
+			t := e.defTemp(int(inst.Defs[0]), "int32")
+			w("%s = %d", t, cp.Integer(inst.Index))
+		case classfile.ConstantString:
+			t := e.defTemp(int(inst.Defs[0]), "*rtda.Object")
+			w("%s = runtime.NewString(%q)", t, cp.String(inst.Index))
+		default:
+			return fmt.Errorf("ldc: A2.2 supports int/String constants only (tag %d)", cp.Tag(inst.Index))
 		}
-		t := e.defTemp(int(inst.Defs[0]), "int32")
-		w("%s = %d", t, cp.Integer(inst.Index))
+
+	// --- getstatic (via the runtime bridge) ---
+	case opcode.Getstatic:
+		className, name, desc := cp.MemberRef(inst.Index)
+		goType, err := descToGo(desc)
+		if err != nil {
+			return err
+		}
+		t := e.defTemp(int(inst.Defs[0]), goType)
+		call := fmt.Sprintf("runtime.GetStatic(%q, %q, %q)", className, name, desc)
+		w("%s = %s", t, slotExtract(call, desc))
+
+	// --- invokevirtual (native target via the runtime bridge) ---
+	case opcode.Invokevirtual:
+		className, name, desc := cp.MemberRef(inst.Index)
+		md := rtda.ParseMethodDescriptor(desc)
+		argSlots := md.ArgSlots()
+		// args[0] = receiver; Uses[0] is the receiver, Uses[1..] the params.
+		args := []string{"rtda.RefSlot(" + e.use(int(inst.Uses[0])) + ")"}
+		for i := 0; i < argSlots; i++ {
+			temp := e.use(int(inst.Uses[1+i]))
+			args = append(args, slotConstructor(md.ParameterTypes[i], temp))
+		}
+		call := fmt.Sprintf("runtime.InvokeVirtual(%q, %q, %q, []rtda.Slot{%s})",
+			className, name, desc, strings.Join(args, ", "))
+		if md.ReturnType == "V" {
+			w("%s", call)
+		} else {
+			goType, err := descToGo(md.ReturnType)
+			if err != nil {
+				return err
+			}
+			t := e.defTemp(int(inst.Defs[0]), goType)
+			w("%s = %s", t, slotExtract(call, md.ReturnType))
+		}
 
 	// --- loads ---
 	case opcode.Iload, opcode.Iload0, opcode.Iload1, opcode.Iload2, opcode.Iload3:
@@ -178,6 +218,8 @@ func (e *emitter) emitOne(b *strings.Builder, inst *lowering.IRInst, cp *classfi
 	// --- returns ---
 	case opcode.Ireturn, opcode.Areturn:
 		w("return %s", e.use(int(inst.Uses[0])))
+	case opcode.Return:
+		w("return")
 
 	// --- invokestatic: direct Go call to the mangled (emitted) target ---
 	case opcode.Invokestatic:
@@ -461,4 +503,26 @@ func icmp(op opcode.Opcode) string {
 		return "<="
 	}
 	return "?"
+}
+
+// slotConstructor wraps a typed temp in the rtda slot constructor for its
+// descriptor (ref → RefSlot, int → IntSlot), for boxing invoke args.
+func slotConstructor(desc, temp string) string {
+	if isRefDesc(desc) {
+		return "rtda.RefSlot(" + temp + ")"
+	}
+	return "rtda.IntSlot(" + temp + ")"
+}
+
+// slotExtract extracts a typed value from a bridge call's Slot result.
+func slotExtract(call, desc string) string {
+	if isRefDesc(desc) {
+		return call + ".Ref()"
+	}
+	return call + ".Num()"
+}
+
+// isRefDesc reports whether a descriptor is an object/array reference.
+func isRefDesc(desc string) bool {
+	return strings.HasPrefix(desc, "L") || strings.HasPrefix(desc, "[")
 }

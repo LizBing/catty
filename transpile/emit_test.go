@@ -155,3 +155,49 @@ func TestEmitMergeGate(t *testing.T) {
 		t.Error("expected a merge error for ArrayOps.sum (it has a loop), got nil")
 	}
 }
+
+// TestEmitHelloWorld is the A2.2 milestone: transpile HelloWorld.main (getstatic
+// System.out, ldc String, invokevirtual println, int math) and run it natively
+// via the runtime bridge, asserting output is byte-identical to java.
+func TestEmitHelloWorld(t *testing.T) {
+	dir := compileFixtures(t)
+	cl := classloader.New(classpath.Parse(dir))
+	main := cl.LoadClass("HelloWorld").GetMethod("main", "([Ljava/lang/String;)V")
+	if main == nil {
+		t.Fatal("HelloWorld.main not found")
+	}
+	ir, err := lowering.Lower(main)
+	if err != nil {
+		t.Fatalf("lower: %v", err)
+	}
+	src, err := Emit(main, ir)
+	if err != nil {
+		t.Fatalf("emit: %v", err)
+	}
+	t.Logf("emitted HelloWorld.main:\n%s", src)
+
+	out := t.TempDir()
+	program := "package main\n\nimport (\n\t\"catty/runtime\"\n\t\"catty/rtda\"\n)\n\n" + src +
+		"\nfunc main() {\n\truntime.Bootstrap(\".\", \"HelloWorld\")\n\t" +
+		"HelloWorld_main((*rtda.Object)(nil))\n}\n"
+	mainPath := filepath.Join(out, "hw.go")
+	if err := os.WriteFile(mainPath, []byte(program), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	bin := filepath.Join(out, "hwbin")
+	if buildOut, buildErr := exec.Command("go", "build", "-o", bin, mainPath).CombinedOutput(); buildErr != nil {
+		t.Fatalf("go build emitted HelloWorld failed: %v\n%s\n--- source ---\n%s", buildErr, buildOut, program)
+	}
+
+	// Run where HelloWorld.class lives, so runtime.Bootstrap(".") finds it.
+	cmd := exec.Command(bin)
+	cmd.Dir = dir
+	got, err := cmd.Output()
+	if err != nil {
+		t.Fatalf("run emitted HelloWorld: %v", err)
+	}
+	if want := "Hello, World!\n42\n"; string(got) != want {
+		t.Errorf("emitted HelloWorld output = %q, want %q", string(got), want)
+	}
+}

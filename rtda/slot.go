@@ -24,3 +24,9 @@ func (s Slot) Num() int32     { return s.num }
 func (s Slot) Ref() *Object   { return s.ref }
 func (s *Slot) SetNum(v int32) { s.num = v }
 func (s *Slot) SetRef(r *Object) { s.ref = r }
+
+// RefSlot / IntSlot construct a Slot from a typed value. Cross-package code (the
+// AOT runtime bridge, emitted programs) can't build Slot{...} directly since the
+// fields are unexported; these are the constructors it uses to box call args.
+func RefSlot(r *Object) Slot { return Slot{ref: r} }
+func IntSlot(n int32) Slot   { return Slot{num: n} }
