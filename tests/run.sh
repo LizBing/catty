@@ -20,8 +20,9 @@ echo "==> compiling fixtures"
 javac -source 8 -target 8 -nowarn -d "$FIX" "$FIX"/*.java 2>/dev/null || {
     echo "javac failed"; exit 1; }
 
-# Each main class to exercise. (Point has no main; it's a helper for OOPDemo.)
-MAIN_CLASSES=(HelloWorld Fibonacci Factorial ArraySum OOPDemo StaticFields SwitchDemo)
+# Each main class to exercise. (Point has no main; it's a helper for OOPDemo.
+# EmptyMain is an empty main — a startup / "runs without crashing" smoke test.)
+MAIN_CLASSES=(HelloWorld Fibonacci Factorial ArraySum OOPDemo StaticFields SwitchDemo EmptyMain)
 
 pass=0; fail=0
 for cls in "${MAIN_CLASSES[@]}"; do
