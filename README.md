@@ -75,3 +75,8 @@ transpiler. See [docs/ROADMAP.md](docs/ROADMAP.md) Themes A and B.
 Concurrency (single-threaded today; `Thread`→goroutine + monitors later),
 `invokedynamic`/lambdas, exceptions/try-catch, reflection, JNI, and the full
 class library. See [docs/ROADMAP.md](docs/ROADMAP.md).
+
+## License
+
+Licensed under the [Apache License, Version 2.0](./LICENSE) (SPDX:
+`Apache-2.0`).
