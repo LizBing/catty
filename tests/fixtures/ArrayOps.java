@@ -31,4 +31,23 @@ public class ArrayOps {
     static double dmul(double a, double b) {
         return a * b;
     }
+
+    // Float remainder — Go has no float %, uses runtime.FloatMod (math.Mod).
+    static float frem(float a, float b) {
+        return a % b;
+    }
+
+    // Long crossing a diamond — exercises cat-2 merge phi (int64 at the join).
+    static long lcond(boolean c, long a, long b) {
+        return c ? a : b;
+    }
+
+    // Switch (tableswitch) — dense keys [1..2] + default.
+    static int sw(int n) {
+        switch (n) {
+            case 1: return 10;
+            case 2: return 20;
+            default: return 0;
+        }
+    }
 }

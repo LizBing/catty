@@ -9,6 +9,8 @@
 package runtime
 
 import (
+	"math"
+
 	"catty/classloader"
 	"catty/classpath"
 	"catty/interpreter"
@@ -91,6 +93,12 @@ func NewIntArray(values ...int32) *rtda.Object {
 	}
 	return arr
 }
+
+// FloatMod / DoubleMod implement Java's floating-point % (fmod semantics:
+// result sign = dividend). Go has no `%` operator on floats, so the emitted
+// code calls these instead.
+func FloatMod(a, b float32) float32  { return float32(math.Mod(float64(a), float64(b))) }
+func DoubleMod(a, b float64) float64 { return math.Mod(a, b) }
 
 // runNative sets up a frame with the given argument slots, runs the native
 // method, and returns its result slot (zero for void).

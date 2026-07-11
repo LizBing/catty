@@ -489,6 +489,48 @@ func (e *emitter) emitOne(b *strings.Builder, inst *lowering.IRInst, cp *classfi
 		t := e.defTemp(int(inst.Defs[0]), "float32")
 		w("%s = float32(%s)", t, e.use(int(inst.Uses[0])))
 
+	// --- frem/drem (Go has no float %; use runtime helpers) ---
+	case opcode.Frem:
+		a, bVal := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[1]))
+		t := e.defTemp(int(inst.Defs[0]), "float32")
+		w("%s = runtime.FloatMod(%s, %s)", t, a, bVal)
+	case opcode.Drem:
+		a, bVal := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[2]))
+		t := e.defTempCat2(int(inst.Defs[0]), "float64")
+		w("%s = runtime.DoubleMod(%s, %s)", t, a, bVal)
+
+	// --- switch (tableswitch / lookupswitch → Go switch + goto) ---
+	case opcode.Tableswitch:
+		key := e.use(int(inst.Uses[0]))
+		st := inst.Switch
+		w("switch %s {", key)
+		for i, target := range st.Targets {
+			if e.merges[target] && len(e.mergeTemps[target]) > 0 {
+				w("case %d:", int(st.Low)+i)
+				e.emitMergeCopies(b, target)
+				w("goto pc%d", target)
+			} else {
+				w("case %d: goto pc%d", int(st.Low)+i, target)
+			}
+		}
+		w("default: goto pc%d", st.Default)
+		w("}")
+	case opcode.Lookupswitch:
+		key := e.use(int(inst.Uses[0]))
+		st := inst.Switch
+		w("switch %s {", key)
+		for i, target := range st.Targets {
+			if e.merges[target] && len(e.mergeTemps[target]) > 0 {
+				w("case %d:", int(st.Keys[i]))
+				e.emitMergeCopies(b, target)
+				w("goto pc%d", target)
+			} else {
+				w("case %d: goto pc%d", int(st.Keys[i]), target)
+			}
+		}
+		w("default: goto pc%d", st.Default)
+		w("}")
+
 	default:
 		return fmt.Errorf("opcode %s not supported", opcode.Name(inst.Op))
 	}
@@ -723,8 +765,8 @@ func isBranch(op opcode.Opcode) bool {
 }
 
 // allocMergeTemps allots one temp per stack slot at each non-empty-stack merge.
-// It refuses (error) long/float/double merge slots (deferred) — the only remaining
-// gate, replacing A2.3's blanket refusal of non-empty-stack merges.
+// Category-2 pairs (long/double = [Long,Top] / [Double,Top]) get ONE temp for
+// both slots; standalone Top (unused) is skipped.
 func (e *emitter) allocMergeTemps(ir *lowering.IR, method *rtda.Method) error {
 	for pc := range e.merges {
 		if pc >= len(ir.Insts) {
@@ -734,15 +776,35 @@ func (e *emitter) allocMergeTemps(ir *lowering.IR, method *rtda.Method) error {
 		if !inst.Present || len(inst.InTypes) == 0 {
 			continue // empty-stack merge (loop) — no phi needed
 		}
-		temps := make([]string, len(inst.InTypes))
-		types := make([]string, len(inst.InTypes))
-		for k, st := range inst.InTypes {
-			gt, err := goTypeOf(st)
-			if err != nil {
-				return fmt.Errorf("transpile: %s: merge at pc %d slot %d: %w", method.Name(), pc, k, err)
+		n := len(inst.InTypes)
+		temps := make([]string, n)
+		types := make([]string, n)
+		k := 0
+		for k < n {
+			st := inst.InTypes[k]
+			switch st {
+			case lowering.TypeLong, lowering.TypeDouble:
+				gt, _ := goTypeOf(st) // "int64" / "float64" (no error now)
+				name := e.defMergeTemp(gt)
+				temps[k] = name
+				types[k] = gt
+				if k+1 < n { // Top continuation → same temp
+					temps[k+1] = name
+					types[k+1] = gt
+				}
+				k += 2
+			case lowering.TypeTop:
+				k++ // standalone unused slot — skip
+			default:
+				gt, err := goTypeOf(st)
+				if err != nil {
+					return fmt.Errorf("transpile: %s: merge at pc %d slot %d: %w", method.Name(), pc, k, err)
+				}
+				name := e.defMergeTemp(gt)
+				temps[k] = name
+				types[k] = gt
+				k++
 			}
-			temps[k] = e.defMergeTemp(gt)
-			types[k] = gt
 		}
 		e.mergeTemps[pc] = temps
 		e.mergeTempTypes[pc] = types
@@ -785,9 +847,9 @@ func goTypeOf(st lowering.SlotType) (string, error) {
 	case lowering.TypeFloat:
 		return "float32", nil
 	case lowering.TypeLong:
-		return "", fmt.Errorf("long merge slot (cat-2 phi — deferred)")
+		return "int64", nil
 	case lowering.TypeDouble:
-		return "", fmt.Errorf("double merge slot (cat-2 phi — deferred)")
+		return "float64", nil
 	case lowering.TypeTop:
 		return "", fmt.Errorf("unused (Top) merge slot")
 	}

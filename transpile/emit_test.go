@@ -394,3 +394,105 @@ func TestEmitFloatDouble(t *testing.T) {
 		t.Errorf("fadd(1.5,2.5), dmul(1.5,2.5) = %q, want %q", string(got), want)
 	}
 }
+
+// TestEmitFrem validates float remainder via runtime.FloatMod (Go has no float %).
+func TestEmitFrem(t *testing.T) {
+	dir := compileFixtures(t)
+	cl := classloader.New(classpath.Parse(dir))
+	frem := cl.LoadClass("ArrayOps").GetMethod("frem", "(FF)F")
+	ir, err := lowering.Lower(frem)
+	if err != nil {
+		t.Fatalf("lower: %v", err)
+	}
+	src, err := Emit(frem, ir, cl)
+	if err != nil {
+		t.Fatalf("emit: %v", err)
+	}
+	out := t.TempDir()
+	program := "package main\n\nimport (\n\t\"catty/runtime\"\n\t\"fmt\"\n)\n\n" + src +
+		"\nfunc main() { fmt.Println(ArrayOps_frem(10.0, 3.0)) }\n"
+	mainPath := filepath.Join(out, "frem.go")
+	if err := os.WriteFile(mainPath, []byte(program), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	bin := filepath.Join(out, "frembin")
+	if buildOut, buildErr := exec.Command("go", "build", "-o", bin, mainPath).CombinedOutput(); buildErr != nil {
+		t.Fatalf("go build failed: %v\n%s\n--- source ---\n%s", buildErr, buildOut, program)
+	}
+	got, err := exec.Command(bin).Output()
+	if err != nil {
+		t.Fatalf("run: %v", err)
+	}
+	if want := "1\n"; string(got) != want {
+		t.Errorf("frem(10.0, 3.0) = %q, want %q", string(got), want)
+	}
+}
+
+// TestEmitLongDiamond validates a long value crossing a diamond join (cat-2
+// merge phi: one int64 merge temp for the [Long, Top] pair at the merge).
+func TestEmitLongDiamond(t *testing.T) {
+	dir := compileFixtures(t)
+	cl := classloader.New(classpath.Parse(dir))
+	lcond := cl.LoadClass("ArrayOps").GetMethod("lcond", "(ZJJ)J")
+	ir, err := lowering.Lower(lcond)
+	if err != nil {
+		t.Fatalf("lower: %v", err)
+	}
+	src, err := Emit(lcond, ir, cl)
+	if err != nil {
+		t.Fatalf("emit: %v", err)
+	}
+	t.Logf("emitted lcond:\n%s", src)
+	out := t.TempDir()
+	program := "package main\n\nimport \"fmt\"\n\n" + src +
+		"\nfunc main() { fmt.Println(ArrayOps_lcond(1, 42, 99), ArrayOps_lcond(0, 42, 99)) }\n"
+	mainPath := filepath.Join(out, "lcond.go")
+	if err := os.WriteFile(mainPath, []byte(program), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	bin := filepath.Join(out, "lcondbin")
+	if buildOut, buildErr := exec.Command("go", "build", "-o", bin, mainPath).CombinedOutput(); buildErr != nil {
+		t.Fatalf("go build failed: %v\n%s\n--- source ---\n%s", buildErr, buildOut, program)
+	}
+	got, err := exec.Command(bin).Output()
+	if err != nil {
+		t.Fatalf("run: %v", err)
+	}
+	if want := "42 99\n"; string(got) != want {
+		t.Errorf("lcond(1,42,99), lcond(0,42,99) = %q, want %q", string(got), want)
+	}
+}
+
+// TestEmitSwitch validates tableswitch (dense switch → Go switch + goto).
+func TestEmitSwitch(t *testing.T) {
+	dir := compileFixtures(t)
+	cl := classloader.New(classpath.Parse(dir))
+	sw := cl.LoadClass("ArrayOps").GetMethod("sw", "(I)I")
+	ir, err := lowering.Lower(sw)
+	if err != nil {
+		t.Fatalf("lower: %v", err)
+	}
+	src, err := Emit(sw, ir, cl)
+	if err != nil {
+		t.Fatalf("emit: %v", err)
+	}
+	t.Logf("emitted sw:\n%s", src)
+	out := t.TempDir()
+	program := "package main\n\nimport \"fmt\"\n\n" + src +
+		"\nfunc main() { fmt.Println(ArrayOps_sw(1), ArrayOps_sw(2), ArrayOps_sw(3)) }\n"
+	mainPath := filepath.Join(out, "sw.go")
+	if err := os.WriteFile(mainPath, []byte(program), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	bin := filepath.Join(out, "swbin")
+	if buildOut, buildErr := exec.Command("go", "build", "-o", bin, mainPath).CombinedOutput(); buildErr != nil {
+		t.Fatalf("go build failed: %v\n%s\n--- source ---\n%s", buildErr, buildOut, program)
+	}
+	got, err := exec.Command(bin).Output()
+	if err != nil {
+		t.Fatalf("run: %v", err)
+	}
+	if want := "10 20 0\n"; string(got) != want {
+		t.Errorf("sw(1), sw(2), sw(3) = %q, want %q", string(got), want)
+	}
+}
