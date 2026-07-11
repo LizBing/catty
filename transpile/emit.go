@@ -27,21 +27,38 @@ func Emit(method *rtda.Method, ir *lowering.IR, loader rtda.Loader) (string, err
 	if !method.IsStatic() {
 		return "", fmt.Errorf("transpile: A2.1 supports static methods only (got %s)", method.Name())
 	}
-	if err := stackMergeError(method, ir); err != nil {
-		return "", err
-	}
 	cp := method.Owner().ConstantPool()
 	targets := collectTargets(ir)
 
-	e := &emitter{slotTemp: map[int]string{}, slotType: map[int]string{}, loader: loader}
+	e := &emitter{
+		slotTemp: map[int]string{}, slotType: map[int]string{}, loader: loader,
+		merges: map[int]bool{}, fallThrough: map[int]bool{},
+		mergeTemps: map[int][]string{}, mergeTempTypes: map[int][]string{},
+	}
+	e.merges, e.fallThrough = cfgAnalysis(ir)
+	if err := e.allocMergeTemps(ir, method); err != nil { // validates + refuses deferred cases
+		return "", err
+	}
+
 	var body strings.Builder
 	for pc := 0; pc < len(ir.Insts); pc++ {
 		inst := &ir.Insts[pc]
 		if !inst.Present {
 			continue
 		}
+		// Fall-through into a non-empty-stack merge: copy the predecessor's temps
+		// into the merge temps, then read from them after the join (the phi).
+		if e.merges[pc] && e.fallThrough[pc] && len(e.mergeTemps[pc]) > 0 {
+			e.emitMergeCopies(&body, pc)
+			e.resetToMergeTemps(pc)
+		}
 		if targets[pc] {
 			fmt.Fprintf(&body, "pc%d:\n", pc)
+		}
+		// A branch into a non-empty-stack merge: copy this path's temps into the
+		// merge temps before jumping (the phi, predecessor-edge side).
+		if isBranch(inst.Op) && e.merges[int(inst.Branch)] && len(e.mergeTemps[int(inst.Branch)]) > 0 {
+			e.emitMergeCopies(&body, int(inst.Branch))
 		}
 		if err := e.emitOne(&body, inst, cp); err != nil {
 			return "", fmt.Errorf("at pc %d: %w", pc, err)
@@ -60,11 +77,15 @@ func Emit(method *rtda.Method, ir *lowering.IR, loader rtda.Loader) (string, err
 // emitter carries the fresh-per-def state: the current temp name per operand-stack
 // slot, and the list of all temps (for top-of-function declarations + the sink).
 type emitter struct {
-	slotTemp map[int]string // slot index → temp name of its most recent def
-	slotType map[int]string // slot index → that temp's Go type (for dup)
-	loader   rtda.Loader
-	temps    []tempDecl
-	counter  int
+	slotTemp       map[int]string   // slot index → temp name of its most recent def
+	slotType       map[int]string   // slot index → that temp's Go type (for dup)
+	loader         rtda.Loader
+	temps          []tempDecl
+	counter        int
+	merges         map[int]bool      // pcs with >1 predecessor (control-flow merges)
+	fallThrough    map[int]bool      // pcs reached by fall-through from a predecessor
+	mergeTemps     map[int][]string  // merge pc → temp name per stack slot (the phi)
+	mergeTempTypes map[int][]string  // merge pc → Go type per stack slot
 }
 
 type tempDecl struct{ name, gotype string }
@@ -406,14 +427,17 @@ func groupByType(temps []tempDecl) map[string][]string {
 	return g
 }
 
-// --- merge gate ---
+// --- CFG analysis + merge temps (phi via copy-insertion) ---
 //
-// A merge (a pc with >1 predecessor) is fine as long as no operand-stack value
-// crosses it: loop state lives in mutable locals (no phi), and the operand stack
-// is empty at loop heads. Only a merge with a value on the stack (a diamond like
-// `cond ? x : y`) needs phi insertion — those are refused here (a later step).
+// A merge (pc with >1 predecessor) with an empty operand stack (a loop head)
+// needs no phi — loop state is in mutable locals. A merge with a value on the
+// stack (a diamond) needs a phi: a per-slot merge temp, assigned at each
+// predecessor edge, read after the join. cfgAnalysis finds merges + fall-through
+// edges; allocMergeTemps allocates the merge temps (and refuses deferred types).
 
-func stackMergeError(method *rtda.Method, ir *lowering.IR) error {
+func cfgAnalysis(ir *lowering.IR) (merges, fallThrough map[int]bool) {
+	merges = map[int]bool{}
+	fallThrough = map[int]bool{}
 	preds := map[int]int{}
 	for pc := 0; pc < len(ir.Insts); pc++ {
 		inst := &ir.Insts[pc]
@@ -422,19 +446,111 @@ func stackMergeError(method *rtda.Method, ir *lowering.IR) error {
 		}
 		for _, s := range successors(inst, pc) {
 			preds[s]++
+			if preds[s] > 1 {
+				merges[s] = true
+			}
+		}
+		if fallsThrough(inst.Op) {
+			fallThrough[pc+inst.Length] = true
 		}
 	}
-	for pc, n := range preds {
-		if n < 2 || pc >= len(ir.Insts) {
+	return merges, fallThrough
+}
+
+// fallsThrough reports whether control reaches pc+length (i.e. the instruction is
+// not an unconditional terminator).
+func fallsThrough(op opcode.Opcode) bool {
+	switch op {
+	case opcode.Goto, opcode.GotoW, opcode.Return, opcode.Ireturn, opcode.Lreturn,
+		opcode.Freturn, opcode.Dreturn, opcode.Areturn, opcode.Athrow,
+		opcode.Tableswitch, opcode.Lookupswitch:
+		return false
+	}
+	return true
+}
+
+func isBranch(op opcode.Opcode) bool {
+	switch op {
+	case opcode.Goto, opcode.GotoW,
+		opcode.Ifeq, opcode.Ifne, opcode.Iflt, opcode.Ifge, opcode.Ifgt, opcode.Ifle,
+		opcode.IfIcmpeq, opcode.IfIcmpne, opcode.IfIcmplt, opcode.IfIcmpge,
+		opcode.IfIcmpgt, opcode.IfIcmple, opcode.IfAcmpeq, opcode.IfAcmpne,
+		opcode.Ifnull, opcode.Ifnonnull:
+		return true
+	}
+	return false
+}
+
+// allocMergeTemps allots one temp per stack slot at each non-empty-stack merge.
+// It refuses (error) long/float/double merge slots (deferred) — the only remaining
+// gate, replacing A2.3's blanket refusal of non-empty-stack merges.
+func (e *emitter) allocMergeTemps(ir *lowering.IR, method *rtda.Method) error {
+	for pc := range e.merges {
+		if pc >= len(ir.Insts) {
 			continue
 		}
 		inst := &ir.Insts[pc]
-		if inst.Present && len(inst.InTypes) > 0 {
-			return fmt.Errorf("transpile: %s: merge at pc %d has a value on the operand stack (phi needed — diamonds are a later step)",
-				method.Name(), pc)
+		if !inst.Present || len(inst.InTypes) == 0 {
+			continue // empty-stack merge (loop) — no phi needed
 		}
+		temps := make([]string, len(inst.InTypes))
+		types := make([]string, len(inst.InTypes))
+		for k, st := range inst.InTypes {
+			gt, err := goTypeOf(st)
+			if err != nil {
+				return fmt.Errorf("transpile: %s: merge at pc %d slot %d: %w", method.Name(), pc, k, err)
+			}
+			temps[k] = e.defMergeTemp(gt)
+			types[k] = gt
+		}
+		e.mergeTemps[pc] = temps
+		e.mergeTempTypes[pc] = types
 	}
 	return nil
+}
+
+// defMergeTemp allocates a temp name recorded for declaration, without binding it
+// to a stack slot (merge temps are written at predecessor edges, not by one def).
+func (e *emitter) defMergeTemp(goType string) string {
+	name := fmt.Sprintf("t%d", e.counter)
+	e.counter++
+	e.temps = append(e.temps, tempDecl{name, goType})
+	return name
+}
+
+// emitMergeCopies writes `mergeTemp[k] = slotTemp[k]` for each of a merge's stack
+// slots — the predecessor-edge side of the phi.
+func (e *emitter) emitMergeCopies(b *strings.Builder, mergePc int) {
+	for k, mt := range e.mergeTemps[mergePc] {
+		fmt.Fprintf(b, "\t%s = %s\n", mt, e.slotTemp[k])
+	}
+}
+
+// resetToMergeTemps makes post-join uses read the merge temps.
+func (e *emitter) resetToMergeTemps(mergePc int) {
+	for k, mt := range e.mergeTemps[mergePc] {
+		e.slotTemp[k] = mt
+		e.slotType[k] = e.mergeTempTypes[mergePc][k]
+	}
+}
+
+// goTypeOf maps a lowering slot type to its Go type; long/float/double error.
+func goTypeOf(st lowering.SlotType) (string, error) {
+	switch st {
+	case lowering.TypeInt:
+		return "int32", nil
+	case lowering.TypeRef:
+		return "*rtda.Object", nil
+	case lowering.TypeLong:
+		return "", fmt.Errorf("long merge slot (deferred)")
+	case lowering.TypeFloat:
+		return "", fmt.Errorf("float merge slot (deferred)")
+	case lowering.TypeDouble:
+		return "", fmt.Errorf("double merge slot (deferred)")
+	case lowering.TypeTop:
+		return "", fmt.Errorf("unused (Top) merge slot")
+	}
+	return "", fmt.Errorf("unknown slot type %d", st)
 }
 
 func successors(inst *lowering.IRInst, pc int) []int {

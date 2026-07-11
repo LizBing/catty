@@ -7,6 +7,35 @@ The plan that governs this work lives in `plans/go-jvm-go-mvp-humming-bonbon.md`
 
 ## [Unreleased]
 
+### A2.4 — Diamonds / ternary (phi via copy-insertion)
+
+The last control-flow gap: merges that leave a value on the operand stack
+(diamonds — `cond ? x : y`, if/else yielding a value). A2.3 handled empty-stack
+merges (loops) via mutable locals; A2.4 handles non-empty-stack merges by
+inserting the equivalent of SSA **phi nodes** as **copy-insertion**: a per-slot
+merge temp assigned at each predecessor edge (branch-to-merge and
+fall-through-into-merge), read after the join.
+
+### Changed (A2.4)
+- **`transpile/emit.go`** — `cfgAnalysis` (merges + fall-through edges);
+  `allocMergeTemps` (one temp per stack slot at each non-empty-stack merge, typed
+  by `InTypes`; refuses long/float/double merge slots — the only remaining gate);
+  copy-insertion at branch edges and fall-through; `slotTemp`/`slotType` reset to
+  the merge temps after the join. The A2.3 blanket refusal of non-empty-stack
+  merges is removed.
+- `TestEmitDiamondGate` (which expected `max` to error) → `TestEmitMax` (emits +
+  runs `a > b ? a : b`; both orderings return `7`).
+
+### Validation
+- `TestEmitMax`: emitted `max` compiles + runs natively; the merge temp is
+  assigned on both branches and returned at the join — correct phi. fib/first/
+  HelloWorld/sum/OOP still pass; `go vet` clean; e2e 8/8.
+
+### Scope (A2.4)
+int/ref diamonds. long/float/double merge slots, switch joins (switches aren't
+emitted yet), and `cmd/jvm` integration (A4) are later. Control-flow is now
+complete (straight-line / loops / diamonds).
+
 ### A2.2b — OOP: new / fields / invokespecial (+ interpreted-target bridge)
 
 The AOT path now handles objects. The bridge extended from native-only to **native

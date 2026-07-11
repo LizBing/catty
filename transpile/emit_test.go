@@ -226,9 +226,10 @@ func TestEmitSum(t *testing.T) {
 	}
 }
 
-// TestEmitDiamondGate confirms the gate refuses merges that leave a value on the
-// operand stack (diamonds like `a > b ? a : b`), which need phi insertion.
-func TestEmitDiamondGate(t *testing.T) {
+// TestEmitMax is the A2.4 milestone: AOT-execute a diamond. ArrayOps.max's
+// `a > b ? a : b` leaves a value on the operand stack across the join, so the
+// emitter inserts a phi via copy-insertion. Asserts both orderings return the max.
+func TestEmitMax(t *testing.T) {
 	dir := compileFixtures(t)
 	cl := classloader.New(classpath.Parse(dir))
 	max := cl.LoadClass("ArrayOps").GetMethod("max", "(II)I")
@@ -239,8 +240,29 @@ func TestEmitDiamondGate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("lower: %v", err)
 	}
-	if _, err := Emit(max, ir, cl); err == nil {
-		t.Error("expected a non-empty-stack-merge error for ArrayOps.max (ternary), got nil")
+	src, err := Emit(max, ir, cl)
+	if err != nil {
+		t.Fatalf("emit: %v", err)
+	}
+	t.Logf("emitted max:\n%s", src)
+
+	out := t.TempDir()
+	program := "package main\n\nimport \"fmt\"\n\n" + src +
+		"\nfunc main() { fmt.Println(ArrayOps_max(7, 3), ArrayOps_max(3, 7)) }\n"
+	mainPath := filepath.Join(out, "max.go")
+	if err := os.WriteFile(mainPath, []byte(program), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	bin := filepath.Join(out, "maxbin")
+	if buildOut, buildErr := exec.Command("go", "build", "-o", bin, mainPath).CombinedOutput(); buildErr != nil {
+		t.Fatalf("go build emitted max failed: %v\n%s\n--- source ---\n%s", buildErr, buildOut, program)
+	}
+	got, err := exec.Command(bin).Output()
+	if err != nil {
+		t.Fatalf("run emitted max: %v", err)
+	}
+	if want := "7 7\n"; string(got) != want {
+		t.Errorf("emitted max(7,3), max(3,7) = %q, want %q", string(got), want)
 	}
 }
 
