@@ -13,3 +13,4 @@ Format (Michael Nygard's template): Status, Context, Decision, Consequences.
 | [0003](./0003-tagged-slot.md) | Tagged 16-byte Slot (HotSpot stack-word model) | Accepted |
 | [0004](./0004-native-core-classes.md) | Synthetic native core classes instead of a JRE | Accepted |
 | [0005](./0005-lazy-clinit.md) | Lazy `<clinit>` via frame push at JVMS §5.5 points | Accepted |
+| [0006](./0006-predecode-no-speedup.md) | Predecode in the interpreter doesn't pay off — AOT is the perf path | Accepted |

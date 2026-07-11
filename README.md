@@ -43,11 +43,17 @@ creation and access, field access, `invoke{virtual,special,static}`,
 `String`, `StringBuilder`, `System`, `java.io.PrintStream`) are implemented
 natively in Go rather than loaded from a JRE.
 
+There are **two execution engines**, both byte-identical to `java` on the test
+corpus: the default tree-walking interpreter (`Loop`) and a stack-eliminated IR
+executor (`-ir`, `LoopIR`). The IR executor validates the lowering pass that
+underpins the planned AOT transpiler — it is not (yet) faster (ADR-0006).
+
 ## Quickstart
 
 ```sh
 go build -o catty ./cmd/jvm          # build
-./catty -cp <classpath> <MainClass>  # run
+./catty -cp <classpath> <MainClass>  # run (tree-walking interpreter)
+./catty -cp <classpath> -ir <Main>   # run via the lowered IR executor
 
 ./tests/run.sh                       # e2e: compile fixtures, diff catty vs java
 go test ./...                        # unit tests

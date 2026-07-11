@@ -12,16 +12,21 @@ import (
 	"catty/rtda"
 )
 
-// main is the catty launcher: `jvm [-cp path] <main class>`.
+// main is the catty launcher: `jvm [-cp path] [-ir] <main class>`.
 // It loads the named class, finds its main([Ljava/lang/String;)V, and hands a
 // fresh thread + main frame to the interpreter. Unhandled VM panics (e.g.
 // unsupported opcodes, NullPointerException) print a diagnostic and exit 1.
+//
+// -ir selects the stack-eliminated IR executor (lowering.Lower → LoopIR) instead
+// of the default tree-walking interpreter. Both must produce identical output;
+// tests/run.sh runs both and diffs against java.
 func main() {
 	cpOpt := flag.String("cp", ".", "classpath (colon-separated directories/jars)")
+	useIR := flag.Bool("ir", false, "use the lowered IR executor instead of the tree-walking interpreter")
 	flag.Parse()
 	args := flag.Args()
 	if len(args) < 1 {
-		fmt.Fprintln(os.Stderr, "usage: jvm [-cp path] <main class>")
+		fmt.Fprintln(os.Stderr, "usage: jvm [-cp path] [-ir] <main class>")
 		os.Exit(2)
 	}
 
@@ -52,5 +57,9 @@ func main() {
 	frame.SetRef(0, nil) // args = null (programs that read args are out of MVP scope)
 	thread.PushFrame(frame)
 	interpreter.InitClass(thread, class)
-	interpreter.Loop(thread)
+	if *useIR {
+		interpreter.LoopIR(thread)
+	} else {
+		interpreter.Loop(thread)
+	}
 }

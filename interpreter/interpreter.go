@@ -3,6 +3,7 @@ package interpreter
 import (
 	"fmt"
 
+	"catty/opcode"
 	"catty/rtda"
 )
 
@@ -18,7 +19,7 @@ func Loop(thread *rtda.Thread) {
 	for !thread.IsStackEmpty() {
 		frame := thread.CurrentFrame()
 		opcodePc := frame.PC()
-		op := frame.Code()[opcodePc]
+		op := opcode.Opcode(frame.Code()[opcodePc])
 		frame.SetPC(opcodePc + 1)
 		exec(thread, frame, op, opcodePc)
 	}
@@ -27,32 +28,32 @@ func Loop(thread *rtda.Thread) {
 // exec runs one instruction. Split out of Loop only for readability; it is the
 // whole dispatch switch. Cases that complete normally let the loop re-read the
 // (possibly new) current frame.
-func exec(thread *rtda.Thread, frame *rtda.Frame, op byte, opcodePc int) {
+func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int) {
 	switch op {
 
 	// ---------- constants ----------
-	case opNop:
-	case opAconstNull:
+	case opcode.Nop:
+	case opcode.AconstNull:
 		frame.PushRef(nil)
-	case opIconstM1:
+	case opcode.IconstM1:
 		frame.PushInt(-1)
-	case opIconst0, opIconst1, opIconst2, opIconst3, opIconst4, opIconst5:
-		frame.PushInt(int32(op - opIconst0))
-	case opLconst0, opLconst1:
-		frame.PushLong(int64(op - opLconst0))
-	case opFconst0, opFconst1, opFconst2:
-		frame.PushFloat(float32(op - opFconst0))
-	case opDconst0, opDconst1:
-		frame.PushDouble(float64(op - opDconst0))
-	case opBipush:
+	case opcode.Iconst0, opcode.Iconst1, opcode.Iconst2, opcode.Iconst3, opcode.Iconst4, opcode.Iconst5:
+		frame.PushInt(int32(op - opcode.Iconst0))
+	case opcode.Lconst0, opcode.Lconst1:
+		frame.PushLong(int64(op - opcode.Lconst0))
+	case opcode.Fconst0, opcode.Fconst1, opcode.Fconst2:
+		frame.PushFloat(float32(op - opcode.Fconst0))
+	case opcode.Dconst0, opcode.Dconst1:
+		frame.PushDouble(float64(op - opcode.Dconst0))
+	case opcode.Bipush:
 		frame.PushInt(int32(int8(frame.ReadUint8())))
-	case opSipush:
+	case opcode.Sipush:
 		frame.PushInt(int32(frame.ReadInt16()))
-	case opLdc:
+	case opcode.Ldc:
 		pushConstant(thread, frame, frame.Method().Owner().ConstantPool(), uint16(frame.ReadUint8()))
-	case opLdcW:
+	case opcode.LdcW:
 		pushConstant(thread, frame, frame.Method().Owner().ConstantPool(), frame.ReadUint16())
-	case opLdc2W:
+	case opcode.Ldc2W:
 		cp := frame.Method().Owner().ConstantPool()
 		idx := frame.ReadUint16()
 		switch cp.Tag(idx) {
@@ -63,99 +64,99 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op byte, opcodePc int) {
 		}
 
 	// ---------- loads ----------
-	case opIload, opLload, opFload, opDload, opAload:
+	case opcode.Iload, opcode.Lload, opcode.Fload, opcode.Dload, opcode.Aload:
 		loadLocal(frame, op, int(frame.ReadUint8()))
-	case opIload0, opIload1, opIload2, opIload3:
-		frame.PushInt(frame.GetInt(int(op - opIload0)))
-	case opAload0, opAload1, opAload2, opAload3:
-		frame.PushRef(frame.GetRef(int(op - opAload0)))
-	case opLload0, opLload1, opLload2, opLload3:
-		frame.PushLong(frame.GetLong(int(op - opLload0)))
-	case opFload0, opFload1, opFload2, opFload3:
-		frame.PushFloat(frame.GetFloat(int(op - opFload0)))
-	case opDload0, opDload1, opDload2, opDload3:
-		frame.PushDouble(frame.GetDouble(int(op - opDload0)))
+	case opcode.Iload0, opcode.Iload1, opcode.Iload2, opcode.Iload3:
+		frame.PushInt(frame.GetInt(int(op - opcode.Iload0)))
+	case opcode.Aload0, opcode.Aload1, opcode.Aload2, opcode.Aload3:
+		frame.PushRef(frame.GetRef(int(op - opcode.Aload0)))
+	case opcode.Lload0, opcode.Lload1, opcode.Lload2, opcode.Lload3:
+		frame.PushLong(frame.GetLong(int(op - opcode.Lload0)))
+	case opcode.Fload0, opcode.Fload1, opcode.Fload2, opcode.Fload3:
+		frame.PushFloat(frame.GetFloat(int(op - opcode.Fload0)))
+	case opcode.Dload0, opcode.Dload1, opcode.Dload2, opcode.Dload3:
+		frame.PushDouble(frame.GetDouble(int(op - opcode.Dload0)))
 
 	// ---------- stores ----------
-	case opIstore, opLstore, opFstore, opDstore, opAstore:
+	case opcode.Istore, opcode.Lstore, opcode.Fstore, opcode.Dstore, opcode.Astore:
 		storeLocal(frame, op, int(frame.ReadUint8()))
-	case opIstore0, opIstore1, opIstore2, opIstore3:
-		frame.SetInt(int(op-opIstore0), frame.PopInt())
-	case opAstore0, opAstore1, opAstore2, opAstore3:
-		frame.SetRef(int(op-opAstore0), frame.PopRef())
-	case opLstore0, opLstore1, opLstore2, opLstore3:
-		frame.SetLong(int(op-opLstore0), frame.PopLong())
-	case opFstore0, opFstore1, opFstore2, opFstore3:
-		frame.SetFloat(int(op-opFstore0), frame.PopFloat())
-	case opDstore0, opDstore1, opDstore2, opDstore3:
-		frame.SetDouble(int(op-opDstore0), frame.PopDouble())
+	case opcode.Istore0, opcode.Istore1, opcode.Istore2, opcode.Istore3:
+		frame.SetInt(int(op-opcode.Istore0), frame.PopInt())
+	case opcode.Astore0, opcode.Astore1, opcode.Astore2, opcode.Astore3:
+		frame.SetRef(int(op-opcode.Astore0), frame.PopRef())
+	case opcode.Lstore0, opcode.Lstore1, opcode.Lstore2, opcode.Lstore3:
+		frame.SetLong(int(op-opcode.Lstore0), frame.PopLong())
+	case opcode.Fstore0, opcode.Fstore1, opcode.Fstore2, opcode.Fstore3:
+		frame.SetFloat(int(op-opcode.Fstore0), frame.PopFloat())
+	case opcode.Dstore0, opcode.Dstore1, opcode.Dstore2, opcode.Dstore3:
+		frame.SetDouble(int(op-opcode.Dstore0), frame.PopDouble())
 
 	// ---------- array load ----------
-	case opIaload, opBaload, opCaload, opSaload:
+	case opcode.Iaload, opcode.Baload, opcode.Caload, opcode.Saload:
 		i := frame.PopInt()
 		arr := frame.PopRef()
 		frame.PushInt(arr.ArrayElementSlot(int(i)).Num())
-	case opLaload:
+	case opcode.Laload:
 		i := frame.PopInt()
 		arr := frame.PopRef()
 		frame.PushLong(readTwoSlots(arr, int(i)))
-	case opFaload:
+	case opcode.Faload:
 		i := frame.PopInt()
 		arr := frame.PopRef()
 		frame.PushFloat(float32frombits(uint32(arr.ArrayElementSlot(int(i)).Num())))
-	case opDaload:
+	case opcode.Daload:
 		i := frame.PopInt()
 		arr := frame.PopRef()
 		frame.PushDouble(float64frombits(uint64(readTwoSlots(arr, int(i)))))
-	case opAaload:
+	case opcode.Aaload:
 		i := frame.PopInt()
 		arr := frame.PopRef()
 		frame.PushRef(arr.ArrayElementSlot(int(i)).Ref())
 
 	// ---------- array store ----------
-	case opIastore, opBastore, opCastore, opSastore:
+	case opcode.Iastore, opcode.Bastore, opcode.Castore, opcode.Sastore:
 		v := frame.PopInt()
 		i := frame.PopInt()
 		arr := frame.PopRef()
 		arr.ArrayElementSlot(int(i)).SetNum(v)
-	case opLastore:
+	case opcode.Lastore:
 		v := frame.PopLong()
 		i := frame.PopInt()
 		arr := frame.PopRef()
 		writeTwoSlots(arr, int(i), v)
-	case opFastore:
+	case opcode.Fastore:
 		v := frame.PopFloat()
 		i := frame.PopInt()
 		arr := frame.PopRef()
 		arr.ArrayElementSlot(int(i)).SetNum(int32(float32bits(v)))
-	case opDastore:
+	case opcode.Dastore:
 		v := frame.PopDouble()
 		i := frame.PopInt()
 		arr := frame.PopRef()
 		writeTwoSlots(arr, int(i), int64(float64bits(v)))
-	case opAastore:
+	case opcode.Aastore:
 		v := frame.PopRef()
 		i := frame.PopInt()
 		arr := frame.PopRef()
 		arr.ArrayElementSlot(int(i)).SetRef(v)
 
 	// ---------- stack manipulation ----------
-	case opPop:
+	case opcode.Pop:
 		frame.PopSlot()
-	case opPop2:
+	case opcode.Pop2:
 		frame.PopSlot()
 		frame.PopSlot()
-	case opDup:
+	case opcode.Dup:
 		s := frame.PopSlot()
 		frame.PushSlot(s)
 		frame.PushSlot(s)
-	case opDupX1:
+	case opcode.DupX1:
 		s1 := frame.PopSlot()
 		s2 := frame.PopSlot()
 		frame.PushSlot(s1)
 		frame.PushSlot(s2)
 		frame.PushSlot(s1)
-	case opDupX2:
+	case opcode.DupX2:
 		s1 := frame.PopSlot()
 		s2 := frame.PopSlot()
 		s3 := frame.PopSlot()
@@ -163,177 +164,177 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op byte, opcodePc int) {
 		frame.PushSlot(s3)
 		frame.PushSlot(s2)
 		frame.PushSlot(s1)
-	case opDup2:
+	case opcode.Dup2:
 		s1 := frame.PopSlot()
 		s2 := frame.PopSlot()
 		frame.PushSlot(s2)
 		frame.PushSlot(s1)
 		frame.PushSlot(s2)
 		frame.PushSlot(s1)
-	case opSwap:
+	case opcode.Swap:
 		s1 := frame.PopSlot()
 		s2 := frame.PopSlot()
 		frame.PushSlot(s1)
 		frame.PushSlot(s2)
 
 	// ---------- arithmetic: int ----------
-	case opIadd:
+	case opcode.Iadd:
 		b := frame.PopInt()
 		a := frame.PopInt()
 		frame.PushInt(a + b)
-	case opIsub:
+	case opcode.Isub:
 		b := frame.PopInt()
 		a := frame.PopInt()
 		frame.PushInt(a - b)
-	case opImul:
+	case opcode.Imul:
 		b := frame.PopInt()
 		a := frame.PopInt()
 		frame.PushInt(a * b)
-	case opIdiv:
+	case opcode.Idiv:
 		b := frame.PopInt()
 		a := frame.PopInt()
 		frame.PushInt(a / b) // Go integer division truncates toward zero, matching Java
-	case opIrem:
+	case opcode.Irem:
 		b := frame.PopInt()
 		a := frame.PopInt()
 		frame.PushInt(a % b)
-	case opIneg:
+	case opcode.Ineg:
 		frame.PushInt(-frame.PopInt())
-	case opIshl:
+	case opcode.Ishl:
 		s := uint32(frame.PopInt()) & 0x1f
 		v := frame.PopInt()
 		frame.PushInt(v << s)
-	case opIshr:
+	case opcode.Ishr:
 		s := uint32(frame.PopInt()) & 0x1f
 		v := frame.PopInt()
 		frame.PushInt(v >> s) // arithmetic: signed shift
-	case opIushr:
+	case opcode.Iushr:
 		s := uint32(frame.PopInt()) & 0x1f
 		v := uint32(frame.PopInt())
 		frame.PushInt(int32(v >> s)) // logical shift
-	case opIand:
+	case opcode.Iand:
 		b := frame.PopInt()
 		a := frame.PopInt()
 		frame.PushInt(a & b)
-	case opIor:
+	case opcode.Ior:
 		b := frame.PopInt()
 		a := frame.PopInt()
 		frame.PushInt(a | b)
-	case opIxor:
+	case opcode.Ixor:
 		b := frame.PopInt()
 		a := frame.PopInt()
 		frame.PushInt(a ^ b)
-	case opIinc:
+	case opcode.Iinc:
 		idx := int(frame.ReadUint8())
 		delta := int8(frame.ReadUint8())
 		frame.SetInt(idx, frame.GetInt(idx)+int32(delta))
 
 	// ---------- arithmetic: long ----------
-	case opLadd:
+	case opcode.Ladd:
 		frame.PushLong(frame.PopLong() + frame.PopLong())
-	case opLsub:
+	case opcode.Lsub:
 		b := frame.PopLong()
 		frame.PushLong(frame.PopLong() - b)
-	case opLmul:
+	case opcode.Lmul:
 		frame.PushLong(frame.PopLong() * frame.PopLong())
-	case opLdiv:
+	case opcode.Ldiv:
 		b := frame.PopLong()
 		frame.PushLong(frame.PopLong() / b)
-	case opLrem:
+	case opcode.Lrem:
 		b := frame.PopLong()
 		frame.PushLong(frame.PopLong() % b)
-	case opLneg:
+	case opcode.Lneg:
 		frame.PushLong(-frame.PopLong())
-	case opLshl:
+	case opcode.Lshl:
 		s := uint32(frame.PopInt()) & 0x3f
 		frame.PushLong(frame.PopLong() << s)
-	case opLshr:
+	case opcode.Lshr:
 		s := uint32(frame.PopInt()) & 0x3f
 		frame.PushLong(frame.PopLong() >> s)
-	case opLushr:
+	case opcode.Lushr:
 		s := uint32(frame.PopInt()) & 0x3f
 		frame.PushLong(int64(uint64(frame.PopLong()) >> s))
-	case opLand:
+	case opcode.Land:
 		b := frame.PopLong()
 		a := frame.PopLong()
 		frame.PushLong(a & b)
-	case opLor:
+	case opcode.Lor:
 		b := frame.PopLong()
 		a := frame.PopLong()
 		frame.PushLong(a | b)
-	case opLxor:
+	case opcode.Lxor:
 		b := frame.PopLong()
 		a := frame.PopLong()
 		frame.PushLong(a ^ b)
 
 	// ---------- arithmetic: float / double ----------
-	case opFadd:
+	case opcode.Fadd:
 		b := frame.PopFloat()
 		frame.PushFloat(frame.PopFloat() + b)
-	case opFsub:
+	case opcode.Fsub:
 		b := frame.PopFloat()
 		frame.PushFloat(frame.PopFloat() - b)
-	case opFmul:
+	case opcode.Fmul:
 		frame.PushFloat(frame.PopFloat() * frame.PopFloat())
-	case opFdiv:
+	case opcode.Fdiv:
 		b := frame.PopFloat()
 		frame.PushFloat(frame.PopFloat() / b)
-	case opFrem:
+	case opcode.Frem:
 		b := frame.PopFloat()
 		frame.PushFloat(float32(remF(frame.PopFloat(), b)))
-	case opFneg:
+	case opcode.Fneg:
 		frame.PushFloat(-frame.PopFloat())
-	case opDadd:
+	case opcode.Dadd:
 		b := frame.PopDouble()
 		frame.PushDouble(frame.PopDouble() + b)
-	case opDsub:
+	case opcode.Dsub:
 		b := frame.PopDouble()
 		frame.PushDouble(frame.PopDouble() - b)
-	case opDmul:
+	case opcode.Dmul:
 		frame.PushDouble(frame.PopDouble() * frame.PopDouble())
-	case opDdiv:
+	case opcode.Ddiv:
 		b := frame.PopDouble()
 		frame.PushDouble(frame.PopDouble() / b)
-	case opDrem:
+	case opcode.Drem:
 		b := frame.PopDouble()
 		frame.PushDouble(remF64(frame.PopDouble(), b))
-	case opDneg:
+	case opcode.Dneg:
 		frame.PushDouble(-frame.PopDouble())
 
 	// ---------- conversions ----------
-	case opI2l:
+	case opcode.I2l:
 		frame.PushLong(int64(frame.PopInt()))
-	case opI2f:
+	case opcode.I2f:
 		frame.PushFloat(float32(frame.PopInt()))
-	case opI2d:
+	case opcode.I2d:
 		frame.PushDouble(float64(frame.PopInt()))
-	case opL2i:
+	case opcode.L2i:
 		frame.PushInt(int32(frame.PopLong()))
-	case opL2f:
+	case opcode.L2f:
 		frame.PushFloat(float32(frame.PopLong()))
-	case opL2d:
+	case opcode.L2d:
 		frame.PushDouble(float64(frame.PopLong()))
-	case opF2i:
+	case opcode.F2i:
 		frame.PushInt(int32(frame.PopFloat()))
-	case opF2l:
+	case opcode.F2l:
 		frame.PushLong(int64(frame.PopFloat()))
-	case opF2d:
+	case opcode.F2d:
 		frame.PushDouble(float64(frame.PopFloat()))
-	case opD2i:
+	case opcode.D2i:
 		frame.PushInt(int32(frame.PopDouble()))
-	case opD2l:
+	case opcode.D2l:
 		frame.PushLong(int64(frame.PopDouble()))
-	case opD2f:
+	case opcode.D2f:
 		frame.PushFloat(float32(frame.PopDouble()))
-	case opI2b:
+	case opcode.I2b:
 		frame.PushInt(int32(int8(frame.PopInt())))
-	case opI2c:
+	case opcode.I2c:
 		frame.PushInt(int32(uint16(frame.PopInt())))
-	case opI2s:
+	case opcode.I2s:
 		frame.PushInt(int32(int16(frame.PopInt())))
 
 	// ---------- comparisons ----------
-	case opLcmp:
+	case opcode.Lcmp:
 		b := frame.PopLong()
 		a := frame.PopLong()
 		switch {
@@ -344,143 +345,143 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op byte, opcodePc int) {
 		default:
 			frame.PushInt(0)
 		}
-	case opFcmpl, opFcmpg:
+	case opcode.Fcmpl, opcode.Fcmpg:
 		b := frame.PopFloat()
 		a := frame.PopFloat()
-		frame.PushInt(cmpFloat(a, b, op == opFcmpg))
-	case opDcmpl, opDcmpg:
+		frame.PushInt(cmpFloat(a, b, op == opcode.Fcmpg))
+	case opcode.Dcmpl, opcode.Dcmpg:
 		b := frame.PopDouble()
 		a := frame.PopDouble()
-		frame.PushInt(cmpDouble(a, b, op == opDcmpg))
+		frame.PushInt(cmpDouble(a, b, op == opcode.Dcmpg))
 
 	// ---------- conditional branches ----------
-	case opIfeq:
+	case opcode.Ifeq:
 		if frame.PopInt() == 0 {
 			branch(frame, opcodePc, int(frame.ReadInt16()))
 		} else {
 			frame.ReadInt16()
 		}
-	case opIfne:
+	case opcode.Ifne:
 		if frame.PopInt() != 0 {
 			branch(frame, opcodePc, int(frame.ReadInt16()))
 		} else {
 			frame.ReadInt16()
 		}
-	case opIflt:
+	case opcode.Iflt:
 		if frame.PopInt() < 0 {
 			branch(frame, opcodePc, int(frame.ReadInt16()))
 		} else {
 			frame.ReadInt16()
 		}
-	case opIfge:
+	case opcode.Ifge:
 		if frame.PopInt() >= 0 {
 			branch(frame, opcodePc, int(frame.ReadInt16()))
 		} else {
 			frame.ReadInt16()
 		}
-	case opIfgt:
+	case opcode.Ifgt:
 		if frame.PopInt() > 0 {
 			branch(frame, opcodePc, int(frame.ReadInt16()))
 		} else {
 			frame.ReadInt16()
 		}
-	case opIfle:
+	case opcode.Ifle:
 		if frame.PopInt() <= 0 {
 			branch(frame, opcodePc, int(frame.ReadInt16()))
 		} else {
 			frame.ReadInt16()
 		}
-	case opIfIcmpeq:
+	case opcode.IfIcmpeq:
 		b := frame.PopInt()
 		a := frame.PopInt()
 		condBranch(frame, opcodePc, a == b)
-	case opIfIcmpne:
+	case opcode.IfIcmpne:
 		b := frame.PopInt()
 		a := frame.PopInt()
 		condBranch(frame, opcodePc, a != b)
-	case opIfIcmplt:
+	case opcode.IfIcmplt:
 		b := frame.PopInt()
 		a := frame.PopInt()
 		condBranch(frame, opcodePc, a < b)
-	case opIfIcmpge:
+	case opcode.IfIcmpge:
 		b := frame.PopInt()
 		a := frame.PopInt()
 		condBranch(frame, opcodePc, a >= b)
-	case opIfIcmpgt:
+	case opcode.IfIcmpgt:
 		b := frame.PopInt()
 		a := frame.PopInt()
 		condBranch(frame, opcodePc, a > b)
-	case opIfIcmple:
+	case opcode.IfIcmple:
 		b := frame.PopInt()
 		a := frame.PopInt()
 		condBranch(frame, opcodePc, a <= b)
-	case opIfAcmpeq:
+	case opcode.IfAcmpeq:
 		b := frame.PopRef()
 		a := frame.PopRef()
 		condBranch(frame, opcodePc, a == b)
-	case opIfAcmpne:
+	case opcode.IfAcmpne:
 		b := frame.PopRef()
 		a := frame.PopRef()
 		condBranch(frame, opcodePc, a != b)
-	case opIfnull:
+	case opcode.Ifnull:
 		if frame.PopRef() == nil {
 			branch(frame, opcodePc, int(frame.ReadInt16()))
 		} else {
 			frame.ReadInt16()
 		}
-	case opIfnonnull:
+	case opcode.Ifnonnull:
 		if frame.PopRef() != nil {
 			branch(frame, opcodePc, int(frame.ReadInt16()))
 		} else {
 			frame.ReadInt16()
 		}
 
-	case opGoto:
+	case opcode.Goto:
 		branch(frame, opcodePc, int(frame.ReadInt16()))
-	case opGotoW:
+	case opcode.GotoW:
 		branch(frame, opcodePc, int(frame.ReadInt32()))
-	case opTableswitch:
+	case opcode.Tableswitch:
 		tableSwitch(frame, opcodePc)
-	case opLookupswitch:
+	case opcode.Lookupswitch:
 		lookupSwitch(frame, opcodePc)
 
 	// ---------- returns ----------
-	case opReturn:
+	case opcode.Return:
 		thread.PopFrame()
-	case opIreturn:
+	case opcode.Ireturn:
 		returnInt(frame, thread)
-	case opAreturn:
+	case opcode.Areturn:
 		returnRef(frame, thread)
-	case opLreturn:
+	case opcode.Lreturn:
 		returnLong(frame, thread)
-	case opFreturn:
+	case opcode.Freturn:
 		returnFloat(frame, thread)
-	case opDreturn:
+	case opcode.Dreturn:
 		returnDouble(frame, thread)
 
 	// ---------- fields ----------
-	case opGetstatic:
+	case opcode.Getstatic:
 		idx := frame.ReadUint16()
 		cls, name, desc := frame.Method().Owner().ConstantPool().MemberRef(idx)
 		class := thread.Loader().LoadClass(cls)
 		ensureInitialized(thread, class)
 		field := class.LookupField(name, desc)
 		loadFieldValue(frame, class.StaticVars(), field.SlotID(), desc)
-	case opPutstatic:
+	case opcode.Putstatic:
 		idx := frame.ReadUint16()
 		cls, name, desc := frame.Method().Owner().ConstantPool().MemberRef(idx)
 		class := thread.Loader().LoadClass(cls)
 		ensureInitialized(thread, class)
 		field := class.LookupField(name, desc)
 		storeFieldValue(frame, class.StaticVars(), field.SlotID(), desc)
-	case opGetfield:
+	case opcode.Getfield:
 		idx := frame.ReadUint16()
 		cls, name, desc := frame.Method().Owner().ConstantPool().MemberRef(idx)
 		class := thread.Loader().LoadClass(cls)
 		field := class.LookupField(name, desc)
 		obj := frame.PopRef()
 		loadFieldValue(frame, obj.Fields(), field.SlotID(), desc)
-	case opPutfield:
+	case opcode.Putfield:
 		// Stack layout is [objref, value] with value on top, so the value must
 		// be popped before the object reference.
 		idx := frame.ReadUint16()
@@ -516,7 +517,7 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op byte, opcodePc int) {
 		}
 
 	// ---------- invocations ----------
-	case opInvokevirtual:
+	case opcode.Invokevirtual:
 		idx := frame.ReadUint16()
 		cls, name, desc := frame.Method().Owner().ConstantPool().MemberRef(idx)
 		class := thread.Loader().LoadClass(cls)
@@ -526,12 +527,12 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op byte, opcodePc int) {
 			panic("catty: NullPointerException")
 		}
 		invokeMethod(thread, receiver.Class().LookupMethod(name, desc))
-	case opInvokespecial:
+	case opcode.Invokespecial:
 		idx := frame.ReadUint16()
 		cls, name, desc := frame.Method().Owner().ConstantPool().MemberRef(idx)
 		class := thread.Loader().LoadClass(cls)
 		invokeMethod(thread, class.LookupMethod(name, desc))
-	case opInvokestatic:
+	case opcode.Invokestatic:
 		idx := frame.ReadUint16()
 		cls, name, desc := frame.Method().Owner().ConstantPool().MemberRef(idx)
 		class := thread.Loader().LoadClass(cls)
@@ -539,31 +540,31 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op byte, opcodePc int) {
 		invokeMethod(thread, class.LookupMethod(name, desc))
 
 	// ---------- object / array creation ----------
-	case opNew:
+	case opcode.New:
 		idx := frame.ReadUint16()
 		class := thread.Loader().LoadClass(frame.Method().Owner().ConstantPool().ClassName(idx))
 		ensureInitialized(thread, class)
 		frame.PushRef(rtda.NewObject(class))
-	case opNewarray:
+	case opcode.Newarray:
 		atype := frame.ReadUint8()
 		length := int(frame.PopInt())
 		frame.PushRef(newPrimitiveArray(thread, atype, length))
-	case opAnewarray:
+	case opcode.Anewarray:
 		idx := frame.ReadUint16()
 		length := int(frame.PopInt())
 		elemName := frame.Method().Owner().ConstantPool().ClassName(idx)
 		frame.PushRef(newRefArray(thread, elemName, length))
-	case opArraylength:
+	case opcode.Arraylength:
 		arr := frame.PopRef()
 		frame.PushInt(int32(arr.ArrayLength()))
-	case opCheckcast:
+	case opcode.Checkcast:
 		idx := frame.ReadUint16()
 		target := thread.Loader().LoadClass(frame.Method().Owner().ConstantPool().ClassName(idx))
 		obj := frame.PeekRef(0)
 		if obj != nil && !obj.IsInstanceOf(target) {
 			panic("catty: ClassCastException")
 		}
-	case opInstanceof:
+	case opcode.Instanceof:
 		idx := frame.ReadUint16()
 		target := thread.Loader().LoadClass(frame.Method().Owner().ConstantPool().ClassName(idx))
 		obj := frame.PopRef()
@@ -572,10 +573,10 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op byte, opcodePc int) {
 		} else {
 			frame.PushInt(0)
 		}
-	case opMonitorenter, opMonitorexit:
+	case opcode.Monitorenter, opcode.Monitorexit:
 		frame.PopRef() // concurrency deferred: monitors are nops in the single-threaded MVP
 
 	default:
-		panic(fmt.Sprintf("catty: opcode 0x%02x (%s) not implemented", op, opcodeName[op]))
+		panic(fmt.Sprintf("catty: opcode 0x%02x (%s) not implemented", op, opcode.Name(opcode.Opcode(op))))
 	}
 }

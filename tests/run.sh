@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# E2E verification: compile each .java fixture with javac, run it through both
-# the real `java` and through catty, and diff stdout. A fixture passes only when
-# catty's output is byte-identical to java's.
+# E2E verification: compile each .java fixture with javac, run it through the
+# real `java` and through BOTH catty execution engines (the tree-walking
+# interpreter and the -ir lowered executor), and diff stdout. A fixture passes
+# only when all three produce byte-identical output.
 #
 # Usage: ./tests/run.sh
 set -u
@@ -25,14 +26,16 @@ MAIN_CLASSES=(HelloWorld Fibonacci Factorial ArraySum OOPDemo StaticFields Switc
 pass=0; fail=0
 for cls in "${MAIN_CLASSES[@]}"; do
     java_out=$(cd "$FIX" && java "$cls" 2>&1)
-    catty_out=$(cd "$FIX" && "$BINARY" -cp . "$cls" 2>&1)
-    if [ "$java_out" = "$catty_out" ]; then
+    loop_out=$(cd "$FIX" && "$BINARY" -cp . "$cls" 2>&1)
+    ir_out=$(cd "$FIX" && "$BINARY" -cp . -ir "$cls" 2>&1)
+    if [ "$java_out" = "$loop_out" ] && [ "$java_out" = "$ir_out" ]; then
         echo "PASS  $cls"
         pass=$((pass+1))
     else
         echo "FAIL  $cls"
         echo "  --- java ---"; echo "$java_out" | sed 's/^/  /'
-        echo "  --- catty ---"; echo "$catty_out" | sed 's/^/  /'
+        echo "  --- loop ---"; echo "$loop_out" | sed 's/^/  /'
+        echo "  --- ir   ---"; echo "$ir_out" | sed 's/^/  /'
         fail=$((fail+1))
     fi
 done

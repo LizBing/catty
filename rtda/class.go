@@ -88,6 +88,10 @@ func (c *Class) GetMethod(name, descriptor string) *Method {
 	return c.methodTable[methodKey(name, descriptor)]
 }
 
+// Methods returns every method declared on this class (used by the lowering
+// pass's test harness and future tooling).
+func (c *Class) Methods() []*Method { return c.methods }
+
 // LookupMethod walks the class hierarchy (then interfaces) for a method, used by
 // invokevirtual/invokespecial/invokestatic resolution.
 func (c *Class) LookupMethod(name, descriptor string) *Method {

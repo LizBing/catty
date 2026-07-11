@@ -170,3 +170,22 @@ func (f *Frame) GetDouble(index int) float64      { return math.Float64frombits(
 // SetSlot / Slot copy a raw local slot by value, used when handing arguments to
 // a callee frame (the slot's category is the callee's concern).
 func (f *Frame) SetSlot(index int, s Slot) { f.locals[index] = s }
+
+// --- indexed operand-stack access (for the IR executor) ---
+//
+// The lowering pass eliminates the operand stack into slot-indexed virtual
+// registers. These accessors let the IR executor read/write those slots by the
+// index the lowering computed, instead of via Push/Pop. SetStackTop seeds the
+// stack pointer from the lowering's known depth so shared Push/Pop-based helpers
+// (invokes, fields, …) still work when the executor calls them.
+
+func (f *Frame) SetStackTop(n int) { f.stackTop = n }
+
+func (f *Frame) StackSlotNum(i int) int32    { return f.stack[i].num }
+func (f *Frame) StackSlotRef(i int) *Object  { return f.stack[i].ref }
+func (f *Frame) SetStackSlotNum(i int, v int32)   { f.stack[i].num = v }
+func (f *Frame) SetStackSlotRef(i int, r *Object) { f.stack[i].ref = r }
+
+// CopyStackSlot copies a whole slot (num + ref) by value, for the IR executor's
+// stack-shuffle instructions (dup, swap, …) which move category-unknown values.
+func (f *Frame) CopyStackSlot(dst, src int) { f.stack[dst] = f.stack[src] }

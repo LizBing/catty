@@ -216,6 +216,42 @@ and per-call `Frame` allocation. All tunable. The ~87× gap to the JIT is
 **JIT headroom** — only the Phase 2 AOT transpiler can close it, by lowering
 bytecode to Go source and letting `go build` optimize.
 
+## 8. Lowering & IR (A0)
+
+The `lowering` package converts a method's stack-based bytecode into a
+register-form IR — the operand stack eliminated into slot-indexed virtual
+registers. It exists to **de-risk the AOT transpiler** (ROADMAP Theme A): it
+proves the hardest transform — static stack elimination — is feasible and
+correct, in isolation, before the emitter is built.
+
+The pipeline (`lowering.Lower`):
+
+1. **Decode** — walk instructions from pc 0, predecoding operands and resolving
+   branch/switch targets to absolute pcs (no operand parsing at run time).
+2. **Depth dataflow** — a forward worklist over the control-flow edges computes
+   the operand-stack depth (in *slots*) on entry to each instruction. Each
+   opcode's slot effect is statically known; field/invoke effects are read from
+   the constant-pool descriptor (so lowering needs no `Loader` — it's a pure
+   function of the method bytecode + its cp).
+3. **vreg assignment** — turn each instruction's (entry depth, slot effect) into
+   concrete `Uses`/`Defs` slot indices.
+
+A0 is **depth-only** and needs **no SSA or phis**: vregs are position-stable
+slot indices, and JVMS guarantees equal stack depth at every merge point, so a
+single path's definitions are always the live ones at execution time.
+
+`interpreter.LoopIR` runs the lowered form (opt-in via `-ir`). Every instruction
+seeds the operand-stack pointer from the IR's known depth; pure ops read/write
+the precomputed `Uses`/`Defs` slots, while complex ops reuse the tree-walker's
+helpers. `tests/run.sh` requires `java`, `Loop`, and `LoopIR` to be
+byte-identical — the equivalence gate that proves the lowering is
+semantics-preserving.
+
+**The IR executor is not faster than the tree-walker** (~6% slower on
+`BenchFib`): predecode savings are smaller than the IR dispatch overhead in Go.
+This is expected and fine — the IR's job is validation and as the emitter's
+input; the speed gain is the AOT transpiler's job (ADR-0006).
+
 ## 8. What catty does *not* model (yet)
 
 Kept out of scope deliberately; each is a documented future work item in

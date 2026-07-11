@@ -22,10 +22,10 @@ Go runtime remains the GC/scheduler — exactly the premise, extended.
 Sketch of the design:
 
 1. **Stack elimination**. Bytecode is stack-based, but every instruction's
-   stack effect is statically known. An abstract-interpretation pass computes,
-   at each program point, the stack depth and the type of each slot. This turns
-   the operand stack into a set of synthetic local variables — the same
-   transform a JIT performs when going bytecode → SSA.
+   stack effect is statically known. A depth dataflow computes, at each program
+   point, the stack depth, turning the operand stack into slot-indexed virtual
+   registers. ✅ **Done in A0** (depth-only; type tracking / true SSA is the
+   emitter's concern).
 2. **Lowering to Go**. Each Java method becomes a Go `func`. Java objects → Go
    structs (already the case); Java calls → direct Go calls after resolution;
    Java control flow → Go control flow. `long`/`double` map to `int64`/`float64`.
@@ -39,9 +39,12 @@ hand-written SSA backend + register allocator + a GC. catty gets all three for
 free from Go's toolchain and runtime.
 
 Milestones:
-- [ ] **A0** — standalone stack-elimination pass on a single method, verified
-  against the interpreter's result on a corpus.
-- [ ] **A1** — emit + compile a trivial method (e.g. `fib`), run it natively.
+- [x] **A0** — stack-elimination pass + an IR executor that runs it, verified
+  end-to-end (3 engines byte-identical on all fixtures). *De-risks the bet: the
+  stack can be statically eliminated.* See `lowering/` and the A0 changelog entry.
+- [ ] **A1** — emit + compile a trivial method (e.g. `fib`) to Go source, run it
+  natively. Reuses A0's `lowering.IR` (operands predecoded, Uses/Defs computed);
+  the new work is the Go-source emitter.
 - [ ] **A2** — object model, field access, virtual dispatch in emitted code.
 - [ ] **A3** — whole-program transpile of the test corpus, diff vs interpreter.
 - [ ] **A4** — hot-method selection: interpret cold code, transpile hot.
@@ -55,9 +58,13 @@ concurrency arc must land first or in lockstep).
 Before AOT lands, the interpreter itself has clear, bounded headroom. Ordered
 by expected payoff:
 
-- [ ] **Predecode bytecode** into a flat `[]Instruction` once per method
-  (decode operands up front), so the hot loop does no operand parsing. Often the
-  single biggest interpreter win.
+- [~] **Predecode bytecode** into a flat instruction array once per method, so
+  the hot loop does no operand parsing. **Tried in A0 (`LoopIR`): it measured
+  ~6% *slower* than the tree-walker** — the per-instruction overhead (stack-
+  pointer seeding, instruction-struct dereference, slot-accessor calls) outweighs
+  the saved operand parsing. Predecode inside a Go interpreter does not pay off;
+  the IR's value is validation + as the input to the AOT emitter, not speed.
+  Recorded in ADR-0006. The remaining Theme-B items are still open.
 - [ ] **`sync.Pool` for `Frame`** — method entry currently allocates a frame
   (locals + operand stack). Pooling eliminates per-call allocation in tight
   recursion.

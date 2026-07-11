@@ -55,9 +55,10 @@ func parseNextType(raw string) (typ string, rest string) {
 	}
 }
 
-// argSlotCount returns the number of local-variable slots the parameters of a
-// method occupy: long/double (J, D) take 2 slots, every other type takes 1.
-func (md MethodDescriptor) argSlotCount() int {
+// ArgSlots returns the number of local-variable slots the parameters of a method
+// occupy: long/double (J, D) take 2 slots, every other type takes 1. Used by the
+// classloader (frame sizing) and the lowering pass (invoke slot effects).
+func (md MethodDescriptor) ArgSlots() int {
 	n := 0
 	for _, t := range md.ParameterTypes {
 		if t == "J" || t == "D" {

@@ -30,7 +30,7 @@ type exceptionEntry struct {
 // instance methods. maxStack of 2 covers any category-2 return value.
 func NativeMethod(owner *Class, name, descriptor string, fn func(*Frame)) *Method {
 	md := ParseMethodDescriptor(descriptor)
-	argSlots := uint(md.argSlotCount())
+	argSlots := uint(md.ArgSlots())
 	return &Method{
 		owner:        owner,
 		name:         name,
@@ -56,7 +56,7 @@ func InterpretedMethod(owner *Class, name, descriptor string, access uint16,
 		maxLocals:     maxLocals,
 		code:          code,
 		exceptionTable: exTable,
-		argSlotCount:  uint(md.argSlotCount()),
+		argSlotCount:  uint(md.ArgSlots()),
 	}
 	if access&accNative != 0 {
 		m.native = true // no nativeFunc yet; resolved against the registry at load

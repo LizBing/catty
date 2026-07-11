@@ -4,37 +4,38 @@ import (
 	"math"
 	"strings"
 
+	"catty/opcode"
 	"catty/rtda"
 )
 
 // ---------- typed local-variable load/store for the indexed forms ----------
 
-func loadLocal(frame *rtda.Frame, op byte, idx int) {
+func loadLocal(frame *rtda.Frame, op opcode.Opcode, idx int) {
 	switch op {
-	case opIload:
+	case opcode.Iload:
 		frame.PushInt(frame.GetInt(idx))
-	case opLload:
+	case opcode.Lload:
 		frame.PushLong(frame.GetLong(idx))
-	case opFload:
+	case opcode.Fload:
 		frame.PushFloat(frame.GetFloat(idx))
-	case opDload:
+	case opcode.Dload:
 		frame.PushDouble(frame.GetDouble(idx))
-	case opAload:
+	case opcode.Aload:
 		frame.PushRef(frame.GetRef(idx))
 	}
 }
 
-func storeLocal(frame *rtda.Frame, op byte, idx int) {
+func storeLocal(frame *rtda.Frame, op opcode.Opcode, idx int) {
 	switch op {
-	case opIstore:
+	case opcode.Istore:
 		frame.SetInt(idx, frame.PopInt())
-	case opLstore:
+	case opcode.Lstore:
 		frame.SetLong(idx, frame.PopLong())
-	case opFstore:
+	case opcode.Fstore:
 		frame.SetFloat(idx, frame.PopFloat())
-	case opDstore:
+	case opcode.Dstore:
 		frame.SetDouble(idx, frame.PopDouble())
-	case opAstore:
+	case opcode.Astore:
 		frame.SetRef(idx, frame.PopRef())
 	}
 }
