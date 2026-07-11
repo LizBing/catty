@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# CI runs the same three gates a contributor runs locally:
+#   go vet (static checks) -> go test (unit) -> tests/run.sh (end-to-end diff vs java)
+# Go is needed to build/verify; a JDK is needed to compile fixtures and provide
+# the reference `java` output the e2e harness diffs against.
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          cache: true
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Build
+        run: go build ./...
+
+      - name: go vet
+        run: go vet ./...
+
+      - name: Unit tests
+        run: go test ./...
+
+      - name: End-to-end (diff vs java)
+        run: bash tests/run.sh
