@@ -15,3 +15,9 @@ Format (Michael Nygard's template): Status, Context, Decision, Consequences.
 | [0005](./0005-lazy-clinit.md) | Lazy `<clinit>` via frame push at JVMS §5.5 points | Accepted |
 | [0006](./0006-predecode-no-speedup.md) | Predecode in the interpreter doesn't pay off — AOT is the perf path | Accepted |
 | [0007](./0007-reflection-dynamic-tiered.md) | Reflection & dynamic features: tiered — keep the interpreter | Accepted |
+| [0008](./0008-aot-first.md) | AOT-first architecture (interpreter is the dev tier, not production) | Proposed |
+| [0009](./0009-hybrid-class-library.md) | Hybrid class library (~50 native Go + ~7000 interpreted from real JDK) | Proposed |
+| [0010](./0010-thread-equals-goroutine.md) | Thread = goroutine (virtual threads from day one) | Proposed |
+| [0011](./0011-go-memory-model.md) | Adopt Go memory model (not JMM/JSR-133) | Proposed |
+| [0012](./0012-escape-analysis-replaces-generational-gc.md) | Escape analysis replaces generational GC | Proposed |
+| [0013](./0013-direct-go-runtime-integration.md) | Direct Go runtime integration (no JVM abstraction layer) | Proposed |

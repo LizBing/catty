@@ -104,11 +104,28 @@ HotSpot's JIT**. The interpreter's ~7× gap to `java -Xint` is dispatch overhead
 (switch vs computed goto; 16-byte slots; per-call frame allocation); ADR-0006
 shows predecode doesn't close it — only AOT does.
 
-## Out of scope (planned or deferred)
+## Vision: an experimental JRE platform
 
-Concurrency (single-threaded; `Thread`→goroutine + monitors later),
-`invokedynamic`/lambdas, exceptions/try-catch, reflection, JNI, and the full
-class library. See [docs/ROADMAP.md](docs/ROADMAP.md).
+catty is evolving from an AOT transpiler into an **experimental JRE platform**
+that compiles Java programs into Go programs — the final product is a native Go
+binary running on Go's GC, scheduler, and network stack. Java's
+Thread/synchronized/volatile/GC/IO are "dissolved" into Go's
+goroutine/mutex/atomic/GC/netpoll at compile time.
+
+Key architectural decisions (ADRs 0008–0013):
+
+- **AOT-first**: interpreter is the dev tier; production runs AOT exclusively
+  (no JIT warmup, no safepoints).
+- **Thread = goroutine**: virtual threads from day one (no Loom needed).
+- **Go memory model**: simpler than JMM; 99.9% compatible.
+- **Escape analysis replaces generational GC**: Go's compiler stack-allocates
+  non-escaping Java objects.
+- **Direct Go runtime integration**: Java I/O compiles to Go netpoll
+  (no JNI layer).
+- **Hybrid class library**: ~50 critical classes native in Go; ~7000 loaded
+  from the real JDK.
+
+See [docs/ROADMAP.md](docs/ROADMAP.md) for the phased plan (R1–R6).
 
 ## License
 

@@ -7,6 +7,16 @@ The plan that governs this work lives in `plans/go-jvm-go-mvp-humming-bonbon.md`
 
 ## [Unreleased]
 
+### Strategic vision: catty as an experimental JRE platform
+
+6 new ADRs (0008–0013) defining the architectural breakthrough: catty compiles
+Java programs into Go programs that run natively on Go's runtime. Key decisions:
+AOT-first (no JIT), Thread=goroutine (virtual threads from day one), Go memory
+model (not JMM), escape analysis replaces generational GC, direct Go runtime
+integration (no JNI layer), hybrid class library (~50 native + ~7000 from JDK).
+
+Updated ROADMAP with phased plan (R1–R6).
+
 ### A2.5 — long / float / double type support (all primitives covered)
 
 The emitter now handles all Java primitive types: long (int64), float (float32),
