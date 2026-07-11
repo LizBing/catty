@@ -3,27 +3,34 @@
 An experimental JVM written in Go that **sits on top of the Go runtime**: it
 reuses Go's garbage collector, scheduler, and allocator instead of implementing
 its own. Java objects are Go objects (traced natively by Go's GC, with zero
-write-barrier code); the planned concurrency model maps `java.lang.Thread` to a
-goroutine.
+write-barrier code); `java.lang.Thread` is planned to map to a goroutine.
 
-**Phase 1 is done**: a correct, switch-dispatched bytecode interpreter running a
-minimal-but-real Java subset, byte-identical to HotSpot on the test corpus.
-Phase 2 (a bytecode → Go-source AOT transpiler) is the open performance arc.
+catty has two execution paths:
+- **Interpreter** (`catty -cp . MainClass`) — a switch-dispatched bytecode
+  interpreter running a minimal-but-real Java subset, byte-identical to
+  HotSpot on the test corpus.
+- **AOT build** (`catty build -cp . MainClass`) — transpiles bytecode to Go
+  source, compiles with `go build`, and produces a **standalone native binary**
+  that runs at native speed. On `fib(35)` the emitted Go runs in ~44 ms — on
+  par with HotSpot's JIT, ~100× faster than the interpreter.
 
 ## Documentation
 
 | Document | What it covers |
 |---|---|
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Premise, execution pipeline, package responsibilities, data structures, an end-to-end trace, and the performance story |
-| [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Build/run/test, project layout, conventions, and recipes for adding an opcode / native method / core class |
-| [docs/ROADMAP.md](docs/ROADMAP.md) | Phase 2 AOT design, interpreter tuning, spec-coverage gaps, performance targets |
-| [docs/CHANGELOG.md](docs/CHANGELOG.md) | Versioned work log |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Premise, pipeline (interpreter + AOT), package responsibilities, data structures, traces, performance |
+| [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Build/run/test, `catty build`, project layout, conventions, extension recipes |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | What's done, what's next (exceptions, concurrency, reflection, more) |
+| [docs/CHANGELOG.md](docs/CHANGELOG.md) | Versioned work log (Phase 1 → A4) |
 | [docs/adr/](docs/adr/) | Architecture Decision Records — the *why* behind each choice |
 
-## Status — what runs
+## What runs
+
+### Interpreter (`catty -cp . MainClass`)
 
 `./tests/run.sh` compiles each fixture with `javac` and diffs catty's stdout
-against real `java`. All currently pass:
+against real `java` (through **three** engines: tree-walker, IR executor, and
+`java`). All pass:
 
 | Fixture | Exercises |
 |---|---|
@@ -34,6 +41,7 @@ against real `java`. All currently pass:
 | OOPDemo | `new`, `<init>`, instance fields, `invokevirtual` dispatch |
 | StaticFields | `<clinit>` static initializers |
 | SwitchDemo | `tableswitch` (dense) + `lookupswitch` (sparse) |
+| EmptyMain | empty main — startup / smoke test |
 
 The interpreter implements ~140 JVMS opcodes: constants, typed loads/stores,
 full int/long/float/double arithmetic and conversions, shifts, comparisons,
@@ -43,48 +51,62 @@ creation and access, field access, `invoke{virtual,special,static}`,
 `String`, `StringBuilder`, `System`, `java.io.PrintStream`) are implemented
 natively in Go rather than loaded from a JRE.
 
-There are **two execution engines**, both byte-identical to `java` on the test
-corpus: the default tree-walking interpreter (`Loop`) and a stack-eliminated IR
-executor (`-ir`, `LoopIR`). The IR executor validates the lowering pass that
-underpins the planned AOT transpiler — it is not (yet) faster (ADR-0006).
+### AOT build (`catty build -cp . MainClass`)
 
-There is also an experimental **AOT transpiler** (`transpile.Emit`, A1): it
-lowers a method's IR to Go source and compiles it natively. On `fib(35)` the
-emitted Go runs in ~44 ms — native speed, ~100× the interpreter and on par with
-HotSpot's JIT. Currently int-only / single-method (`fib`); see
-[docs/ROADMAP.md](docs/ROADMAP.md) Theme A.
+`catty build` transpiles a whole program (all emittable methods via
+reachability analysis), compiles with `go build`, and produces a standalone
+binary. The emitter covers:
+
+- **All primitive types**: int/long/float/double + ref + arrays
+- **All control flow**: straight-line, loops (empty-stack merges), diamonds
+  (phi via copy-insertion), switches (tableswitch/lookupswitch)
+- **OOP**: `new`/`getfield`/`putfield`/`invokespecial` (constructors run
+  interpreted via the bridge)
+- **Invoke bridge**: `invokevirtual`/`special`/`static` route to native or
+  interpreted targets via `catty/runtime` (the "world transition")
+- **frem/drem**: float remainder via `runtime.FloatMod`/`DoubleMod`
+
+Methods the emitter can't handle (unsupported opcodes, instance methods) are
+served by the interpreter at runtime via the bridge — the tiered model.
+
+`TestBuildProgram` validates HelloWorld + Fibonacci: both build to standalone
+binaries and produce output byte-identical to `java`.
 
 ## Quickstart
 
 ```sh
-go build -o catty ./cmd/jvm          # build
-./catty -cp <classpath> <MainClass>  # run (tree-walking interpreter)
-./catty -cp <classpath> -ir <Main>   # run via the lowered IR executor
+go build -o catty ./cmd/jvm                    # build catty
+./catty -cp <classpath> <MainClass>            # interpret
+./catty -cp <classpath> -ir <MainClass>        # IR executor
+./catty build -cp <classpath> [-o output] <MainClass>  # AOT build → native binary
+./catty build -cp <classpath> -run <MainClass>        # AOT build + run
 
-./tests/run.sh                       # e2e: compile fixtures, diff catty vs java
-go test ./...                        # unit tests
+./tests/run.sh                                 # e2e: compile fixtures, diff vs java
+go test ./...                                  # unit tests
 ```
 
-Requires Go 1.22+ and a JDK (`javac`/`java`) on `PATH`. `-cp` is
-colon-separated dirs/jars (default `.`); `<MainClass>` may use dots or slashes.
-Set `CATTY_DEBUG=1` for a Go stack trace on a VM error.
+Requires Go 1.22+ and a JDK (`javac`/`java`) on `PATH`. `catty build` also
+requires running from the catty source tree (the emitted binary imports catty
+packages). Set `CATTY_DEBUG=1` for a Go stack trace on a VM error.
 
-## Performance baseline (fib(35), ~29M recursive calls)
+## Performance (fib(35), ~29M recursive calls)
 
 | Engine | Time | Relative |
 |---|---|---|
-| catty (interpreter) | 4.34 s | 1× |
-| `java -Xint` (HotSpot interpreter) | 0.61 s | ~7× catty |
-| `java` (HotSpot JIT) | 0.05 s | ~87× catty |
+| catty AOT (`catty build`) | ~44 ms | **native speed** |
+| `java` (HotSpot JIT) | ~50 ms | baseline |
+| `java -Xint` (HotSpot interpreter) | ~600 ms | ~14× AOT |
+| catty interpreter (`Loop`) | ~4.5 s | ~100× AOT |
+| catty IR executor (`-ir`) | ~4.8 s | slightly slower than `Loop` (ADR-0006) |
 
-The ~7× gap to `java -Xint` is **interpreter headroom** (switch vs. computed-goto
-dispatch; 16-byte slots vs. machine words; per-call frame allocation) — tunable.
-The ~87× gap to JIT is **JIT headroom**, closeable only by the Phase 2 AOT
-transpiler. See [docs/ROADMAP.md](docs/ROADMAP.md) Themes A and B.
+The AOT path reaches native speed — **~100× the interpreter and on par with
+HotSpot's JIT**. The interpreter's ~7× gap to `java -Xint` is dispatch overhead
+(switch vs computed goto; 16-byte slots; per-call frame allocation); ADR-0006
+shows predecode doesn't close it — only AOT does.
 
 ## Out of scope (planned or deferred)
 
-Concurrency (single-threaded today; `Thread`→goroutine + monitors later),
+Concurrency (single-threaded; `Thread`→goroutine + monitors later),
 `invokedynamic`/lambdas, exceptions/try-catch, reflection, JNI, and the full
 class library. See [docs/ROADMAP.md](docs/ROADMAP.md).
 

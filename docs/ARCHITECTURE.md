@@ -15,16 +15,21 @@ subsystems are deliberately *not* implemented:
 |---|---|
 | Garbage collector | Java objects are Go heap allocations; Go's GC traces them natively. No write barriers, no mark/sweep code. |
 | Thread scheduler | MVP is single-threaded; the concurrency arc maps `java.lang.Thread` to a goroutine and uses the Go GMP scheduler. |
-| JIT compiler | None in Phase 1. Phase 2 replaces the interpreter with a bytecode→Go AOT transpiler that hands optimization to the Go compiler. |
+| JIT compiler | None directly. Instead, a bytecode→Go-source AOT transpiler (`catty build`) hands optimization to the Go compiler — `go build` IS the optimizing backend. |
 
 This trade is the whole point of the project: by not writing a GC, scheduler, or
-JIT, the implementation is small (~3300 LOC) and the MVP floor is bounded — the
-work collapses to "a bytecode interpreter plus a class loader." The cost is a
-performance ceiling the interpreter cannot break (see §7).
+JIT, the implementation is small (~7500 LOC) and the MVP floor is bounded — the
+work collapses to "a bytecode interpreter plus a class loader" (Phase 1) and "a
+lowering pass + Go-source emitter" (A0–A4). The AOT path reaches native speed
+(`fib(35)` in ~44 ms, on par with HotSpot JIT); the interpreter is the fallback
+for anything the emitter can't handle (see §7).
 
 ## 2. The pipeline
 
-A catty run is a linear pipeline, one Go package per stage:
+catty has two execution paths — **interpret** and **AOT build** — sharing the
+same class-loading front end:
+
+### Interpret path (`catty -cp . MainClass`)
 
 ```
    .class bytes
@@ -44,40 +49,75 @@ A catty run is a linear pipeline, one Go package per stage:
                                        ▲
                                        │
                                  ┌─────────┐
-                                 │ cmd/jvm │  launcher: wires it all together
+                                 │ cmd/jvm │
                                  └─────────┘
 ```
 
-Stage responsibilities:
+### AOT build path (`catty build -cp . MainClass`)
+
+```
+   .class bytes
+        │
+        ▼
+ ┌──────────────┐   ┌─────────────┐   ┌───────────────┐   ┌───────┐
+ │  classpath   │──▶│  classfile  │──▶│  classloader  │──▶│ rtda  │
+ └──────────────┘   └─────────────┘   └───────────────┘   └───┬───┘
+                       │ (reachability)                        │
+                       ▼                                       ▼
+                 ┌───────────┐   ┌──────────┐   ┌────────────────┐
+                 │ lowering  │──▶│ transpile │──▶│  go build       │──▶ native binary
+                 │ IR + types│   │ Emit Go   │   │ (embedded runtime│
+                 └───────────┘   └──────────┘   │ + interpreter)  │
+                                                └────────────────┘
+```
+
+The emitted binary embeds the entire catty runtime (`classloader` + `interpreter`
++ `native` + `runtime` bridge). At run time: AOT'd methods call direct Go /
+the bridge; un-AOT'd methods are served by the interpreter via the bridge — the
+**tiered model** (ADR-0007).
+
+### Stage responsibilities
 
 1. **`classpath/`** — find `<name>.class` on disk (directories, jars, zips).
-2. **`classfile/`** — decode raw bytes into a `*classfile.ClassFile` per JVMS §4
-   (constant pool, members, Code attribute, modified-UTF-8).
+2. **`classfile/`** — decode raw bytes into `*classfile.ClassFile` per JVMS §4
+   (constant pool, members, Code attribute, StackMapTable, modified-UTF-8).
 3. **`classloader/`** — load + link + cache. Converts a `classfile.ClassFile`
-   into a runtime `rtda.Class`: resolves the superclass and interfaces,
-   computes field slot offsets, builds `rtda.Method`s. Routes three class kinds:
-   array types, natively-implemented core classes, and ordinary user classes.
-4. **`rtda/`** — the runtime data areas (JVMS §2.5): `Slot`, `Frame`, `Thread`,
-   `Class`, `Method`, `Field`, `Object`, `Array`. Pure data + the class
-   construction logic.
-5. **`interpreter/`** — a switch-dispatch loop over bytecode. Resolves constant
-   pool refs at run time, manages the operand stack and locals, invokes methods.
-6. **`native/`** — the core JDK classes (`java.lang.Object`, `String`,
-   `StringBuilder`, `System`, `java.io.PrintStream`) implemented in Go rather
-   than loaded from a JRE.
-7. **`cmd/jvm/`** — parses `-cp` and the main class, finds `main(...)`, builds
-   a `Thread`, and enters the interpreter loop.
+   into a runtime `rtda.Class`: resolves supers, computes field offsets, builds
+   `rtda.Method`s. Routes array/core/user classes.
+4. **`rtda/`** — runtime data areas: `Slot`, `Frame`, `Thread`, `Class`,
+   `Method`, `Field`, `Object`, `Array`. Pure data + class construction.
+5. **`opcode/`** — leaf package of JVMS opcode constants, shared by the
+   interpreter and the lowering pass (no import cycle).
+6. **`lowering/`** — converts a method's bytecode into a register-form IR:
+   decode → depth dataflow → vreg (Uses/Defs) assignment + type tracking
+   (via StackMapTable). The stack is eliminated into slot-indexed vregs.
+7. **`interpreter/`** — switch-dispatch loop over bytecode (the interpreter)
+   and over the lowered IR (`LoopIR`, the validation tier). Also the
+   interpreted-target bridge (`RunMethod`) for the AOT path.
+8. **`transpile/`** — the AOT emitter: `Emit` (one method → Go source) and
+   `BuildProgram` (whole-program: reachability + pass1/2 + assemble).
+9. **`runtime/`** — the AOT bridge: `Bootstrap`, `GetStatic`,
+   `InvokeVirtual`/`Special`/`Static`, `NewObject`/`NewString`, `FloatMod`/
+   `DoubleMod`. Resolves targets by (class, name, desc) at run time.
+10. **`native/`** — core JDK classes (`Object`, `String`, `StringBuilder`,
+    `System`, `PrintStream`) implemented in Go rather than loaded from a JRE.
+11. **`cmd/jvm/`** — launcher: interpret (`catty -cp . Main`) or build
+    (`catty build -cp . Main`).
 
 ## 3. Package dependency graph
 
 ```
 classfile          (stdlib only)
 classpath          (stdlib only)
+opcode             (stdlib only)
 rtda        ──▶ classfile
 native      ──▶ rtda
 classloader ──▶ classfile, classpath, rtda, native
-interpreter ──▶ classfile, rtda
-cmd/jvm     ──▶ classpath, classloader, interpreter, rtda
+lowering   ──▶ classfile, opcode, rtda
+interpreter ──▶ classfile, opcode, lowering, rtda
+runtime    ──▶ classloader, classpath, interpreter, rtda
+transpile ──▶ classfile, lowering, opcode, rtda
+cmd/jvm    ──▶ classpath, classloader, interpreter, rtda, transpile
 ```
 
 There are **no import cycles**. The one place a cycle would naturally appear —

@@ -16,15 +16,21 @@ Both must be on `PATH`. Confirm with `go version` and `javac -version`.
 
 ```sh
 go build -o catty ./cmd/jvm          # build the launcher
-./catty -cp <classpath> <MainClass>  # run a program
+./catty -cp <classpath> <MainClass>  # interpret
+./catty -cp <classpath> -ir <MainClass>  # IR executor
+./catty build -cp <classpath> [-o output] <MainClass>  # AOT build → native binary
+./catty build -cp <classpath> -run <MainClass>  # AOT build + run
 
 # examples
 ./catty -cp tests/fixtures HelloWorld
 go run ./cmd/jvm -cp tests/fixtures Fibonacci
+./catty build -cp tests/fixtures -run Fibonacci    # AOT build + run
 ```
 
 `-cp` is colon-separated directories/jars (defaults to `.`). `<MainClass>`
-accepts dots or slashes: `pkg.Main` or `pkg/Main`.
+accepts dots or slashes: `pkg.Main` or `pkg/Main`. `catty build` requires
+running from the catty source tree (the emitted binary imports catty
+packages; `go build` resolves them from the current module).
 
 Unhandled VM errors (unsupported opcode, `NullPointerException`, etc.) print
 `catty: <message>` and exit 1. Set `CATTY_DEBUG=1` to also dump the Go stack
@@ -56,16 +62,21 @@ its class name to `MAIN_CLASSES` in `tests/run.sh`.
 
 ```
 catty/
-├── cmd/jvm/            launcher (flag parsing, main-method entry)
+├── cmd/jvm/            launcher: interpret, IR executor, or `build` (AOT)
 ├── classfile/          .class binary → structs (JVMS §4)
 ├── classpath/          locate .class in dirs/jars/zips
 ├── classloader/        load + link + cache; implements rtda.Loader
+├── opcode/             JVMS opcode constants (leaf, shared by interp + lowering)
 ├── rtda/               runtime data areas + class construction
-├── interpreter/        switch dispatch loop + opcode handlers
+├── lowering/           bytecode → register-form IR (decode + dataflow + vregs + types)
+├── interpreter/        switch dispatch (Loop) + IR dispatch (LoopIR) + bridge (RunMethod)
+├── transpile/         AOT emitter: Emit (one method → Go) + BuildProgram (whole program)
+├── runtime/            AOT bridge: Bootstrap, GetStatic, Invoke{Virtual,Special,Static}, ...
 ├── native/             synthetic core classes + native Go methods
 ├── tests/
 │   ├── fixtures/       *.java programs (the e2e corpus)
 │   └── run.sh          the e2e verification harness
+└── docs/               this documentation
 └── docs/               this documentation
 ```
 
