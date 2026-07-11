@@ -252,7 +252,26 @@ semantics-preserving.
 This is expected and fine — the IR's job is validation and as the emitter's
 input; the speed gain is the AOT transpiler's job (ADR-0006).
 
-## 8. What catty does *not* model (yet)
+## 9. AOT transpiler (A1)
+
+`transpile.Emit` turns a method's `lowering.IR` into Go source — the executable
+proof that bytecode → Go source → `go build` reaches native-class speed. Each
+operand-stack slot becomes a Go local `sK`; each JVM local is `lK` (the first
+`ArgSlotCount` are the function's parameters); bytecode control flow becomes
+`goto`/labels. The Go toolchain compiles it, with the Go runtime as GC/scheduler.
+
+The Go-source rules shape the emitter by construction: all slot/extra-local
+declarations precede any label (so `goto` never crosses a `var`); a `pcNN:`
+label appears only at branch/switch targets (no unused labels); a trailing
+`_ = sK` sink plus `return 0` marks every slot used and satisfies the
+missing-return check.
+
+**Result on `fib(35)`:** emitted Go runs in ~44 ms — native speed, ~100× the
+interpreter and on par with HotSpot's JIT (see the A1 changelog entry). A1 is
+scoped to int-only static methods and the `fib` opcode subset; non-int types,
+the object model, and runtime integration are A1.5/A2/A4.
+
+## 10. What catty does *not* model (yet)
 
 Kept out of scope deliberately; each is a documented future work item in
 [`ROADMAP.md`](./ROADMAP.md):

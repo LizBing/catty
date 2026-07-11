@@ -48,6 +48,12 @@ corpus: the default tree-walking interpreter (`Loop`) and a stack-eliminated IR
 executor (`-ir`, `LoopIR`). The IR executor validates the lowering pass that
 underpins the planned AOT transpiler — it is not (yet) faster (ADR-0006).
 
+There is also an experimental **AOT transpiler** (`transpile.Emit`, A1): it
+lowers a method's IR to Go source and compiles it natively. On `fib(35)` the
+emitted Go runs in ~44 ms — native speed, ~100× the interpreter and on par with
+HotSpot's JIT. Currently int-only / single-method (`fib`); see
+[docs/ROADMAP.md](docs/ROADMAP.md) Theme A.
+
 ## Quickstart
 
 ```sh

@@ -5,7 +5,44 @@ versions are project-local (no published releases yet).
 
 The plan that governs this work lives in `plans/go-jvm-go-mvp-humming-bonbon.md`.
 
-## [Unreleased] — A0: bytecode IR + stack elimination
+## [Unreleased]
+
+### A1 — AOT emitter: bytecode → Go source (run a method natively)
+
+The first executable proof of the performance thesis: lower a method's IR to Go
+source and let the Go toolchain compile it, so `go build` is the optimizing
+backend and the Go runtime stays the GC/scheduler.
+
+### Added (A1)
+- **`transpile/`** — `Emit(method, ir) (string, error)`: turns one method's
+  `lowering.IR` into a Go function. The operand stack is eliminated into Go
+  locals (`sK`); JVM locals are `lK` (the first `ArgSlotCount` are the params);
+  control flow is `goto`/labels. Go's source rules are handled by construction:
+  all slot/extra-local declarations precede any label (no goto-over-decl), labels
+  appear only at branch/switch targets (no unused labels), and a trailing sink +
+  `return 0` marks every slot used and satisfies the missing-return check.
+- **`transpile/emit_test.go`** — lowers `Fibonacci.fib`, emits a `main` package,
+  `go build`s + runs it, and asserts correctness and native-class speed.
+
+### Performance — emitted `fib(35)` (the headline A1 result)
+| Engine | Time |
+|---|---|
+| emitted Go (`go build`) | **~44 ms** |
+| `java` (HotSpot JIT) | ~50 ms |
+| `java -Xint` | ~600 ms |
+| catty tree-walker / IR | ~4.5 s |
+
+Emitted `fib` runs at native Go speed — ~100× faster than the interpreter and on
+par with HotSpot's JIT. The thesis holds: bytecode → Go source → `go build`
+delivers native-class performance, which no interpreter variant could.
+
+### Scope (A1)
+Int-only, static methods, the `fib` opcode subset (loads, int arithmetic,
+shifts, `iinc`, conditional/unconditional branches, `ireturn`, `invokestatic`).
+Non-int types, the object model (`new`/fields/`invokevirtual`), arrays, and
+switches are A1.5/A2; integration into `cmd/jvm` (hot-method selection) is A4.
+
+### A0 — bytecode IR + stack elimination (the AOT keystone)
 
 The AOT keystone: a `lowering` pass that converts a method's stack-based
 bytecode into a register-form IR (the operand stack eliminated into slot-indexed

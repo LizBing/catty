@@ -42,9 +42,11 @@ Milestones:
 - [x] **A0** — stack-elimination pass + an IR executor that runs it, verified
   end-to-end (3 engines byte-identical on all fixtures). *De-risks the bet: the
   stack can be statically eliminated.* See `lowering/` and the A0 changelog entry.
-- [ ] **A1** — emit + compile a trivial method (e.g. `fib`) to Go source, run it
-  natively. Reuses A0's `lowering.IR` (operands predecoded, Uses/Defs computed);
-  the new work is the Go-source emitter.
+- [x] **A1** — emit + compile a trivial method (`fib`) to Go source, run it
+  natively. Reuses A0's `lowering.IR`; the new work is the Go-source emitter
+  (`transpile.Emit`). *Emitted `fib(35)` runs in ~44 ms — native Go speed, ~100×
+  the interpreter and on par with HotSpot JIT.* See `transpile/` and the A1
+  changelog entry.
 - [ ] **A2** — object model, field access, virtual dispatch in emitted code.
 - [ ] **A3** — whole-program transpile of the test corpus, diff vs interpreter.
 - [ ] **A4** — hot-method selection: interpret cold code, transpile hot.
