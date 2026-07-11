@@ -15,6 +15,10 @@ type Loader interface {
 type Thread struct {
 	stack  []*Frame
 	loader Loader
+	// bridgeReturn captures a method's return value when run from the AOT bridge
+	// (interpreter.RunMethod): there is no caller frame, so the return helpers
+	// write here instead of pushing. nil outside bridge mode.
+	bridgeReturn *Slot
 }
 
 func NewThread(loader Loader) *Thread {
@@ -42,6 +46,12 @@ func (t *Thread) CurrentFrame() *Frame {
 func (t *Thread) IsStackEmpty() bool {
 	return len(t.stack) == 0
 }
+
+// Bridge-mode accessors: used by the AOT bridge (interpreter.RunMethod) to capture
+// a method's return when there is no caller frame to push it onto.
+func (t *Thread) SetBridgeReturn(s *Slot) { t.bridgeReturn = s }
+func (t *Thread) HasBridgeReturn() bool    { return t.bridgeReturn != nil }
+func (t *Thread) BridgeReturn(s Slot)      { *t.bridgeReturn = s }
 
 // NewFrame allocates a frame for a method on this thread.
 func (t *Thread) NewFrame(method *Method) *Frame {

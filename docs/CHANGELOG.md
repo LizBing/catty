@@ -7,6 +7,42 @@ The plan that governs this work lives in `plans/go-jvm-go-mvp-humming-bonbon.md`
 
 ## [Unreleased]
 
+### A2.2b — OOP: new / fields / invokespecial (+ interpreted-target bridge)
+
+The AOT path now handles objects. The bridge extended from native-only to **native
+or interpreted** targets (constructors are bytecode via `invokespecial`; user
+methods via `invokevirtual` are interpreted), and the emitter learned `new`/`dup`/
+`invokespecial`/`getfield`/`putfield`. Milestone: an OOP program — `new Box();
+b.v = 21; println(b.v + b.doubled())` — transpiled and run natively, printing `63`.
+
+### Added (A2.2b)
+- **Interpreted-target bridge**: `rtda.Thread` gains a bridge-return slot; the 5
+  return helpers write it when the stack is empty (the bridge's outermost callee);
+  `interpreter.RunMethod` runs an interpreted method and captures its return.
+- **`catty/runtime`**: `InvokeSpecial`; `InvokeVirtual`/`InvokeSpecial` dispatch
+  native→`runNative`, interpreted→`interpreter.RunMethod`; `NewObject` (allocate,
+  no init). 
+- **`transpile/emit.go`**: `Emit(method, ir, loader)` (field-offset resolution);
+  `new`/`dup`/`invokespecial`/`getfield`/`putfield`; extra-locals typed from their
+  store opcodes (`astore`→`*rtda.Object`, `istore`→`int32`); `slotType` tracking
+  for `dup`.
+- `tests/fixtures/OOPAot.java` — `Box{int v; int doubled(){return v+v;}}` + main.
+
+### Fixes
+- `getfield`/`iadd`-class bug: read use-temps before allocating the def-temp (a
+  def often reuses an operand's slot).
+
+### Validation
+- `TestEmitOOP`: emitted `OOPAot.main` compiles + runs natively, prints `63`
+  (== interpreter/`java`). Exercises new + interpreted `<init>`, putfield,
+  getfield, interpreted `invokevirtual doubled`, native `println`. fib/first/
+  HelloWorld/sum still pass; `go vet` clean; e2e 8/8.
+
+### Scope (A2.2b)
+Straight-line OOP. Diamonds/ternary (phi), `long`/`float`/`double` in the emitter,
+and interpreted `long`/`double` returns through the bridge are later; `cmd/jvm`
+integration is A4.
+
 ### A2.3 — Loops (empty-stack merges)
 
 The AOT path now handles **loops** — the dominant pattern in compute-intensive

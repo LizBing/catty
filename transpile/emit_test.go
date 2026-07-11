@@ -52,7 +52,7 @@ func TestEmitFib(t *testing.T) {
 	if err != nil {
 		t.Fatalf("lower: %v", err)
 	}
-	src, err := Emit(fib, ir)
+	src, err := Emit(fib, ir, cl)
 	if err != nil {
 		t.Fatalf("emit: %v", err)
 	}
@@ -110,7 +110,7 @@ func TestEmitFirst(t *testing.T) {
 	if err != nil {
 		t.Fatalf("lower: %v", err)
 	}
-	src, err := Emit(first, ir)
+	src, err := Emit(first, ir, cl)
 	if err != nil {
 		t.Fatalf("emit: %v", err)
 	}
@@ -151,7 +151,7 @@ func TestEmitHelloWorld(t *testing.T) {
 	if err != nil {
 		t.Fatalf("lower: %v", err)
 	}
-	src, err := Emit(main, ir)
+	src, err := Emit(main, ir, cl)
 	if err != nil {
 		t.Fatalf("emit: %v", err)
 	}
@@ -197,7 +197,7 @@ func TestEmitSum(t *testing.T) {
 	if err != nil {
 		t.Fatalf("lower: %v", err)
 	}
-	src, err := Emit(sum, ir)
+	src, err := Emit(sum, ir, cl)
 	if err != nil {
 		t.Fatalf("emit: %v", err)
 	}
@@ -239,7 +239,50 @@ func TestEmitDiamondGate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("lower: %v", err)
 	}
-	if _, err := Emit(max, ir); err == nil {
+	if _, err := Emit(max, ir, cl); err == nil {
 		t.Error("expected a non-empty-stack-merge error for ArrayOps.max (ternary), got nil")
+	}
+}
+
+// TestEmitOOP is the A2.2b milestone: AOT-execute OOP — new (+ interpreted
+// <init>), putfield, getfield, a user invokevirtual (interpreted via the bridge),
+// and a native println. Prints b.v + b.doubled() = 21 + 42 = 63.
+func TestEmitOOP(t *testing.T) {
+	dir := compileFixtures(t)
+	cl := classloader.New(classpath.Parse(dir))
+	main := cl.LoadClass("OOPAot").GetMethod("main", "([Ljava/lang/String;)V")
+	if main == nil {
+		t.Fatal("OOPAot.main not found")
+	}
+	ir, err := lowering.Lower(main)
+	if err != nil {
+		t.Fatalf("lower: %v", err)
+	}
+	src, err := Emit(main, ir, cl)
+	if err != nil {
+		t.Fatalf("emit: %v", err)
+	}
+	t.Logf("emitted OOPAot.main:\n%s", src)
+
+	out := t.TempDir()
+	program := "package main\n\nimport (\n\t\"catty/runtime\"\n\t\"catty/rtda\"\n)\n\n" + src +
+		"\nfunc main() {\n\truntime.Bootstrap(\".\", \"OOPAot\")\n\t" +
+		"OOPAot_main((*rtda.Object)(nil))\n}\n"
+	mainPath := filepath.Join(out, "oop.go")
+	if err := os.WriteFile(mainPath, []byte(program), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	bin := filepath.Join(out, "oopbin")
+	if buildOut, buildErr := exec.Command("go", "build", "-o", bin, mainPath).CombinedOutput(); buildErr != nil {
+		t.Fatalf("go build emitted OOPAot failed: %v\n%s\n--- source ---\n%s", buildErr, buildOut, program)
+	}
+	cmd := exec.Command(bin)
+	cmd.Dir = dir
+	got, err := cmd.Output()
+	if err != nil {
+		t.Fatalf("run emitted OOPAot: %v", err)
+	}
+	if want := "63\n"; string(got) != want {
+		t.Errorf("emitted OOPAot output = %q, want %q", string(got), want)
 	}
 }

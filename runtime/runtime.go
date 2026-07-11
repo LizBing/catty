@@ -40,8 +40,8 @@ func GetStatic(class, name, desc string) rtda.Slot {
 }
 
 // InvokeVirtual dispatches a virtual call: args[0] is `this`, and the target is
-// resolved on the receiver's runtime class (dynamic dispatch). A2.2 runs native
-// targets; interpreted targets will need a catcher frame (later).
+// resolved on the receiver's runtime class (dynamic dispatch). Runs native or
+// interpreted targets.
 func InvokeVirtual(class, name, desc string, args []rtda.Slot) rtda.Slot {
 	_ = loader.LoadClass(class) // ensures the class (and its methods) are loaded
 	recv := args[0].Ref()
@@ -49,7 +49,29 @@ func InvokeVirtual(class, name, desc string, args []rtda.Slot) rtda.Slot {
 		panic("catty: NullPointerException")
 	}
 	method := recv.Class().LookupMethod(name, desc)
-	return runNative(method, args)
+	return runMethod(method, args)
+}
+
+// InvokeSpecial resolves the target on the declared class (used for <init> and
+// super/private calls). Runs native or interpreted targets.
+func InvokeSpecial(class, name, desc string, args []rtda.Slot) rtda.Slot {
+	method := loader.LoadClass(class).LookupMethod(name, desc)
+	return runMethod(method, args)
+}
+
+// NewObject allocates an instance of class (without running <init> — the caller
+// follows with InvokeSpecial("<init>") to initialize it, matching `new`).
+func NewObject(class string) *rtda.Object {
+	return rtda.NewObject(loader.LoadClass(class))
+}
+
+// runMethod runs a native target (synchronously) or an interpreted target (via
+// the bridge's RunMethod).
+func runMethod(method *rtda.Method, args []rtda.Slot) rtda.Slot {
+	if method.IsNative() {
+		return runNative(method, args)
+	}
+	return interpreter.RunMethod(thread, method, args)
 }
 
 // NewString creates a java.lang.String carrying the Go string in its extra
@@ -73,9 +95,6 @@ func NewIntArray(values ...int32) *rtda.Object {
 // runNative sets up a frame with the given argument slots, runs the native
 // method, and returns its result slot (zero for void).
 func runNative(method *rtda.Method, args []rtda.Slot) rtda.Slot {
-	if !method.IsNative() {
-		panic("catty/runtime: non-native invoke target not supported yet (A2.2 is native-only)")
-	}
 	frame := thread.NewFrame(method)
 	for i, a := range args {
 		frame.SetSlot(i, a)

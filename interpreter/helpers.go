@@ -164,12 +164,19 @@ func lookupSwitch(frame *rtda.Frame, opcodePc int) {
 func padTo4(base int) int { return (4 - base%4) % 4 }
 
 // ---------- returns ----------
+//
+// In bridge mode (the method was run via interpreter.RunMethod from the AOT
+// bridge), the outermost return has no caller frame — so it writes the value to
+// the thread's bridge-return slot instead of dropping it. Nested returns still
+// push to their caller (the stack is non-empty).
 
 func returnInt(frame *rtda.Frame, thread *rtda.Thread) {
 	v := frame.PopInt()
 	thread.PopFrame()
 	if !thread.IsStackEmpty() {
 		thread.CurrentFrame().PushInt(v)
+	} else if thread.HasBridgeReturn() {
+		thread.BridgeReturn(rtda.IntSlot(v))
 	}
 }
 
@@ -178,6 +185,8 @@ func returnRef(frame *rtda.Frame, thread *rtda.Thread) {
 	thread.PopFrame()
 	if !thread.IsStackEmpty() {
 		thread.CurrentFrame().PushRef(v)
+	} else if thread.HasBridgeReturn() {
+		thread.BridgeReturn(rtda.RefSlot(v))
 	}
 }
 
@@ -186,6 +195,8 @@ func returnLong(frame *rtda.Frame, thread *rtda.Thread) {
 	thread.PopFrame()
 	if !thread.IsStackEmpty() {
 		thread.CurrentFrame().PushLong(v)
+	} else if thread.HasBridgeReturn() {
+		panic("catty: long return through the AOT bridge not supported yet")
 	}
 }
 
@@ -194,6 +205,8 @@ func returnFloat(frame *rtda.Frame, thread *rtda.Thread) {
 	thread.PopFrame()
 	if !thread.IsStackEmpty() {
 		thread.CurrentFrame().PushFloat(v)
+	} else if thread.HasBridgeReturn() {
+		panic("catty: float return through the AOT bridge not supported yet")
 	}
 }
 
@@ -202,6 +215,8 @@ func returnDouble(frame *rtda.Frame, thread *rtda.Thread) {
 	thread.PopFrame()
 	if !thread.IsStackEmpty() {
 		thread.CurrentFrame().PushDouble(v)
+	} else if thread.HasBridgeReturn() {
+		panic("catty: double return through the AOT bridge not supported yet")
 	}
 }
 

@@ -21,9 +21,9 @@ import (
 )
 
 // Emit turns one method's IR into a Go function definition. See the package doc
-// for A2.1 scope. Returns an error (not wrong code) for methods outside scope:
-// instance methods, methods with merges, or unsupported opcodes/types.
-func Emit(method *rtda.Method, ir *lowering.IR) (string, error) {
+// for scope. Returns an error (not wrong code) for methods outside scope. The
+// loader resolves field offsets (getfield/putfield) at emit time.
+func Emit(method *rtda.Method, ir *lowering.IR, loader rtda.Loader) (string, error) {
 	if !method.IsStatic() {
 		return "", fmt.Errorf("transpile: A2.1 supports static methods only (got %s)", method.Name())
 	}
@@ -33,7 +33,7 @@ func Emit(method *rtda.Method, ir *lowering.IR) (string, error) {
 	cp := method.Owner().ConstantPool()
 	targets := collectTargets(ir)
 
-	e := &emitter{slotTemp: map[int]string{}}
+	e := &emitter{slotTemp: map[int]string{}, slotType: map[int]string{}, loader: loader}
 	var body strings.Builder
 	for pc := 0; pc < len(ir.Insts); pc++ {
 		inst := &ir.Insts[pc]
@@ -49,7 +49,7 @@ func Emit(method *rtda.Method, ir *lowering.IR) (string, error) {
 	}
 
 	var b strings.Builder
-	emitSignature(&b, method, e.temps)
+	emitSignature(&b, method, e.temps, localTypes(ir))
 	b.WriteString(body.String())
 	emitSink(&b, e.temps)
 	emitTerminator(&b, method)
@@ -61,6 +61,8 @@ func Emit(method *rtda.Method, ir *lowering.IR) (string, error) {
 // slot, and the list of all temps (for top-of-function declarations + the sink).
 type emitter struct {
 	slotTemp map[int]string // slot index → temp name of its most recent def
+	slotType map[int]string // slot index → that temp's Go type (for dup)
+	loader   rtda.Loader
 	temps    []tempDecl
 	counter  int
 }
@@ -74,6 +76,7 @@ func (e *emitter) defTemp(slot int, goType string) string {
 	e.counter++
 	e.temps = append(e.temps, tempDecl{name, goType})
 	e.slotTemp[slot] = name
+	e.slotType[slot] = goType
 	return name
 }
 
@@ -241,8 +244,53 @@ func (e *emitter) emitOne(b *strings.Builder, inst *lowering.IRInst, cp *classfi
 			w("%s = %s", t, call)
 		}
 
+	// --- OOP: new / dup / invokespecial / getfield / putfield (A2.2b) ---
+	case opcode.New:
+		t := e.defTemp(int(inst.Defs[0]), "*rtda.Object")
+		w("%s = runtime.NewObject(%q)", t, cp.ClassName(inst.Index))
+	case opcode.Dup:
+		// stack [v] -> [v, v]: the copy lands in the new top slot (Defs[1]); the
+		// original (Defs[0]) keeps its temp.
+		src := int(inst.Uses[0])
+		t := e.defTemp(int(inst.Defs[1]), e.slotType[src])
+		w("%s = %s", t, e.use(src))
+	case opcode.Invokespecial:
+		className, name, desc := cp.MemberRef(inst.Index)
+		md := rtda.ParseMethodDescriptor(desc)
+		args := []string{"rtda.RefSlot(" + e.use(int(inst.Uses[0])) + ")"} // this
+		for i := 0; i < md.ArgSlots(); i++ {
+			args = append(args, slotConstructor(md.ParameterTypes[i], e.use(int(inst.Uses[1+i]))))
+		}
+		call := fmt.Sprintf("runtime.InvokeSpecial(%q, %q, %q, []rtda.Slot{%s})",
+			className, name, desc, strings.Join(args, ", "))
+		if md.ReturnType == "V" {
+			w("%s", call)
+		} else {
+			goType, err := descToGo(md.ReturnType)
+			if err != nil {
+				return err
+			}
+			t := e.defTemp(int(inst.Defs[0]), goType)
+			w("%s = %s", t, slotExtract(call, md.ReturnType))
+		}
+	case opcode.Getfield:
+		className, name, desc := cp.MemberRef(inst.Index)
+		goType, err := descToGo(desc)
+		if err != nil {
+			return err
+		}
+		field := e.loader.LoadClass(className).LookupField(name, desc)
+		obj := e.use(int(inst.Uses[0])) // read the objref before allocating the def (slot reuse)
+		t := e.defTemp(int(inst.Defs[0]), goType)
+		w("%s = %s", t, slotExtract(fmt.Sprintf("%s.Fields()[%d]", obj, field.SlotID()), desc))
+	case opcode.Putfield:
+		className, name, desc := cp.MemberRef(inst.Index)
+		field := e.loader.LoadClass(className).LookupField(name, desc)
+		obj, val := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[1]))
+		w("%s.Fields()[%d].%s(%s)", obj, field.SlotID(), setAccessor(desc), val)
+
 	default:
-		return fmt.Errorf("opcode %s not supported in A2.1 (int/ref, merge-free)", opcode.Name(inst.Op))
+		return fmt.Errorf("opcode %s not supported (A2.2b: int/ref/arrays, loops, OOP)", opcode.Name(inst.Op))
 	}
 	return nil
 }
@@ -276,7 +324,7 @@ func localName(inst *lowering.IRInst) string {
 
 // --- signature / declarations / sink / terminator ---
 
-func emitSignature(b *strings.Builder, method *rtda.Method, temps []tempDecl) {
+func emitSignature(b *strings.Builder, method *rtda.Method, temps []tempDecl, localTypes map[int]string) {
 	params, _ := paramGoTypes(method)
 	ret, _ := returnGoType(method)
 	fmt.Fprintf(b, "func %s(", mangle(method.Owner().Name(), method.Name()))
@@ -291,14 +339,49 @@ func emitSignature(b *strings.Builder, method *rtda.Method, temps []tempDecl) {
 	} else {
 		fmt.Fprintf(b, ") %s {\n", ret)
 	}
-	// Extra locals beyond params (A2.1 declares them int32; tests have none).
+	// Extra locals beyond params: type inferred from the store opcodes that write
+	// them (astore → *rtda.Object, istore → int32); default int32.
 	for i := len(params); i < int(method.MaxLocals()); i++ {
-		fmt.Fprintf(b, "\tvar l%d int32\n", i)
+		gt := localTypes[i]
+		if gt == "" {
+			gt = "int32"
+		}
+		fmt.Fprintf(b, "\tvar l%d %s\n", i, gt)
 	}
 	// Temp declarations, grouped by Go type (all before any label → no goto-over-decl).
 	for goType, names := range groupByType(temps) {
 		fmt.Fprintf(b, "\tvar %s %s\n", strings.Join(names, ", "), goType)
 	}
+}
+
+// localTypes infers each local's Go type from the store opcodes that write it
+// (istore→int32, astore→*rtda.Object). Used to declare extra locals correctly.
+func localTypes(ir *lowering.IR) map[int]string {
+	types := map[int]string{}
+	for i := range ir.Insts {
+		inst := &ir.Insts[i]
+		if !inst.Present {
+			continue
+		}
+		if idx, gt, ok := storeLocalType(inst); ok {
+			types[idx] = gt
+		}
+	}
+	return types
+}
+
+func storeLocalType(inst *lowering.IRInst) (int, string, bool) {
+	switch inst.Op {
+	case opcode.Istore:
+		return int(inst.Index), "int32", true
+	case opcode.Astore:
+		return int(inst.Index), "*rtda.Object", true
+	case opcode.Istore0, opcode.Istore1, opcode.Istore2, opcode.Istore3:
+		return int(inst.Op - opcode.Istore0), "int32", true
+	case opcode.Astore0, opcode.Astore1, opcode.Astore2, opcode.Astore3:
+		return int(inst.Op - opcode.Astore0), "*rtda.Object", true
+	}
+	return 0, "", false
 }
 
 func emitSink(b *strings.Builder, temps []tempDecl) {
@@ -529,12 +612,20 @@ func slotConstructor(desc, temp string) string {
 	return "rtda.IntSlot(" + temp + ")"
 }
 
-// slotExtract extracts a typed value from a bridge call's Slot result.
+// slotExtract extracts a typed value from a Slot-bearing expression.
 func slotExtract(call, desc string) string {
 	if isRefDesc(desc) {
 		return call + ".Ref()"
 	}
 	return call + ".Num()"
+}
+
+// setAccessor maps a field descriptor to the Slot setter (SetNum/SetRef).
+func setAccessor(desc string) string {
+	if isRefDesc(desc) {
+		return "SetRef"
+	}
+	return "SetNum"
 }
 
 // isRefDesc reports whether a descriptor is an object/array reference.
