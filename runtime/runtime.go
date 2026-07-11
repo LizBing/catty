@@ -123,3 +123,16 @@ func popReturn(frame *rtda.Frame, ret string) rtda.Slot {
 	}
 	return frame.PopSlot()
 }
+
+// InvokeStatic resolves and runs a static method (native or interpreted) by
+// (class, name, desc). Used by the AOT bridge when an invokestatic target isn't
+// AOT'd in the emitted binary.
+func InvokeStatic(class, name, desc string, args []rtda.Slot) rtda.Slot {
+	return runMethod(loader.LoadClass(class).LookupMethod(name, desc), args)
+}
+
+// Thread returns the runtime's thread (for the fallback interpreter path).
+func Thread() *rtda.Thread { return thread }
+
+// Loader returns the runtime's class loader.
+func Loader() rtda.Loader { return loader }

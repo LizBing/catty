@@ -292,3 +292,20 @@ func itoa(n int) string {
 	}
 	return string(b[i:])
 }
+
+// ClassRefNames returns the internal names of all CONSTANT_Class entries in the
+// pool — used by the AOT build's reachability traversal to find every class
+// referenced by a class's constant pool.
+func (cp *ConstantPool) ClassRefNames() []string {
+	var names []string
+	for i := 1; i < len(cp.infos); i++ {
+		info := cp.infos[i]
+		if cls, ok := info.(*ConstantClassInfo); ok {
+			names = append(names, cls.Name())
+		}
+		if info != nil && (info.Tag() == ConstantLong || info.Tag() == ConstantDouble) {
+			i++ // skip the 2nd slot of long/double
+		}
+	}
+	return names
+}

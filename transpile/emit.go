@@ -23,7 +23,7 @@ import (
 // Emit turns one method's IR into a Go function definition. See the package doc
 // for scope. Returns an error (not wrong code) for methods outside scope. The
 // loader resolves field offsets (getfield/putfield) at emit time.
-func Emit(method *rtda.Method, ir *lowering.IR, loader rtda.Loader) (string, error) {
+func Emit(method *rtda.Method, ir *lowering.IR, loader rtda.Loader, emittable map[string]bool) (string, error) {
 	if !method.IsStatic() {
 		return "", fmt.Errorf("transpile: A2.1 supports static methods only (got %s)", method.Name())
 	}
@@ -35,6 +35,7 @@ func Emit(method *rtda.Method, ir *lowering.IR, loader rtda.Loader) (string, err
 		merges: map[int]bool{}, fallThrough: map[int]bool{},
 		mergeTemps: map[int][]string{}, mergeTempTypes: map[int][]string{},
 		localMap: buildLocalMap(method),
+		emittable: emittable,
 	}
 	e.merges, e.fallThrough = cfgAnalysis(ir)
 	if err := e.allocMergeTemps(ir, method); err != nil { // validates + refuses deferred cases
@@ -88,6 +89,7 @@ type emitter struct {
 	mergeTemps     map[int][]string  // merge pc → temp name per stack slot (the phi)
 	mergeTempTypes map[int][]string  // merge pc → Go type per stack slot
 	localMap       map[int]string    // JVM local slot → Go param name (cat-2 aware)
+	emittable      map[string]bool   // AOT'd methods in this build (invokestatic dispatch)
 }
 
 type tempDecl struct{ name, gotype string }
@@ -285,20 +287,44 @@ func (e *emitter) emitOne(b *strings.Builder, inst *lowering.IRInst, cp *classfi
 				slot++
 			}
 		}
-		call := fmt.Sprintf("%s(%s)", mangle(className, name), strings.Join(args, ", "))
-		if md.ReturnType == "V" {
-			w("%s", call)
-		} else {
-			goType, err := descToGo(md.ReturnType)
-			if err != nil {
-				return err
-			}
-			if md.ReturnType == "J" || md.ReturnType == "D" {
-				t := e.defTempCat2(int(inst.Defs[0]), goType)
-				w("%s = %s", t, call)
+		// If the target is AOT'd in this build, emit a direct Go call; otherwise
+		// route through the runtime.InvokeStatic bridge (interpreted/native).
+		key := className + "\x00" + name + "\x00" + desc
+		if e.emittable == nil || e.emittable[key] {
+			call := fmt.Sprintf("%s(%s)", mangle(className, name), strings.Join(args, ", "))
+			if md.ReturnType == "V" {
+				w("%s", call)
 			} else {
-				t := e.defTemp(int(inst.Defs[0]), goType)
-				w("%s = %s", t, call)
+				goType, err := descToGo(md.ReturnType)
+				if err != nil {
+					return err
+				}
+				if md.ReturnType == "J" || md.ReturnType == "D" {
+					t := e.defTempCat2(int(inst.Defs[0]), goType)
+					w("%s = %s", t, call)
+				} else {
+					t := e.defTemp(int(inst.Defs[0]), goType)
+					w("%s = %s", t, call)
+				}
+			}
+		} else {
+			// Bridge: runtime.InvokeStatic("class", "name", "desc", []rtda.Slot{...})
+			call := fmt.Sprintf("runtime.InvokeStatic(%q, %q, %q, []rtda.Slot{%s})",
+				className, name, desc, strings.Join(args, ", "))
+			if md.ReturnType == "V" {
+				w("%s", call)
+			} else {
+				goType, err := descToGo(md.ReturnType)
+				if err != nil {
+					return err
+				}
+				if md.ReturnType == "J" || md.ReturnType == "D" {
+					t := e.defTempCat2(int(inst.Defs[0]), goType)
+					w("%s = %s", t, slotExtract(call, md.ReturnType))
+				} else {
+					t := e.defTemp(int(inst.Defs[0]), goType)
+					w("%s = %s", t, slotExtract(call, md.ReturnType))
+				}
 			}
 		}
 

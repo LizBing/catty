@@ -52,7 +52,7 @@ func TestEmitFib(t *testing.T) {
 	if err != nil {
 		t.Fatalf("lower: %v", err)
 	}
-	src, err := Emit(fib, ir, cl)
+	src, err := Emit(fib, ir, cl, nil)
 	if err != nil {
 		t.Fatalf("emit: %v", err)
 	}
@@ -110,7 +110,7 @@ func TestEmitFirst(t *testing.T) {
 	if err != nil {
 		t.Fatalf("lower: %v", err)
 	}
-	src, err := Emit(first, ir, cl)
+	src, err := Emit(first, ir, cl, nil)
 	if err != nil {
 		t.Fatalf("emit: %v", err)
 	}
@@ -151,7 +151,7 @@ func TestEmitHelloWorld(t *testing.T) {
 	if err != nil {
 		t.Fatalf("lower: %v", err)
 	}
-	src, err := Emit(main, ir, cl)
+	src, err := Emit(main, ir, cl, nil)
 	if err != nil {
 		t.Fatalf("emit: %v", err)
 	}
@@ -197,7 +197,7 @@ func TestEmitSum(t *testing.T) {
 	if err != nil {
 		t.Fatalf("lower: %v", err)
 	}
-	src, err := Emit(sum, ir, cl)
+	src, err := Emit(sum, ir, cl, nil)
 	if err != nil {
 		t.Fatalf("emit: %v", err)
 	}
@@ -240,7 +240,7 @@ func TestEmitMax(t *testing.T) {
 	if err != nil {
 		t.Fatalf("lower: %v", err)
 	}
-	src, err := Emit(max, ir, cl)
+	src, err := Emit(max, ir, cl, nil)
 	if err != nil {
 		t.Fatalf("emit: %v", err)
 	}
@@ -280,7 +280,7 @@ func TestEmitOOP(t *testing.T) {
 	if err != nil {
 		t.Fatalf("lower: %v", err)
 	}
-	src, err := Emit(main, ir, cl)
+	src, err := Emit(main, ir, cl, nil)
 	if err != nil {
 		t.Fatalf("emit: %v", err)
 	}
@@ -323,7 +323,7 @@ func TestEmitFact(t *testing.T) {
 	if err != nil {
 		t.Fatalf("lower: %v", err)
 	}
-	src, err := Emit(fact, ir, cl)
+	src, err := Emit(fact, ir, cl, nil)
 	if err != nil {
 		t.Fatalf("emit: %v", err)
 	}
@@ -360,7 +360,7 @@ func TestEmitFloatDouble(t *testing.T) {
 	if err != nil {
 		t.Fatalf("lower fadd: %v", err)
 	}
-	src1, err := Emit(fadd, ir1, cl)
+	src1, err := Emit(fadd, ir1, cl, nil)
 	if err != nil {
 		t.Fatalf("emit fadd: %v", err)
 	}
@@ -370,7 +370,7 @@ func TestEmitFloatDouble(t *testing.T) {
 	if err != nil {
 		t.Fatalf("lower dmul: %v", err)
 	}
-	src2, err := Emit(dmul, ir2, cl)
+	src2, err := Emit(dmul, ir2, cl, nil)
 	if err != nil {
 		t.Fatalf("emit dmul: %v", err)
 	}
@@ -404,7 +404,7 @@ func TestEmitFrem(t *testing.T) {
 	if err != nil {
 		t.Fatalf("lower: %v", err)
 	}
-	src, err := Emit(frem, ir, cl)
+	src, err := Emit(frem, ir, cl, nil)
 	if err != nil {
 		t.Fatalf("emit: %v", err)
 	}
@@ -438,7 +438,7 @@ func TestEmitLongDiamond(t *testing.T) {
 	if err != nil {
 		t.Fatalf("lower: %v", err)
 	}
-	src, err := Emit(lcond, ir, cl)
+	src, err := Emit(lcond, ir, cl, nil)
 	if err != nil {
 		t.Fatalf("emit: %v", err)
 	}
@@ -472,7 +472,7 @@ func TestEmitSwitch(t *testing.T) {
 	if err != nil {
 		t.Fatalf("lower: %v", err)
 	}
-	src, err := Emit(sw, ir, cl)
+	src, err := Emit(sw, ir, cl, nil)
 	if err != nil {
 		t.Fatalf("emit: %v", err)
 	}

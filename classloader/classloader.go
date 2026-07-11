@@ -62,3 +62,13 @@ func (cl *ClassLoader) loadFileClass(name string) *rtda.Class {
 	}
 	return rtda.NewClass(cf, cl)
 }
+
+// Classes returns every class the loader has cached so far (used by the AOT
+// build to iterate emittable methods across all loaded classes).
+func (cl *ClassLoader) Classes() []*rtda.Class {
+	out := make([]*rtda.Class, 0, len(cl.cache))
+	for _, c := range cl.cache {
+		out = append(out, c)
+	}
+	return out
+}
