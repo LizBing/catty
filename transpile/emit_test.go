@@ -137,25 +137,6 @@ func TestEmitFirst(t *testing.T) {
 	}
 }
 
-// TestEmitMergeGate confirms the merge-free gate refuses methods with control-
-// flow merges (loops/diamonds need phi insertion — A2.3), rather than emitting
-// wrong code.
-func TestEmitMergeGate(t *testing.T) {
-	dir := compileFixtures(t)
-	cl := classloader.New(classpath.Parse(dir))
-	sum := cl.LoadClass("ArrayOps").GetMethod("sum", "([I)I")
-	if sum == nil {
-		t.Fatal("ArrayOps.sum not found")
-	}
-	ir, err := lowering.Lower(sum)
-	if err != nil {
-		t.Fatalf("lower: %v", err)
-	}
-	if _, err := Emit(sum, ir); err == nil {
-		t.Error("expected a merge error for ArrayOps.sum (it has a loop), got nil")
-	}
-}
-
 // TestEmitHelloWorld is the A2.2 milestone: transpile HelloWorld.main (getstatic
 // System.out, ldc String, invokevirtual println, int math) and run it natively
 // via the runtime bridge, asserting output is byte-identical to java.
@@ -199,5 +180,66 @@ func TestEmitHelloWorld(t *testing.T) {
 	}
 	if want := "Hello, World!\n42\n"; string(got) != want {
 		t.Errorf("emitted HelloWorld output = %q, want %q", string(got), want)
+	}
+}
+
+// TestEmitSum is the A2.3 milestone: AOT-execute a loop. ArrayOps.sum(int[]) has
+// a for-loop (a merge with an empty operand stack at the head) — no phi needed,
+// since loop state lives in mutable locals. Asserts the correct sum.
+func TestEmitSum(t *testing.T) {
+	dir := compileFixtures(t)
+	cl := classloader.New(classpath.Parse(dir))
+	sum := cl.LoadClass("ArrayOps").GetMethod("sum", "([I)I")
+	if sum == nil {
+		t.Fatal("ArrayOps.sum not found")
+	}
+	ir, err := lowering.Lower(sum)
+	if err != nil {
+		t.Fatalf("lower: %v", err)
+	}
+	src, err := Emit(sum, ir)
+	if err != nil {
+		t.Fatalf("emit: %v", err)
+	}
+	t.Logf("emitted sum:\n%s", src)
+
+	out := t.TempDir()
+	program := "package main\n\nimport (\n\t\"catty/runtime\"\n\t\"catty/rtda\"\n\t\"fmt\"\n)\n\n" + src +
+		"\nfunc main() {\n\truntime.Bootstrap(\".\", \"ArrayOps\")\n\t" +
+		"fmt.Println(ArrayOps_sum(runtime.NewIntArray(1, 2, 3, 4, 5)))\n}\n"
+	mainPath := filepath.Join(out, "sum.go")
+	if err := os.WriteFile(mainPath, []byte(program), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	bin := filepath.Join(out, "sumbin")
+	if buildOut, buildErr := exec.Command("go", "build", "-o", bin, mainPath).CombinedOutput(); buildErr != nil {
+		t.Fatalf("go build emitted sum failed: %v\n%s\n--- source ---\n%s", buildErr, buildOut, program)
+	}
+	cmd := exec.Command(bin)
+	cmd.Dir = dir
+	got, err := cmd.Output()
+	if err != nil {
+		t.Fatalf("run emitted sum: %v", err)
+	}
+	if want := "15\n"; string(got) != want {
+		t.Errorf("emitted sum([1,2,3,4,5]) = %q, want %q", string(got), want)
+	}
+}
+
+// TestEmitDiamondGate confirms the gate refuses merges that leave a value on the
+// operand stack (diamonds like `a > b ? a : b`), which need phi insertion.
+func TestEmitDiamondGate(t *testing.T) {
+	dir := compileFixtures(t)
+	cl := classloader.New(classpath.Parse(dir))
+	max := cl.LoadClass("ArrayOps").GetMethod("max", "(II)I")
+	if max == nil {
+		t.Fatal("ArrayOps.max not found")
+	}
+	ir, err := lowering.Lower(max)
+	if err != nil {
+		t.Fatalf("lower: %v", err)
+	}
+	if _, err := Emit(max, ir); err == nil {
+		t.Error("expected a non-empty-stack-merge error for ArrayOps.max (ternary), got nil")
 	}
 }

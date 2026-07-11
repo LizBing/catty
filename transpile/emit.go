@@ -27,8 +27,8 @@ func Emit(method *rtda.Method, ir *lowering.IR) (string, error) {
 	if !method.IsStatic() {
 		return "", fmt.Errorf("transpile: A2.1 supports static methods only (got %s)", method.Name())
 	}
-	if hasMerges(ir) {
-		return "", fmt.Errorf("transpile: %s has control-flow merges (loops/diamonds) — phis are A2.3", method.Name())
+	if err := stackMergeError(method, ir); err != nil {
+		return "", err
 	}
 	cp := method.Owner().ConstantPool()
 	targets := collectTargets(ir)
@@ -249,6 +249,9 @@ func (e *emitter) emitOne(b *strings.Builder, inst *lowering.IRInst, cp *classfi
 
 // localName returns the Go name for the local an iload/istore/iinc references.
 func localName(inst *lowering.IRInst) string {
+	if inst.Op == opcode.Iinc {
+		return fmt.Sprintf("l%d", inst.IncIndex) // iinc's local index lives in IncIndex, not Index
+	}
 	idx := int(inst.Index)
 	switch inst.Op {
 	case opcode.Iload0, opcode.Istore0:
@@ -320,9 +323,14 @@ func groupByType(temps []tempDecl) map[string][]string {
 	return g
 }
 
-// --- merge-free gate ---
+// --- merge gate ---
+//
+// A merge (a pc with >1 predecessor) is fine as long as no operand-stack value
+// crosses it: loop state lives in mutable locals (no phi), and the operand stack
+// is empty at loop heads. Only a merge with a value on the stack (a diamond like
+// `cond ? x : y`) needs phi insertion — those are refused here (a later step).
 
-func hasMerges(ir *lowering.IR) bool {
+func stackMergeError(method *rtda.Method, ir *lowering.IR) error {
 	preds := map[int]int{}
 	for pc := 0; pc < len(ir.Insts); pc++ {
 		inst := &ir.Insts[pc]
@@ -331,12 +339,19 @@ func hasMerges(ir *lowering.IR) bool {
 		}
 		for _, s := range successors(inst, pc) {
 			preds[s]++
-			if preds[s] > 1 {
-				return true
-			}
 		}
 	}
-	return false
+	for pc, n := range preds {
+		if n < 2 || pc >= len(ir.Insts) {
+			continue
+		}
+		inst := &ir.Insts[pc]
+		if inst.Present && len(inst.InTypes) > 0 {
+			return fmt.Errorf("transpile: %s: merge at pc %d has a value on the operand stack (phi needed — diamonds are a later step)",
+				method.Name(), pc)
+		}
+	}
+	return nil
 }
 
 func successors(inst *lowering.IRInst, pc int) []int {

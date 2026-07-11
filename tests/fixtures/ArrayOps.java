@@ -15,4 +15,10 @@ public class ArrayOps {
         }
         return s;
     }
+
+    // A diamond: `a > b ? a : b` leaves a value on the operand stack across the
+    // join, so it needs phi — used to exercise the non-empty-stack-merge gate.
+    static int max(int a, int b) {
+        return a > b ? a : b;
+    }
 }

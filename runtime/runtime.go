@@ -60,6 +60,16 @@ func NewString(s string) *rtda.Object {
 	return obj
 }
 
+// NewIntArray builds a Java int[] from Go values — a convenience for transpiled
+// test programs that need an array input without constructing one via bytecode.
+func NewIntArray(values ...int32) *rtda.Object {
+	arr := rtda.NewArray(loader.LoadClass("[I"), len(values))
+	for i, v := range values {
+		arr.ArrayElementSlot(i).SetNum(v)
+	}
+	return arr
+}
+
 // runNative sets up a frame with the given argument slots, runs the native
 // method, and returns its result slot (zero for void).
 func runNative(method *rtda.Method, args []rtda.Slot) rtda.Slot {

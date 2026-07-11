@@ -7,6 +7,37 @@ The plan that governs this work lives in `plans/go-jvm-go-mvp-humming-bonbon.md`
 
 ## [Unreleased]
 
+### A2.3 — Loops (empty-stack merges)
+
+The AOT path now handles **loops** — the dominant pattern in compute-intensive
+Java. The key realization: loops need **no phi insertion**, because loop state
+(counters, accumulators) lives in **locals**, which the emitter already maps to
+mutable Go vars; the operand stack is empty at loop heads, so no operand-stack
+value crosses the merge either. Empty-stack merges therefore work with the
+existing fresh-per-def + mutable-locals machinery once the gate lets them through.
+
+### Changed (A2.3)
+- **`transpile/emit.go`** — the merge gate now refuses only merges with a
+  **non-empty operand stack** (a value crosses the merge → phi needed, e.g.
+  diamonds `cond ? x : y`), checked via `IRInst.InTypes` length at merge pcs.
+  Empty-stack merges (loops) are allowed.
+- **Fix**: `iinc`'s local index is in `IncIndex`, not `Index` — `localName` now
+  handles `iinc` (previously emitted the wrong local; latent, unexercised until a
+  loop used `iinc`).
+- **`runtime.NewIntArray`** — builds a Java `int[]` for transpiled test programs.
+- `ArrayOps.max` (ternary) added for the diamond-gate test.
+
+### Validation
+- `TestEmitSum`: emitted `ArrayOps.sum` (for-loop over an array) compiles + runs
+  natively, returns `15` for `[1,2,3,4,5]`.
+- `TestEmitDiamondGate`: `max(a,b)` (ternary) → `Emit` errors (non-empty-stack
+  merge). fib/first/HelloWorld still pass; `go vet` clean; e2e 8/8.
+
+### Scope (A2.3)
+Empty-stack merges (loops). Diamonds / non-empty-stack merges (phi via
+copy-insertion), `new`/fields/OOP, interpreted-target bridge, and `cmd/jvm`
+integration are later.
+
 ### A2.2 — The invoke bridge: HelloWorld via AOT (first full-program native run)
 
 The AOT path can now serve a real program: emitted Go calls back into catty's
