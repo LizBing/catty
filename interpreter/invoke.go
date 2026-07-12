@@ -1,7 +1,10 @@
 package interpreter
 
 import (
+	"fmt"
+
 	"catty/classfile"
+	"catty/opcode"
 	"catty/rtda"
 )
 
@@ -43,6 +46,10 @@ func copyArgs(caller, callee *rtda.Frame, method *rtda.Method) {
 	if !method.IsStatic() {
 		total++ // `this`
 	}
+	if total > callee.LocalsLen() {
+		panic(fmt.Sprintf("catty: copyArgs locals overflow in %s.%s%s: need %d slots, locals len=%d maxLocals=%d",
+			method.Owner().Name(), method.Name(), method.Descriptor(), total, callee.LocalsLen(), method.MaxLocals()))
+	}
 	for i := total - 1; i >= 0; i-- {
 		callee.SetSlot(i, caller.PopSlot())
 	}
@@ -78,13 +85,23 @@ func ensureInitialized(thread *rtda.Thread, class *rtda.Class) {
 	}
 }
 
-// runClinit runs a <clinit> method synchronously: push a frame, run the Loop
-// until it drains (clinit returns), then the caller's frame is back on top.
-// This is safe because <clinit> is always ()V with no args and no return value.
+// runClinit runs a <clinit> method synchronously: push a frame, run only the
+// clinit frame (not the whole thread), and return when the clinit frame is
+// popped. This prevents Loop from continuing into the caller's frame while
+// the caller's opcode handler (e.g. 'new') is still mid-execution.
 func runClinit(thread *rtda.Thread, method *rtda.Method) {
-	frame := thread.NewFrame(method)
-	thread.PushFrame(frame)
-	Loop(thread)
+	clinitDepth := thread.FrameCount() + 1 // target depth after push
+	thread.PushFrame(thread.NewFrame(method))
+	for thread.FrameCount() >= clinitDepth && !thread.IsStackEmpty() {
+		frame := thread.CurrentFrame()
+		opcodePc := frame.PC()
+		op := opcode.Opcode(frame.Code()[opcodePc])
+		frame.SetPC(opcodePc + 1)
+		exec(thread, frame, op, opcodePc)
+		if thread.HasException() {
+			handleException(thread, opcodePc)
+		}
+	}
 }
 
 // InitClass is the exported form of ensureInitialized, for the launcher to

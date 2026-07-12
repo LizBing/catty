@@ -59,6 +59,13 @@ func NativeClass(loader rtda.Loader, name string) *rtda.Class {
 // Object.<init>, which does nothing).
 func nop(*rtda.Frame) {}
 
+// staticNative creates a NativeMethod and marks it as static.
+func staticNative(owner *rtda.Class, name, descriptor string, fn func(*rtda.Frame)) *rtda.Method {
+	m := rtda.NativeMethod(owner, name, descriptor, fn)
+	m.SetStatic()
+	return m
+}
+
 // buildInterface creates a synthetic interface class. Interfaces have no fields
 // and no method bodies — they just declare method signatures. catty treats them
 // as empty synthetic classes so the classloader can resolve them.
@@ -83,6 +90,8 @@ func buildClass(loader rtda.Loader) *rtda.Class {
 	c.AddMethod(rtda.NativeMethod(c, "isAssignableFrom", "(Ljava/lang/Class;)Z", classIsAssignableFrom))
 	c.AddMethod(rtda.NativeMethod(c, "getSuperclass", "()Ljava/lang/Class;", classGetSuperclass))
 	c.AddMethod(rtda.NativeMethod(c, "isHidden", "()Z", classIsHidden))
+	c.AddMethod(staticNative(c, "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;", classGetPrimitiveClass))
+	c.AddMethod(staticNative(c, "registerNatives", "()V", nop))
 	return c
 }
 

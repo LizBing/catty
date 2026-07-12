@@ -39,6 +39,7 @@ func (e *exceptionEntry) CatchType() string { return e.catchType }
 // core classes (java.lang.Object/System/...) that catty implements natively.
 // argSlotCount counts parameters only; the interpreter adds 1 for `this` on
 // instance methods. maxStack of 2 covers any category-2 return value.
+// By default the method is public (instance); call SetStatic() for static methods.
 func NativeMethod(owner *Class, name, descriptor string, fn func(*Frame)) *Method {
 	md := ParseMethodDescriptor(descriptor)
 	argSlots := uint(md.ArgSlots())
@@ -46,12 +47,19 @@ func NativeMethod(owner *Class, name, descriptor string, fn func(*Frame)) *Metho
 		owner:        owner,
 		name:         name,
 		descriptor:   descriptor,
+		accessFlags:  accPublic,
 		argSlotCount: argSlots,
 		maxLocals:    argSlots + 1,
 		maxStack:     2,
 		native:       true,
 		nativeFunc:   fn,
 	}
+}
+
+// SetStatic marks a NativeMethod as static (adds ACC_STATIC, adjusts maxLocals).
+func (m *Method) SetStatic() {
+	m.accessFlags |= accStatic
+	m.maxLocals = m.argSlotCount
 }
 
 // InterpretedMethod builds a Method from parsed class-file data.
@@ -74,6 +82,18 @@ func InterpretedMethod(owner *Class, name, descriptor string, access uint16,
 		// Set a default stub that returns a zero value by return type, so
 		// missing native implementations don't panic — they just return 0/null.
 		m.nativeFunc = nativeStub(md.ReturnType)
+		// Native methods in class files have maxLocals=0 (no bytecode),
+		// but we need at least enough locals to hold the arguments + `this`.
+		minLocals := m.argSlotCount
+		if access&accStatic == 0 {
+			minLocals++
+		}
+		if m.maxLocals < minLocals {
+			m.maxLocals = minLocals
+		}
+		if m.maxStack < 2 {
+			m.maxStack = 2 // cover cat-2 return value
+		}
 	}
 	return m
 }

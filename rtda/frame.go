@@ -119,6 +119,9 @@ func (f *Frame) PopSlot() Slot {
 	return f.stack[f.stackTop]
 }
 
+// StackSize returns the current operand stack depth in slots.
+func (f *Frame) StackSize() int { return f.stackTop }
+
 // --- Operand stack: category-2 (long / double take two slots) ---
 
 func (f *Frame) PushLong(val int64) {
@@ -170,6 +173,9 @@ func (f *Frame) GetDouble(index int) float64      { return math.Float64frombits(
 // SetSlot / Slot copy a raw local slot by value, used when handing arguments to
 // a callee frame (the slot's category is the callee's concern).
 func (f *Frame) SetSlot(index int, s Slot) { f.locals[index] = s }
+
+// LocalsLen returns the number of local variable slots in this frame.
+func (f *Frame) LocalsLen() int { return len(f.locals) }
 
 // ClearStack resets the operand stack to empty (used by exception handling
 // before pushing the exception object at the handler).

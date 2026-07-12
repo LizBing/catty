@@ -52,6 +52,9 @@ func (t *Thread) IsStackEmpty() bool {
 	return len(t.stack) == 0
 }
 
+// FrameCount returns the current number of frames on the thread's stack.
+func (t *Thread) FrameCount() int { return len(t.stack) }
+
 // Bridge-mode accessors: used by the AOT bridge (interpreter.RunMethod) to capture
 // a method's return when there is no caller frame to push it onto.
 func (t *Thread) SetBridgeReturn(s *Slot) { t.bridgeReturn = s }

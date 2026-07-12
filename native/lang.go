@@ -66,6 +66,7 @@ func buildStringClass(loader rtda.Loader) *rtda.Class {
 	c.AddMethod(rtda.NativeMethod(c, "<init>", "()V", stringInit))
 	c.AddMethod(rtda.NativeMethod(c, "<init>", "(Ljava/lang/String;)V", stringInitString))
 	c.AddMethod(rtda.NativeMethod(c, "length", "()I", stringLength))
+	c.AddMethod(rtda.NativeMethod(c, "charAt", "(I)C", stringCharAt))
 	return c
 }
 
@@ -82,6 +83,17 @@ func stringInitString(f *rtda.Frame) {
 func stringLength(f *rtda.Frame) {
 	this := f.GetRef(0)
 	f.PushInt(int32(len(stringValue(this))))
+}
+
+func stringCharAt(f *rtda.Frame) {
+	this := f.GetRef(0)
+	idx := f.GetInt(1)
+	s := stringValue(this)
+	if idx < 0 || int(idx) >= len(s) {
+		f.PushInt(0) // return NUL for out of bounds (real JVM throws exception)
+		return
+	}
+	f.PushInt(int32(s[idx]))
 }
 
 // stringValue returns the Go string held by a java.lang.String object (or "" if
