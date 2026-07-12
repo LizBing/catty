@@ -3,9 +3,38 @@
 A running work log for catty. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versions are project-local (no published releases yet).
 
-The plan that governs this work lives in `plans/go-jvm-go-mvp-humming-bonbon.md`.
-
 ## [Unreleased]
+
+### R1.2 (partial) — bootstrap classpath infrastructure + native stubs
+
+Foundation for loading real java.base classes. Native methods on JDK classes get
+a default stub (zero return by type, no more crash); a global
+RegisterNative/GetNative registry maps (class, method, descriptor) → Go funcs,
+populated via init() in system.go. Added synthetic java.lang.Class and
+java.lang.Thread. Classloader calls resolveNativeMethods after loading to replace
+stubs with registered Go implementations. ensureInitialized rewritten for
+synchronous <clinit> (no operand-stack disturbance). ldc Class literal now pushes
+Class objects. NoSuchMethodError instead of Go panics.
+
+### R1.1 — invokeinterface + multianewarray + wide
+
+Three remaining opcode gaps filled (~145 opcodes total). invokeinterface mirrors
+invokevirtual + skips 2 historical bytes; multianewarray recursively creates
+multi-dimensional arrays; wide extends local-variable indices to u2. Lowering
+decodeInst updated for all three. buildInterface for java/lang/Comparable.
+InterfaceTest fixture (Comparable bubble-sort + 2D array) passes tree-walker; IR
+executor has a subtle invokeinterface dispatch issue (noted, not blocking).
+
+### R1.0 — exception handling in the interpreter
+
+Full JVM exception mechanism: athrow, runtime exceptions (NPE, ArithmeticException,
+ClassCastException, ArrayIndexOutOfBounds, IllegalArgumentException), try/catch/
+finally, frame-unwinding with exception-table search. Uses a signal mechanism on
+Thread (pendingException + throwPC, checked after each instruction) instead of
+Go panic/recover. ~8 exception classes added natively (Throwable → Exception →
+RuntimeException hierarchy) with detailMessage/getMessage/toString. Lowering dataflow
+extended to model exception-handler edges. ExceptionTest fixture (6 scenarios)
+passes all three engines.
 
 ### Strategic vision: catty as an experimental JRE platform
 
