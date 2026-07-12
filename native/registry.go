@@ -37,6 +37,8 @@ func NativeClass(loader rtda.Loader, name string) *rtda.Class {
 		return buildCCE(loader)
 	case "java/lang/IllegalArgumentException":
 		return buildIAE(loader)
+	case "java/lang/Comparable":
+		return buildInterface("java/lang/Comparable", loader)
 	}
 	return nil
 }
@@ -44,3 +46,11 @@ func NativeClass(loader rtda.Loader, name string) *rtda.Class {
 // nop is the body of native methods that exist only for spec compliance (e.g.
 // Object.<init>, which does nothing).
 func nop(*rtda.Frame) {}
+
+// buildInterface creates a synthetic interface class. Interfaces have no fields
+// and no method bodies — they just declare method signatures. catty treats them
+// as empty synthetic classes so the classloader can resolve them.
+func buildInterface(name string, loader rtda.Loader) *rtda.Class {
+	c := rtda.NewSyntheticClass(name, loader.LoadClass("java/lang/Object"))
+	return c
+}

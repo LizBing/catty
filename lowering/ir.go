@@ -218,7 +218,7 @@ func slotEffect(op opcode.Opcode, cp *classfile.ConstantPool, cpIndex uint16) (p
 	case opcode.Monitorenter, opcode.Monitorexit:
 		return 1, 0
 	case opcode.Multianewarray:
-		return 0, 1 // pop dims; for depth purposes the caller passes the exact pop via Count
+		return 0, 1 // multianewarray's pop (dimensions) varies — handled specially
 	}
 	panic("catty/lowering: unknown opcode for slot effect: " + opcode.Name(op))
 }

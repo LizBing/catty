@@ -742,6 +742,18 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		class := thread.Loader().LoadClass(cls)
 		ensureInitialized(thread, class)
 		invokeMethod(thread, class.LookupMethod(name, desc))
+	case opcode.Invokeinterface:
+		idx := frame.ReadUint16()
+		frame.ReadUint8() // count — historical, ignored
+		frame.ReadUint8() // 0   — historical, ignored
+		cls, name, desc := frame.Method().Owner().ConstantPool().MemberRef(idx)
+		spec := thread.Loader().LoadClass(cls).LookupMethod(name, desc)
+		receiver := frame.PeekRef(int(spec.ArgSlotCount()))
+		if receiver == nil {
+			throwRuntime(thread, opcodePc, "java/lang/NullPointerException", "")
+			return
+		}
+		invokeMethod(thread, receiver.Class().LookupMethod(name, desc))
 
 	// ---------- object / array creation ----------
 	case opcode.New:
@@ -758,6 +770,17 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		length := int(frame.PopInt())
 		elemName := frame.Method().Owner().ConstantPool().ClassName(idx)
 		frame.PushRef(newRefArray(thread, elemName, length))
+	case opcode.Multianewarray:
+		idx := frame.ReadUint16()
+		dims := int(frame.ReadUint8())
+		className := frame.Method().Owner().ConstantPool().ClassName(idx)
+		class := thread.Loader().LoadClass(className)
+		// Pop `dims` dimension sizes from the stack (top = last dimension).
+		sizes := make([]int, dims)
+		for i := dims - 1; i >= 0; i-- {
+			sizes[i] = int(frame.PopInt())
+		}
+		frame.PushRef(rtda.NewMultiArray(class, sizes, thread.Loader()))
 	case opcode.Arraylength:
 		arr := frame.PopRef()
 		frame.PushInt(int32(arr.ArrayLength()))
@@ -788,6 +811,37 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 			return
 		}
 		thread.Throw(excObj, opcodePc)
+
+	case opcode.Wide:
+		// wide extends local-variable indices to u2. Read the modified opcode
+		// and u2 index, then execute the non-wide form manually.
+		modOp := opcode.Opcode(frame.ReadUint8())
+		wideIdx := int(frame.ReadUint16())
+		switch modOp {
+		case opcode.Iload:
+			frame.PushInt(frame.GetInt(wideIdx))
+		case opcode.Fload:
+			frame.PushFloat(frame.GetFloat(wideIdx))
+		case opcode.Aload:
+			frame.PushRef(frame.GetRef(wideIdx))
+		case opcode.Lload:
+			frame.PushLong(frame.GetLong(wideIdx))
+		case opcode.Dload:
+			frame.PushDouble(frame.GetDouble(wideIdx))
+		case opcode.Istore:
+			frame.SetInt(wideIdx, frame.PopInt())
+		case opcode.Fstore:
+			frame.SetFloat(wideIdx, frame.PopFloat())
+		case opcode.Astore:
+			frame.SetRef(wideIdx, frame.PopRef())
+		case opcode.Lstore:
+			frame.SetLong(wideIdx, frame.PopLong())
+		case opcode.Dstore:
+			frame.SetDouble(wideIdx, frame.PopDouble())
+		case opcode.Iinc:
+			wideConst := int32(int16(frame.ReadUint16()))
+			frame.SetInt(wideIdx, frame.GetInt(wideIdx)+wideConst)
+		}
 
 	default:
 		panic(fmt.Sprintf("catty: opcode 0x%02x (%s) not implemented", op, opcode.Name(opcode.Opcode(op))))

@@ -55,6 +55,27 @@ func NewArray(class *Class, length int) *Object {
 	return &Object{class: class, fields: make([]Slot, length*width)}
 }
 
+// NewMultiArray recursively creates a multi-dimensional array. dims[0] is the
+// outermost dimension; the class is the array type of the outermost level (e.g.
+// "[[I" for new int[3][4]). For each level, sub-arrays are created whose
+// component class is the next-inner array type (or a primitive/base type).
+func NewMultiArray(class *Class, dims []int, loader Loader) *Object {
+	arr := NewArray(class, dims[0])
+	if len(dims) == 1 {
+		return arr
+	}
+	// Each element of the outer array is itself an array of the component type.
+	componentClass := class.ComponentClass()
+	if componentClass == nil {
+		return arr // primitive innermost — already zero-initialized
+	}
+	subDims := dims[1:]
+	for i := 0; i < dims[0]; i++ {
+		arr.fields[i].ref = NewMultiArray(componentClass, subDims, loader)
+	}
+	return arr
+}
+
 func (o *Object) ArrayLength() int {
 	width := 1
 	if o.class.componentLongOrDouble() {

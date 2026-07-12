@@ -492,6 +492,15 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 		class := thread.Loader().LoadClass(cls)
 		ensureInitialized(thread, class)
 		invokeMethod(thread, class.LookupMethod(name, desc))
+	case opcode.Invokeinterface:
+		cls, name, desc := cp.MemberRef(inst.Index)
+		spec := thread.Loader().LoadClass(cls).LookupMethod(name, desc)
+		receiver := frame.PeekRef(int(spec.ArgSlotCount()))
+		if receiver == nil {
+			throwRuntime(thread, pc, "java/lang/NullPointerException", "")
+			return
+		}
+		invokeMethod(thread, receiver.Class().LookupMethod(name, desc))
 
 	// ---------- object / array / misc (shared helpers) ----------
 	case opcode.New:
@@ -503,6 +512,15 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 	case opcode.Anewarray:
 		elemName := cp.ClassName(inst.Index)
 		frame.PushRef(newRefArray(thread, elemName, int(frame.PopInt())))
+	case opcode.Multianewarray:
+		className := cp.ClassName(inst.Index)
+		class := thread.Loader().LoadClass(className)
+		dims := int(inst.Count)
+		sizes := make([]int, dims)
+		for i := dims - 1; i >= 0; i-- {
+			sizes[i] = int(frame.PopInt())
+		}
+		frame.PushRef(rtda.NewMultiArray(class, sizes, thread.Loader()))
 	case opcode.Arraylength:
 		arr := frame.PopRef()
 		frame.PushInt(int32(arr.ArrayLength()))

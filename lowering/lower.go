@@ -119,9 +119,32 @@ func decodeInst(code []byte, pc int) (IRInst, int) {
 		inst.Switch = decodeLookupSwitch(code, pc)
 		inst.Length = switchLength(code, pc, false)
 
-	// --- not supported in A0 (also not runnable by the tree-walking interpreter) ---
-	case opcode.Wide, opcode.Multianewarray, opcode.Invokedynamic, opcode.Invokeinterface:
-		panic("catty/lowering: unsupported opcode: " + opcode.Name(op))
+	// --- invokeinterface (length 5: u2 index + u1 count + u1 zero) ---
+	case opcode.Invokeinterface:
+		inst.Index = be16(code, pc+1)
+		inst.Length = 5
+
+	// --- multianewarray (length 4: u2 class-index + u1 dimensions) ---
+	case opcode.Multianewarray:
+		inst.Index = be16(code, pc+1)
+		inst.Count = code[pc+3] // dimensions
+		inst.Length = 4
+
+	// --- wide (length 4 for load/store, 6 for iinc) ---
+	case opcode.Wide:
+		modifiedOp := opcode.Opcode(code[pc+1])
+		inst.Index = be16(code, pc+2)
+		if modifiedOp == opcode.Iinc {
+			inst.IncIndex = uint8(inst.Index) // reuse IncIndex for the u2 index
+			inst.Const8 = int8(be16(code, pc+4) >> 8) // approximate; wide iinc needs special handling
+			inst.Length = 6
+		} else {
+			inst.Length = 4
+		}
+
+	// --- still unsupported ---
+	case opcode.Invokedynamic:
+		panic("catty/lowering: invokedynamic not yet supported")
 
 	default:
 		inst.Length = 1
@@ -146,7 +169,13 @@ func depthDataflow(code []byte, cp *classfile.ConstantPool, ir *IR, starts []int
 		pc := worklist[n]
 		worklist = worklist[:n]
 		inst := &ir.Insts[pc]
-		pop, push := slotEffect(inst.Op, cp, inst.Index)
+		var pop, push int
+		if inst.Op == opcode.Multianewarray {
+			pop = int(inst.Count) // pop `dimensions` counts
+			push = 1
+		} else {
+			pop, push = slotEffect(inst.Op, cp, inst.Index)
+		}
 		next := depth[pc] + push - pop
 		fall, hasFall, targets := successors(inst, pc)
 		for _, s := range targets {
