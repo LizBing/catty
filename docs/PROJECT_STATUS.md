@@ -4,7 +4,7 @@
 **Baseline verified through:** `89037c4`  
 **Branch:** `main`  
 **Milestone:** R1 complete and hardened  
-**Active workstream:** None — R2 architecture gates must be contracted before implementation
+**Active workstream:** [`ONBOARD-1`](./workstreams/ONBOARD-1-CLAUDE-DEEPSEEK.md) — validate fresh Claude/DeepSeek collaboration before R2
 
 This is catty's single current-state summary. The strategic sequence lives in
 [`ROADMAP.md`](./ROADMAP.md); session detail belongs in
@@ -70,6 +70,7 @@ superseding ADRs. No R2 implementation owner is currently assigned.
 
 ## Next coordination action
 
-Codex drafts the R2 architecture-gates workstream. LizBing reviews the product
-and compatibility decisions. Claude begins implementation only after the
-contract reaches **Ready** and names Claude (or Codex) as its owner.
+Claude completes the documentation-only ONBOARD-1 exercise in an isolated
+worktree. Codex reviews the resulting live handoff. After onboarding closes,
+Codex drafts the R2 architecture-gates workstream for LizBing's review; no R2
+implementation begins before that contract reaches **Ready**.

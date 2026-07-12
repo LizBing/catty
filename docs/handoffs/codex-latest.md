@@ -27,5 +27,5 @@
 
 ## Next action
 
-Draft `R2-ARCHITECTURE-GATES.md` for LizBing's review; assign no implementation
-owner until the open product decisions are resolved.
+Claude completes `ONBOARD-1-CLAUDE-DEEPSEEK.md` in its isolated worktree. Codex
+reviews the live handoff before drafting R2 architecture gates.
