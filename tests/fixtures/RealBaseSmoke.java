@@ -16,9 +16,11 @@
 //   MAX_VALUE/toHexString), System.getProperty.
 //
 // DELIBERATELY EXCLUDED (R2 dependencies, NOT R1 defects):
-//   - HashMap          — needs AbstractMap clinit → Unsafe cascade (R2)
-//   - Double.parseDouble — FloatingDecimal → Unsafe cascade (R2)
-//   - Integer/Long.toString — DecimalDigits → Unsafe cascade (R2)
+//   - HashMap          — currently reaches an uninitialized VM dependency; the
+//                        basic operation path has no direct Unsafe edge
+//   - Double.parseDouble — currently times out in the FloatingDecimal path; no
+//                          direct Unsafe edge found in the selected parse path
+//   - Integer/Long.toString — DecimalDigits uses a narrow Unsafe array-write path
 //   The *toHexString variants ARE covered: they bypass DecimalDigits and use
 //   Integer.digits directly, so they exercise the String(byte[],coder) decode
 //   path that toString would also need once Unsafe lands.

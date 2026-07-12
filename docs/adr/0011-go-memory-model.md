@@ -1,9 +1,13 @@
 # ADR-0011: Adopt Go memory model (not JMM/JSR-133)
 
-- **Status:** Proposed
+- **Status:** Superseded by ADR-0016
 - **Date:** 2026-07-12
 
 ## Context
+
+> **Supersession note (2026-07-12):** This proposal was not adopted. ADR-0016
+> replaces it with protected Java memory semantics plus measured,
+> explicitly-approved deviation gates.
 
 Java Memory Model (JSR-133) and Go Memory Model are both happens-before based,
 but differ in details (`volatile` semantics, `final` field initialization

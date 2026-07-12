@@ -2,38 +2,38 @@
 
 **Date:** 2026-07-12  
 **Role:** Architecture and integration maintainer  
-**Workstream:** ONBOARD-1 integration review
+**Workstream:** R2-GATE closure
 **Branch:** `main`  
-**Base commit:** `1e1fd1a`
+**Base commit:** `0b82986`
 **Head commit:** The integration commit containing this handoff
 
 ## Delivered
 
-- Supervised a fresh Claude Code session routed by CC Switch to DeepSeek in an
-  isolated worktree.
-- Enforced a single-file scope and read-only Git permissions; an attempted
-  environment command outside the allowlist was denied.
-- Independently caught incorrect ADR and fixture counts, an inconsistent dirty
-  state, and overconfident backend attribution.
-- Resumed the same session with evidence-based findings; Claude corrected all
-  issues without expanding scope.
-- Integrated the accepted live Claude handoff and closed ONBOARD-1.
+- Recorded LizBing's acceptance of G1–G4, including a measured
+  Strict/Go-native/Hybrid study before any racy-program semantic waiver.
+- Drafted ADR-0016 through ADR-0019 and the deterministic/CI/stress R2 test plan.
+- Produced a method-level Temurin 25.0.3 Unsafe caller graph and research probes.
+- Corrected the historical grouped assumption: Integer/Long use a narrow Unsafe
+  array-write path; Double parsing and basic HashMap fail for separate reasons.
+- Recorded LizBing's acceptance of ADR-0016 through ADR-0019, superseded
+  ADR-0011, and closed R2-GATE without starting runtime implementation.
 
 ## Validation
 
-- Claude branch changed only `docs/handoffs/claude-latest.md`.
-- `git diff --check` passed before integration.
-- Repository ADR counts independently verified as 9 Accepted and 6 Proposed.
-- Fixture count independently verified as 14 Java files including
-  `RealBaseSmoke.java`.
+- Inspected ADR-0010/0011, shared runtime data, native resolution, invocation
+  paths, test harness, and current no-op monitor/native behavior.
+- Verified the development JDK as Temurin 25.0.3+9 and inspected its Unsafe
+  declaration surface with `javap`.
+- Ran four research probes with real extracted java.base and 12-second limits.
+- Checked drafts against JLS/JVMS, Go memory model, and OpenJDK jcstress scope.
 - No runtime code or test behavior changed.
 
-## Unresolved architecture decisions
+## Remaining investigation
 
-- R2 requires a semantic contract for JMM, strict unresolved natives, and the
-  minimum Unsafe surface before implementation.
+- Double.parseDouble timeout and basic HashMap VM-initialization failure require
+  separate minimization; neither is currently evidence for broad Unsafe scope.
 
 ## Next action
 
-Codex drafts `R2-ARCHITECTURE-GATES.md` for LizBing's review. No implementation
-owner is assigned until its semantic decisions are resolved.
+Codex drafts R2-A strict native resolution and inventory as a separate
+implementation contract. No implementation begins until LizBing reviews it.

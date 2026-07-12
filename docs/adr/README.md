@@ -18,8 +18,12 @@ Format (Michael Nygard's template): Status, Context, Decision, Consequences.
 | [0008](./0008-aot-first.md) | AOT-first architecture (interpreter is the dev tier, not production) | Proposed |
 | [0009](./0009-hybrid-class-library.md) | Hybrid class library (~50 native Go + ~7000 interpreted from real JDK) | Proposed |
 | [0010](./0010-thread-equals-goroutine.md) | Thread = goroutine (virtual threads from day one) | Proposed |
-| [0011](./0011-go-memory-model.md) | Adopt Go memory model (not JMM/JSR-133) | Proposed |
+| [0011](./0011-go-memory-model.md) | Adopt Go memory model (not JMM/JSR-133) | Superseded by 0016 |
 | [0012](./0012-escape-analysis-replaces-generational-gc.md) | Escape analysis replaces generational GC | Proposed |
 | [0013](./0013-direct-go-runtime-integration.md) | Direct Go runtime integration (no JVM abstraction layer) | Proposed |
 | [0014](./0014-synthetic-string-extra-payload.md) | Synthetic String with a Go-string Extra() payload | Accepted |
 | [0015](./0015-bootstrap-class-boundary.md) | The bootstrap-class boundary (6 irreducible synthetic classes) | Accepted |
+| [0016](./0016-jmm-profile-and-measured-deviations.md) | Java memory semantics with measured deviation gates (supersedes 0011) | Accepted |
+| [0017](./0017-explicit-thread-context-and-monitors.md) | Explicit Java Thread context and reentrant monitors | Accepted |
+| [0018](./0018-strict-native-resolution.md) | Strict unresolved-native failure | Accepted |
+| [0019](./0019-unsafe-logical-offset-profiles.md) | Unsafe logical offsets and semantic profiles | Accepted |

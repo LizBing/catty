@@ -28,7 +28,7 @@ speed (~44 ms, on par with HotSpot JIT).
 | 0008 | AOT-first (interpreter is dev tier) | No JIT warmup, no safepoints |
 | 0009 | Hybrid class library (~50 native + ~7000 interpreted) | Bootstrap control + semantic compat |
 | 0010 | Thread = goroutine | Virtual threads from day one |
-| 0011 | Go memory model (not JMM) | Simpler, 99.9% compatible |
+| 0011 | Go memory model (not JMM) | Superseded by accepted ADR-0016 |
 | 0012 | Escape analysis replaces generational GC | Stack-allocate Java objects |
 | 0013 | Direct Go runtime integration | I/O = native Go performance |
 
@@ -56,16 +56,20 @@ auto-detected. `RealBaseSmoke` (18 assertions) byte-identical to `java`.
 ### Phase R2 — Concurrency (ADR-0010)
 **Status:** Next
 
-Prerequisite sizing (honest): JDK 25's `Integer.toString`/`Double.parseDouble`/
-`HashMap` cascade through `DecimalDigits` → `jdk.internal.misc.Unsafe` (~50
-native methods). R2 begins with a minimum Unsafe stub layer to unblock these;
-full Unsafe semantics (compareAndSet, field offsets, fences) are entangled with
-ADR-0010 (Thread=goroutine) and ADR-0011 (Go memory model).
+Prerequisite sizing is caller-driven, not a native-method count. On Temurin
+25.0.3, Integer/Long decimal conversion reaches a narrow DecimalDigits Unsafe
+array-write path; Double parsing and ordinary HashMap operations currently fail
+for separate initialization/class-library reasons. R2 begins with strict native
+failure and the checked caller graph, then implements logical Unsafe profiles
+alongside Thread and memory semantics (ADRs 0016–0019).
 
 - `java.lang.Thread` → goroutine. Thread.start = `go func()`.
-- Per-object `sync.Mutex` for `synchronized`. `wait/notify` → `sync.Cond`.
-- `Thread.sleep` → `time.Sleep`. `Thread.interrupt` → `context.Cancel`.
-- JMM approximation (ADR-0011). ~4–6 weeks.
+- Lazy reentrant Monitor per object; explicit owner/depth/wait-set state wraps
+  Go synchronization primitives (ADR-0017).
+- `Thread.sleep` uses Go timers; interrupt is explicit Java status plus waiter
+  wakeup, not merely `context.Cancel`.
+- Protected Java memory semantics plus measured Strict/Go-native/Hybrid study
+  (ADR-0016). Schedule is re-estimated after R2-GATE closes.
 
 **Milestone**: multi-threaded producer-consumer program.
 

@@ -4,7 +4,7 @@
 **Baseline verified through:** `89037c4`  
 **Branch:** `main`  
 **Milestone:** R1 complete and hardened  
-**Active workstream:** None — Codex is preparing R2 architecture gates for LizBing's review
+**Active workstream:** None — Codex is preparing R2-A strict native resolution for review
 
 This is catty's single current-state summary. The strategic sequence lives in
 [`ROADMAP.md`](./ROADMAP.md); session detail belongs in
@@ -32,7 +32,9 @@ The following are not R1 capabilities:
 
 | Capability | Planned phase | Current blocker |
 |---|---|---|
-| `Integer/Long.toString`, `Double.parseDouble`, representative `HashMap` | R2 prerequisite | `DecimalDigits` reaches `jdk.internal.misc.Unsafe` |
+| `Integer/Long.toString` | R2 prerequisite | DecimalDigits uses unresolved Unsafe array writes; generic stub produces NUL output |
+| `Double.parseDouble` | R2 prerequisite investigation | FloatingDecimal probe times out; no direct Unsafe edge found |
+| Representative basic `HashMap` | R2 prerequisite investigation | `jdk.internal.misc.VM` reports “Not yet initialized”; basic path has no direct Unsafe edge |
 | Java concurrency and monitors | R2 | Thread lifecycle, monitor semantics, JMM guarantees |
 | `invokedynamic`, reflection, annotations | R3 | Dynamic metadata and call-site semantics |
 | Broad Java I/O and networking | R4 | Native/runtime integration design |
@@ -41,21 +43,21 @@ The following are not R1 capabilities:
 “18/18 smoke tests pass” means the selected R1 corpus passes; it is not a claim
 that arbitrary `java.base` applications are supported.
 
-## Decisions required before R2 implementation
+## Accepted R2 directions and remaining gates
 
-1. Supersede or revise the direction proposed by ADR-0011. Catty may implement
-   JMM-observable semantics with Go synchronization primitives; adopting the Go
-   memory model as externally visible behavior conflicts with the stated goal
-   of preserving JRE semantics.
-2. Define strict handling for unresolved native methods. Zero/null discovery
-   stubs must not silently become the default compatibility behavior.
-3. Specify the minimum Unsafe semantic surface by behavior—offset identity,
-   CAS, volatile access, fences, array layout, park/unpark—not by method count.
-4. Define representative concurrency and `java.base` acceptance programs before
-   implementation begins.
+LizBing accepted G1–G4 on 2026-07-12:
 
-These items should become the first R2 workstream contract and, where needed,
-superseding ADRs. No R2 implementation owner is currently assigned.
+1. Protect DRF/final/volatile/monitor/Thread/class-init semantics and measure
+   Strict, Go-native, and Hybrid storage before considering a named
+   racy-program deviation.
+2. Unresolved natives throw `UnsatisfiedLinkError`; no generic zero/null stub.
+3. Unsafe uses logical offsets and caller-backed U0–U4 profiles.
+4. R2 requires deterministic differential tests, stress, timeouts, and race
+   evidence.
+
+ADR-0016 through ADR-0019 are Accepted and ADR-0011 is superseded. The exact
+JDK 25 caller graph and R2 test plan are attached. No R2 implementation owner
+is currently assigned.
 
 ## Known architecture risks
 
@@ -70,6 +72,6 @@ superseding ADRs. No R2 implementation owner is currently assigned.
 
 ## Next coordination action
 
-Codex drafts the R2 architecture-gates workstream for LizBing's review. No R2
-implementation begins before that contract resolves the four open decisions,
-reaches **Ready**, and names one implementation owner.
+Codex prepares R2-A (strict native resolution and native inventory) as the first
+implementation contract for LizBing's review. No R2 runtime implementation is
+authorized until that contract reaches **Ready** and names its owner/reviewer.

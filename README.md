@@ -126,12 +126,14 @@ binary running on Go's GC, scheduler, and network stack. Java's
 Thread/synchronized/volatile/GC/IO are "dissolved" into Go's
 goroutine/mutex/atomic/GC/netpoll at compile time.
 
-Key architectural decisions (ADRs 0008–0013):
+Key architectural decisions and current R2 proposals (ADRs 0008–0019):
 
 - **AOT-first**: interpreter is the dev tier; production runs AOT exclusively
   (no JIT warmup, no safepoints).
 - **Thread = goroutine**: virtual threads from day one (no Loom needed).
-- **Go memory model**: simpler than JMM; 99.9% compatible.
+- **Measured Java memory profile**: preserve DRF/final/volatile/monitor/Thread/
+  class-init semantics; compare Strict, Go-native, and Hybrid implementations
+  before accepting any named racy-program deviation (ADR-0016).
 - **Escape analysis replaces generational GC**: Go's compiler stack-allocates
   non-escaping Java objects.
 - **Direct Go runtime integration**: Java I/O compiles to Go netpoll
@@ -145,10 +147,13 @@ See [docs/ROADMAP.md](docs/ROADMAP.md) for the phased plan (R1–R6).
 
 - **`invokedynamic`** — lambdas, method references, JDK string concat factory
   (R3).
-- **`Integer.toString` / `Double.parseDouble` / `HashMap`** — JDK 25 routes these
-  through `DecimalDigits` → `jdk.internal.misc.Unsafe` (~50 native methods).
-  Minimum Unsafe stubs are the first R2 task. (`toHexString` works — it bypasses
-  DecimalDigits.)
+- **`Integer.toString` / `Long.toString`** — JDK 25 DecimalDigits writes through
+  a narrow Unsafe array path; catty's unresolved `putByte` currently returns
+  silently, producing NUL output. Strict native failure is the first R2 gate.
+- **`Double.parseDouble` / basic `HashMap`** — currently fail for separate
+  class-library/runtime initialization reasons; inspected JDK 25 bytecode does
+  not route these basic entry points through the same Unsafe path. See the
+  checked [R2 caller graph](docs/research/R2_UNSAFE_CALL_GRAPH.md).
 - **Concurrency** — `Thread.start`, `synchronized`, `wait`/`notify`
   (R2, Thread = goroutine).
 - **Reflection, JNI, `sun.misc.Unsafe`, the full JDK class library** beyond the
