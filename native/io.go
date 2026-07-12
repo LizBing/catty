@@ -7,6 +7,10 @@ import (
 	"catty/rtda"
 )
 
+func init() {
+	registerSynthetic("java/io/PrintStream", buildPrintStreamClass)
+}
+
 // buildPrintStreamClass makes java.io.PrintStream with the println/print
 // overloads catty's test programs use. Each instance's extra is the io.Writer
 // it writes to (System.out -> os.Stdout).

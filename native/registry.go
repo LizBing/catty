@@ -2,58 +2,50 @@ package native
 
 import "catty/rtda"
 
-// NativeClass builds a synthetic core class for the given internal name, or
-// returns nil if name is not one of catty's natively-implemented core classes.
-// The classloader consults this before falling back to the classpath: classes
-// like java.lang.Object/System/String have no on-disk class file in MVP (we do
-// not ship a JRE), so they are synthesized here with native Go methods.
+// builderFunc constructs a synthetic class.
+type builderFunc func(loader rtda.Loader) *rtda.Class
+
+// syntheticClasses maps internal class names to their builder functions.
+// Populated by init() across native/*.go; read by SyntheticProvider (classloader)
+// and by the existing NativeClass() fallback for backward compatibility.
+var syntheticClasses = map[string]builderFunc{}
+
+// BootstrapClasses is the set of class names that MUST be served from the
+// synthetic registry, even when a real JDK is on the classpath. These classes
+// form the irreducible Go↔Java bridge and cannot be replaced by bytecode.
+var BootstrapClasses = map[string]bool{
+	"java/lang/Object":    true,
+	"java/lang/String":    true,
+	"java/lang/Class":     true,
+	"java/lang/System":    true,
+	"java/lang/Thread":    true,
+	"java/lang/Throwable": true,
+}
+
+// IsBootstrap reports whether name is one of the bootstrap classes.
+func IsBootstrap(name string) bool { return BootstrapClasses[name] }
+
+// registerSynthetic registers a builder for a synthetic class. Called from
+// init() blocks so a builder that references any unexported Go function can
+// live in the same file as that function.
+func registerSynthetic(name string, fn builderFunc) {
+	syntheticClasses[name] = fn
+}
+
+// NativeClass builds a synthetic core class, or returns nil. Kept for
+// backward compatibility; the primary lookup path is now SyntheticClasses().
 func NativeClass(loader rtda.Loader, name string) *rtda.Class {
-	switch name {
-	case "java/lang/Object":
-		return buildObjectClass(loader)
-	case "java/lang/String":
-		return buildStringClass(loader)
-	case "java/lang/StringBuilder":
-		return buildStringBuilderClass(loader)
-	case "java/io/PrintStream":
-		return buildPrintStreamClass(loader)
-	case "java/lang/System":
-		return buildSystemClass(loader)
-	case "java/lang/Throwable":
-		return buildThrowable(loader)
-	case "java/lang/Exception":
-		return buildException(loader)
-	case "java/lang/RuntimeException":
-		return buildRuntimeException(loader)
-	case "java/lang/NullPointerException":
-		return buildNPE(loader)
-	case "java/lang/ArithmeticException":
-		return buildArithmeticException(loader)
-	case "java/lang/IndexOutOfBoundsException":
-		return buildIndexOutOfBounds(loader)
-	case "java/lang/ArrayIndexOutOfBoundsException":
-		return buildAIOOBE(loader)
-	case "java/lang/ClassCastException":
-		return buildCCE(loader)
-	case "java/lang/IllegalArgumentException":
-		return buildIAE(loader)
-	case "java/lang/Error":
-		return buildExceptionSubclass("java/lang/Error", "java/lang/Throwable", loader)
-	case "java/lang/LinkageError":
-		return buildExceptionSubclass("java/lang/LinkageError", "java/lang/Error", loader)
-	case "java/lang/IncompatibleClassChangeError":
-		return buildExceptionSubclass("java/lang/IncompatibleClassChangeError", "java/lang/LinkageError", loader)
-	case "java/lang/NoSuchMethodError":
-		return buildExceptionSubclass("java/lang/NoSuchMethodError", "java/lang/IncompatibleClassChangeError", loader)
-	case "java/lang/Comparable":
-		return buildInterface("java/lang/Comparable", loader)
-	case "java/lang/Class":
-		return buildClass(loader)
-	case "java/lang/Thread":
-		return buildThread(loader)
+	if fn := syntheticClasses[name]; fn != nil {
+		return fn(loader)
 	}
 	return nil
 }
+
+// SyntheticClasses returns the full synthetic-class registry for the new
+// classloader provider chain.
+func SyntheticClasses() map[string]builderFunc { return syntheticClasses }
+
+// --- shared helpers for synthetic class builders ---
 
 // nop is the body of native methods that exist only for spec compliance (e.g.
 // Object.<init>, which does nothing).
@@ -74,9 +66,12 @@ func buildInterface(name string, loader rtda.Loader) *rtda.Class {
 	return c
 }
 
-// buildClass creates java.lang.Class as a native class. Class objects store
-// the rtda.Class they represent in extra. Native methods (getName, isInterface,
-// etc.) are registered in native_registry.go's init().
+func init() {
+	registerSynthetic("java/lang/Class", buildClass)
+	registerSynthetic("java/lang/Thread", buildThread)
+}
+
+// buildClass creates java.lang.Class as a native class.
 func buildClass(loader rtda.Loader) *rtda.Class {
 	c := rtda.NewSyntheticClass("java/lang/Class", loader.LoadClass("java/lang/Object"))
 	c.AddMethod(rtda.NativeMethod(c, "<init>", "()V", nop))

@@ -7,6 +7,13 @@ import (
 	"catty/rtda"
 )
 
+func init() {
+	registerSynthetic("java/lang/Object", buildObjectClass)
+	registerSynthetic("java/lang/String", buildStringClass)
+	registerSynthetic("java/lang/StringBuilder", buildStringBuilderClass)
+	registerSynthetic("java/lang/System", buildSystemClass)
+}
+
 // buildObjectClass makes java.lang.Object. It has no superclass. Its constructor
 // is a nop; getClass returns a stub Class object (catty does not model
 // java.lang.Class richly for MVP, so most reflection paths are out of scope).

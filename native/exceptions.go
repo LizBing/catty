@@ -4,6 +4,35 @@ import (
 	"catty/rtda"
 )
 
+func init() {
+	registerSynthetic("java/lang/Throwable", buildThrowable)
+	registerSynthetic("java/lang/Exception", buildException)
+	registerSynthetic("java/lang/RuntimeException", buildRuntimeException)
+	registerSynthetic("java/lang/NullPointerException", buildNPE)
+	registerSynthetic("java/lang/ArithmeticException", buildArithmeticException)
+	registerSynthetic("java/lang/ArrayIndexOutOfBoundsException", buildAIOOBE)
+	registerSynthetic("java/lang/IndexOutOfBoundsException", buildIndexOutOfBounds)
+	registerSynthetic("java/lang/ClassCastException", buildCCE)
+	registerSynthetic("java/lang/IllegalArgumentException", buildIAE)
+	registerSynthetic("java/lang/Error", func(loader rtda.Loader) *rtda.Class {
+		return buildExceptionSubclass("java/lang/Error", "java/lang/Throwable", loader)
+	})
+	registerSynthetic("java/lang/LinkageError", func(loader rtda.Loader) *rtda.Class {
+		return buildExceptionSubclass("java/lang/LinkageError", "java/lang/Error", loader)
+	})
+	registerSynthetic("java/lang/IncompatibleClassChangeError", func(loader rtda.Loader) *rtda.Class {
+		return buildExceptionSubclass("java/lang/IncompatibleClassChangeError", "java/lang/LinkageError", loader)
+	})
+	registerSynthetic("java/lang/NoSuchMethodError", func(loader rtda.Loader) *rtda.Class {
+		return buildExceptionSubclass("java/lang/NoSuchMethodError", "java/lang/IncompatibleClassChangeError", loader)
+	})
+	registerSynthetic("java/lang/Comparable", buildComparable)
+}
+
+func buildComparable(loader rtda.Loader) *rtda.Class {
+	return buildInterface("java/lang/Comparable", loader)
+}
+
 // buildThrowable creates java.lang.Throwable with a detailMessage field and
 // the getMessage/toString methods. All exception classes chain to this.
 func buildThrowable(loader rtda.Loader) *rtda.Class {
