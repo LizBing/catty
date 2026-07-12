@@ -725,6 +725,10 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		cls, name, desc := frame.Method().Owner().ConstantPool().MemberRef(idx)
 		class := thread.Loader().LoadClass(cls)
 		spec := class.LookupMethod(name, desc)
+		if spec == nil {
+			throwRuntime(thread, opcodePc, "java/lang/NoSuchMethodError", cls+"."+name+desc)
+			return
+		}
 		receiver := frame.PeekRef(int(spec.ArgSlotCount()))
 		if receiver == nil {
 			throwRuntime(thread, opcodePc, "java/lang/NullPointerException", "")
@@ -753,6 +757,10 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		frame.ReadUint8() // 0   — historical, ignored
 		cls, name, desc := frame.Method().Owner().ConstantPool().MemberRef(idx)
 		spec := thread.Loader().LoadClass(cls).LookupMethod(name, desc)
+		if spec == nil {
+			throwRuntime(thread, opcodePc, "java/lang/NoSuchMethodError", cls+"."+name+desc)
+			return
+		}
 		receiver := frame.PeekRef(int(spec.ArgSlotCount()))
 		if receiver == nil {
 			throwRuntime(thread, opcodePc, "java/lang/NullPointerException", "")

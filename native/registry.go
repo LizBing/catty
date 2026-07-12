@@ -37,6 +37,14 @@ func NativeClass(loader rtda.Loader, name string) *rtda.Class {
 		return buildCCE(loader)
 	case "java/lang/IllegalArgumentException":
 		return buildIAE(loader)
+	case "java/lang/Error":
+		return buildExceptionSubclass("java/lang/Error", "java/lang/Throwable", loader)
+	case "java/lang/LinkageError":
+		return buildExceptionSubclass("java/lang/LinkageError", "java/lang/Error", loader)
+	case "java/lang/IncompatibleClassChangeError":
+		return buildExceptionSubclass("java/lang/IncompatibleClassChangeError", "java/lang/LinkageError", loader)
+	case "java/lang/NoSuchMethodError":
+		return buildExceptionSubclass("java/lang/NoSuchMethodError", "java/lang/IncompatibleClassChangeError", loader)
 	case "java/lang/Comparable":
 		return buildInterface("java/lang/Comparable", loader)
 	case "java/lang/Class":
@@ -71,6 +79,10 @@ func buildClass(loader rtda.Loader) *rtda.Class {
 	c.AddMethod(rtda.NativeMethod(c, "isInterface", "()Z", classIsInterface))
 	c.AddMethod(rtda.NativeMethod(c, "isArray", "()Z", classIsArray))
 	c.AddMethod(rtda.NativeMethod(c, "getModifiers", "()I", classGetModifiers))
+	c.AddMethod(rtda.NativeMethod(c, "isInstance", "(Ljava/lang/Object;)Z", classIsInstance))
+	c.AddMethod(rtda.NativeMethod(c, "isAssignableFrom", "(Ljava/lang/Class;)Z", classIsAssignableFrom))
+	c.AddMethod(rtda.NativeMethod(c, "getSuperclass", "()Ljava/lang/Class;", classGetSuperclass))
+	c.AddMethod(rtda.NativeMethod(c, "isHidden", "()Z", classIsHidden))
 	return c
 }
 

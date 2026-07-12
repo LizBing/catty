@@ -16,11 +16,16 @@ func init() {
 	RegisterNative("java/lang/System", "currentTimeMillis", "()J", systemCurrentTimeMillis)
 	RegisterNative("java/lang/System", "nanoTime", "()J", systemNanoTime)
 	RegisterNative("java/lang/System", "identityHashCode", "(Ljava/lang/Object;)I", systemIdentityHashCode)
+	RegisterNative("java/lang/System", "mapLibraryName", "(Ljava/lang/String;)Ljava/lang/String;", systemMapLibraryName)
 
 	// --- Object ---
 	RegisterNative("java/lang/Object", "hashCode", "()I", objectHashCode)
 	RegisterNative("java/lang/Object", "getClass", "()Ljava/lang/Class;", objectGetClass)
 	RegisterNative("java/lang/Object", "clone", "()Ljava/lang/Object;", objectClone)
+	RegisterNative("java/lang/Object", "notify", "()V", nop)
+	RegisterNative("java/lang/Object", "notifyAll", "()V", nop)
+	RegisterNative("java/lang/Object", "wait", "(J)V", nop)
+	RegisterNative("java/lang/Object", "registerNatives", "()V", nop)
 
 	// --- Class ---
 	RegisterNative("java/lang/Class", "getName", "()Ljava/lang/String;", classGetName)
@@ -29,15 +34,37 @@ func init() {
 	RegisterNative("java/lang/Class", "isInterface", "()Z", classIsInterface)
 	RegisterNative("java/lang/Class", "isArray", "()Z", classIsArray)
 	RegisterNative("java/lang/Class", "getModifiers", "()I", classGetModifiers)
+	RegisterNative("java/lang/Class", "isInstance", "(Ljava/lang/Object;)Z", classIsInstance)
+	RegisterNative("java/lang/Class", "isAssignableFrom", "(Ljava/lang/Class;)Z", classIsAssignableFrom)
+	RegisterNative("java/lang/Class", "getSuperclass", "()Ljava/lang/Class;", classGetSuperclass)
+	RegisterNative("java/lang/Class", "isHidden", "()Z", classIsHidden)
+	RegisterNative("java/lang/Class", "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;", classGetPrimitiveClass)
+	RegisterNative("java/lang/Class", "registerNatives", "()V", nop)
 
 	// --- Thread ---
 	RegisterNative("java/lang/Thread", "currentThread", "()Ljava/lang/Thread;", threadCurrentThread)
+	RegisterNative("java/lang/Thread", "holdsLock", "(Ljava/lang/Object;)Z", nopBool0)
+	RegisterNative("java/lang/Thread", "registerNatives", "()V", nop)
+
+	// --- String ---
+	RegisterNative("java/lang/String", "intern", "()Ljava/lang/String;", stringIntern)
+
+	// --- Runtime ---
+	RegisterNative("java/lang/Runtime", "availableProcessors", "()I", runtimeAvailableProcessors)
+	RegisterNative("java/lang/Runtime", "freeMemory", "()J", runtimeZeroLong)
+	RegisterNative("java/lang/Runtime", "totalMemory", "()J", runtimeZeroLong)
+	RegisterNative("java/lang/Runtime", "maxMemory", "()J", runtimeZeroLong)
+	RegisterNative("java/lang/Runtime", "gc", "()V", nop)
 
 	// --- Float/Double bit conversion (native in JDK) ---
 	RegisterNative("java/lang/Float", "floatToRawIntBits", "(F)I", floatToRawIntBits)
 	RegisterNative("java/lang/Float", "intBitsToFloat", "(I)F", intBitsToFloat)
 	RegisterNative("java/lang/Double", "doubleToRawLongBits", "(D)J", doubleToRawLongBits)
 	RegisterNative("java/lang/Double", "longBitsToDouble", "(J)D", longBitsToDouble)
+
+	// --- AccessController / SecurityManager (stubs) ---
+	RegisterNative("java/security/AccessController", "doPrivileged", "(Ljava/security/PrivilegedAction;)Ljava/lang/Object;", nopRef0)
+	RegisterNative("java/security/AccessController", "doPrivileged", "(Ljava/security/PrivilegedExceptionAction;)Ljava/lang/Object;", nopRef0)
 }
 
 // --- System native methods ---
@@ -173,6 +200,62 @@ func classGetModifiers(f *rtda.Frame) {
 	f.PushInt(int32(cls.AccessFlags()))
 }
 
+func classIsInstance(f *rtda.Frame) {
+	this := f.GetRef(0)
+	other := f.GetRef(1)
+	cls := getClassFromExtra(this)
+	if other == nil {
+		f.PushInt(0)
+		return
+	}
+	if other.IsInstanceOf(cls) {
+		f.PushInt(1)
+	} else {
+		f.PushInt(0)
+	}
+}
+
+func classIsAssignableFrom(f *rtda.Frame) {
+	this := f.GetRef(0)
+	argClassObj := f.GetRef(1)
+	cls := getClassFromExtra(this)
+	argCls := getClassFromExtra(argClassObj)
+	if argCls == nil {
+		f.PushInt(0)
+		return
+	}
+	// cls.isAssignableFrom(argCls) — argCls is assignable to cls?
+	// rtda.Class.isAssignableFrom(c) checks: can a value of `c` be assigned to `cls`?
+	// We invert: argCls.IsInstanceOf(cls)?
+	// Actually: cls.isAssignableFrom(argCls) = argCls is a subclass of cls (or same).
+	// Check if cls is an ancestor (or same) of argCls.
+	for c := argCls; c != nil; c = c.SuperClass() {
+		if c == cls {
+			f.PushInt(1)
+			return
+		}
+	}
+	f.PushInt(0)
+}
+
+func classGetSuperclass(f *rtda.Frame) {
+	this := f.GetRef(0)
+	cls := getClassFromExtra(this)
+	super := cls.SuperClass()
+	if super == nil {
+		f.PushRef(nil)
+		return
+	}
+	classClass := f.Thread().Loader().LoadClass("java/lang/Class")
+	superObj := rtda.NewObject(classClass)
+	superObj.SetExtra(super)
+	f.PushRef(superObj)
+}
+
+func classIsHidden(f *rtda.Frame) {
+	f.PushInt(0) // no hidden classes in catty
+}
+
 func threadCurrentThread(f *rtda.Frame) {
 	threadClass := f.Thread().Loader().LoadClass("java/lang/Thread")
 	obj := rtda.NewObject(threadClass)
@@ -199,3 +282,65 @@ func longBitsToDouble(f *rtda.Frame) {
 	bits := uint64(f.GetLong(0))
 	f.PushDouble(math.Float64frombits(bits))
 }
+
+// --- Missing native stubs ---
+
+func systemMapLibraryName(f *rtda.Frame) {
+	// Identity: just return the input name.
+	this := f.GetRef(0)
+	f.PushRef(this)
+}
+
+func stringIntern(f *rtda.Frame) {
+	// No interning: just return this.
+	this := f.GetRef(0)
+	f.PushRef(this)
+}
+
+func runtimeAvailableProcessors(f *rtda.Frame) {
+	f.PushInt(1) // minimal
+}
+
+func runtimeZeroLong(f *rtda.Frame) {
+	f.PushLong(0)
+}
+
+func classGetPrimitiveClass(f *rtda.Frame) {
+	name := f.GetRef(0)
+	if name == nil {
+		f.PushRef(nil)
+		return
+	}
+	// Extract the primitive class name from the "String" object extra
+	primName, _ := name.Extra().(string)
+	// Map JVM internal primitive names
+	switch primName {
+	case "int":
+		primName = "[I"
+	case "long":
+		primName = "[J"
+	case "float":
+		primName = "[F"
+	case "double":
+		primName = "[D"
+	case "boolean":
+		primName = "[Z"
+	case "byte":
+		primName = "[B"
+	case "char":
+		primName = "[C"
+	case "short":
+		primName = "[S"
+	case "void":
+		primName = "V"
+	}
+	cls := f.Thread().Loader().LoadClass(primName)
+	classClass := f.Thread().Loader().LoadClass("java/lang/Class")
+	obj := rtda.NewObject(classClass)
+	obj.SetExtra(cls)
+	f.PushRef(obj)
+}
+
+func nopBool0(f *rtda.Frame) { f.PushInt(0) }
+
+func nopRef0(f *rtda.Frame) { f.PushRef(nil) }

@@ -104,6 +104,8 @@ func buildStringBuilderClass(loader rtda.Loader) *rtda.Class {
 	c.AddMethod(rtda.NativeMethod(c, "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", sbAppendString))
 	c.AddMethod(rtda.NativeMethod(c, "append", "(I)Ljava/lang/StringBuilder;", sbAppendInt))
 	c.AddMethod(rtda.NativeMethod(c, "append", "(J)Ljava/lang/StringBuilder;", sbAppendLong))
+	c.AddMethod(rtda.NativeMethod(c, "append", "(Z)Ljava/lang/StringBuilder;", sbAppendBool))
+	c.AddMethod(rtda.NativeMethod(c, "append", "(C)Ljava/lang/StringBuilder;", sbAppendChar))
 	c.AddMethod(rtda.NativeMethod(c, "toString", "()Ljava/lang/String;", sbToString))
 	return c
 }
@@ -128,6 +130,23 @@ func sbAppendInt(f *rtda.Frame) {
 func sbAppendLong(f *rtda.Frame) {
 	this := f.GetRef(0)
 	this.Extra().(*stringsBuilder).WriteString(fmt.Sprintf("%d", f.GetLong(1)))
+	f.PushRef(this)
+}
+
+func sbAppendBool(f *rtda.Frame) {
+	this := f.GetRef(0)
+	v := f.GetInt(1)
+	if v != 0 {
+		this.Extra().(*stringsBuilder).WriteString("true")
+	} else {
+		this.Extra().(*stringsBuilder).WriteString("false")
+	}
+	f.PushRef(this)
+}
+
+func sbAppendChar(f *rtda.Frame) {
+	this := f.GetRef(0)
+	this.Extra().(*stringsBuilder).WriteString(string(rune(f.GetInt(1))))
 	f.PushRef(this)
 }
 
