@@ -4,7 +4,7 @@
 **Baseline verified through:** `89037c4`  
 **Branch:** `main`  
 **Milestone:** R1 complete and hardened  
-**Active workstream:** [`ONBOARD-1`](./workstreams/ONBOARD-1-CLAUDE-DEEPSEEK.md) — validate fresh Claude/DeepSeek collaboration before R2
+**Active workstream:** None — Codex is preparing R2 architecture gates for LizBing's review
 
 This is catty's single current-state summary. The strategic sequence lives in
 [`ROADMAP.md`](./ROADMAP.md); session detail belongs in
@@ -70,7 +70,6 @@ superseding ADRs. No R2 implementation owner is currently assigned.
 
 ## Next coordination action
 
-Claude completes the documentation-only ONBOARD-1 exercise in an isolated
-worktree. Codex reviews the resulting live handoff. After onboarding closes,
-Codex drafts the R2 architecture-gates workstream for LizBing's review; no R2
-implementation begins before that contract reaches **Ready**.
+Codex drafts the R2 architecture-gates workstream for LizBing's review. No R2
+implementation begins before that contract resolves the four open decisions,
+reaches **Ready**, and names one implementation owner.

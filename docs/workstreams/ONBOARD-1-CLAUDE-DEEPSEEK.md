@@ -1,6 +1,6 @@
 # ONBOARD-1: Claude/DeepSeek collaboration onboarding
 
-**Status:** Ready  
+**Status:** Closed
 **Owner:** Claude (DeepSeek backend selected manually by LizBing)  
 **Reviewer:** Codex  
 **Integrator:** Codex when explicitly accepted by LizBing  
@@ -53,7 +53,7 @@ supervise and review the resulting session.
 
 | Question | Owner | Resolution |
 |---|---|---|
-| Can DeepSeek-backed Claude recover state from the repository alone? | Codex | To be evaluated |
+| Can DeepSeek-backed Claude recover state from the repository alone? | Codex | Yes, after one evidence-based correction cycle |
 | May Claude begin R2 implementation in this session? | LizBing/Codex | No |
 | Who may accept the onboarding evidence? | Codex | Codex reviews; LizBing owns final process direction |
 
@@ -61,32 +61,34 @@ supervise and review the resulting session.
 
 | Slice | Result | Dependencies | Status |
 |---|---|---|---|
-| A | Read and verify shared project state | Clean worktree at base | Pending |
-| B | Produce structured understanding report | A | Pending |
-| C | Write live `claude-latest.md` handoff only | B | Pending |
-| D | Codex independently reviews diff and claims | C | Pending |
+| A | Read and verify shared project state | Clean worktree at base | Complete |
+| B | Produce structured understanding report | A | Complete |
+| C | Write live `claude-latest.md` handoff only | B | Complete |
+| D | Codex independently reviews diff and claims | C | Complete |
 
 ## Acceptance gates
 
-- [ ] Claude identifies `docs/PROJECT_STATUS.md` as the current-state source.
-- [ ] Claude distinguishes Accepted ADRs from Proposed ADRs.
-- [ ] Claude states the R1 corpus boundary without overclaiming compatibility.
-- [ ] Claude identifies JMM, strict unresolved natives, minimum Unsafe semantics,
+- [x] Claude identifies `docs/PROJECT_STATUS.md` as the current-state source.
+- [x] Claude distinguishes Accepted ADRs from Proposed ADRs.
+- [x] Claude states the R1 corpus boundary without overclaiming compatibility.
+- [x] Claude identifies JMM, strict unresolved natives, minimum Unsafe semantics,
       and representative concurrency/java.base programs as pre-R2 decisions.
-- [ ] Claude makes no runtime, ADR, roadmap, project-status, or CI changes.
-- [ ] The only working-tree diff is `docs/handoffs/claude-latest.md`.
-- [ ] The handoff records branch, base/head, commands, findings, risks, dirty
+- [x] Claude makes no runtime, ADR, roadmap, project-status, or CI changes.
+- [x] The only working-tree diff is `docs/handoffs/claude-latest.md`.
+- [x] The handoff records branch, base/head, commands, findings, risks, dirty
       state, and one next action.
-- [ ] Codex can reproduce all repository claims without the Claude session.
+- [x] Codex can reproduce all repository claims without the Claude session.
 
 ## Evidence
 
 | Gate | Command/artifact | Result |
 |---|---|---|
-| Repository baseline | `git status`, `git rev-parse HEAD` | Pending |
-| Claude understanding | Supervised Claude Code output | Pending |
-| Durable handoff | `docs/handoffs/claude-latest.md` | Pending |
-| Scope control | `git diff --name-only` | Pending |
+| Repository baseline | `git status`, `git rev-parse HEAD` | Pass at `1e1fd1a` |
+| Claude understanding | Supervised Claude Code session `4bc16221-de98-4b58-b761-cb47b3e5023c` | Pass after one correction cycle |
+| Durable handoff | `docs/handoffs/claude-latest.md` | Pass; committed as `609f375` |
+| Scope control | `git diff --name-only`, `git diff --check` | Pass; exactly one Markdown file |
+| Provider routing | LizBing confirmation | DeepSeek selected through CC Switch; CLI alias is not backend identity |
+| Final acceptance | LizBing, 2026-07-12 | Accepted |
 
 ## Risks and rollback
 
@@ -103,3 +105,5 @@ supervise and review the resulting session.
 | Date | From | To | Commit | Summary |
 |---|---|---|---|---|
 | 2026-07-12 | Codex | Claude | `cc13797` | Fresh-session onboarding contract ready |
+| 2026-07-12 | Claude | Codex | `609f375` | Live handoff corrected and accepted |
+| 2026-07-12 | Codex | LizBing | Closure commit containing this row | ONBOARD-1 accepted and closed |
