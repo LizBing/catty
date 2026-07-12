@@ -15,8 +15,8 @@ type Frame struct {
 	code     []byte // cached method.code for the dispatch loop (nil if native)
 	locals   []Slot
 	stack    []Slot
-	stackTop int  // index of the next free slot = current operand-stack size
-	pc       int  // index into code of the next instruction
+	stackTop int // index of the next free slot = current operand-stack size
+	pc       int // index into code of the next instruction
 }
 
 func NewFrame(thread *Thread, method *Method) *Frame {
@@ -33,9 +33,9 @@ func (f *Frame) Thread() *Thread { return f.thread }
 func (f *Frame) Method() *Method { return f.method }
 func (f *Frame) Code() []byte    { return f.method.code }
 
-func (f *Frame) PC() int       { return f.pc }
-func (f *Frame) SetPC(pc int)  { f.pc = pc }
-func (f *Frame) NextPC() int   { return f.pc } // pc already advanced past the opcode
+func (f *Frame) PC() int      { return f.pc }
+func (f *Frame) SetPC(pc int) { f.pc = pc }
+func (f *Frame) NextPC() int  { return f.pc } // pc already advanced past the opcode
 
 // Operand decoders. The dispatch loop reads opcodes and their inline operands
 // straight from code via these; they advance pc past the bytes consumed.
@@ -149,12 +149,12 @@ func (f *Frame) PopDouble() float64 {
 
 // --- Local variables ---
 
-func (f *Frame) SetInt(index int, val int32)    { f.locals[index].num = val }
-func (f *Frame) GetInt(index int) int32         { return f.locals[index].num }
+func (f *Frame) SetInt(index int, val int32)     { f.locals[index].num = val }
+func (f *Frame) GetInt(index int) int32          { return f.locals[index].num }
 func (f *Frame) SetFloat(index int, val float32) { f.locals[index].num = int32(math.Float32bits(val)) }
-func (f *Frame) GetFloat(index int) float32     { return math.Float32frombits(uint32(f.locals[index].num)) }
-func (f *Frame) SetRef(index int, ref *Object)  { f.locals[index].ref = ref }
-func (f *Frame) GetRef(index int) *Object       { return f.locals[index].ref }
+func (f *Frame) GetFloat(index int) float32      { return math.Float32frombits(uint32(f.locals[index].num)) }
+func (f *Frame) SetRef(index int, ref *Object)   { f.locals[index].ref = ref }
+func (f *Frame) GetRef(index int) *Object        { return f.locals[index].ref }
 
 func (f *Frame) SetLong(index int, val int64) {
 	f.locals[index].num = int32(uint64(val) >> 32)
@@ -196,8 +196,8 @@ func (f *Frame) ClearStack() {
 
 func (f *Frame) SetStackTop(n int) { f.stackTop = n }
 
-func (f *Frame) StackSlotNum(i int) int32    { return f.stack[i].num }
-func (f *Frame) StackSlotRef(i int) *Object  { return f.stack[i].ref }
+func (f *Frame) StackSlotNum(i int) int32         { return f.stack[i].num }
+func (f *Frame) StackSlotRef(i int) *Object       { return f.stack[i].ref }
 func (f *Frame) SetStackSlotNum(i int, v int32)   { f.stack[i].num = v }
 func (f *Frame) SetStackSlotRef(i int, r *Object) { f.stack[i].ref = r }
 

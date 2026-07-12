@@ -27,7 +27,7 @@ type Class struct {
 	// element class (for object arrays) and componentKind tags primitive arrays.
 	isArray        bool
 	componentClass *Class
-	componentKind  int // kindByte, kindChar, ...; 0 for object arrays
+	componentKind  int    // kindByte, kindChar, ...; 0 for object arrays
 	arrayClass     *Class // cached "[Lthis;" / "[Ithis" array class
 
 	// Class initialization bookkeeping (see build.go).
@@ -48,13 +48,13 @@ const (
 
 // --- Accessors used by the loader and interpreter ---
 
-func (c *Class) Name() string         { return c.name }
-func (c *Class) SuperClass() *Class   { return c.superClass }
-func (c *Class) AccessFlags() uint16  { return c.accessFlags }
+func (c *Class) Name() string                          { return c.name }
+func (c *Class) SuperClass() *Class                    { return c.superClass }
+func (c *Class) AccessFlags() uint16                   { return c.accessFlags }
 func (c *Class) ConstantPool() *classfile.ConstantPool { return c.cp }
-func (c *Class) InstSlotCount() uint  { return c.instSlotCount }
-func (c *Class) StaticVars() []Slot   { return c.staticVars }
-func (c *Class) IsArray() bool        { return c.isArray }
+func (c *Class) InstSlotCount() uint                   { return c.instSlotCount }
+func (c *Class) StaticVars() []Slot                    { return c.staticVars }
+func (c *Class) IsArray() bool                         { return c.isArray }
 
 // IsInterface / IsAbstract etc.
 func (c *Class) IsInterface() bool { return c.accessFlags&accInterface != 0 }
@@ -154,8 +154,9 @@ func (c *Class) StaticField(name, descriptor string) *Field {
 
 // --- Type compatibility (instanceof / checkcast / array covariance) ---
 
-// isAssignableFrom reports whether a value of class c can be assigned to a
-// variable of type target (the inverse direction of instanceof).
+// isAssignableFrom reports whether a value of class target can be stored in a
+// variable of type c (can the catch-type c hold the exception whose class is
+// target?). Used by IsInstanceOf for instanceof / checkcast / exception matching.
 func (c *Class) isAssignableFrom(target *Class) bool {
 	if target == nil {
 		return false
@@ -173,13 +174,13 @@ func (c *Class) isAssignableFrom(target *Class) bool {
 		return c.isArray && c.componentClass != nil &&
 			c.componentClass.isAssignableFrom(target.componentClass)
 	}
-	// Superclass chain.
+	// Walk target's super chain looking for c (the catch type).
 	for sc := target.superClass; sc != nil; sc = sc.superClass {
 		if sc == c {
 			return true
 		}
 	}
-	// Interface implementation.
+	// Interface implementation: c is an interface that target implements.
 	return c.IsInterface() && target.implementsInterface(c)
 }
 

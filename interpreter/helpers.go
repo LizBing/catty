@@ -61,14 +61,14 @@ func writeTwoSlots(arr *rtda.Object, i int, v int64) {
 
 // ---------- float/double bit helpers (named wrappers keep the switch tidy) ----------
 
-func float32bits(f float32) uint32        { return math.Float32bits(f) }
-func float32frombits(u uint32) float32    { return math.Float32frombits(u) }
-func float64bits(f float64) uint64        { return math.Float64bits(f) }
-func float64frombits(u uint64) float64    { return math.Float64frombits(u) }
+func float32bits(f float32) uint32     { return math.Float32bits(f) }
+func float32frombits(u uint32) float32 { return math.Float32frombits(u) }
+func float64bits(f float64) uint64     { return math.Float64bits(f) }
+func float64frombits(u uint64) float64 { return math.Float64frombits(u) }
 
 // remF / remF64 implement Java's floating-point %, which is fmod semantics
 // (result sign follows the dividend) — exactly Go's math.Mod.
-func remF(a, b float32) float32 { return float32(math.Mod(float64(a), float64(b))) }
+func remF(a, b float32) float32   { return float32(math.Mod(float64(a), float64(b))) }
 func remF64(a, b float64) float64 { return math.Mod(a, b) }
 
 // cmpFloat / cmpDouble implement fcmpl/fcmpg and dcmpl/dcmpg: NaN yields -1 for

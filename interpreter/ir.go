@@ -316,11 +316,11 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 	case opcode.Fcmpl, opcode.Fcmpg:
 		b := math.Float32frombits(uint32(frame.StackSlotNum(int(inst.Uses[1]))))
 		a := math.Float32frombits(uint32(frame.StackSlotNum(int(inst.Uses[0]))))
-		frame.SetStackSlotNum(int(inst.Defs[0]), cmpFloat(a, b, inst.Op==opcode.Fcmpg))
+		frame.SetStackSlotNum(int(inst.Defs[0]), cmpFloat(a, b, inst.Op == opcode.Fcmpg))
 	case opcode.Dcmpl, opcode.Dcmpg:
 		b := math.Float64frombits(uint64(slotLong(frame, int(inst.Uses[2]), int(inst.Uses[3]))))
 		a := math.Float64frombits(uint64(slotLong(frame, int(inst.Uses[0]), int(inst.Uses[1]))))
-		frame.SetStackSlotNum(int(inst.Defs[0]), cmpDouble(a, b, inst.Op==opcode.Dcmpg))
+		frame.SetStackSlotNum(int(inst.Defs[0]), cmpDouble(a, b, inst.Op == opcode.Dcmpg))
 
 	// ---------- branches (slot-index for operands, predecoded target) ----------
 	case opcode.Ifeq:

@@ -135,7 +135,7 @@ func decodeInst(code []byte, pc int) (IRInst, int) {
 		modifiedOp := opcode.Opcode(code[pc+1])
 		inst.Index = be16(code, pc+2)
 		if modifiedOp == opcode.Iinc {
-			inst.IncIndex = uint8(inst.Index) // reuse IncIndex for the u2 index
+			inst.IncIndex = uint8(inst.Index)         // reuse IncIndex for the u2 index
 			inst.Const8 = int8(be16(code, pc+4) >> 8) // approximate; wide iinc needs special handling
 			inst.Length = 6
 		} else {

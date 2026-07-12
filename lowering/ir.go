@@ -25,12 +25,12 @@ type IR struct {
 
 // IRInst is one decoded, stack-eliminated instruction.
 type IRInst struct {
-	Op     opcode.Opcode
+	Op      opcode.Opcode
 	Present bool
-	Length int    // bytes consumed in the original code (for fallthrough / decode walk)
-	Depth  int    // operand-stack depth (in slots) on entry, from the depth dataflow
-	Uses   []uint8 // slot indices this instruction reads
-	Defs   []uint8 // slot indices this instruction writes
+	Length  int        // bytes consumed in the original code (for fallthrough / decode walk)
+	Depth   int        // operand-stack depth (in slots) on entry, from the depth dataflow
+	Uses    []uint8    // slot indices this instruction reads
+	Defs    []uint8    // slot indices this instruction writes
 	InTypes []SlotType // operand-stack slot types at entry (A1.5); nil if the method had no StackMapTable
 
 	// Predecoded immediate operands (only the relevant field is set per op).
@@ -46,11 +46,11 @@ type IRInst struct {
 
 // SwitchTable is the decoded, pc-resolved form of tableswitch / lookupswitch.
 type SwitchTable struct {
-	Default  int      // absolute pc of the default handler
-	Low      int32    // tableswitch only: lowest key
-	High     int32    // tableswitch only: highest key
-	Keys     []int32  // lookupswitch only: match keys (parallel to Targets)
-	Targets  []int    // absolute target pcs; tableswitch indexes by (key-Low)
+	Default int     // absolute pc of the default handler
+	Low     int32   // tableswitch only: lowest key
+	High    int32   // tableswitch only: highest key
+	Keys    []int32 // lookupswitch only: match keys (parallel to Targets)
+	Targets []int   // absolute target pcs; tableswitch indexes by (key-Low)
 }
 
 // slotEffect returns the (pop, push) operand-stack effect in *slots* for op.

@@ -34,7 +34,7 @@ func Emit(method *rtda.Method, ir *lowering.IR, loader rtda.Loader, emittable ma
 		slotTemp: map[int]string{}, slotType: map[int]string{}, loader: loader,
 		merges: map[int]bool{}, fallThrough: map[int]bool{},
 		mergeTemps: map[int][]string{}, mergeTempTypes: map[int][]string{},
-		localMap: buildLocalMap(method),
+		localMap:  buildLocalMap(method),
 		emittable: emittable,
 	}
 	e.merges, e.fallThrough = cfgAnalysis(ir)
@@ -79,17 +79,17 @@ func Emit(method *rtda.Method, ir *lowering.IR, loader rtda.Loader, emittable ma
 // emitter carries the fresh-per-def state: the current temp name per operand-stack
 // slot, and the list of all temps (for top-of-function declarations + the sink).
 type emitter struct {
-	slotTemp       map[int]string   // slot index → temp name of its most recent def
-	slotType       map[int]string   // slot index → that temp's Go type (for dup)
+	slotTemp       map[int]string // slot index → temp name of its most recent def
+	slotType       map[int]string // slot index → that temp's Go type (for dup)
 	loader         rtda.Loader
 	temps          []tempDecl
 	counter        int
-	merges         map[int]bool      // pcs with >1 predecessor (control-flow merges)
-	fallThrough    map[int]bool      // pcs reached by fall-through from a predecessor
-	mergeTemps     map[int][]string  // merge pc → temp name per stack slot (the phi)
-	mergeTempTypes map[int][]string  // merge pc → Go type per stack slot
-	localMap       map[int]string    // JVM local slot → Go param name (cat-2 aware)
-	emittable      map[string]bool   // AOT'd methods in this build (invokestatic dispatch)
+	merges         map[int]bool     // pcs with >1 predecessor (control-flow merges)
+	fallThrough    map[int]bool     // pcs reached by fall-through from a predecessor
+	mergeTemps     map[int][]string // merge pc → temp name per stack slot (the phi)
+	mergeTempTypes map[int][]string // merge pc → Go type per stack slot
+	localMap       map[int]string   // JVM local slot → Go param name (cat-2 aware)
+	emittable      map[string]bool  // AOT'd methods in this build (invokestatic dispatch)
 }
 
 type tempDecl struct{ name, gotype string }

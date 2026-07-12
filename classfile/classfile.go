@@ -55,9 +55,9 @@ func (cf *ClassFile) readAndCheckVersions(r *ClassReader) {
 
 // --- Accessors used by the class loader and interpreter ---
 
-func (cf *ClassFile) MajorVersion() uint16   { return cf.majorVersion }
+func (cf *ClassFile) MajorVersion() uint16        { return cf.majorVersion }
 func (cf *ClassFile) ConstantPool() *ConstantPool { return cf.constantPool }
-func (cf *ClassFile) AccessFlags() uint16    { return cf.accessFlags }
+func (cf *ClassFile) AccessFlags() uint16         { return cf.accessFlags }
 
 // ClassName returns the internal name of the class defined by this file
 // (e.g. "java/lang/Object").

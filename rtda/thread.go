@@ -58,8 +58,8 @@ func (t *Thread) FrameCount() int { return len(t.stack) }
 // Bridge-mode accessors: used by the AOT bridge (interpreter.RunMethod) to capture
 // a method's return when there is no caller frame to push it onto.
 func (t *Thread) SetBridgeReturn(s *Slot) { t.bridgeReturn = s }
-func (t *Thread) HasBridgeReturn() bool    { return t.bridgeReturn != nil }
-func (t *Thread) BridgeReturn(s Slot)      { *t.bridgeReturn = s }
+func (t *Thread) HasBridgeReturn() bool   { return t.bridgeReturn != nil }
+func (t *Thread) BridgeReturn(s Slot)     { *t.bridgeReturn = s }
 
 // --- Exception handling ---
 //
@@ -75,6 +75,32 @@ func (t *Thread) ClearException() *Object {
 	return obj
 }
 func (t *Thread) ThrowPC() int { return t.throwPC }
+
+// ThrowUnsatisfiedLinkError creates an UnsatisfiedLinkError with a message
+// containing the class name, method name, and descriptor, then sets it as the
+// thread's pending exception. The caller must leave the frame/stack in a
+// consistent state — this function only records the exception signal.
+func (t *Thread) ThrowUnsatisfiedLinkError(className, methodName, descriptor string) {
+	msg := "'" + descriptor + " " + className + "." + methodName + "()'"
+	uleClass := t.Loader().LoadClass("java/lang/UnsatisfiedLinkError")
+	obj := NewObject(uleClass)
+	setDetailMessage(obj, msg, t.Loader())
+	t.Throw(obj, 0)
+}
+
+// setDetailMessage stores a message string as the detailMessage field of a
+// Throwable object.
+func setDetailMessage(obj *Object, msg string, loader Loader) {
+	for cls := obj.Class(); cls != nil; cls = cls.SuperClass() {
+		if f := cls.LookupField("detailMessage", "Ljava/lang/String;"); f != nil {
+			msgClass := loader.LoadClass("java/lang/String")
+			msgObj := NewObject(msgClass)
+			msgObj.SetExtra(msg)
+			obj.Fields()[f.SlotID()].SetRef(msgObj)
+			return
+		}
+	}
+}
 
 // NewFrame allocates a frame for a method on this thread.
 func (t *Thread) NewFrame(method *Method) *Frame {

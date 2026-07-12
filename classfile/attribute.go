@@ -43,11 +43,11 @@ func (a *UnparsedAttribute) readInfo(*ClassReader) {}
 
 // CodeAttribute holds the bytecode of a method (JVMS §4.7.3).
 type CodeAttribute struct {
-	maxStack   uint16
-	maxLocals  uint16
-	code       []byte
+	maxStack       uint16
+	maxLocals      uint16
+	code           []byte
 	exceptionTable []*ExceptionTableEntry
-	attributes []AttributeInfo
+	attributes     []AttributeInfo
 }
 
 func (a *CodeAttribute) readInfo(_ *ClassReader) {} // parsed by readCodeAttribute
@@ -86,9 +86,9 @@ func readCodeAttribute(info []byte, cp *ConstantPool) *CodeAttribute {
 	return a
 }
 
-func (a *CodeAttribute) MaxStack() uint16          { return a.maxStack }
-func (a *CodeAttribute) MaxLocals() uint16         { return a.maxLocals }
-func (a *CodeAttribute) Code() []byte              { return a.code }
+func (a *CodeAttribute) MaxStack() uint16                       { return a.maxStack }
+func (a *CodeAttribute) MaxLocals() uint16                      { return a.maxLocals }
+func (a *CodeAttribute) Code() []byte                           { return a.code }
 func (a *CodeAttribute) ExceptionTable() []*ExceptionTableEntry { return a.exceptionTable }
 
 // StackMapTable returns the parsed StackMapTable attribute, or nil if the method

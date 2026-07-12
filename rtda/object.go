@@ -34,11 +34,13 @@ func (o *Object) Fields() []Slot { return o.fields }
 
 // IsInstanceOf reports whether o can be treated as an instance of target,
 // implementing the JVM instanceof and checkcast rules (JVMS §6.5.instanceof).
+// "o instanceof T" means: can o's class be assigned to a variable of type T?
+// That is T.isAssignableFrom(o.class): walk o.class's super chain looking for T.
 func (o *Object) IsInstanceOf(target *Class) bool {
 	if o == nil {
 		return false
 	}
-	return o.class.isAssignableFrom(target)
+	return target.isAssignableFrom(o.class)
 }
 
 // SetExtra / Extra access the native payload slot.

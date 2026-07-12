@@ -151,7 +151,8 @@ func (cl *ClassLoader) Classes() []*rtda.Class {
 
 // resolveNativeMethods checks each method on a freshly loaded class: if it's
 // native and a Go implementation is registered in the native registry, attach
-// it. Methods without a registered implementation keep the default stub.
+// it. Methods without a registered implementation remain unresolved; invoking
+// them will throw UnsatisfiedLinkError.
 func resolveNativeMethods(class *rtda.Class) {
 	for _, m := range class.Methods() {
 		if !m.IsNative() {

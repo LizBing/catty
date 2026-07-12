@@ -20,9 +20,9 @@ type Slot struct {
 
 // Num/Ref read the slot's value; the interpreter uses these for field and array
 // access. Same-package code (Frame) touches num/ref directly.
-func (s Slot) Num() int32     { return s.num }
-func (s Slot) Ref() *Object   { return s.ref }
-func (s *Slot) SetNum(v int32) { s.num = v }
+func (s Slot) Num() int32        { return s.num }
+func (s Slot) Ref() *Object      { return s.ref }
+func (s *Slot) SetNum(v int32)   { s.num = v }
 func (s *Slot) SetRef(r *Object) { s.ref = r }
 
 // RefSlot / IntSlot construct a Slot from a typed value. Cross-package code (the

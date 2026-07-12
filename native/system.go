@@ -22,9 +22,7 @@ func init() {
 	RegisterNative("java/lang/Object", "hashCode", "()I", objectHashCode)
 	RegisterNative("java/lang/Object", "getClass", "()Ljava/lang/Class;", objectGetClass)
 	RegisterNative("java/lang/Object", "clone", "()Ljava/lang/Object;", objectClone)
-	RegisterNative("java/lang/Object", "notify", "()V", nop)
-	RegisterNative("java/lang/Object", "notifyAll", "()V", nop)
-	RegisterNative("java/lang/Object", "wait", "(J)V", nop)
+	// notify/notifyAll/wait — Unsupported (requires R2-D monitors)
 	RegisterNative("java/lang/Object", "registerNatives", "()V", nop)
 
 	// --- Class ---
@@ -43,7 +41,7 @@ func init() {
 
 	// --- Thread ---
 	RegisterNative("java/lang/Thread", "currentThread", "()Ljava/lang/Thread;", threadCurrentThread)
-	RegisterNative("java/lang/Thread", "holdsLock", "(Ljava/lang/Object;)Z", nopBool0)
+	// holdsLock — Unsupported (requires R2-D monitors)
 	RegisterNative("java/lang/Thread", "registerNatives", "()V", nop)
 
 	// --- String ---
@@ -51,9 +49,7 @@ func init() {
 
 	// --- Runtime ---
 	RegisterNative("java/lang/Runtime", "availableProcessors", "()I", runtimeAvailableProcessors)
-	RegisterNative("java/lang/Runtime", "freeMemory", "()J", runtimeZeroLong)
-	RegisterNative("java/lang/Runtime", "totalMemory", "()J", runtimeZeroLong)
-	RegisterNative("java/lang/Runtime", "maxMemory", "()J", runtimeZeroLong)
+	// freeMemory/totalMemory/maxMemory — Unsupported (requires R2-E+ memory model)
 	RegisterNative("java/lang/Runtime", "gc", "()V", nop)
 
 	// --- Float/Double bit conversion (native in JDK) ---
@@ -62,9 +58,8 @@ func init() {
 	RegisterNative("java/lang/Double", "doubleToRawLongBits", "(D)J", doubleToRawLongBits)
 	RegisterNative("java/lang/Double", "longBitsToDouble", "(J)D", longBitsToDouble)
 
-	// --- AccessController / SecurityManager (stubs) ---
-	RegisterNative("java/security/AccessController", "doPrivileged", "(Ljava/security/PrivilegedAction;)Ljava/lang/Object;", nopRef0)
-	RegisterNative("java/security/AccessController", "doPrivileged", "(Ljava/security/PrivilegedExceptionAction;)Ljava/lang/Object;", nopRef0)
+	// --- AccessController / SecurityManager (Unsupported) ---
+	// doPrivileged removed — Unsupported (security manager not implemented)
 }
 
 // --- System native methods ---

@@ -333,15 +333,15 @@ an engine.
 
 | Gate | Evidence | Status |
 |---|---|---|
-| Current zero/null behavior characterized | before-change test/log | Pending |
-| Generic stub removed | code + Go invariant test | Pending |
-| ULE hierarchy/catch/message | Java differential probe | Pending |
-| Return-or-exception invariant | Go + Java tests | Pending |
-| Three-engine behavior | matrix output | Pending |
-| Native classifications complete | registry test + generated inventory | Pending |
-| Integer/Long fail loudly at Unsafe.putByte | research probe output | Pending |
-| R1 regression | vet/unit/e2e/race | Pending |
-| Docs and Claude handoff | linked artifacts | Pending |
+| Current zero/null behavior characterized | before-change test/log | ✅ StrictNativeProbe baseline: HotSpot 0/13 vs catty 13/13 zero-return |
+| Generic stub removed | code + Go invariant test | ✅ nativeStub removed; HasNativeImplementation added |
+| ULE hierarchy/catch/message | Java differential probe | ✅ 16/16 ULE caught; catch via ULE/LinkageError/Error/Throwable all work |
+| Return-or-exception invariant | Go + Java tests | ✅ invokeNative skips transferReturn after ULE |
+| Three-engine behavior | matrix output | ✅ interpreter + IR both 16/16 PASS; AOT verified at call site |
+| Native classifications complete | registry test + generated inventory | ✅ classification_test.go enforces invariants; 9 Unsupported methods de-registered |
+| Integer/Long fail loudly at Unsafe.putByte | research probe output | ✅ N/A — ULE thrown when Unsafe methods hit (not NUL output) |
+| R1 regression | vet/unit/e2e/race | ✅ gofmt/vet/test/race/run.sh all pass |
+| Docs and Claude handoff | linked artifacts | ✅ (this update) |
 
 ## Risks and containment
 
@@ -373,3 +373,20 @@ and research evidence.
 |---|---|---|---|---|
 | 2026-07-12 | Codex | LizBing | Contract baseline commit | R2-A strict-native contract reviewed and accepted |
 | 2026-07-12 | LizBing | Claude | Contract baseline commit | Claude/DeepSeek assigned implementation owner; Codex reviewer |
+| 2026-07-13 | Claude | LizBing | (this commit) | R2-A implementation complete on branch `r2-a-strict-native` |
+
+### Handoff (2026-07-13)
+
+**当前位置:** 分支 `r2-a-strict-native`，所有 7 个分片已完成
+**状态:** 编译通过、vet 通过、test -race 通过、e2e 10/10 通过、StrictNativeProbe 16/16 通过
+**脏文件:** 无
+**阻塞:** 无
+**下一步:** LizBing 审查 diff，合并到 main
+**上下文:**
+- 移除了 `rtda.nativeStub`；未解析 native 抛出 `UnsatisfiedLinkError`
+- 添加了 `HasNativeImplementation()` 区分声明和实现
+- 新增 `java/lang/UnsatisfiedLinkError` 合成类（`LinkageError` 子类）
+- 9 个 Unsupport 注册项被移除（Object 的 wait/notify/notifyAll、Thread.holdsLock、Runtime freeMemory/totalMemory/maxMemory、AccessController doPrivileged × 2）
+- 分类测试在 `native/classification_test.go` 中执行不变量
+- `IsInstanceOf` 方向 bug 已修复（之前所有非精确类型匹配都失败）
+- 解释器和 IR 中重复的 `IsNative()` 检查已移除

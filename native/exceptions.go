@@ -26,6 +26,9 @@ func init() {
 	registerSynthetic("java/lang/NoSuchMethodError", func(loader rtda.Loader) *rtda.Class {
 		return buildExceptionSubclass("java/lang/NoSuchMethodError", "java/lang/IncompatibleClassChangeError", loader)
 	})
+	registerSynthetic("java/lang/UnsatisfiedLinkError", func(loader rtda.Loader) *rtda.Class {
+		return buildExceptionSubclass("java/lang/UnsatisfiedLinkError", "java/lang/LinkageError", loader)
+	})
 	registerSynthetic("java/lang/Comparable", buildComparable)
 }
 

@@ -9,7 +9,7 @@ func TestFrameLongRoundTrip(t *testing.T) {
 	m := &Method{maxStack: 4, maxLocals: 4}
 	f := NewFrame(nil, m)
 
-	for _, v := range []int64{0, 1, -1, 1<<40, -(1 << 40), 0x123456789ABCDEF0} {
+	for _, v := range []int64{0, 1, -1, 1 << 40, -(1 << 40), 0x123456789ABCDEF0} {
 		f.PushLong(v)
 		if got := f.PopLong(); got != v {
 			t.Errorf("PopLong = %#x, want %#x", got, v)

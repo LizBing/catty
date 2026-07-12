@@ -24,11 +24,11 @@ func NewField(owner *Class, name, descriptor string, access uint16, isStatic boo
 	}
 }
 
-func (f *Field) Owner() *Class    { return f.owner }
-func (f *Field) Name() string     { return f.name }
+func (f *Field) Owner() *Class      { return f.owner }
+func (f *Field) Name() string       { return f.name }
 func (f *Field) Descriptor() string { return f.descriptor }
-func (f *Field) SlotID() uint     { return f.slotID }
-func (f *Field) IsStatic() bool   { return f.isStatic }
+func (f *Field) SlotID() uint       { return f.slotID }
+func (f *Field) IsStatic() bool     { return f.isStatic }
 func (f *Field) IsLongOrDouble() bool {
 	return f.descriptor == "J" || f.descriptor == "D"
 }

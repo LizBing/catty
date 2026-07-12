@@ -102,7 +102,7 @@ const (
 
 type ConstantUtf8Info struct{ str string }
 
-func (c *ConstantUtf8Info) Tag() uint8 { return ConstantUtf8 }
+func (c *ConstantUtf8Info) Tag() uint8  { return ConstantUtf8 }
 func (c *ConstantUtf8Info) Str() string { return c.str }
 
 type ConstantIntegerInfo struct{ val int32 }
@@ -117,21 +117,21 @@ func (c *ConstantFloatInfo) Val() float32 { return c.val }
 
 type ConstantLongInfo struct{ val int64 }
 
-func (c *ConstantLongInfo) Tag() uint8   { return ConstantLong }
-func (c *ConstantLongInfo) Val() int64   { return c.val }
+func (c *ConstantLongInfo) Tag() uint8 { return ConstantLong }
+func (c *ConstantLongInfo) Val() int64 { return c.val }
 
 type ConstantDoubleInfo struct{ val float64 }
 
-func (c *ConstantDoubleInfo) Tag() uint8    { return ConstantDouble }
-func (c *ConstantDoubleInfo) Val() float64  { return c.val }
+func (c *ConstantDoubleInfo) Tag() uint8   { return ConstantDouble }
+func (c *ConstantDoubleInfo) Val() float64 { return c.val }
 
 type ConstantStringInfo struct {
 	cp       *ConstantPool
 	strIndex uint16
 }
 
-func (c *ConstantStringInfo) Tag() uint8    { return ConstantString }
-func (c *ConstantStringInfo) Str() string   { return c.cp.UTF8(c.strIndex) }
+func (c *ConstantStringInfo) Tag() uint8  { return ConstantString }
+func (c *ConstantStringInfo) Str() string { return c.cp.UTF8(c.strIndex) }
 
 type ConstantClassInfo struct {
 	cp        *ConstantPool
@@ -147,9 +147,9 @@ type ConstantNameAndTypeInfo struct {
 	descIndex uint16
 }
 
-func (c *ConstantNameAndTypeInfo) Tag() uint8           { return ConstantNameAndType }
-func (c *ConstantNameAndTypeInfo) Name() string         { return c.cp.UTF8(c.nameIndex) }
-func (c *ConstantNameAndTypeInfo) Descriptor() string   { return c.cp.UTF8(c.descIndex) }
+func (c *ConstantNameAndTypeInfo) Tag() uint8         { return ConstantNameAndType }
+func (c *ConstantNameAndTypeInfo) Name() string       { return c.cp.UTF8(c.nameIndex) }
+func (c *ConstantNameAndTypeInfo) Descriptor() string { return c.cp.UTF8(c.descIndex) }
 
 // ConstantMemberRefInfo backs Fieldref / Methodref / InterfaceMethodref; they
 // share an identical encoding and differ only in tag, so one type serves all.
@@ -160,10 +160,10 @@ type ConstantMemberRefInfo struct {
 	natIndex   uint16
 }
 
-func (c *ConstantMemberRefInfo) Tag() uint8             { return c.tag }
-func (c *ConstantMemberRefInfo) ClassName() string      { return c.cp.ClassName(c.classIndex) }
-func (c *ConstantMemberRefInfo) Name() string           { return c.cp.NameAndTypeName(c.natIndex) }
-func (c *ConstantMemberRefInfo) Descriptor() string     { return c.cp.NameAndTypeDescriptor(c.natIndex) }
+func (c *ConstantMemberRefInfo) Tag() uint8         { return c.tag }
+func (c *ConstantMemberRefInfo) ClassName() string  { return c.cp.ClassName(c.classIndex) }
+func (c *ConstantMemberRefInfo) Name() string       { return c.cp.NameAndTypeName(c.natIndex) }
+func (c *ConstantMemberRefInfo) Descriptor() string { return c.cp.NameAndTypeDescriptor(c.natIndex) }
 
 type ConstantMethodTypeInfo struct{ descIndex uint16 }
 

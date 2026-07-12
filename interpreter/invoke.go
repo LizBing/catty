@@ -8,20 +8,12 @@ import (
 	"catty/rtda"
 )
 
-// invokeMethod sets up a method call: it copies arguments from the caller's
-// operand stack into a fresh callee frame. Interpreted methods get the frame
-// pushed for the dispatch loop to run; native methods run synchronously and
-// their return value is handed back to the caller immediately.
 func invokeMethod(thread *rtda.Thread, method *rtda.Method) {
 	if method == nil {
 		panic(fmt.Sprintf("catty: invokeMethod received nil method from frame %s.%s%s",
 			thread.CurrentFrame().Method().Owner().Name(),
 			thread.CurrentFrame().Method().Name(),
 			thread.CurrentFrame().Method().Descriptor()))
-	}
-	if method.IsNative() {
-		invokeNative(thread, method)
-		return
 	}
 	if method.IsNative() {
 		invokeNative(thread, method)
@@ -34,6 +26,16 @@ func invokeMethod(thread *rtda.Thread, method *rtda.Method) {
 }
 
 func invokeNative(thread *rtda.Thread, method *rtda.Method) {
+	// Unresolved native methods throw UnsatisfiedLinkError instead of
+	// returning a fabricated zero value.
+	if !method.HasNativeImplementation() {
+		thread.ThrowUnsatisfiedLinkError(
+			method.Owner().Name(),
+			method.Name(),
+			method.ReturnType(),
+		)
+		return
+	}
 	caller := thread.CurrentFrame()
 	frame := thread.NewFrame(method)
 	copyArgs(caller, frame, method)

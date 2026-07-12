@@ -25,7 +25,8 @@ func compileFixture(t *testing.T, name string) []byte {
 	return data
 }
 
-func TestParseHelloWorld(t *testing.T) {	cf, err := Parse(compileFixture(t, "HelloWorld"))
+func TestParseHelloWorld(t *testing.T) {
+	cf, err := Parse(compileFixture(t, "HelloWorld"))
 	if err != nil {
 		t.Fatalf("Parse: %v", err)
 	}

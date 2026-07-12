@@ -30,9 +30,9 @@ func readMember(reader *ClassReader, cp *ConstantPool) *MemberInfo {
 	}
 }
 
-func (m *MemberInfo) AccessFlags() uint16     { return m.accessFlags }
-func (m *MemberInfo) Name() string            { return m.cp.UTF8(m.nameIndex) }
-func (m *MemberInfo) Descriptor() string      { return m.cp.UTF8(m.descriptorIndex) }
+func (m *MemberInfo) AccessFlags() uint16         { return m.accessFlags }
+func (m *MemberInfo) Name() string                { return m.cp.UTF8(m.nameIndex) }
+func (m *MemberInfo) Descriptor() string          { return m.cp.UTF8(m.descriptorIndex) }
 func (m *MemberInfo) Attributes() []AttributeInfo { return m.attributes }
 
 // Code returns the parsed Code attribute (methods) or nil (fields/abstract).

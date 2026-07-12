@@ -75,7 +75,7 @@ func buildStringClass(loader rtda.Loader) *rtda.Class {
 	c := rtda.NewSyntheticClass("java/lang/String", loader.LoadClass("java/lang/Object"))
 	// Static fields referenced by real JDK methods (Integer.toHexString etc).
 	compact := c.AddStaticField("COMPACT_STRINGS", "Z")
-	c.SetStaticRef(compact.SlotID(), nil) // Z fields use num, not ref — use SetNum
+	c.SetStaticRef(compact.SlotID(), nil)      // Z fields use num, not ref — use SetNum
 	c.StaticVars()[compact.SlotID()].SetNum(1) // true
 	latin1 := c.AddStaticField("LATIN1", "B")
 	c.StaticVars()[latin1.SlotID()].SetNum(0)
@@ -148,7 +148,7 @@ func stringInitBytes(f *rtda.Frame) {
 		u16 := make([]uint16, n/2)
 		for i := 0; i < n; i += 2 {
 			hi := uint16(buf.ArrayElementSlot(i).Num())
-			lo := uint16(buf.ArrayElementSlot(i+1).Num())
+			lo := uint16(buf.ArrayElementSlot(i + 1).Num())
 			u16[i/2] = hi<<8 | lo
 		}
 		this.SetExtra(string(utf16.Decode(u16)))
@@ -407,21 +407,21 @@ func buildSystemClass(loader rtda.Loader) *rtda.Class {
 // knownProperties maps commonly-referenced system properties to their values.
 // Unknown keys return null (nil). Expanded as needed.
 var knownProperties = map[string]string{
-	"line.separator":  "\n",
-	"file.separator":  "/",
-	"path.separator":  ":",
-	"file.encoding":   "UTF-8",
-	"java.version":    "25",
-	"java.vm.version": "25",
-	"java.vm.name":    "catty",
-	"java.home":       ".",
-	"user.dir":        ".",
-	"user.home":       ".",
-	"java.class.path": ".",
-	"java.io.tmpdir":  "/tmp",
-	"os.name":         "unknown",
-	"os.arch":         "unknown",
-	"os.version":      "unknown",
+	"line.separator":     "\n",
+	"file.separator":     "/",
+	"path.separator":     ":",
+	"file.encoding":      "UTF-8",
+	"java.version":       "25",
+	"java.vm.version":    "25",
+	"java.vm.name":       "catty",
+	"java.home":          ".",
+	"user.dir":           ".",
+	"user.home":          ".",
+	"java.class.path":    ".",
+	"java.io.tmpdir":     "/tmp",
+	"os.name":            "unknown",
+	"os.arch":            "unknown",
+	"os.version":         "unknown",
 	"java.class.version": "65.0",
 }
 

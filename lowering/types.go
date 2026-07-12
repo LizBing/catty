@@ -13,11 +13,11 @@ type SlotType uint8
 
 const (
 	TypeTop    SlotType = iota // unused slot or the 2nd slot of a category-2 value
-	TypeInt                   // byte/char/short/boolean/int → int32
-	TypeLong                  // → int64 (followed by TypeTop)
-	TypeFloat                 // → float32
-	TypeDouble                // → float64 (followed by TypeTop)
-	TypeRef                   // object/array/null → *rtda.Object
+	TypeInt                    // byte/char/short/boolean/int → int32
+	TypeLong                   // → int64 (followed by TypeTop)
+	TypeFloat                  // → float32
+	TypeDouble                 // → float64 (followed by TypeTop)
+	TypeRef                    // object/array/null → *rtda.Object
 )
 
 // typeDataflow fills IRInst.InTypes: the operand-stack slot types at each

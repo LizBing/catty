@@ -103,6 +103,14 @@ func DoubleMod(a, b float64) float64 { return math.Mod(a, b) }
 // runNative sets up a frame with the given argument slots, runs the native
 // method, and returns its result slot (zero for void).
 func runNative(method *rtda.Method, args []rtda.Slot) rtda.Slot {
+	if !method.HasNativeImplementation() {
+		thread.ThrowUnsatisfiedLinkError(
+			method.Owner().Name(),
+			method.Name(),
+			method.ReturnType(),
+		)
+		return rtda.Slot{}
+	}
 	frame := thread.NewFrame(method)
 	for i, a := range args {
 		frame.SetSlot(i, a)
