@@ -42,6 +42,12 @@ against real `java` (through **three** engines: tree-walker, IR executor, and
 | StaticFields | `<clinit>` static initializers |
 | SwitchDemo | `tableswitch` (dense) + `lookupswitch` (sparse) |
 | EmptyMain | empty main — startup / smoke test |
+| ExceptionTest | try/catch/finally, NPE, ArithmeticException, propagation |
+| InterfaceTest | `invokeinterface`, `multianewarray`, bubble sort |
+| RealBaseSmoke | real java.base: ArrayList, Math, Integer, String content methods |
+
+`RealBaseSmoke` runs only when `CATTY_BOOT` points at an extracted java.base
+(see `docs/ARCHITECTURE.md` §5a). CI extracts one automatically.
 
 The interpreter implements ~140 JVMS opcodes: constants, typed loads/stores,
 full int/long/float/double arithmetic and conversions, shifts, comparisons,
@@ -126,6 +132,19 @@ Key architectural decisions (ADRs 0008–0013):
   from the real JDK.
 
 See [docs/ROADMAP.md](docs/ROADMAP.md) for the phased plan (R1–R6).
+
+## What can't catty run yet (R1 boundaries)
+
+- **`invokedynamic`** — lambdas, method references, JDK string concat factory
+  (R3).
+- **`Integer.toString` / `Double.parseDouble` / `HashMap`** — JDK 25 routes these
+  through `DecimalDigits` → `jdk.internal.misc.Unsafe` (~50 native methods).
+  Minimum Unsafe stubs are the first R2 task. (`toHexString` works — it bypasses
+  DecimalDigits.)
+- **Concurrency** — `Thread.start`, `synchronized`, `wait`/`notify`
+  (R2, Thread = goroutine).
+- **Reflection, JNI, `sun.misc.Unsafe`, the full JDK class library** beyond the
+  bootstrap set + what java.base provides by bytecode.
 
 ## License
 

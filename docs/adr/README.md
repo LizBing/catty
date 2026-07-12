@@ -21,3 +21,5 @@ Format (Michael Nygard's template): Status, Context, Decision, Consequences.
 | [0011](./0011-go-memory-model.md) | Adopt Go memory model (not JMM/JSR-133) | Proposed |
 | [0012](./0012-escape-analysis-replaces-generational-gc.md) | Escape analysis replaces generational GC | Proposed |
 | [0013](./0013-direct-go-runtime-integration.md) | Direct Go runtime integration (no JVM abstraction layer) | Proposed |
+| [0014](./0014-synthetic-string-extra-payload.md) | Synthetic String with a Go-string Extra() payload | Accepted |
+| [0015](./0015-bootstrap-class-boundary.md) | The bootstrap-class boundary (6 irreducible synthetic classes) | Accepted |

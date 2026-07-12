@@ -62,21 +62,21 @@ its class name to `MAIN_CLASSES` in `tests/run.sh`.
 
 ```
 catty/
-├── cmd/jvm/            launcher: interpret, IR executor, or `build` (AOT)
+├── cmd/jvm/            CLI only: arg parsing + java.base auto-detection; delegates to launch
+├── launch/             runtime startup: Interpret(cp, main, useIR) + Build(...)
 ├── classfile/          .class binary → structs (JVMS §4)
 ├── classpath/          locate .class in dirs/jars/zips
-├── classloader/        load + link + cache; implements rtda.Loader
+├── classloader/        ClassProvider chain (Array→Bootstrap→Synthetic→Classpath) + cache
 ├── opcode/             JVMS opcode constants (leaf, shared by interp + lowering)
 ├── rtda/               runtime data areas + class construction
 ├── lowering/           bytecode → register-form IR (decode + dataflow + vregs + types)
 ├── interpreter/        switch dispatch (Loop) + IR dispatch (LoopIR) + bridge (RunMethod)
-├── transpile/         AOT emitter: Emit (one method → Go) + BuildProgram (whole program)
+├── transpile/          AOT emitter: Emit (one method → Go) + BuildProgram (whole program)
 ├── runtime/            AOT bridge: Bootstrap, GetStatic, Invoke{Virtual,Special,Static}, ...
-├── native/             synthetic core classes + native Go methods
+├── native/             synthetic class registry + native Go methods
 ├── tests/
 │   ├── fixtures/       *.java programs (the e2e corpus)
 │   └── run.sh          the e2e verification harness
-└── docs/               this documentation
 └── docs/               this documentation
 ```
 
@@ -163,11 +163,15 @@ The registry is just `native.NativeClass`'s `switch` on class name.
 ### Add a core class
 
 If a program references a JDK class catty doesn't ship (e.g. `java.util.List`),
-add a builder:
+add a builder. The synthetic registry is a `map[string]builderFunc`; you register
+via `init()`:
 
-1. **`native/registry.go`** — add a `case "java/util/List": return buildListClass(loader)` arm.
-2. **`native/<file>.go`** — write `buildListClass(loader rtda.Loader) *rtda.Class`:
+1. **`native/<file>.go`** — write the builder + register it:
    ```go
+   func init() {
+       registerSynthetic("java/util/List", buildListClass)
+   }
+
    func buildListClass(loader rtda.Loader) *rtda.Class {
        c := rtda.NewSyntheticClass("java/util/List", loader.LoadClass("java/lang/Object"))
        c.AddMethod(rtda.NativeMethod(c, "size", "()I", listSize))
@@ -176,9 +180,16 @@ add a builder:
    }
    ```
    `NewSyntheticClass(name, super)` gives an empty class; `AddMethod` /
-   `AddStaticField` populate it. If the class has a `<clinit>`-equivalent
-   initializer, do it inline in the builder (like `buildSystemClass` sets `out`
-   /`err`).
+   `AddStaticField` populate it. Native methods default to **instance**; call
+   `m.SetStatic()` (or use the `staticNative(...)` helper) for static ones.
+   If the class has a `<clinit>`-equivalent initializer, do it inline in the
+   builder (like `buildSystemClass` sets `out`/`err`).
+
+2. The class loads via `SyntheticProvider` (non-bootstrap) — which means if a
+   real java.base is on the classpath, the real `.class` file takes precedence.
+   Only add to `BootstrapClasses` (in `native/registry.go`) if the class must
+   carry a Go↔Java bridge payload and can never be replaced by bytecode — see
+   ADR-0015 for the boundary criteria.
 
 ### Add a test fixture
 

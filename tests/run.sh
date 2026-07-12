@@ -30,19 +30,10 @@ fi
 
 pass=0; fail=0
 for cls in "${MAIN_CLASSES[@]}"; do
-    # IR executor doesn't support invokeinterface correctly yet (ADR-0006):
-    # run it but don't require it for InterfaceTest.
     java_out=$(cd "$FIX" && java "$cls" 2>&1)
     loop_out=$(cd "$FIX" && "$BINARY" -cp . "$cls" 2>&1)
     ir_out=$(cd "$FIX" && "$BINARY" -cp . -ir "$cls" 2>&1)
-    if [ "$java_out" = "$loop_out" ]; then
-        if [ "$java_out" = "$ir_out" ]; then
-            echo "PASS  $cls"
-            pass=$((pass+1))
-        else
-            echo "PASS  $cls (loop); FAIL  $cls (ir)"
-            pass=$((pass+1))
-        fi
+    if [ "$java_out" = "$loop_out" ] && [ "$java_out" = "$ir_out" ]; then
         echo "PASS  $cls"
         pass=$((pass+1))
     else

@@ -35,21 +35,32 @@ speed (~44 ms, on par with HotSpot JIT).
 ## Implementation phases
 
 ### Phase R1 — Run real Java programs (exceptions + opcodes + bootstrap)
-**Status:** Next
+**Status:** ✅ Complete
 
-- **Exceptions** (`try/catch/athrow`): exception tables parsed; wire into the
-  dispatch loop's error path. Native Throwable/Exception hierarchy (~15 classes).
-  ~2–3 weeks.
-- **Remaining opcodes**: `invokeinterface`, `invokedynamic` (LambdaMetafactory +
-  StringConcatFactory), `wide`, `multianewarray`. ~2 weeks.
-- **Bootstrap classpath**: prepend java.base; class-loader delegation; JRT/jimage
-  support. ~1 week.
-- **Native layer expansion** (ADR-0009): ~20 bootstrapping classes. ~2 weeks.
+- **Exceptions** (`try/catch/athrow`): full mechanism — athrow, runtime
+  exceptions (NPE/Arithmetic/CCE/AIOOBE), try/catch/finally, frame unwinding.
+  Native Throwable/Exception hierarchy (~13 classes).
+- **Remaining opcodes**: `invokeinterface`, `multianewarray`, `wide` (~145/201
+  opcodes). `invokedynamic` deferred to R3.
+- **Bootstrap classpath**: `catty` auto-detects `$CATTY_BOOT` / `$JAVA_HOME` /
+  `java_home`, prepends java.base to the user classpath. Uses the JDK's own
+  `jimage extract` tool (no runtime jimage parser — keeps catty lean). The 6
+  bootstrap classes (Object/String/Class/System/Thread/Throwable) stay synthetic;
+  everything else loads from real java.base.
+- **Native layer expansion** (ADR-0009): ~18 synthetic classes + ~40 native
+  method registrations. `NoSuchMethodError` (not a crash) on gaps.
 
-**Milestone**: `catty -cp <user>:<java.base> HelloWorld` with real System.out.
+**Milestone** ✅: `catty -cp . HelloWorld` with real java.base — one command,
+auto-detected. `RealBaseSmoke` (18 assertions) byte-identical to `java`.
 
 ### Phase R2 — Concurrency (ADR-0010)
-**Status:** After R1
+**Status:** Next
+
+Prerequisite sizing (honest): JDK 25's `Integer.toString`/`Double.parseDouble`/
+`HashMap` cascade through `DecimalDigits` → `jdk.internal.misc.Unsafe` (~50
+native methods). R2 begins with a minimum Unsafe stub layer to unblock these;
+full Unsafe semantics (compareAndSet, field offsets, fences) are entangled with
+ADR-0010 (Thread=goroutine) and ADR-0011 (Go memory model).
 
 - `java.lang.Thread` → goroutine. Thread.start = `go func()`.
 - Per-object `sync.Mutex` for `synchronized`. `wait/notify` → `sync.Cond`.

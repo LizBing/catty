@@ -117,7 +117,8 @@ lowering   ──▶ classfile, opcode, rtda
 interpreter ──▶ classfile, opcode, lowering, rtda
 runtime    ──▶ classloader, classpath, interpreter, rtda
 transpile ──▶ classfile, lowering, opcode, rtda
-cmd/jvm    ──▶ classpath, classloader, interpreter, rtda, transpile
+launch     ──▶ classloader, classpath, interpreter, rtda, transpile
+cmd/jvm    ──▶ launch                (CLI only: arg parsing + java.base detection)
 ```
 
 There are **no import cycles**. The one place a cycle would naturally appear —
@@ -201,19 +202,52 @@ gives the JVM stack. The concurrency arc promotes this to a goroutine.
 
 `classloader.ClassLoader.LoadClass(name)` is the single entry point used both at
 startup and at run time (via `thread.Loader()`). It memoizes into a `cache`
-map. For a cache miss it routes by name:
+map. For a cache miss it walks a **chain of `ClassProvider`s** — the first that
+returns a non-nil class wins. `New(cp)` wires the standard chain; the order is
+the loading strategy:
 
-| Name shape | Source |
-|---|---|
-| `[...` (array) | `rtda.NewArrayClass(name, loader)` — parses the descriptor, sets `componentClass` (object/component arrays resolve through the loader) or `componentKind` (primitive). |
-| a core class | `native.NativeClass(loader, name)` — returns a synthetic `*rtda.Class` built from scratch (no `.class` file). |
-| anything else | `loadFileClass` → `classpath.ReadClass` → `classfile.Parse` → `rtda.NewClass(cf, loader)`. |
+| # | Provider | Serves |
+|---|---|---|
+| 1 | `ArrayProvider` | `[...` array types → `rtda.NewArrayClass` |
+| 2 | `BootstrapProvider` | the 6 irreducible bootstrap classes (Object, String, Class, System, Thread, Throwable) — always synthetic, never from a class file (they carry catty's Go↔Java bridge payloads in `Extra()`) |
+| 3 | `SyntheticProvider` | the rest of the synthetic registry (StringBuilder, PrintStream, exception subclasses, Comparable, …) — synthetic fallback when no real JDK is present |
+| 4 | `ClasspathProvider` | real `.class` files via `classpath.ReadClass` → `classfile.Parse` → `rtda.NewClass` |
+
+So with java.base on the classpath, a user class like `ArrayList` misses
+providers 1–3 and is served real bytecode by `ClasspathProvider`; the bootstrap
+classes are still synthetic (provider 2 wins before provider 4). The strategy is
+**configured by the order of providers**, not hardcoded in `LoadClass` — custom
+strategies use `NewCustom(providers...)`.
+
+The synthetic registry itself is a `map[string]builderFunc` populated by
+`init()` blocks across `native/*.go` via `registerSynthetic(name, fn)`. The
+bootstrap-class boundary (`native.BootstrapClasses`) is the set that
+`BootstrapProvider` claims; see ADR-0015.
+
+After a class is provided, `resolveNativeMethods` patches any `ACC_NATIVE`
+methods whose `(class, name, desc)` is in the global `RegisterNative` table
+(`native/system.go` `init()`) with a Go implementation; unregistered natives
+keep a zero-return stub (graceful `NoSuchMethodError`-free degradation).
 
 `rtda.NewClass` is where linking happens: it loads the superclass and interfaces
 recursively, computes instance field offsets starting from the superclass's
 count (so subclasses inherit offsets), allocates static var slots, and builds a
 `Method` per declared method. Class **initialization** (`<clinit>`) is not done
 here — see ADR-0005.
+
+### 5a. java.base auto-detection (CLI layer)
+
+`cmd/jvm/main.go` (not the runtime) detects a JDK and prepends java.base to the
+user's `-cp`. Detection order: `$CATTY_BOOT` → `$JAVA_HOME` →
+`/usr/libexec/java_home` (macOS) → well-known install paths. catty expects a
+**pre-extracted** java.base directory (produced by the JDK's own `jimage
+extract`); it deliberately ships no runtime jimage parser to stay lean. Pass
+`--no-boot` to force pure-synthetic mode.
+
+The runtime itself (`launch.Interpret`) knows nothing about java.base — it
+receives only a fully-formed classpath string. The "dissolve into Go runtime"
+principle applies: bootstrap/environment concerns live in the CLI, not in the
+runtime packages.
 
 ## 6. An execution trace — `System.out.println("Hello, World!")`
 

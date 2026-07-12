@@ -29,7 +29,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '25'
 
       - name: Build
         run: go build ./...
@@ -39,6 +39,11 @@ jobs:
 
       - name: Unit tests
         run: go test ./...
+
+      - name: Extract java.base for smoke test
+        run: |
+          "$JAVA_HOME/bin/jimage" extract --dir=/tmp/jb "$JAVA_HOME/lib/modules"
+          echo "CATTY_BOOT=/tmp/jb/java.base" >> "$GITHUB_ENV"
 
       - name: End-to-end (diff vs java)
         run: bash tests/run.sh

@@ -94,8 +94,10 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 		}
 
 	// ---------- loads (slot-index) ----------
-	case opcode.Iload, opcode.Aload:
+	case opcode.Iload:
 		frame.SetStackSlotNum(int(inst.Defs[0]), frame.GetInt(int(inst.Index)))
+	case opcode.Aload:
+		frame.SetStackSlotRef(int(inst.Defs[0]), frame.GetRef(int(inst.Index)))
 	case opcode.Fload:
 		frame.SetStackSlotNum(int(inst.Defs[0]), int32(math.Float32bits(frame.GetFloat(int(inst.Index)))))
 	case opcode.Lload, opcode.Dload:
@@ -112,8 +114,10 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 		setSlotLong(frame, int(inst.Defs[0]), int(inst.Defs[1]), int64(math.Float64bits(frame.GetDouble(int(inst.Op-opcode.Dload0)))))
 
 	// ---------- stores (slot-index) ----------
-	case opcode.Istore, opcode.Astore:
+	case opcode.Istore:
 		frame.SetInt(int(inst.Index), frame.StackSlotNum(int(inst.Uses[0])))
+	case opcode.Astore:
+		frame.SetRef(int(inst.Index), frame.StackSlotRef(int(inst.Uses[0])))
 	case opcode.Fstore:
 		frame.SetFloat(int(inst.Index), math.Float32frombits(uint32(frame.StackSlotNum(int(inst.Uses[0])))))
 	case opcode.Lstore, opcode.Dstore:

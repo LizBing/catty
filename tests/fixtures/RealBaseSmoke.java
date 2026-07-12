@@ -1,3 +1,27 @@
+// RealBaseSmoke — R1 quality gate for the java.base classpath path.
+//
+// Run with: CATTY_BOOT=<extracted java.base> catty -cp <fixtures> RealBaseSmoke
+// Requires a real JDK's java.base on the classpath (exercises class loading
+// from real .class files + synthetic bootstrap classes together).
+//
+// Each assertion is wrapped in try/catch so one failure doesn't mask the rest.
+// Output format: "<n> passed, <m> failed" — must match real `java` byte-for-byte.
+//
+// SCOPE — what this covers (R1):
+//   PrintStream, String (length/charAt/equals/hashCode/substring/concat/
+//   startsWith/endsWith/isEmpty/indexOf), Object (hashCode/toString),
+//   Class (getName/isInterface/getSuperclass/isInstance), StringBuilder,
+//   Math.max, Integer (MAX_VALUE/parseInt/toHexString), ArrayList,
+//   NullPointerException catch, System.identityHashCode, Long (parseLong/
+//   MAX_VALUE/toHexString), System.getProperty.
+//
+// DELIBERATELY EXCLUDED (R2 dependencies, NOT R1 defects):
+//   - HashMap          — needs AbstractMap clinit → Unsafe cascade (R2)
+//   - Double.parseDouble — FloatingDecimal → Unsafe cascade (R2)
+//   - Integer/Long.toString — DecimalDigits → Unsafe cascade (R2)
+//   The *toHexString variants ARE covered: they bypass DecimalDigits and use
+//   Integer.digits directly, so they exercise the String(byte[],coder) decode
+//   path that toString would also need once Unsafe lands.
 public class RealBaseSmoke {
     public static void main(String[] args) {
         int pass = 0;
