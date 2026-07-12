@@ -4,7 +4,7 @@
 **Baseline verified through:** `89037c4`  
 **Branch:** `main`  
 **Milestone:** R1 complete and hardened  
-**Active workstream:** None — Codex is preparing R2-A strict native resolution for review
+**Active workstream:** [`R2-A`](./workstreams/R2-A-STRICT-NATIVE.md) — Ready; Claude/DeepSeek owner, Codex reviewer
 
 This is catty's single current-state summary. The strategic sequence lives in
 [`ROADMAP.md`](./ROADMAP.md); session detail belongs in
@@ -72,6 +72,6 @@ is currently assigned.
 
 ## Next coordination action
 
-Codex prepares R2-A (strict native resolution and native inventory) as the first
-implementation contract for LizBing's review. No R2 runtime implementation is
-authorized until that contract reaches **Ready** and names its owner/reviewer.
+Claude/DeepSeek implements R2-A in `claude/r2-a-strict-native` and leaves a
+tested handoff. Codex independently reviews the diff, inventory, Java exception
+semantics, and all engine evidence before any integration.

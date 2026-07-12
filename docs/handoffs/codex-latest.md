@@ -2,38 +2,41 @@
 
 **Date:** 2026-07-12  
 **Role:** Architecture and integration maintainer  
-**Workstream:** R2-GATE closure
+**Workstream:** R2-A contract draft
 **Branch:** `main`  
 **Base commit:** `0b82986`
 **Head commit:** The integration commit containing this handoff
 
 ## Delivered
 
-- Recorded LizBing's acceptance of G1–G4, including a measured
-  Strict/Go-native/Hybrid study before any racy-program semantic waiver.
-- Drafted ADR-0016 through ADR-0019 and the deterministic/CI/stress R2 test plan.
-- Produced a method-level Temurin 25.0.3 Unsafe caller graph and research probes.
-- Corrected the historical grouped assumption: Integer/Long use a narrow Unsafe
-  array-write path; Double parsing and basic HashMap fail for separate reasons.
-- Recorded LizBing's acceptance of ADR-0016 through ADR-0019, superseded
-  ADR-0011, and closed R2-GATE without starting runtime implementation.
+- Drafted R2-A as a bounded implementation contract for strict unresolved
+  natives and an audited native inventory.
+- Defined explicit native declaration/resolution states and a return-or-pending-
+  exception invocation invariant.
+- Scoped catchable `UnsatisfiedLinkError` across interpreter, IR, and tiered
+  AOT/runtime paths without pulling broad AOT exception lowering into R2-A.
+- Defined classification and generated-inventory rules for registry patches and
+  synthetic native methods.
+- Authorized no runtime implementation; owner remains unassigned pending review.
 
 ## Validation
 
-- Inspected ADR-0010/0011, shared runtime data, native resolution, invocation
-  paths, test harness, and current no-op monitor/native behavior.
-- Verified the development JDK as Temurin 25.0.3+9 and inspected its Unsafe
-  declaration surface with `javap`.
-- Ran four research probes with real extracted java.base and 12-second limits.
-- Checked drafts against JLS/JVMS, Go memory model, and OpenJDK jcstress scope.
+- Inspected `rtda.Method`, classloader patching, interpreter native invocation,
+  runtime/AOT bridge invocation, exception hierarchy, and all current native
+  registrations/helper patterns.
+- Confirmed the generic stub, unconditional return transfer, missing ULE class,
+  function-only registry metadata, and duplicated native branch.
 - No runtime code or test behavior changed.
 
-## Remaining investigation
+## Assignment
 
-- Double.parseDouble timeout and basic HashMap VM-initialization failure require
-  separate minimization; neither is currently evidence for broad Unsafe scope.
+- LizBing accepted R2-A and assigned Claude/DeepSeek as implementation owner;
+  Codex is reviewer and integration maintainer.
+- Implementation must decide the shared exception-construction helper location
+  without introducing a package cycle; the contract constrains behavior rather
+  than prescribing the package prematurely.
 
 ## Next action
 
-Codex drafts R2-A strict native resolution and inventory as a separate
-implementation contract. No implementation begins until LizBing reviews it.
+Claude/DeepSeek implements R2-A A–G in an isolated worktree, runs all required
+gates, and updates its handoff. Codex then performs an independent review.
