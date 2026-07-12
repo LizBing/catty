@@ -21,6 +21,11 @@ catty has two execution paths:
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Premise, pipeline (interpreter + AOT), package responsibilities, data structures, traces, performance |
 | [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Build/run/test, `catty build`, project layout, conventions, extension recipes |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | What's done, what's next (exceptions, concurrency, reflection, more) |
+| [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) | Single current-state summary, active workstream, blockers, and next coordination action |
+| [docs/COLLABORATION.md](docs/COLLABORATION.md) | LizBing/Codex/Claude roles, task contracts, handoffs, branches, and integration gates |
+| [docs/workstreams/](docs/workstreams/) | Shared task contracts for non-trivial work |
+| [docs/handoffs/](docs/handoffs/) | Latest durable Claude and Codex handoffs |
+| [docs/worklog/](docs/worklog/) | Concise chronological engineering record |
 | [docs/CHANGELOG.md](docs/CHANGELOG.md) | Versioned work log (Phase 1 → A4) |
 | [docs/CLAUDE_DIALOGUE_CLEAN.md](docs/CLAUDE_DIALOGUE_CLEAN.md) | Cleaned visible dialogue from both Claude sessions (before and after `/clear`) |
 | [docs/CLAUDE_SESSION_HISTORY.md](docs/CLAUDE_SESSION_HISTORY.md) | Reconstructed engineering timeline (Phase 1 → R1 Block D) |

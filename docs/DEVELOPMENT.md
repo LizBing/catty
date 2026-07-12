@@ -3,6 +3,12 @@
 How to build, run, test, navigate, and extend catty. Read this before changing
 code; for the *why* behind the structure, see [`ARCHITECTURE.md`](./ARCHITECTURE.md).
 
+For multi-session or multi-agent work, also read
+[`PROJECT_STATUS.md`](./PROJECT_STATUS.md) and
+[`COLLABORATION.md`](./COLLABORATION.md). Non-trivial changes require a shared
+contract under [`workstreams/`](./workstreams/); chat context alone is not an
+implementation specification.
+
 ## Prerequisites
 
 | Tool | Version | Why |
