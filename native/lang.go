@@ -70,8 +70,19 @@ func itoaHex(n int32) string {
 // few cases where user code calls `new String(...)`.
 func buildStringClass(loader rtda.Loader) *rtda.Class {
 	c := rtda.NewSyntheticClass("java/lang/String", loader.LoadClass("java/lang/Object"))
+	// Static fields referenced by real JDK methods (Integer.toHexString etc).
+	compact := c.AddStaticField("COMPACT_STRINGS", "Z")
+	c.SetStaticRef(compact.SlotID(), nil) // Z fields use num, not ref — use SetNum
+	c.StaticVars()[compact.SlotID()].SetNum(1) // true
+	latin1 := c.AddStaticField("LATIN1", "B")
+	c.StaticVars()[latin1.SlotID()].SetNum(0)
+	utf16 := c.AddStaticField("UTF16", "B")
+	c.StaticVars()[utf16.SlotID()].SetNum(1)
+	// Instance field: byte coder (0 = LATIN1).
+	c.AddInstanceField("coder", "B")
 	c.AddMethod(rtda.NativeMethod(c, "<init>", "()V", stringInit))
 	c.AddMethod(rtda.NativeMethod(c, "<init>", "(Ljava/lang/String;)V", stringInitString))
+	c.AddMethod(rtda.NativeMethod(c, "<init>", "([BB)V", stringInitBytes)) // called by JDK Integer/Long toString
 	c.AddMethod(rtda.NativeMethod(c, "length", "()I", stringLength))
 	c.AddMethod(rtda.NativeMethod(c, "charAt", "(I)C", stringCharAt))
 	return c
@@ -85,6 +96,13 @@ func stringInitString(f *rtda.Frame) {
 	this := f.GetRef(0)
 	arg := f.GetRef(1)
 	this.SetExtra(stringValue(arg))
+}
+
+// stringInitBytes is the ([BB)V constructor called by JDK toString methods.
+// We don't reconstruct the actual string from bytes; set a placeholder.
+func stringInitBytes(f *rtda.Frame) {
+	this := f.GetRef(0)
+	this.SetExtra("")
 }
 
 func stringLength(f *rtda.Frame) {
@@ -194,6 +212,9 @@ func buildSystemClass(loader rtda.Loader) *rtda.Class {
 	errObj := rtda.NewObject(ps)
 	errObj.SetExtra(os.Stderr)
 	c.SetStaticRef(errf.SlotID(), errObj)
+
+	// Native methods on System (referenced directly by user code).
+	c.AddMethod(staticNative(c, "identityHashCode", "(Ljava/lang/Object;)I", systemIdentityHashCode))
 	return c
 }
 

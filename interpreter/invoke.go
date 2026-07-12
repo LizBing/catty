@@ -14,7 +14,10 @@ import (
 // their return value is handed back to the caller immediately.
 func invokeMethod(thread *rtda.Thread, method *rtda.Method) {
 	if method == nil {
-		panic("catty: invokeMethod received nil method")
+		panic(fmt.Sprintf("catty: invokeMethod received nil method from frame %s.%s%s",
+			thread.CurrentFrame().Method().Owner().Name(),
+			thread.CurrentFrame().Method().Name(),
+			thread.CurrentFrame().Method().Descriptor()))
 	}
 	if method.IsNative() {
 		invokeNative(thread, method)
