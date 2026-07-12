@@ -39,6 +39,10 @@ func NativeClass(loader rtda.Loader, name string) *rtda.Class {
 		return buildIAE(loader)
 	case "java/lang/Comparable":
 		return buildInterface("java/lang/Comparable", loader)
+	case "java/lang/Class":
+		return buildClass(loader)
+	case "java/lang/Thread":
+		return buildThread(loader)
 	}
 	return nil
 }
@@ -52,5 +56,27 @@ func nop(*rtda.Frame) {}
 // as empty synthetic classes so the classloader can resolve them.
 func buildInterface(name string, loader rtda.Loader) *rtda.Class {
 	c := rtda.NewSyntheticClass(name, loader.LoadClass("java/lang/Object"))
+	return c
+}
+
+// buildClass creates java.lang.Class as a native class. Class objects store
+// the rtda.Class they represent in extra. Native methods (getName, isInterface,
+// etc.) are registered in native_registry.go's init().
+func buildClass(loader rtda.Loader) *rtda.Class {
+	c := rtda.NewSyntheticClass("java/lang/Class", loader.LoadClass("java/lang/Object"))
+	c.AddMethod(rtda.NativeMethod(c, "<init>", "()V", nop))
+	c.AddMethod(rtda.NativeMethod(c, "desiredAssertionStatus", "()Z", classDesiredAssertionStatus))
+	c.AddMethod(rtda.NativeMethod(c, "getName", "()Ljava/lang/String;", classGetName))
+	c.AddMethod(rtda.NativeMethod(c, "getSimpleName", "()Ljava/lang/String;", classGetSimpleName))
+	c.AddMethod(rtda.NativeMethod(c, "isInterface", "()Z", classIsInterface))
+	c.AddMethod(rtda.NativeMethod(c, "isArray", "()Z", classIsArray))
+	c.AddMethod(rtda.NativeMethod(c, "getModifiers", "()I", classGetModifiers))
+	return c
+}
+
+// buildThread creates a minimal java.lang.Thread for Thread.currentThread().
+func buildThread(loader rtda.Loader) *rtda.Class {
+	c := rtda.NewSyntheticClass("java/lang/Thread", loader.LoadClass("java/lang/Object"))
+	c.AddMethod(rtda.NativeMethod(c, "<init>", "()V", nop))
 	return c
 }

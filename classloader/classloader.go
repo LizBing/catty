@@ -9,6 +9,20 @@ import (
 	"catty/rtda"
 )
 
+// resolveNativeMethods checks each method on a freshly loaded class: if it's
+// native and a Go implementation is registered in the native registry, attach
+// it. Methods without a registered implementation keep the default stub.
+func resolveNativeMethods(class *rtda.Class) {
+	for _, m := range class.Methods() {
+		if !m.IsNative() {
+			continue
+		}
+		if fn := native.GetNative(class.Name(), m.Name(), m.Descriptor()); fn != nil {
+			m.SetNativeFunc(fn)
+		}
+	}
+}
+
 // ClassLoader loads, links, and caches classes. It implements rtda.Loader so the
 // interpreter can resolve classes at run time without an import cycle.
 //
@@ -48,6 +62,7 @@ func (cl *ClassLoader) LoadClass(name string) *rtda.Class {
 		}
 	}
 	cl.cache[name] = c
+	resolveNativeMethods(c)
 	return c
 }
 

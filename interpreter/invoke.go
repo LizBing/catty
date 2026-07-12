@@ -11,7 +11,11 @@ import (
 // their return value is handed back to the caller immediately.
 func invokeMethod(thread *rtda.Thread, method *rtda.Method) {
 	if method == nil {
-		panic("catty: method not resolved")
+		panic("catty: invokeMethod received nil method")
+	}
+	if method.IsNative() {
+		invokeNative(thread, method)
+		return
 	}
 	if method.IsNative() {
 		invokeNative(thread, method)
@@ -58,9 +62,9 @@ func transferReturn(caller, callee *rtda.Frame, ret string) {
 }
 
 // ensureInitialized runs a class's <clinit> the first time the class is used at
-// a JVMS §5.5 initialization point (new/getstatic/putstatic/invokestatic). It
-// pushes the <clinit> frame (if any); the dispatch loop runs it before the
-// caller's next instruction, which is soon enough for correctness.
+// a JVMS §5.5 initialization point (new/getstatic/putstatic/invokestatic).
+// The <clinit> runs synchronously on a throwaway frame so the caller's frame
+// and operand stack are undisturbed when ensureInitialized returns.
 func ensureInitialized(thread *rtda.Thread, class *rtda.Class) {
 	if class.InitStarted() || class.IsInterface() {
 		return
@@ -70,8 +74,17 @@ func ensureInitialized(thread *rtda.Thread, class *rtda.Class) {
 		ensureInitialized(thread, class.SuperClass())
 	}
 	if clinit := class.GetMethod("<clinit>", "()V"); clinit != nil {
-		invokeMethod(thread, clinit)
+		runClinit(thread, clinit)
 	}
+}
+
+// runClinit runs a <clinit> method synchronously: push a frame, run the Loop
+// until it drains (clinit returns), then the caller's frame is back on top.
+// This is safe because <clinit> is always ()V with no args and no return value.
+func runClinit(thread *rtda.Thread, method *rtda.Method) {
+	frame := thread.NewFrame(method)
+	thread.PushFrame(frame)
+	Loop(thread)
 }
 
 // InitClass is the exported form of ensureInitialized, for the launcher to
@@ -91,7 +104,9 @@ func pushConstant(thread *rtda.Thread, frame *rtda.Frame, cp *classfile.Constant
 	case classfile.ConstantString:
 		frame.PushRef(newString(thread, cp.String(index)))
 	case classfile.ConstantClass:
-		frame.PushRef(nil) // Class literals out of MVP scope
+		className := cp.ClassName(index)
+		cls := thread.Loader().LoadClass(className)
+		frame.PushRef(getClassObject(thread, cls))
 	}
 }
 
@@ -100,5 +115,14 @@ func newString(thread *rtda.Thread, value string) *rtda.Object {
 	class := thread.Loader().LoadClass("java/lang/String")
 	obj := rtda.NewObject(class)
 	obj.SetExtra(value)
+	return obj
+}
+
+// getClassObject creates a java.lang.Class object wrapping cls.
+// The Class object stores the rtda.Class in its extra field.
+func getClassObject(thread *rtda.Thread, cls *rtda.Class) *rtda.Object {
+	classClass := thread.Loader().LoadClass("java/lang/Class")
+	obj := rtda.NewObject(classClass)
+	obj.SetExtra(cls)
 	return obj
 }

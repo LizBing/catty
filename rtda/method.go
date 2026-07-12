@@ -70,13 +70,36 @@ func InterpretedMethod(owner *Class, name, descriptor string, access uint16,
 		argSlotCount:  uint(md.ArgSlots()),
 	}
 	if access&accNative != 0 {
-		m.native = true // no nativeFunc yet; resolved against the registry at load
+		m.native = true
+		// Set a default stub that returns a zero value by return type, so
+		// missing native implementations don't panic — they just return 0/null.
+		m.nativeFunc = nativeStub(md.ReturnType)
 	}
 	return m
 }
 
-func (m *Method) Owner() *Class    { return m.owner }
-func (m *Method) Name() string     { return m.name }
+// SetNativeFunc replaces the native method's Go implementation. Called by the
+// classloader when a real Go implementation is available (e.g. System.arraycopy).
+func (m *Method) SetNativeFunc(fn func(*Frame)) {
+	m.nativeFunc = fn
+}
+
+// nativeStub returns a function that pushes the correct zero value for the
+// return type (0 for int, null for ref, 0L for long, etc.) — a safe default
+// for native methods catty hasn't implemented yet.
+func nativeStub(retType string) func(*Frame) {
+	switch retType {
+	case "V":
+		return func(*Frame) {}
+	case "J", "D":
+		return func(f *Frame) { f.PushLong(0) }
+	default:
+		return func(f *Frame) { f.PushRef(nil) }
+	}
+}
+
+func (m *Method) Owner() *Class      { return m.owner }
+func (m *Method) Name() string       { return m.name }
 func (m *Method) Descriptor() string { return m.descriptor }
 func (m *Method) AccessFlags() uint16 { return m.accessFlags }
 func (m *Method) IsStatic() bool      { return m.accessFlags&accStatic != 0 }

@@ -741,7 +741,12 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		cls, name, desc := frame.Method().Owner().ConstantPool().MemberRef(idx)
 		class := thread.Loader().LoadClass(cls)
 		ensureInitialized(thread, class)
-		invokeMethod(thread, class.LookupMethod(name, desc))
+		m := class.LookupMethod(name, desc)
+		if m == nil {
+			throwRuntime(thread, opcodePc, "java/lang/NoSuchMethodError", cls+"."+name+desc)
+			return
+		}
+		invokeMethod(thread, m)
 	case opcode.Invokeinterface:
 		idx := frame.ReadUint16()
 		frame.ReadUint8() // count — historical, ignored

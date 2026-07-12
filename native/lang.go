@@ -13,7 +13,49 @@ import (
 func buildObjectClass(_ rtda.Loader) *rtda.Class {
 	c := rtda.NewSyntheticClass("java/lang/Object", nil)
 	c.AddMethod(rtda.NativeMethod(c, "<init>", "()V", nop))
+	c.AddMethod(rtda.NativeMethod(c, "hashCode", "()I", objectHashCode))
+	c.AddMethod(rtda.NativeMethod(c, "getClass", "()Ljava/lang/Class;", objectGetClass))
+	c.AddMethod(rtda.NativeMethod(c, "clone", "()Ljava/lang/Object;", objectClone))
+	c.AddMethod(rtda.NativeMethod(c, "equals", "(Ljava/lang/Object;)Z", objectEquals))
+	c.AddMethod(rtda.NativeMethod(c, "toString", "()Ljava/lang/String;", objectToString))
 	return c
+}
+
+func objectEquals(f *rtda.Frame) {
+	this := f.GetRef(0)
+	other := f.GetRef(1)
+	if this == other {
+		f.PushInt(1)
+	} else {
+		f.PushInt(0)
+	}
+}
+
+func objectToString(f *rtda.Frame) {
+	this := f.GetRef(0)
+	name := javaToDot(this.Class().Name())
+	hash := int32(uintptr(0)) // simplified
+	result := name + "@" + itoaHex(hash)
+	strClass := f.Thread().Loader().LoadClass("java/lang/String")
+	out := rtda.NewObject(strClass)
+	out.SetExtra(result)
+	f.PushRef(out)
+}
+
+func itoaHex(n int32) string {
+	if n == 0 {
+		return "0"
+	}
+	const hex = "0123456789abcdef"
+	var b [8]byte
+	i := len(b)
+	u := uint32(n)
+	for u > 0 {
+		i--
+		b[i] = hex[u&0xf]
+		u >>= 4
+	}
+	return string(b[i:])
 }
 
 // buildStringClass makes java.lang.String. Instances created by the `ldc`
