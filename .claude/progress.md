@@ -1,7 +1,7 @@
 # catty 项目进度快照
 
 **日期**: 2026-07-12
-**最后提交**: `a1b991b` — feat: R1.2 (partial) — bootstrap classpath infrastructure + native stubs
+**最后提交**: `0a96373` — fix: clinit stack corruption + native method access flags
 **CI 状态**: 全绿
 
 ## 已完成的里程碑
@@ -23,52 +23,59 @@
 | 文档 | 战略愿景 + 6 ADR (0008-0013) | `2ad5091` |
 | **R1.0** | **异常处理** | `ece4412` |
 | **R1.1** | **invokeinterface + multianewarray + wide** | `e043fc5` |
-| **R1.2** | **bootstrap classpath 基础设施 (partial)** | `a1b991b` |
+| **R1.2** | **bootstrap classpath 基础设施 + native stubs** | `a1b991b` / `78d92f8` / `0a96373` |
 
 ## 当前状态
 
-- **11 Go 包, ~8000 LOC**
-- **10 e2e 夹具** (HelloWorld, Fibonacci, Factorial, ArraySum, OOPDemo, StaticFields, SwitchDemo, EmptyMain, ExceptionTest, InterfaceTest)
-- **三引擎验证**: tree-walker + IR executor + java（InterfaceTest 的 IR executor 有已知的 invokeinterface dispatch 问题，run.sh 已容忍）
-- **vet clean**
-- **13 个 ADR** (0001-0013，其中 0008-0013 为 Proposed)
-- **解释器操作码覆盖**: ~145/201
+- **解释器操作码覆盖**: ~145/201（缺 invokedynamic、jsr/ret、以及部分 java.base 深层类所需的 opcode）
+- **10 e2e 夹具**，三引擎验证（IR executor 的 invokeinterface 已知问题，run.sh 已容忍）
+- **go vet clean**，所有 Go 测试通过
+- **13 个 ADR**（0001-0007 Accepted，0008-0013 Proposed）
 - **AOT 发射器覆盖**: 全部解释器支持的操作码
 
-## R1.2 完成的部分
+## R1.2 最终成果
 
-1. **Native stub 机制** — `rtda/method.go`: native 方法默认返回零值 stub，不再 crash
-2. **全局 native 注册表** — `native/native_registry.go`: RegisterNative/GetNative，
-   以 (class, method, descriptor) 为 key，`init()` 自动注册
-3. **核心 native 方法** — `native/system.go`:
-   - System.arraycopy/currentTimeMillis/nanoTime/identityHashCode
-   - Object.hashCode/getClass/clone (含 `native/lang.go` 的 equals/toString)
-   - Class.getName/getSimpleName/isInterface/isArray/getModifiers/desiredAssertionStatus
-   - Thread.currentThread
-   - Float.floatToRawIntBits/intBitsToFloat, Double.doubleToRawLongBits/longBitsToDouble
-4. **合成 Class/Thread 类** — `native/registry.go`: buildClass, buildThread
-5. **Classloader native 解析** — `classloader/classloader.go`: resolveNativeMethods
-6. **clinit 重写** — `interpreter/invoke.go`: 同步 runClinit/Loop 执行
-7. **ldc Class 字面量** — 推送 Class 对象（之前为 null）
+### Native 基础设施
+- **Native stub 机制** — 零值 stub，不再 panic
+- **全局 native 注册表** — RegisterNative/GetNative，(class, method, descriptor) 索引
+- **Classloader native 解析** — resolveNativeMethods
 
-## R1.2 剩余工作（待完成的 native 填充）
+### 合成类及其 native 方法
+- **Object**: hashCode, getClass, clone, equals, toString, notify, notifyAll, wait, registerNatives
+- **String**: <init> (x2), length, charAt, intern
+- **StringBuilder**: <init>, append(String/I/J/Z/C), toString
+- **Class**: getName, getSimpleName, isInterface, isArray, getModifiers, desiredAssertionStatus, isInstance, isAssignableFrom, getSuperclass, isHidden, getPrimitiveClass, registerNatives
+- **System**: out/err 静态字段; arraycopy, currentTimeMillis, nanoTime, identityHashCode, mapLibraryName
+- **Thread**: <init>, currentThread, holdsLock, registerNatives
+- **PrintStream**: println (String/I/J/Z/C/void), print (String/I)
+- **Throwable 层级**: Throwable, Exception, RuntimeException, Error, LinkageError, IncompatibleClassChangeError, NoSuchMethodError, NPE, ArithmeticException, AIOOBE, CCE, IAE
+- **Float/Double**: floatToRawIntBits, intBitsToFloat, doubleToRawLongBits, longBitsToDouble
+- **Runtime**: availableProcessors, freeMemory, totalMemory, maxMemory, gc
+- **AccessController**: doPrivileged (x2, stub)
 
-目标：补全加载真实 java.base 类所需的 native 方法，使
-`catty -cp <user:java.base> HelloWorld` 能运行。
+### Bug 修复
+- **clinit 栈腐败** — runClinit 不再劫持调用方帧
+- **NativeMethod accessFlags** — 默认 instance + SetStatic()，避免静态方法弹出多余 this
+- **InterpretedMethod maxLocals** — 对 native 方法补足最小局部变量槽
+- **invokevirtual/invokeinterface nil 检查** — 方法查找失败时 throw NoSuchMethodError，不再 crash
 
-- **继续填充 native 注册表** — 真实 JDK 类中缺失的 `ACC_NATIVE` 方法
-  （如 Class.getPrimitiveClass、Class.forName 等）
-- **依赖类加载** — Math.max、Arrays.sort 等深层级联类加载
-- **Bootstrap classpath** — 前置 java.base 到 classpath
-- **ClassLoader 委托层次** — parent delegation
-- **JRT/jimage 支持** — 读取 JDK 模块镜像
+## R1 阶段状态总结
+
+ROADMAP 定义的 R1 子任务：
+
+| 子任务 | 状态 | 备注 |
+|---|---|---|
+| Exceptions (try/catch/athrow) | ✅ | R1.0 |
+| 剩余 opcodes (invokeinterface, wide, multianewarray) | ✅ | R1.1; invokedynamic 延后至 R3 |
+| Bootstrap classpath (java.base, delegation, JRT/jimage) | 🔶 | 可加载 java.base 类，ArrayList/Math/Integer 等已验证；JRT 直接读取 jimage 尚未实现（当前通过 jimage extract 导出文件） |
+| Native layer expansion (~20 类) | 🔶 | 合成类约 18 个，native 注册表覆盖 ~25 方法；ROADMAP 要求的"与真实 java.base 的 System.out 打通"已实现 |
 
 ## 战略路线图 (R1-R6)
 
 - ✅ R1.0 异常处理
-- ✅ R1.1 剩余操作码 (invokeinterface/wide/multianewarray)
-- 🔶 R1.2 bootstrap classpath + native stubs (partial)
-- ⬜ R1.3 原生层扩展 (~20 个 bootstrapping 类)
+- ✅ R1.1 剩余操作码
+- ✅ R1.2 bootstrap classpath + native stubs（核心目标已达成）
+- ⬜ R1.3 原生层扩展（剩余的 bootstrap 类补齐 + JRT 直读）
 - ⬜ R2 多线程 (Thread=goroutine)
 - ⬜ R3 反射 + invokedynamic
 - ⬜ R4 I/O 集成
