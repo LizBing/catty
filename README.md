@@ -22,6 +22,9 @@ catty has two execution paths:
 | [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Build/run/test, `catty build`, project layout, conventions, extension recipes |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | What's done, what's next (exceptions, concurrency, reflection, more) |
 | [docs/CHANGELOG.md](docs/CHANGELOG.md) | Versioned work log (Phase 1 → A4) |
+| [docs/CLAUDE_DIALOGUE_CLEAN.md](docs/CLAUDE_DIALOGUE_CLEAN.md) | Cleaned visible dialogue from both Claude sessions (before and after `/clear`) |
+| [docs/CLAUDE_SESSION_HISTORY.md](docs/CLAUDE_SESSION_HISTORY.md) | Reconstructed engineering timeline (Phase 1 → R1 Block D) |
+| [docs/CODEX_SESSION_REVIEW.md](docs/CODEX_SESSION_REVIEW.md) | Codex review of handoff continuity, hidden risks, and whether R1 returned to track |
 | [docs/adr/](docs/adr/) | Architecture Decision Records — the *why* behind each choice |
 
 ## What runs
