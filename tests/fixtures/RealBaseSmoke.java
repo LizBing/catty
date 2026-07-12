@@ -50,10 +50,11 @@ public class RealBaseSmoke {
             pass++;
         } catch (Throwable t) { System.out.println("FAIL 6: " + t); fail++; }
 
-        // 7. Integer.MAX_VALUE + parseInt
+        // 7. Integer.MAX_VALUE + parseInt + toHexString
         try {
             assert Integer.MAX_VALUE == 2147483647 : "MAX_VALUE";
             assert Integer.parseInt("42") == 42 : "parseInt";
+            assert Integer.toHexString(255).equals("ff") : "toHexString: " + Integer.toHexString(255);
             pass++;
         } catch (Throwable t) { System.out.println("FAIL 7: " + t); fail++; }
 
@@ -77,6 +78,64 @@ public class RealBaseSmoke {
             int h = System.identityHashCode("x");
             pass++;
         } catch (Throwable t) { System.out.println("FAIL 10: " + t); fail++; }
+
+        // --- New tests (C3) ---
+
+        // 11. Long parseLong + MAX_VALUE
+        try {
+            assert Long.parseLong("123456789") == 123456789L : "parseLong";
+            assert Long.MAX_VALUE > 0 : "MAX_VALUE";
+            pass++;
+        } catch (Throwable t) { System.out.println("FAIL 11: " + t); fail++; }
+
+        // 12. String.equals content comparison
+        try {
+            assert "abc".equals("abc") : "equals true";
+            assert !"abc".equals("abd") : "equals false";
+            pass++;
+        } catch (Throwable t) { System.out.println("FAIL 12: " + t); fail++; }
+
+        // 13. String.hashCode consistency
+        try {
+            assert "abc".hashCode() == "abc".hashCode() : "hashCode same";
+            pass++;
+        } catch (Throwable t) { System.out.println("FAIL 13: " + t); fail++; }
+
+        // 14. String.substring
+        try {
+            assert "hello world".substring(6).equals("world") : "substring(6): " + "hello world".substring(6);
+            assert "hello".substring(1,4).equals("ell") : "substring(1,4): " + "hello".substring(1,4);
+            pass++;
+        } catch (Throwable t) { System.out.println("FAIL 14: " + t); fail++; }
+
+        // 15. String.startsWith / endsWith + concat + isEmpty
+        try {
+            assert "hello world".startsWith("hello") : "startsWith";
+            assert "hello world".endsWith("world") : "endsWith";
+            assert "hello".concat(" world").equals("hello world") : "concat";
+            assert "".isEmpty() : "isEmpty true";
+            assert !"x".isEmpty() : "isEmpty false";
+            pass++;
+        } catch (Throwable t) { System.out.println("FAIL 15: " + t); fail++; }
+
+        // 16. System.getProperty
+        try {
+            String sep = System.getProperty("line.separator");
+            assert sep != null : "line.separator is null";
+            pass++;
+        } catch (Throwable t) { System.out.println("FAIL 16: " + t); fail++; }
+
+        // 17. Long.toHexString (bypasses DecimalDigits→Unsafe)
+        try {
+            assert Long.toHexString(255).equals("ff") : "Long.toHexString: " + Long.toHexString(255);
+            pass++;
+        } catch (Throwable t) { System.out.println("FAIL 17: " + t); fail++; }
+
+        // 18. String.indexOf
+        try {
+            assert "hello".indexOf('e') == 1 : "indexOf: " + "hello".indexOf('e');
+            pass++;
+        } catch (Throwable t) { System.out.println("FAIL 18: " + t); fail++; }
 
         System.out.println(pass + " passed, " + fail + " failed");
     }
