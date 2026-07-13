@@ -37,7 +37,7 @@ ClinitThrows               ref        match      match      NO-BUILD
       java.lang.ExceptionInInitializerError
       java.lang.NoClassDefFoundError
 [-] catty aot:
-      catty build: transpile: ClinitThrows.main has exception handlers; AOT exception propagation not yet supported
+      catty build: transpile: ClinitThrows.main([Ljava/lang/String;)V triggers class initialization on Bomb; AOT exception propagation not yet supported
 ConstantFieldNoInit        ref        match      match      match
 ----- ConstantFieldNoInit -----
 [0] temurin25:
@@ -48,7 +48,7 @@ ConstantFieldNoInit        ref        match      match      match
       7
 [0] catty aot:
       7
-DirectInvokeStaticInit     ref        match      match      match
+DirectInvokeStaticInit     ref        match      match      NO-BUILD
 ----- DirectInvokeStaticInit -----
 [0] temurin25:
       SideEffect
@@ -62,11 +62,9 @@ DirectInvokeStaticInit     ref        match      match      match
       SideEffect
       1
       2
-[0] catty aot:
-      SideEffect
-      1
-      2
-GetstaticOwner             ref        match      match      match
+[-] catty aot:
+      catty build: transpile: DirectInvokeStaticInit.main([Ljava/lang/String;)V triggers class initialization on SideEffect; AOT exception propagation not yet supported
+GetstaticOwner             ref        match      match      NO-BUILD
 ----- GetstaticOwner -----
 [0] temurin25:
       Base
@@ -77,9 +75,8 @@ GetstaticOwner             ref        match      match      match
 [0] catty ir:
       Base
       7
-[0] catty aot:
-      Base
-      7
+[-] catty aot:
+      catty build: transpile: GetstaticOwner.main([Ljava/lang/String;)V triggers class initialization on Base; AOT exception propagation not yet supported
 HashDivergence             ref        MISMATCH   MISMATCH   MISMATCH
 ----- HashDivergence -----
 [0] temurin25:
@@ -90,7 +87,7 @@ HashDivergence             ref        MISMATCH   MISMATCH   MISMATCH
       2017367872
 [0] catty aot:
       2017367872
-InheritedStaticInit        ref        match      match      match
+InheritedStaticInit        ref        match      match      NO-BUILD
 ----- InheritedStaticInit -----
 [0] temurin25:
       Ancestor
@@ -104,10 +101,8 @@ InheritedStaticInit        ref        match      match      match
       Ancestor
       99
       99
-[0] catty aot:
-      Ancestor
-      99
-      99
+[-] catty aot:
+      catty build: transpile: InheritedStaticInit.main([Ljava/lang/String;)V triggers class initialization on Ancestor; AOT exception propagation not yet supported
 InterfaceDefaultInit       ref        match      match      match
 ----- InterfaceDefaultInit -----
 [0] temurin25:
@@ -136,7 +131,7 @@ InterfaceNoInitOnImpl      ref        match      match      NO-BUILD
       main
 [-] catty aot:
       catty build: transpile: InterfaceNoInitOnImpl.main cannot be AOT'd (unsupported opcodes?)
-InvokeStaticInit           ref        match      match      match
+InvokeStaticInit           ref        match      match      NO-BUILD
 ----- InvokeStaticInit -----
 [0] temurin25:
       Holder
@@ -147,9 +142,8 @@ InvokeStaticInit           ref        match      match      match
 [0] catty ir:
       Holder
       42
-[0] catty aot:
-      Holder
-      42
+[-] catty aot:
+      catty build: transpile: InvokeStaticInit.main([Ljava/lang/String;)V triggers class initialization on Holder; AOT exception propagation not yet supported
 LoneSurrogate              ref        MISMATCH   MISMATCH   NO-BUILD
 ----- LoneSurrogate -----
 [0] temurin25:
@@ -173,7 +167,7 @@ ReachUnsafe                ref        MISMATCH   MISMATCH   NO-BUILD
 	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
       main.main()
 	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
-RecursiveInitialization    ref        match      match      match
+RecursiveInitialization    ref        match      match      NO-BUILD
 ----- RecursiveInitialization -----
 [0] temurin25:
       init
@@ -187,10 +181,8 @@ RecursiveInitialization    ref        match      match      match
       init
       0
       5
-[0] catty aot:
-      init
-      0
-      5
+[-] catty aot:
+      catty build: transpile: RecursiveInitialization.main([Ljava/lang/String;)V triggers class initialization on RecursiveInit; AOT exception propagation not yet supported
 StringBounds               ref        MISMATCH   MISMATCH   NO-BUILD
 ----- StringBounds -----
 [0] temurin25:

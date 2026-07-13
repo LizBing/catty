@@ -7,6 +7,7 @@ import (
 	"catty/classloader"
 	"catty/classpath"
 	"catty/lowering"
+	"catty/opcode"
 	"catty/rtda"
 )
 
@@ -58,6 +59,20 @@ func BuildProgram(mainClass, classpathStr string) (string, error) {
 		return "", fmt.Errorf("transpile: %s.main cannot be AOT'd (unsupported opcodes?)", mainClass)
 	}
 
+	// Conservative build-time rejection: AOT exception propagation is not
+	// yet wired for class-initialization failure. Any emitted method whose
+	// IR contains an init-triggering instruction targeting a class with a
+	// <clinit> is rejected — whether or not it has exception handlers —
+	// because neither caught nor uncaught EIIE/NCDFE can be reported
+	// without a Go panic stack trace. Cross-engine exception propagation
+	// belongs to a separate future workstream.
+	for _, p := range emittable {
+		if reason := hasInitTrigger(p.method, p.ir, cl); reason != "" {
+			return "", fmt.Errorf("transpile: %s.%s%s triggers class initialization on %s; AOT exception propagation not yet supported",
+				p.method.Owner().Name(), p.method.Name(), p.method.Descriptor(), reason)
+		}
+	}
+
 	// Pass 2: re-emit with the emittable set (invokestatic dispatch).
 	var src strings.Builder
 	for _, p := range emittable {
@@ -69,32 +84,10 @@ func BuildProgram(mainClass, classpathStr string) (string, error) {
 		src.WriteString("\n")
 	}
 
-	// Refuse to AOT-compile methods whose exception handlers could observe
-	// clinit failure. AOT exception propagation is not yet wired; methods
-	// without exception handlers are fine — uncaught exceptions are surfaced
-	// via the InitFailure→FallbackToInterpreter path.
-	if len(mainMethod.ExceptionTable()) > 0 {
-		return "", fmt.Errorf("transpile: %s.main has exception handlers; AOT exception propagation not yet supported", mainClass)
-	}
-
-	// Assemble: emitted funcs + main() wrapper with InitFailure recovery.
-	// If any bridge call triggers a clinit failure, the InitFailure panic
-	// unwinds the Go stack, the recover catches it, and FallbackToInterpreter
-	// re-runs the entire program through the interpreter — the real semantic
-	// fallback.
+	// Assemble: emitted funcs + simple main() wrapper.
 	program := "package main\n\nimport (\n\t\"catty/runtime\"\n\t\"catty/rtda\"\n)\n\n" +
 		src.String() +
-		"\nfunc main() {\n" +
-		"\tdefer func() {\n" +
-		"\t\tif r := recover(); r != nil {\n" +
-		"\t\t\tif _, ok := r.(runtime.InitFailure); ok {\n" +
-		"\t\t\t\truntime.FallbackToInterpreter(" + fmt.Sprintf("%q, %q", classpathStr, mainClass) + ")\n" +
-		"\t\t\t\treturn\n" +
-		"\t\t\t}\n" +
-		"\t\t\tpanic(r)\n" +
-		"\t\t}\n" +
-		"\t}()\n" +
-		"\truntime.Bootstrap(" + fmt.Sprintf("%q, %q", classpathStr, mainClass) + ")\n\t" +
+		"\nfunc main() {\n\truntime.Bootstrap(" + fmt.Sprintf("%q, %q", classpathStr, mainClass) + ")\n\t" +
 		mangle(mainClass, "main") + "((*rtda.Object)(nil))\n}\n"
 	return program, nil
 }
@@ -122,4 +115,50 @@ func loadReachable(cl *classloader.ClassLoader, mainClass string) {
 			}
 		}
 	}
+}
+
+// hasInitTrigger scans a method's IR for instructions that trigger class
+// initialization (getstatic, putstatic, new, invokestatic) targeting a class
+// that has a <clinit>. Returns the class name that triggered the rejection,
+// or "" if the method is safe to AOT-compile.
+func hasInitTrigger(method *rtda.Method, ir *lowering.IR, loader rtda.Loader) string {
+	cp := method.Owner().ConstantPool()
+	if cp == nil {
+		return ""
+	}
+	for _, inst := range ir.Insts {
+		if !inst.Present {
+			continue
+		}
+		switch inst.Op {
+		case opcode.Getstatic, opcode.Putstatic:
+			refClass, name, desc := cp.MemberRef(inst.Index)
+			if c := loader.LoadClass(refClass); c != nil {
+				if field := c.LookupField(name, desc); field != nil {
+					owner := field.Owner()
+					if owner.GetMethod("<clinit>", "()V") != nil {
+						return owner.Name()
+					}
+				}
+			}
+		case opcode.Invokestatic:
+			refClass, name, desc := cp.MemberRef(inst.Index)
+			if c := loader.LoadClass(refClass); c != nil {
+				if m := c.LookupMethod(name, desc); m != nil {
+					owner := m.Owner()
+					if owner.GetMethod("<clinit>", "()V") != nil {
+						return owner.Name()
+					}
+				}
+			}
+		case opcode.New:
+			className := cp.ClassName(inst.Index)
+			if c := loader.LoadClass(className); c != nil {
+				if c.GetMethod("<clinit>", "()V") != nil {
+					return c.Name()
+				}
+			}
+		}
+	}
+	return ""
 }

@@ -69,7 +69,7 @@ fixtures. This workstream does not implement Java concurrency.
 |---|---|---|
 | Interpreter initialization matrix | `bash docs/workstreams/r2-evidence/run-r2-diff.sh` → all 11 initialization fixtures match | Pass |
 | IR initialization matrix | Same harness → all 11 initialization fixtures match | Pass |
-| AOT initialization matrix | Same harness → match where supported; every unsupported path explicitly classified | Pass (7 match, 4 NI) |
+| AOT initialization matrix | Same harness → match where supported; every unsupported path explicitly classified | Pass (2 match, 9 NI) |
 | R1 regression | `go vet ./... && go test ./... && go test -race ./... && bash tests/run.sh` | Pass |
 | Governance consistency | `git diff --check` | Pass |
 
@@ -86,18 +86,25 @@ InvokeStaticInit, RecursiveInitialization, SuperclassInitializationFailure.
 
 ### AOT
 
+Conservative build-time rejection is in effect: any emitted method whose IR
+contains an init-triggering instruction (getstatic, putstatic, new,
+invokestatic) targeting a class with `<clinit>` is rejected as Not
+implemented. Neither caught nor uncaught EIIE/NCDFE can be reported without
+a Go panic stack trace; cross-engine exception propagation belongs to a
+separate future workstream.
+
 | Fixture | AOT Result | Classification |
 |---|---|---|
-| ConstantFieldNoInit | match | Supported |
-| DirectInvokeStaticInit | match | Supported |
-| GetstaticOwner | match | Supported |
-| InheritedStaticInit | match | Supported |
-| InterfaceDefaultInit | match | Supported |
-| InvokeStaticInit | match | Supported |
-| RecursiveInitialization | match | Supported |
-| ClinitThrows | transpile refusal (exception handlers in main) | Not implemented |
+| ConstantFieldNoInit | match | Supported (constant field, no init triggered) |
+| InterfaceDefaultInit | match | Supported (no `<clinit>`-targeting init trigger in IR) |
 | ClinitOrder | transpile refusal (unsupported opcodes) | Not implemented |
+| ClinitThrows | transpile refusal (init-trigger access + handlers) | Not implemented |
+| DirectInvokeStaticInit | transpile refusal (init-trigger access) | Not implemented |
+| GetstaticOwner | transpile refusal (init-trigger access) | Not implemented |
+| InheritedStaticInit | transpile refusal (init-trigger access) | Not implemented |
 | InterfaceNoInitOnImpl | transpile refusal (unsupported opcodes) | Not implemented |
+| InvokeStaticInit | transpile refusal (init-trigger access) | Not implemented |
+| RecursiveInitialization | transpile refusal (init-trigger access) | Not implemented |
 | SuperclassInitializationFailure | transpile refusal (unsupported opcodes) | Not implemented |
 
 ### Key decisions
@@ -109,24 +116,23 @@ InvokeStaticInit, RecursiveInitialization, SuperclassInitializationFailure.
   recursion (JVMS §5.5 step 6 precedes step 7). Same-owner recursive requests
   during predecessor init detect `initInProgress` + matching `ecID` and return
   normally.
-- **AOT clinit failure — interpreter fallback**: When class initialization
-  fails during AOT execution, the bridge panics with a typed `InitFailure`
-  sentinel. The emitted program's `main()` recovers this sentinel and calls
-  `FallbackToInterpreter` to re-run the entire program through the interpreter
-  — providing real semantic fallback where Java exception handlers can observe
-  ExceptionInInitializerError / NoClassDefFoundError. Methods with their own
-  exception handlers that could intercept clinit failure are explicitly
-  refused at build time (NO-BUILD) until AOT exception propagation is wired.
+- **Conservative AOT build-time rejection**: `hasInitTrigger` scans every
+  emitted method's IR for init-triggering opcodes (getstatic, putstatic, new,
+  invokestatic) that reference a class with `<clinit>`. Any such method
+  causes the entire build to be rejected. This is conservative: it rejects
+  paths where init would succeed as well, because failure cannot be reported
+  correctly without a Go panic stack trace. The `EnsureInit` guard and
+  declarer resolution in the transpiler and bridge remain in place for a
+  future workstream that wires cross-engine exception propagation.
 - **Direct AOT invokestatic init guard**: Before every direct Go call to an
   AOT'd static method, the transpiler emits `runtime.EnsureInit` targeting
   the resolved method's actual declaring class (not the constant-pool
-  referenced class, in case of inherited static methods). A new
-  `DirectInvokeStaticInit` fixture proves `<clinit>` runs exactly once even
-  when the called method does not read/write static state.
+  referenced class, in case of inherited static methods). This guard is
+  active but currently reached only when `<clinit>` is absent.
 - **Inherited static method init**: The `InvokeStatic` bridge resolves the
   method before requesting initialization, using `method.Owner()` for the
   init target. A new `InheritedStaticInit` fixture proves the declaring
-  ancestor is initialized, not the constant-pool referenced subclass.
+  ancestor is initialized in Interpreter and IR.
 - **NCDFE detailMessage fix**: `setDetailMessage` now allocates a real
   `java/lang/String` via the loader instead of allocating from the wrong
   class in the Throwable hierarchy.

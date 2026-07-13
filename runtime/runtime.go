@@ -33,29 +33,23 @@ func Bootstrap(classpathStr, mainClass string) {
 	interpreter.InitClass(thread, cl.LoadClass(mainClass))
 	if thread.HasException() {
 		ex := thread.ClearException()
-		panic(InitFailure{Class: ex.Class().Name()})
+		panic("catty/runtime: Bootstrap: class initialization failed for " +
+			mainClass + " (" + ex.Class().Name() + ")")
 	}
 }
 
-// InitFailure is the sentinel value panicked by EnsureInit when class
-// initialization fails during AOT execution. The emitted program's main
-// recovers this sentinel and falls back to the interpreter, so Java
-// try/catch blocks can observe the ExceptionInInitializerError /
-// NoClassDefFoundError sequence.
-type InitFailure struct {
-	Class string
-}
-
-// EnsureInit requests initialization for a class by name (used by emitted
-// AOT code before direct invokestatic calls). If initialization fails, it
-// panics with InitFailure so the program-level recover can switch to the
-// interpreter — providing real semantic fallback, not a silent mismatch.
+// EnsureInit requests initialization for a class by name before a direct AOT
+// invokestatic call (ADR-0025 / JVMS §5.5). The transpiler emits this guard
+// only when the emittable method set is known to have no exception handlers
+// and no init-triggering accesses that could fail — so a panic here indicates
+// a build-time check defect, not a runtime recoverable error.
 func EnsureInit(className string) {
 	c := loader.LoadClass(className)
 	interpreter.InitClass(thread, c)
 	if thread.HasException() {
 		ex := thread.ClearException()
-		panic(InitFailure{Class: ex.Class().Name()})
+		panic("catty/runtime: EnsureInit: class initialization failed for " +
+			className + " (" + ex.Class().Name() + ")")
 	}
 }
 
@@ -71,7 +65,8 @@ func GetStatic(class, name, desc string) rtda.Slot {
 	interpreter.InitClass(thread, field.Owner())
 	if thread.HasException() {
 		ex := thread.ClearException()
-		panic(InitFailure{Class: ex.Class().Name()})
+		panic("catty/runtime: GetStatic: class initialization failed for " +
+			field.Owner().Name() + " (" + ex.Class().Name() + ")")
 	}
 	return field.Owner().StaticVars()[field.SlotID()]
 }
@@ -104,7 +99,8 @@ func NewObject(class string) *rtda.Object {
 	interpreter.InitClass(thread, c)
 	if thread.HasException() {
 		ex := thread.ClearException()
-		panic(InitFailure{Class: ex.Class().Name()})
+		panic("catty/runtime: NewObject: class initialization failed for " +
+			c.Name() + " (" + ex.Class().Name() + ")")
 	}
 	return rtda.NewObject(c)
 }
@@ -182,33 +178,10 @@ func InvokeStatic(class, name, desc string, args []rtda.Slot) rtda.Slot {
 	interpreter.InitClass(thread, method.Owner())
 	if thread.HasException() {
 		ex := thread.ClearException()
-		panic(InitFailure{Class: ex.Class().Name()})
+		panic("catty/runtime: InvokeStatic: class initialization failed for " +
+			method.Owner().Name() + " (" + ex.Class().Name() + ")")
 	}
 	return runMethod(method, args)
-}
-
-// FallbackToInterpreter re-runs the main class through the interpreter after an
-// AOT clinit failure. The Go panic/recover mechanism catches InitFailure in the
-// emitted main() and calls this to provide the real semantic fallback.
-func FallbackToInterpreter(classpathStr, mainClass string) {
-	cl := classloader.New(classpath.Parse(classpathStr))
-	loader = cl
-	thread = rtda.NewThread(cl)
-	class := cl.LoadClass(mainClass)
-	mainMethod := class.GetMethod("main", "([Ljava/lang/String;)V")
-	if mainMethod == nil {
-		panic("catty/runtime: fallback main method not found in " + mainClass)
-	}
-	frame := thread.NewFrame(mainMethod)
-	frame.SetRef(0, nil) // args = null
-	thread.PushFrame(frame)
-	interpreter.InitClass(thread, class)
-	if thread.HasException() {
-		ex := thread.ClearException()
-		panic("catty/runtime: fallback initialization failed for " + mainClass +
-			" (" + ex.Class().Name() + ")")
-	}
-	interpreter.Loop(thread)
 }
 
 // Thread returns the runtime's thread (for the fallback interpreter path).
