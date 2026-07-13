@@ -157,7 +157,7 @@ Any missing item keeps the workstream `Accepted`; it may not become `In Progress
 | Slice | Status | Evidence |
 |---|---|---|
 | A — SC heap cells, concurrency-safe loader, and canonical Class mirrors | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/9576828/` — `ec1b398`, 22 files, all gates Pass |
-| B — stable Thread facade/context, lifecycle, carriers, join, and VM liveness | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/b0a7b70/` — `b0a7b70` (final), 2 files reworked, all gates Pass |
+| B — stable Thread facade/context, lifecycle, carriers, join, and VM liveness | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/b0a7b70/` — `b0a7b70` (final), Owner accepted 2026-07-14, all Slice B gates Pass |
 | C — monitors, synchronized methods, wait sets, and interruption | Pending | — |
 | D — concurrent ADR-0025 initialization and full Interpreter/IR fixture matrix | Pending | — |
 | E — AOT fail-closed rejection, race stress, regression, evidence, and docs | Pending | — |
@@ -168,7 +168,7 @@ Status uses `Pending`, `In progress`, or `Complete`.
 
 ## Handoff
 
-- **Branch / candidate:** `worktree-r2-thread-monitor-foundation` / `b0a7b70` (Slice B final, awaiting Owner review)
+- **Branch / candidate:** `worktree-r2-thread-monitor-foundation` / `b0a7b70` (Slice B final, Owner accepted 2026-07-14)
 - **Acceptance anchor / base:** `a0288be` governance commit / research baseline `63d5658`
 - **Slice A evidence:** `docs/workstreams/r2-concurrency-candidate-evidence/9576828/` — `ec1b398`, accepted by Owner
 - **Slice B original:** `docs/workstreams/r2-concurrency-candidate-evidence/505d3ee/` — `505d3ee`
@@ -189,3 +189,10 @@ Status uses `Pending`, `In progress`, or `Complete`.
 - **Dirty files:** contract, evidence, and handoff updated
 - **Next action (Slice C):** monitors, synchronized methods, wait sets, and interruption
 - **Non-derivable context:** the 19-fixture denominator includes explicit daemon and non-daemon liveness, all three interruptible blocking points, and the producer-consumer milestone
+
+### Slice B acceptance record
+
+Accepted by Owner on 2026-07-14. Slice B is accepted as a completed implementation
+slice within this workstream. The full workstream remains open; Slice C requires its
+own implementation work and review, and the full 19-fixture, AOT, stress, and final
+integration gates remain not run.

@@ -4,7 +4,7 @@
 **Branch:** `worktree-r2-thread-monitor-foundation`
 **Previous rework:** `a0e336c`
 **Original Slice B:** `505d3ee`
-**Status:** Awaiting Owner review
+**Status:** Owner accepted 2026-07-14
 
 ## What changed
 

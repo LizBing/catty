@@ -4,7 +4,7 @@
 **Stable baseline:** R2 initialization and bounded UTF-16 String slices complete
 **Baseline commit:** `8171361` (integration; String candidate `00327d6`, evidence `9008b00`)
 **Active workstream:** Accepted [`r2-thread-monitor-foundation-slice`](./workstreams/r2-thread-monitor-foundation-slice.md)
-**Current phase:** R2 Thread/monitor foundation contract accepted; acceptance anchor ready for a new Active Agent
+**Current phase:** R2 Slice A and Slice B accepted; Slice C monitors/wait sets is the next bounded implementation slice
 
 This is the single model-neutral current-state entry. Strategy lives in
 [`ROADMAP.md`](./ROADMAP.md); decisions live in [`adr/`](./adr/); scoped work
@@ -65,6 +65,6 @@ base before production implementation begins.
 
 ## Next action
 
-Start a new Active Agent from this acceptance anchor. The Agent must complete the
-implementation preflight recorded in `r2-thread-monitor-foundation-slice` before
-marking the workstream In Progress or making production changes.
+Start the next Active Agent for Slice C from the accepted Slice B candidate lineage.
+The Agent must preserve the accepted Slice A/B evidence and complete the existing
+implementation preflight before making Slice C production changes.
