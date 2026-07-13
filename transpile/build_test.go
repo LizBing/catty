@@ -5,6 +5,14 @@ import (
 	"os/exec"
 	"path/filepath"
 	"testing"
+
+	"catty/rtda"
+)
+
+// JVM access flag literals (stable values from JVMS §4.6).
+const (
+	flagStatic = 0x0008
+	flagPublic = 0x0001
 )
 
 // TestBuildProgram is the A4 milestone: BuildProgram transpiles a whole program
@@ -46,4 +54,64 @@ func TestBuildProgram(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestInitClosureHasClinit verifies that the ADR-0025 initialization
+// predecessor closure correctly identifies <clinit>-bearing classes and
+// interfaces across the superclass chain and default-bearing superinterface
+// graph. These are direct evidence for the AOT build-time rejection check.
+func TestInitClosureHasClinit(t *testing.T) {
+	// Case 1: target has no <clinit>, superclass has <clinit>.
+	// new Child — must identify Parent.<clinit> in the closure.
+	t.Run("superclass-has-clinit", func(t *testing.T) {
+		parent := rtda.NewSyntheticClass("Parent", nil)
+		parent.AddMethod(rtda.InterpretedMethod(parent, "<clinit>", "()V", flagStatic, 0, 0, nil, nil))
+		child := rtda.NewSyntheticClass("Child", parent)
+		got := initClosureHasClinit(child)
+		if got != "Parent" {
+			t.Errorf("initClosureHasClinit(Child) = %q, want %q", got, "Parent")
+		}
+	})
+
+	// Case 2: target has no <clinit>, default-bearing interface has <clinit>.
+	// new Impl — must identify Iface.<clinit> in the closure.
+	t.Run("interface-has-clinit", func(t *testing.T) {
+		iface := rtda.NewSyntheticClass("Iface", nil)
+		iface.MarkInterface()
+		iface.AddMethod(rtda.InterpretedMethod(iface, "<clinit>", "()V", flagStatic, 0, 0, nil, nil))
+		iface.AddMethod(rtda.InterpretedMethod(iface, "m", "()V", flagPublic, 0, 0, nil, nil))
+		impl := rtda.NewSyntheticClass("Impl", nil)
+		impl.AddInterface(iface)
+		got := initClosureHasClinit(impl)
+		if got != "Iface" {
+			t.Errorf("initClosureHasClinit(Impl) = %q, want %q", got, "Iface")
+		}
+	})
+
+	// Case 3: no <clinit> anywhere in the closure.
+	t.Run("no-clinit", func(t *testing.T) {
+		parent := rtda.NewSyntheticClass("Parent", nil)
+		child := rtda.NewSyntheticClass("Child", parent)
+		got := initClosureHasClinit(child)
+		if got != "" {
+			t.Errorf("initClosureHasClinit(Child) = %q, want %q", got, "")
+		}
+	})
+
+	// Case 4: interface target only checks itself, not superinterfaces.
+	// Per ADR-0025, initializing an interface does NOT initialize
+	// superinterfaces. Only class initialization cascades to interfaces.
+	t.Run("interface-ignores-superinterface", func(t *testing.T) {
+		superIface := rtda.NewSyntheticClass("SuperIface", nil)
+		superIface.MarkInterface()
+		superIface.AddMethod(rtda.InterpretedMethod(superIface, "<clinit>", "()V", flagStatic, 0, 0, nil, nil))
+		superIface.AddMethod(rtda.InterpretedMethod(superIface, "dm", "()V", flagPublic, 0, 0, nil, nil))
+		subIface := rtda.NewSyntheticClass("SubIface", nil)
+		subIface.MarkInterface()
+		subIface.AddInterface(superIface)
+		got := initClosureHasClinit(subIface)
+		if got != "" {
+			t.Errorf("initClosureHasClinit(SubIface) = %q, want %q (interface init does not recurse into superinterfaces)", got, "")
+		}
+	})
 }

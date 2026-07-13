@@ -131,6 +131,16 @@ func (c *Class) AddInstanceField(name, descriptor string) *Field {
 
 func (c *Class) SetSuper(super *Class) { c.superClass = super }
 
+// MarkInterface sets the ACC_INTERFACE flag so IsInterface() returns true.
+// Used when building synthetic interface classes in tests.
+func (c *Class) MarkInterface() { c.accessFlags |= accInterface }
+
+// AddInterface adds a direct superinterface to a synthetic class.
+// Used when building synthetic class hierarchies in tests.
+func (c *Class) AddInterface(iface *Class) {
+	c.interfaces = append(c.interfaces, iface)
+}
+
 // --- Class initialization (<clinit>) bookkeeping (ADR-0025) ---
 
 // InitState returns the class's four-state initialization value (initNotStarted,
