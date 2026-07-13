@@ -507,3 +507,71 @@ func TestConcurrentSetDaemonAndStart(t *testing.T) {
 		}
 	}
 }
+
+// TestConcurrentSetDaemonAndIsDaemon verifies that concurrent SetDaemon and
+// IsDaemon on an unstarted thread are race-free. After start, daemon is
+// frozen — subsequent SetDaemon calls fail.
+func TestConcurrentSetDaemonAndIsDaemon(t *testing.T) {
+	t.Run("concurrent read write on NEW thread is race-free", func(t *testing.T) {
+		tr := NewThread(nil)
+		const N = 200
+
+		var wg sync.WaitGroup
+		// Writers: toggle daemon flag.
+		for i := 0; i < N/2; i++ {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for j := 0; j < 100; j++ {
+					tr.SetDaemon(j%2 == 0)
+				}
+			}()
+		}
+		// Readers: call IsDaemon.
+		for i := 0; i < N/2; i++ {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for j := 0; j < 100; j++ {
+					_ = tr.IsDaemon()
+				}
+			}()
+		}
+		wg.Wait()
+		// No Go race detector warning is the assertion.
+	})
+
+	t.Run("daemon frozen after start", func(t *testing.T) {
+		tr := NewThread(nil)
+		tr.SetDaemon(true)
+		if !tr.IsDaemon() {
+			t.Fatal("SetDaemon(true) should work on NEW thread")
+		}
+		tr.SetStarted()
+		// After start, daemon is frozen.
+		if !tr.IsDaemon() {
+			t.Error("daemon should still be true after start")
+		}
+		// SetDaemon must fail.
+		if tr.SetDaemon(false) {
+			t.Error("SetDaemon should fail after start")
+		}
+		// Value must be unchanged.
+		if !tr.IsDaemon() {
+			t.Error("daemon must remain true after failed SetDaemon")
+		}
+	})
+
+	t.Run("daemon frozen after terminate", func(t *testing.T) {
+		tr := NewThread(nil)
+		tr.SetDaemon(true)
+		tr.SetStarted()
+		tr.Terminate()
+		if tr.SetDaemon(false) {
+			t.Error("SetDaemon should fail after termination")
+		}
+		if !tr.IsDaemon() {
+			t.Error("daemon must remain true after termination")
+		}
+	})
+}

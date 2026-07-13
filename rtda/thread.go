@@ -225,9 +225,14 @@ func (t *Thread) SetDaemon(v bool) bool {
 	return true
 }
 
-// IsDaemon reports whether this thread is a daemon thread. After start,
-// daemon is immutable so a plain read is safe.
-func (t *Thread) IsDaemon() bool { return t.daemon }
+// IsDaemon reports whether this thread is a daemon thread. Holds configMu
+// so concurrent SetDaemon on a not-yet-started thread is race-free.
+func (t *Thread) IsDaemon() bool {
+	t.configMu.Lock()
+	d := t.daemon
+	t.configMu.Unlock()
+	return d
+}
 
 // ConsumeDaemonForStart reads the daemon flag under configMu, establishing a
 // happens-before edge with any SetDaemon call that completed before start.
