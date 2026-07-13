@@ -102,6 +102,10 @@ func stringInit(f *rtda.Frame) {
 func stringInitString(f *rtda.Frame) {
 	this := f.GetRef(0)
 	arg := f.GetRef(1)
+	if arg == nil {
+		throwNPE(f, "Cannot invoke \"String.<init>(String)\" because \"original\" is null")
+		return
+	}
 	this.SetExtra(stringValueSV(arg))
 }
 
@@ -111,7 +115,7 @@ func stringInitChars(f *rtda.Frame) {
 	this := f.GetRef(0)
 	chars := f.GetRef(1) // char[]
 	if chars == nil {
-		this.SetExtra(rtda.NewStringValue([]uint16{}))
+		throwNPE(f, "Cannot invoke \"String.<init>(char[])\" because \"value\" is null")
 		return
 	}
 	n := chars.ArrayLength()
@@ -119,7 +123,7 @@ func stringInitChars(f *rtda.Frame) {
 	for i := 0; i < n; i++ {
 		units[i] = uint16(chars.ArrayElementSlot(i).Num())
 	}
-	this.SetExtra(rtda.NewStringValueFromUTF16Literal(units))
+	this.SetExtra(rtda.NewStringValue(units))
 }
 
 // stringInitBytes decodes a byte[] per its coder into a UTF-16 StringValue.
@@ -143,7 +147,7 @@ func stringInitBytes(f *rtda.Frame) {
 		for i := 0; i < n; i++ {
 			units[i] = uint16(buf.ArrayElementSlot(i).Num() & 0xFF)
 		}
-		this.SetExtra(rtda.NewStringValueFromUTF16Literal(units))
+		this.SetExtra(rtda.NewStringValue(units))
 	} else {
 		// UTF-16 big-endian.
 		if n%2 != 0 {
@@ -156,7 +160,7 @@ func stringInitBytes(f *rtda.Frame) {
 			lo := uint16(buf.ArrayElementSlot(i+1).Num())
 			units[i/2] = hi<<8 | lo
 		}
-		this.SetExtra(rtda.NewStringValueFromUTF16Literal(units))
+		this.SetExtra(rtda.NewStringValue(units))
 	}
 }
 
@@ -175,13 +179,23 @@ func stringValueSV(obj *rtda.Object) *rtda.StringValue {
 // throwStringBounds throws a StringIndexOutOfBoundsException with the given
 // message and signals it on the thread.
 func throwStringBounds(f *rtda.Frame, message string) {
+	throwException(f, "java/lang/StringIndexOutOfBoundsException", message)
+}
+
+// throwNPE throws a NullPointerException with the given message.
+func throwNPE(f *rtda.Frame, message string) {
+	throwException(f, "java/lang/NullPointerException", message)
+}
+
+// throwException throws a named exception with the given detail message on the
+// thread's current frame.
+func throwException(f *rtda.Frame, className, message string) {
 	thread := f.Thread()
-	// Estimate PC from the current frame.
 	pc := 0
-	if f := thread.CurrentFrame(); f != nil {
-		pc = f.PC()
+	if cf := thread.CurrentFrame(); cf != nil {
+		pc = cf.PC()
 	}
-	cls := thread.Loader().LoadClass("java/lang/StringIndexOutOfBoundsException")
+	cls := thread.Loader().LoadClass(className)
 	obj := rtda.NewObject(cls)
 	if message != "" {
 		for c := cls; c != nil; c = c.SuperClass() {
@@ -270,7 +284,12 @@ func stringSubstringII(f *rtda.Frame) {
 
 func stringConcat(f *rtda.Frame) {
 	a := stringValueSV(f.GetRef(0))
-	b := stringValueSV(f.GetRef(1))
+	other := f.GetRef(1)
+	if other == nil {
+		throwNPE(f, "Cannot invoke \"String.concat(String)\" because \"str\" is null")
+		return
+	}
+	b := stringValueSV(other)
 	f.PushRef(newStringFromSV(f.Thread(), a.Concat(b)))
 }
 
@@ -282,7 +301,12 @@ func stringIndexOf(f *rtda.Frame) {
 
 func stringStartsWith(f *rtda.Frame) {
 	sv := stringValueSV(f.GetRef(0))
-	prefix := stringValueSV(f.GetRef(1))
+	prefixObj := f.GetRef(1)
+	if prefixObj == nil {
+		throwNPE(f, "Cannot invoke \"String.startsWith(String)\" because \"prefix\" is null")
+		return
+	}
+	prefix := stringValueSV(prefixObj)
 	if sv.StartsWith(prefix) {
 		f.PushInt(1)
 	} else {
@@ -292,7 +316,12 @@ func stringStartsWith(f *rtda.Frame) {
 
 func stringEndsWith(f *rtda.Frame) {
 	sv := stringValueSV(f.GetRef(0))
-	suffix := stringValueSV(f.GetRef(1))
+	suffixObj := f.GetRef(1)
+	if suffixObj == nil {
+		throwNPE(f, "Cannot invoke \"String.endsWith(String)\" because \"suffix\" is null")
+		return
+	}
+	suffix := stringValueSV(suffixObj)
 	if sv.EndsWith(suffix) {
 		f.PushInt(1)
 	} else {
@@ -302,7 +331,12 @@ func stringEndsWith(f *rtda.Frame) {
 
 func stringCompareTo(f *rtda.Frame) {
 	a := stringValueSV(f.GetRef(0))
-	b := stringValueSV(f.GetRef(1))
+	other := f.GetRef(1)
+	if other == nil {
+		throwNPE(f, "Cannot invoke \"String.compareTo(String)\" because \"anotherString\" is null")
+		return
+	}
+	b := stringValueSV(other)
 	f.PushInt(int32(a.CompareTo(b)))
 }
 
@@ -335,7 +369,7 @@ func newStringFromGo(thread *rtda.Thread, s string) *rtda.Object {
 	class := thread.Loader().LoadClass("java/lang/String")
 	obj := rtda.NewObject(class)
 	units := goStringToUTF16(s)
-	obj.SetExtra(rtda.NewStringValueFromUTF16Literal(units))
+	obj.SetExtra(rtda.NewStringValue(units))
 	return obj
 }
 
@@ -401,7 +435,7 @@ func (b *utf16Builder) appendRune(r rune) {
 		b.units = append(b.units, uint16((r>>10)&0x3FF)+0xD800, uint16(r&0x3FF)+0xDC00)
 	}
 }
-func (b *utf16Builder) toSV() *rtda.StringValue { return rtda.NewStringValueFromUTF16Literal(b.units) }
+func (b *utf16Builder) toSV() *rtda.StringValue { return rtda.NewStringValue(b.units) }
 
 func sbInit(f *rtda.Frame) {
 	f.GetRef(0).SetExtra(&utf16Builder{})
@@ -409,8 +443,13 @@ func sbInit(f *rtda.Frame) {
 
 func sbAppendString(f *rtda.Frame) {
 	this := f.GetRef(0)
-	sv := stringValueSV(f.GetRef(1))
-	this.Extra().(*utf16Builder).appendUnits(sv.RawUnits())
+	arg := f.GetRef(1)
+	if arg == nil {
+		this.Extra().(*utf16Builder).appendUnits(goStringToUTF16("null"))
+	} else {
+		sv := stringValueSV(arg)
+		this.Extra().(*utf16Builder).appendUnits(sv.Units())
+	}
 	f.PushRef(this)
 }
 

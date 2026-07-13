@@ -55,15 +55,6 @@ func TestStringValueUnitsDefensive(t *testing.T) {
 	}
 }
 
-func TestStringValueRawUnitsNoMutate(t *testing.T) {
-	// RawUnits is internal and must not be mutated by callers.
-	sv := NewStringValue([]uint16{1, 2, 3})
-	ru := sv.RawUnits()
-	if len(ru) != 3 || ru[0] != 1 {
-		t.Fatal("RawUnits: unexpected content")
-	}
-}
-
 func TestStringValueHashCode(t *testing.T) {
 	// Java String.hashCode for "Hello" (UTF-16 code units: H=72, e=101, l=108, l=108, o=111)
 	// h = ((72*31+101)*31+108)*31+108)*31+111 = 69609650
@@ -282,17 +273,16 @@ func TestStringValueGoStringEmpty(t *testing.T) {
 	}
 }
 
-func TestNewStringValueFromUTF16Literal(t *testing.T) {
-	// Should take ownership without copying.
+func TestNewStringValueNoAlias(t *testing.T) {
+	// NewStringValue must always defensively copy — no alias to the input.
 	units := []uint16{1, 2, 3}
-	sv := NewStringValueFromUTF16Literal(units)
+	sv := NewStringValue(units)
 	if sv.Len() != 3 {
-		t.Fatal("NewStringValueFromUTF16Literal: unexpected length")
+		t.Fatal("NewStringValue: unexpected length")
 	}
-	// Mutation through the original slice would affect the backing but caller
-	// must have transferred ownership.
+	// Mutation through the original slice must not affect the StringValue.
 	units[0] = 99
-	if sv.CharAt(0) != 99 {
-		t.Fatal("NewStringValueFromUTF16Literal should alias the input (by design)")
+	if sv.CharAt(0) != 1 {
+		t.Fatal("NewStringValue must not alias its input")
 	}
 }

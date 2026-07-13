@@ -175,7 +175,7 @@ func pushConstant(thread *rtda.Thread, frame *rtda.Frame, cp *classfile.Constant
 func newString(thread *rtda.Thread, units []uint16) *rtda.Object {
 	class := thread.Loader().LoadClass("java/lang/String")
 	obj := rtda.NewObject(class)
-	obj.SetExtra(rtda.NewStringValueFromUTF16Literal(units))
+	obj.SetExtra(rtda.NewStringValue(units))
 	return obj
 }
 

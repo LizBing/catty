@@ -181,7 +181,7 @@ func newStringValueFromGo(s string) *StringValue {
 		for i, b := range []byte(s) {
 			units[i] = uint16(b)
 		}
-		return NewStringValueFromUTF16Literal(units)
+		return NewStringValue(units)
 	}
 	var units []uint16
 	for _, r := range s {
@@ -193,5 +193,5 @@ func newStringValueFromGo(s string) *StringValue {
 			units = append(units, uint16(r&0x3FF)+0xDC00)
 		}
 	}
-	return NewStringValueFromUTF16Literal(units)
+	return NewStringValue(units)
 }

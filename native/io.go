@@ -36,6 +36,10 @@ func writer(f *rtda.Frame) io.Writer {
 }
 
 func printlnString(f *rtda.Frame) {
+	if f.GetRef(1) == nil {
+		fmt.Fprintln(writer(f), "null")
+		return
+	}
 	sv := stringValueSV(f.GetRef(1))
 	fmt.Fprintln(writer(f), sv.GoString())
 }
@@ -59,8 +63,13 @@ func printlnBool(f *rtda.Frame) {
 
 // printlnChar prints the int argument as a Unicode code point, matching Java's
 // println(char) which prints the character itself (not its numeric value).
+// Lone surrogates (U+D800–U+DFFF) are output as '?' (0x3f), matching Temurin 25.0.3.
 func printlnChar(f *rtda.Frame) {
 	ch := rune(f.GetInt(1))
+	if ch >= 0xD800 && ch <= 0xDFFF {
+		fmt.Fprintln(writer(f), "?")
+		return
+	}
 	var buf [utf8.UTFMax]byte
 	n := utf8.EncodeRune(buf[:], ch)
 	fmt.Fprintln(writer(f), string(buf[:n]))
@@ -71,6 +80,10 @@ func printlnEmpty(f *rtda.Frame) {
 }
 
 func printString(f *rtda.Frame) {
+	if f.GetRef(1) == nil {
+		fmt.Fprint(writer(f), "null")
+		return
+	}
 	sv := stringValueSV(f.GetRef(1))
 	fmt.Fprint(writer(f), sv.GoString())
 }

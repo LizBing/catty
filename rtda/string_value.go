@@ -16,17 +16,12 @@ type StringValue struct {
 }
 
 // NewStringValue creates a StringValue from a UTF-16 code-unit sequence. The
-// slice is defensively copied so the caller retains no alias.
+// slice is defensively copied so the caller retains no alias — no mutable
+// backing can escape.
 func NewStringValue(units []uint16) *StringValue {
 	cp := make([]uint16, len(units))
 	copy(cp, units)
 	return &StringValue{units: cp}
-}
-
-// NewStringValueFromUTF16Literal creates a StringValue without copying when the
-// caller transfers ownership (e.g. classfile literal decoding).
-func NewStringValueFromUTF16Literal(units []uint16) *StringValue {
-	return &StringValue{units: units}
 }
 
 // Len returns the number of UTF-16 code units — Java's String.length().
@@ -46,11 +41,6 @@ func (sv *StringValue) Units() []uint16 {
 	copy(cp, sv.units)
 	return cp
 }
-
-// RawUnits returns the backing slice WITHOUT copying. The caller MUST NOT
-// mutate the returned slice. This is exposed only for internal package use
-// where the immutable invariant is known to hold.
-func (sv *StringValue) RawUnits() []uint16 { return sv.units }
 
 // HashCode computes Java's String.hashCode(): s[0]*31^(n-1) + ... + s[n-1]
 // over UTF-16 code units, with s[i] treated as an unsigned 16-bit value.

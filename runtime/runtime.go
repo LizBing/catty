@@ -118,7 +118,7 @@ func runMethod(method *rtda.Method, args []rtda.Slot) rtda.Slot {
 // losslessly from the classfile constant pool.
 func NewString(units []uint16) *rtda.Object {
 	obj := rtda.NewObject(loader.LoadClass("java/lang/String"))
-	obj.SetExtra(rtda.NewStringValueFromUTF16Literal(units))
+	obj.SetExtra(rtda.NewStringValue(units))
 	return obj
 }
 
@@ -130,7 +130,7 @@ func NewString(units []uint16) *rtda.Object {
 func NewStringFromGo(s string) *rtda.Object {
 	obj := rtda.NewObject(loader.LoadClass("java/lang/String"))
 	units := goToUTF16(s)
-	obj.SetExtra(rtda.NewStringValueFromUTF16Literal(units))
+	obj.SetExtra(rtda.NewStringValue(units))
 	return obj
 }
 

@@ -121,7 +121,7 @@ func throwRuntime(thread *rtda.Thread, pc int, className, message string) {
 				// Build a StringValue from the Go string message.
 				strClass := thread.Loader().LoadClass("java/lang/String")
 				msgObj := rtda.NewObject(strClass)
-				msgObj.SetExtra(rtda.NewStringValueFromUTF16Literal(goStringToUTF16Units(message)))
+				msgObj.SetExtra(rtda.NewStringValue(goStringToUTF16Units(message)))
 				obj.Fields()[f.SlotID()].SetRef(msgObj)
 				break
 			}
