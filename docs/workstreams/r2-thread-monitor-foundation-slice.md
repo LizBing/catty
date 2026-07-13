@@ -143,9 +143,9 @@ the frozen sections without an accepted amendment.
 
 Before production implementation record:
 
-- **Acceptance anchor / actual base:** `<commits; worktree must descend from anchor>`
-- **Historical evidence check:** `<exact command and exit status>`
-- **Candidate evidence destination:** `docs/workstreams/r2-concurrency-candidate-evidence/<candidate>/`
+- **Acceptance anchor / actual base:** `a0288be` (2026-07-14 governance commit) / worktree at `a0288be`
+- **Historical evidence check:** `sha256sum` matches between worktree and anchor for all baseline v2-v5, three reports, and matrix.md — **Pass**
+- **Candidate evidence destination:** `docs/workstreams/r2-concurrency-candidate-evidence/<candidate>/` (not yet created)
 - **Harness output policy:** explicit candidate required; never writes research baseline or shared/latest path
 
 Any missing item keeps the workstream `Accepted`; it may not become `In Progress`.
@@ -156,7 +156,7 @@ Any missing item keeps the workstream `Accepted`; it may not become `In Progress
 
 | Slice | Status | Evidence |
 |---|---|---|
-| A — SC heap cells, concurrency-safe loader, and canonical Class mirrors | Pending | — |
+| A — SC heap cells, concurrency-safe loader, and canonical Class mirrors | Complete | — |
 | B — stable Thread facade/context, lifecycle, carriers, join, and VM liveness | Pending | — |
 | C — monitors, synchronized methods, wait sets, and interruption | Pending | — |
 | D — concurrent ADR-0025 initialization and full Interpreter/IR fixture matrix | Pending | — |

@@ -2,6 +2,7 @@ package classloader
 
 import (
 	"strings"
+	"sync"
 
 	"catty/classfile"
 	"catty/classpath"
@@ -92,6 +93,7 @@ func (p ClasspathProvider) Provide(name string, loader rtda.Loader) *rtda.Class 
 // at JVMS §5.5 events (new / getstatic / putstatic / invokestatic).
 type ClassLoader struct {
 	providers []ClassProvider
+	mu        sync.RWMutex
 	cache     map[string]*rtda.Class
 }
 
@@ -122,15 +124,31 @@ func NewCustom(providers ...ClassProvider) *ClassLoader {
 }
 
 // LoadClass returns the loaded class for the given internal name, loading it on
-// first access. Names use internal slashes ("java/lang/Object").
+// first access. Names use internal slashes ("java/lang/Object"). Thread-safe:
+// cache reads use RLock; cache writes use Lock with double-checked first-wins.
+// Provide runs outside any lock so recursive LoadClass calls (e.g. superclass
+// resolution during NewClass) don't deadlock on Go's non-reentrant RWMutex.
 func (cl *ClassLoader) LoadClass(name string) *rtda.Class {
+	cl.mu.RLock()
 	if c := cl.cache[name]; c != nil {
+		cl.mu.RUnlock()
 		return c
 	}
+	cl.mu.RUnlock()
+
+	// Slow path: load the class without holding any lock, because Provide
+	// (which calls rtda.NewClass) may recursively call LoadClass for
+	// superclasses, interfaces, and component types.
 	for _, p := range cl.providers {
 		if c := p.Provide(name, cl); c != nil {
+			cl.mu.Lock()
+			if existing := cl.cache[name]; existing != nil {
+				cl.mu.Unlock()
+				return existing
+			}
 			cl.cache[name] = c
 			resolveNativeMethods(c)
+			cl.mu.Unlock()
 			return c
 		}
 	}
@@ -138,8 +156,10 @@ func (cl *ClassLoader) LoadClass(name string) *rtda.Class {
 }
 
 // Classes returns every class the loader has cached so far (used by the AOT
-// build to iterate emittable methods across all loaded classes).
+// build to iterate emittable methods across all loaded classes). Thread-safe.
 func (cl *ClassLoader) Classes() []*rtda.Class {
+	cl.mu.RLock()
+	defer cl.mu.RUnlock()
 	out := make([]*rtda.Class, 0, len(cl.cache))
 	for _, c := range cl.cache {
 		out = append(out, c)

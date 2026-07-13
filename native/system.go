@@ -81,21 +81,13 @@ func systemArrayCopy(f *rtda.Frame) {
 		return
 	}
 
-	srcFields := src.Fields()
-	dstFields := dst.Fields()
+	srcCells := src.Cells()
+	dstCells := dst.Cells()
 
-	// Determine element width (1 for cat-1, 2 for long/double arrays)
-	width := 1
-	if src.Class().ComponentKind() == 5 || src.Class().ComponentKind() == 6 { // long or double
-		width = 2
-	}
-
-	for i := length - 1; i >= 0; i-- {
-		sIdx := (srcPos + i) * width
-		dIdx := (dstPos + i) * width
-		for j := 0; j < width; j++ {
-			dstFields[dIdx+j] = srcFields[sIdx+j]
-		}
+	// ADR-0030: every array element is exactly one heap cell.
+	for i := 0; i < length; i++ {
+		dstCells[dstPos+i].SetInt(srcCells[srcPos+i].GetInt())
+		dstCells[dstPos+i].SetRef(srcCells[srcPos+i].GetRef())
 	}
 }
 
@@ -137,7 +129,7 @@ func objectClone(f *rtda.Frame) {
 	}
 	// Shallow clone: copy all fields.
 	clone := rtda.NewObject(this.Class())
-	copy(clone.Fields(), this.Fields())
+	rtda.CopyHeapCells(clone.Cells(), this.Cells())
 	f.PushRef(clone)
 }
 

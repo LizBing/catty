@@ -61,7 +61,7 @@ func eiieInitThrowable(f *rtda.Frame) {
 		var msgSV *rtda.StringValue
 		for c := t.Class(); c != nil; c = c.SuperClass() {
 			if mf := c.LookupField("detailMessage", "Ljava/lang/String;"); mf != nil {
-				if msgObj := t.Fields()[mf.SlotID()].Ref(); msgObj != nil {
+				if msgObj := t.Cells()[mf.SlotID()].GetRef(); msgObj != nil {
 					if sv, ok := msgObj.Extra().(*rtda.StringValue); ok {
 						msgSV = sv
 					}
@@ -71,10 +71,10 @@ func eiieInitThrowable(f *rtda.Frame) {
 		}
 		if msgSV != nil && !msgSV.IsEmpty() {
 			msgObj := newStringFromSV(f.Thread(), msgSV)
-			this.Fields()[slot].SetRef(msgObj)
+			this.Cells()[slot].SetRef(msgObj)
 		}
 	} else {
-		this.Fields()[slot].SetRef(nil)
+		this.Cells()[slot].SetRef(nil)
 	}
 	this.SetExtra(t)
 }
@@ -96,7 +96,7 @@ func eiieGetMessage(f *rtda.Frame) {
 	if t != nil {
 		for c := t.Class(); c != nil; c = c.SuperClass() {
 			if mf := c.LookupField("detailMessage", "Ljava/lang/String;"); mf != nil {
-				msgObj := t.Fields()[mf.SlotID()].Ref()
+				msgObj := t.Cells()[mf.SlotID()].GetRef()
 				if msgObj != nil {
 					f.PushRef(msgObj)
 					return
@@ -137,20 +137,20 @@ func throwableInitMsg(f *rtda.Frame) {
 	this := f.GetRef(0)
 	msg := f.GetRef(1)
 	slot := detailMessageSlot(this)
-	this.Fields()[slot].SetRef(msg)
+	this.Cells()[slot].SetRef(msg)
 }
 
 func throwableGetMessage(f *rtda.Frame) {
 	this := f.GetRef(0)
 	slot := detailMessageSlot(this)
-	f.PushRef(this.Fields()[slot].Ref())
+	f.PushRef(this.Cells()[slot].GetRef())
 }
 
 func throwableToString(f *rtda.Frame) {
 	this := f.GetRef(0)
 	className := javaClassName(this.Class().Name())
 	msgSlot := detailMessageSlot(this)
-	msgObj := this.Fields()[msgSlot].Ref()
+	msgObj := this.Cells()[msgSlot].GetRef()
 	msg := ""
 	if msgObj != nil {
 		if sv, ok := msgObj.Extra().(*rtda.StringValue); ok {

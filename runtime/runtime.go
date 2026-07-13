@@ -68,7 +68,8 @@ func GetStatic(class, name, desc string) rtda.Slot {
 		panic("catty/runtime: GetStatic: class initialization failed for " +
 			field.Owner().Name() + " (" + ex.Class().Name() + ")")
 	}
-	return field.Owner().StaticVars()[field.SlotID()]
+	cell := &field.Owner().StaticCells()[field.SlotID()]
+return cell.ToSlot(desc)
 }
 
 // InvokeVirtual dispatches a virtual call: args[0] is `this`, and the target is
@@ -171,7 +172,7 @@ func goToUTF16(s string) []uint16 {
 func NewIntArray(values ...int32) *rtda.Object {
 	arr := rtda.NewArray(loader.LoadClass("[I"), len(values))
 	for i, v := range values {
-		arr.ArrayElementSlot(i).SetNum(v)
+		arr.Cells()[i].SetInt(v)
 	}
 	return arr
 }

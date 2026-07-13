@@ -1,36 +1,31 @@
 package rtda
 
-import "math"
-
 // Object is the runtime representation of a Java object OR array. Both are
 // references on the operand stack and in fields/locals.
 //
-//   - Class instances store their per-instance state in fields (one Slot per
-//     declared field, laid out by Field.slotID). Go's GC traces these pointers
-//     natively — catty writes no write barriers.
-//   - Arrays store their elements in fields too (one Slot per element for
-//     category-1 components; two for long[]/double[]), with the class marked
-//     isArray. elementWidth() gives the per-element slot stride.
+//   - Class instances store their per-instance state in heapCells (one HeapCell per
+//     declared instance field per ADR-0030). The cell count per field is always 1;
+//     long and double occupy a single 64-bit atomic cell — there is no 2-cell layout.
+//   - Arrays store their elements in heapCells too (one HeapCell per element for
+//     all component types). Element count == len(heapCells).
 //
 // Extra carries a native payload: java.lang.String stores its Go string here so
-// System.out.println needs no interpreter-visible char array. Storing the value
-// directly avoids a round-trip through a char[] for the common path.
+// System.out.println needs no interpreter-visible char array.
 type Object struct {
-	class  *Class
-	fields []Slot
-	extra  any
+	class     *Class
+	heapCells []HeapCell
+	extra     any
 }
 
 func NewObject(class *Class) *Object {
-	return &Object{class: class, fields: make([]Slot, class.instSlotCount)}
+	return &Object{class: class, heapCells: NewHeapCells(int(class.instCellCount))}
 }
 
 func (o *Object) Class() *Class { return o.class }
 
-// Fields returns the slot storage backing instance fields / array elements, so
-// the interpreter can read and write field slots by id and array elements by
-// index without this package growing a typed accessor per type.
-func (o *Object) Fields() []Slot { return o.fields }
+// Cells returns the heap cell storage backing instance fields / array elements.
+// Callers use typed accessors (GetInt/SetInt/GetRef/SetRef/…) on individual cells.
+func (o *Object) Cells() []HeapCell { return o.heapCells }
 
 // IsInstanceOf reports whether o can be treated as an instance of target,
 // implementing the JVM instanceof and checkcast rules (JVMS §6.5.instanceof).
@@ -48,11 +43,7 @@ func (o *Object) Extra() any     { return o.extra }
 // --- Array support (the class is flagged isArray) ---
 
 func NewArray(class *Class, length int) *Object {
-	width := 1
-	if class.componentLongOrDouble() {
-		width = 2
-	}
-	return &Object{class: class, fields: make([]Slot, length*width)}
+	return &Object{class: class, heapCells: NewHeapCells(length)}
 }
 
 // NewMultiArray recursively creates a multi-dimensional array. dims[0] is the
@@ -71,60 +62,38 @@ func NewMultiArray(class *Class, dims []int, loader Loader) *Object {
 	}
 	subDims := dims[1:]
 	for i := 0; i < dims[0]; i++ {
-		arr.fields[i].ref = NewMultiArray(componentClass, subDims, loader)
+		arr.heapCells[i].SetRef(NewMultiArray(componentClass, subDims, loader))
 	}
 	return arr
 }
 
 func (o *Object) ArrayLength() int {
-	width := 1
-	if o.class.componentLongOrDouble() {
-		width = 2
-	}
-	return len(o.fields) / width
+	return len(o.heapCells)
 }
 
-// ArrayElementSlot returns the Slot at array index i (caller knows the type).
-func (o *Object) ArrayElementSlot(i int) *Slot {
-	width := 1
-	if o.class.componentLongOrDouble() {
-		width = 2
-	}
-	return &o.fields[i*width]
-}
-
-// --- Typed array-element accessors (for AOT-emitted code) ---
-// These let the emitted Go read/write long/float/double array elements without
-// importing "math" or knowing the 2-slot layout — the Object handles it.
+// --- Typed array-element accessors (for AOT-emitted code and interpreter) ---
+// One cell per element regardless of type. Long/double get a single 64-bit atomic cell.
 
 func (o *Object) GetLongElement(i int) int64 {
-	base := i * 2
-	return int64(uint32(o.fields[base].num))<<32 | int64(uint32(o.fields[base+1].num))
+	return o.heapCells[i].GetLong()
 }
 
 func (o *Object) SetLongElement(i int, v int64) {
-	base := i * 2
-	o.fields[base].num = int32(uint64(v) >> 32)
-	o.fields[base+1].num = int32(v)
+	o.heapCells[i].SetLong(v)
 }
 
 func (o *Object) GetFloatElement(i int) float32 {
-	return math.Float32frombits(uint32(o.fields[i].num))
+	return o.heapCells[i].GetFloat()
 }
 
 func (o *Object) SetFloatElement(i int, v float32) {
-	o.fields[i].num = int32(math.Float32bits(v))
+	o.heapCells[i].SetFloat(v)
 }
 
 func (o *Object) GetDoubleElement(i int) float64 {
-	base := i * 2
-	bits := uint64(uint32(o.fields[base].num))<<32 | uint64(uint32(o.fields[base+1].num))
-	return math.Float64frombits(bits)
+	return o.heapCells[i].GetDouble()
 }
 
 func (o *Object) SetDoubleElement(i int, v float64) {
-	base := i * 2
-	bits := math.Float64bits(v)
-	o.fields[base].num = int32(bits >> 32)
-	o.fields[base+1].num = int32(bits)
+	o.heapCells[i].SetDouble(v)
 }

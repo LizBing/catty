@@ -1,6 +1,10 @@
 package rtda
 
-import "catty/classfile"
+import (
+	"sync/atomic"
+
+	"catty/classfile"
+)
 
 // Class is the runtime representation of a loaded class (JVMS §2.5.1 method area
 // metadata). It is built by the classloader from a classfile.ClassFile. Core
@@ -16,9 +20,9 @@ type Class struct {
 	cp             *classfile.ConstantPool
 
 	instanceFields []*Field
-	instSlotCount  uint // total instance slots (own + inherited)
+	instCellCount  uint // total instance cell count (own + inherited), 1 per field per ADR-0030
 	staticFields   []*Field
-	staticVars     []Slot // storage for static field slots
+	staticCells    []HeapCell // heap-cell storage for static fields per ADR-0030
 
 	methods     []*Method
 	methodTable map[string]*Method // key = name + descriptor
@@ -34,6 +38,11 @@ type Class struct {
 	// state machine).
 	initState int32  // one of the four init* constants
 	initOwner uint64 // identity of the execution context currently initializing this class (0 = none)
+
+	// classObject is the canonical java.lang.Class mirror for this class, created
+	// lazily with a compare-and-swap so all goroutines see the same identity.
+	// The field stores nil until the first request triggers lazy materialization.
+	classObject atomic.Pointer[Object]
 }
 
 // Class initialization states (JVMS §5.5 via ADR-0025).
@@ -62,23 +71,36 @@ func (c *Class) Name() string         { return c.name }
 func (c *Class) SuperClass() *Class   { return c.superClass }
 func (c *Class) AccessFlags() uint16  { return c.accessFlags }
 func (c *Class) ConstantPool() *classfile.ConstantPool { return c.cp }
-func (c *Class) InstSlotCount() uint  { return c.instSlotCount }
-func (c *Class) StaticVars() []Slot   { return c.staticVars }
-func (c *Class) IsArray() bool        { return c.isArray }
+func (c *Class) InstCellCount() uint    { return c.instCellCount }
+func (c *Class) StaticCells() []HeapCell { return c.staticCells }
+func (c *Class) IsArray() bool          { return c.isArray }
 
 // IsInterface / IsAbstract etc.
 func (c *Class) IsInterface() bool { return c.accessFlags&accInterface != 0 }
 func (c *Class) IsAbstract() bool  { return c.accessFlags&accAbstract != 0 }
 
-// componentLongOrDouble reports whether an array's elements are category-2
-// (long[] / double[]), which determines the per-element slot stride.
-func (c *Class) componentLongOrDouble() bool {
-	return c.isArray && (c.componentKind == kindLong || c.componentKind == kindDouble)
-}
-
-// componentClassName translates a primitive kind into its internal array
-// descriptor prefix; object arrays use "L<classname>;".
 func (c *Class) ComponentClass() *Class { return c.componentClass }
+
+// ClassObject returns the canonical java.lang.Class mirror for this class, creating
+// it lazily via CAS on first access. All callers see the same Object identity, so
+// obj.getClass() == obj.getClass() holds even across goroutines (ADR-0029).
+// The caller must provide a factory that allocates a java.lang.Class Object and
+// sets its Extra to this *Class.
+func (c *Class) ClassObject(factory func() *Object) *Object {
+	if obj := c.classObject.Load(); obj != nil {
+		return obj
+	}
+	obj := factory()
+	if obj == nil {
+		return nil
+	}
+	obj.SetExtra(c)
+	if c.classObject.CompareAndSwap(nil, obj) {
+		return obj
+	}
+	// Lost the race — return the winner.
+	return c.classObject.Load()
+}
 
 // --- Method lookup ---
 

@@ -231,17 +231,17 @@ func (e *emitter) emitOne(b *strings.Builder, inst *lowering.IRInst, cp *classfi
 	case opcode.Iaload, opcode.Baload, opcode.Caload, opcode.Saload:
 		arr, idx := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[1]))
 		t := e.defTemp(int(inst.Defs[0]), "int32")
-		w("%s = %s.ArrayElementSlot(int(%s)).Num()", t, arr, idx)
+		w("%s = %s.Cells()[int(%s)].GetInt()", t, arr, idx)
 	case opcode.Aaload:
 		arr, idx := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[1]))
 		t := e.defTemp(int(inst.Defs[0]), "*rtda.Object")
-		w("%s = %s.ArrayElementSlot(int(%s)).Ref()", t, arr, idx)
+		w("%s = %s.Cells()[int(%s)].GetRef()", t, arr, idx)
 	case opcode.Iastore, opcode.Bastore, opcode.Castore, opcode.Sastore:
 		arr, idx, val := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[1])), e.use(int(inst.Uses[2]))
-		w("%s.ArrayElementSlot(int(%s)).SetNum(%s)", arr, idx, val)
+		w("%s.Cells()[int(%s)].SetInt(%s)", arr, idx, val)
 	case opcode.Aastore:
 		arr, idx, val := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[1])), e.use(int(inst.Uses[2]))
-		w("%s.ArrayElementSlot(int(%s)).SetRef(%s)", arr, idx, val)
+		w("%s.Cells()[int(%s)].SetRef(%s)", arr, idx, val)
 	case opcode.Arraylength:
 		arr := e.use(int(inst.Uses[0]))
 		t := e.defTemp(int(inst.Defs[0]), "int32")
@@ -390,12 +390,12 @@ func (e *emitter) emitOne(b *strings.Builder, inst *lowering.IRInst, cp *classfi
 		field := e.loader.LoadClass(className).LookupField(name, desc)
 		obj := e.use(int(inst.Uses[0])) // read the objref before allocating the def (slot reuse)
 		t := e.defTemp(int(inst.Defs[0]), goType)
-		w("%s = %s", t, slotExtract(fmt.Sprintf("%s.Fields()[%d]", obj, field.SlotID()), desc))
+		w("%s = %s", t, cellExtract(fmt.Sprintf("%s.Cells()[%d]", obj, field.SlotID()), desc))
 	case opcode.Putfield:
 		className, name, desc := cp.MemberRef(inst.Index)
 		field := e.loader.LoadClass(className).LookupField(name, desc)
 		obj, val := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[1]))
-		w("%s.Fields()[%d].%s(%s)", obj, field.SlotID(), setAccessor(desc), val)
+		w("%s.Cells()[%d].%s(%s)", obj, field.SlotID(), setAccessor(desc), val)
 
 	// --- float (category-1, float32) ---
 	case opcode.Fload, opcode.Fload0, opcode.Fload1, opcode.Fload2, opcode.Fload3:
@@ -1102,7 +1102,7 @@ func slotConstructor(desc, temp string) string {
 	return "rtda.IntSlot(" + temp + ")"
 }
 
-// slotExtract extracts a typed value from a Slot-bearing expression.
+// slotExtract extracts a typed value from a Slot-bearing expression (AOT bridge).
 func slotExtract(call, desc string) string {
 	if isRefDesc(desc) {
 		return call + ".Ref()"
@@ -1110,12 +1110,20 @@ func slotExtract(call, desc string) string {
 	return call + ".Num()"
 }
 
-// setAccessor maps a field descriptor to the Slot setter (SetNum/SetRef).
+// cellExtract extracts a typed value from a HeapCell-bearing expression (ADR-0030).
+func cellExtract(expr, desc string) string {
+	if isRefDesc(desc) {
+		return expr + ".GetRef()"
+	}
+	return expr + ".GetInt()"
+}
+
+// setAccessor maps a field descriptor to the HeapCell setter per ADR-0030.
 func setAccessor(desc string) string {
 	if isRefDesc(desc) {
 		return "SetRef"
 	}
-	return "SetNum"
+	return "SetInt"
 }
 
 // isRefDesc reports whether a descriptor is an object/array reference.

@@ -37,13 +37,14 @@ func GetNative(className, methodName, descriptor string) func(*rtda.Frame) {
 
 // --- helpers for Class objects ---
 
-// getClassObject returns (or creates) a java.lang.Class object wrapping the
-// given rtda.Class. The Class object stores the rtda.Class in its extra field.
+// getClassObject returns the canonical java.lang.Class object wrapping the
+// given rtda.Class (ADR-0029). The Class object stores the rtda.Class in its
+// extra field. All callers see the same Object identity for the same Class.
 func getClassObject(thread *rtda.Thread, cls *rtda.Class) *rtda.Object {
-	classClass := thread.Loader().LoadClass("java/lang/Class")
-	obj := rtda.NewObject(classClass)
-	obj.SetExtra(cls)
-	return obj
+	return cls.ClassObject(func() *rtda.Object {
+		classClass := thread.Loader().LoadClass("java/lang/Class")
+		return rtda.NewObject(classClass)
+	})
 }
 
 func getClassFromExtra(obj *rtda.Object) *rtda.Class {

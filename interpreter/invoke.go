@@ -179,11 +179,12 @@ func newString(thread *rtda.Thread, units []uint16) *rtda.Object {
 	return obj
 }
 
-// getClassObject creates a java.lang.Class object wrapping cls.
-// The Class object stores the rtda.Class in its extra field.
+// getClassObject returns the canonical java.lang.Class object wrapping cls
+// (ADR-0029). The Class object stores the rtda.Class in its extra field.
+// All callers see the same Object identity for the same Class.
 func getClassObject(thread *rtda.Thread, cls *rtda.Class) *rtda.Object {
-	classClass := thread.Loader().LoadClass("java/lang/Class")
-	obj := rtda.NewObject(classClass)
-	obj.SetExtra(cls)
-	return obj
+	return cls.ClassObject(func() *rtda.Object {
+		classClass := thread.Loader().LoadClass("java/lang/Class")
+		return rtda.NewObject(classClass)
+	})
 }

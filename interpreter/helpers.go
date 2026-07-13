@@ -41,22 +41,15 @@ func storeLocal(frame *rtda.Frame, op opcode.Opcode, idx int) {
 }
 
 // ---------- two-slot array elements (long[] / double[]) ----------
+// ADR-0030: each array element is exactly one 64-bit heap cell, so long and
+// double access is a single atomic operation.
 
-// readTwoSlots reads a category-2 element at array index i (each element spans
-// two slots in long[]/double[]).
 func readTwoSlots(arr *rtda.Object, i int) int64 {
-	f := arr.Fields()
-	base := i * 2
-	high := uint32(f[base].Num())
-	low := uint32(f[base+1].Num())
-	return int64(high)<<32 | int64(low)
+	return arr.Cells()[i].GetLong()
 }
 
 func writeTwoSlots(arr *rtda.Object, i int, v int64) {
-	f := arr.Fields()
-	base := i * 2
-	f[base].SetNum(int32(uint64(v) >> 32)) // high
-	f[base+1].SetNum(int32(v))             // low
+	arr.Cells()[i].SetLong(v)
 }
 
 // ---------- float/double bit helpers (named wrappers keep the switch tidy) ----------

@@ -21,7 +21,7 @@ func NewClass(cf *classfile.ClassFile, loader Loader) *Class {
 
 	if c.superName != "" {
 		c.superClass = loader.LoadClass(c.superName)
-		c.instSlotCount = c.superClass.instSlotCount
+		c.instCellCount = c.superClass.instCellCount
 	}
 	c.interfaces = make([]*Class, len(c.interfaceNames))
 	for i, n := range c.interfaceNames {
@@ -29,16 +29,17 @@ func NewClass(cf *classfile.ClassFile, loader Loader) *Class {
 	}
 
 	for _, f := range cf.Fields() {
+		// ADR-0030: every field occupies exactly one heap cell regardless of type.
 		if f.AccessFlags()&accStatic != 0 {
-			slot := uint(len(c.staticVars))
-			c.staticVars = append(c.staticVars, make([]Slot, fieldSlotSize(f.Descriptor()))...)
+			cellID := uint(len(c.staticCells))
+			c.staticCells = append(c.staticCells, HeapCell{})
 			c.staticFields = append(c.staticFields,
-				NewField(c, f.Name(), f.Descriptor(), f.AccessFlags(), true, slot))
+				NewField(c, f.Name(), f.Descriptor(), f.AccessFlags(), true, cellID))
 		} else {
-			slot := c.instSlotCount
-			c.instSlotCount += uint(fieldSlotSize(f.Descriptor()))
+			cellID := c.instCellCount
+			c.instCellCount++
 			c.instanceFields = append(c.instanceFields,
-				NewField(c, f.Name(), f.Descriptor(), f.AccessFlags(), false, slot))
+				NewField(c, f.Name(), f.Descriptor(), f.AccessFlags(), false, cellID))
 		}
 	}
 
@@ -61,14 +62,6 @@ func NewClass(cf *classfile.ClassFile, loader Loader) *Class {
 		c.AddMethod(method)
 	}
 	return c
-}
-
-// fieldSlotSize returns 2 for long/double, 1 for everything else.
-func fieldSlotSize(descriptor string) int {
-	if descriptor == "J" || descriptor == "D" {
-		return 2
-	}
-	return 1
 }
 
 func convertExceptionTable(entries []*classfile.ExceptionTableEntry, cp *classfile.ConstantPool) []exceptionEntry {
@@ -99,32 +92,32 @@ func convertExceptionTable(entries []*classfile.ExceptionTableEntry, cp *classfi
 func NewSyntheticClass(name string, super *Class) *Class {
 	c := &Class{name: name, superClass: super, methodTable: make(map[string]*Method)}
 	if super != nil {
-		c.instSlotCount = super.instSlotCount
+		c.instCellCount = super.instCellCount
 	}
 	return c
 }
 
-// AddStaticField declares a static field, allocating slots in staticVars, and
-// returns the field's slotID so the builder can initialize it.
+// AddStaticField declares a static field, allocating one heap cell, and
+// returns the field's cell ID so the builder can initialize it.
 func (c *Class) AddStaticField(name, descriptor string) *Field {
-	slot := uint(len(c.staticVars))
-	c.staticVars = append(c.staticVars, make([]Slot, fieldSlotSize(descriptor))...)
-	f := NewField(c, name, descriptor, accStatic, true, slot)
+	cellID := uint(len(c.staticCells))
+	c.staticCells = append(c.staticCells, HeapCell{})
+	f := NewField(c, name, descriptor, accStatic, true, cellID)
 	c.staticFields = append(c.staticFields, f)
 	return f
 }
 
-func (c *Class) SetStaticRef(slotID uint, ref *Object) {
-	c.staticVars[slotID].ref = ref
+func (c *Class) SetStaticRef(cellID uint, ref *Object) {
+	c.staticCells[cellID].SetRef(ref)
 }
 
 // AddInstanceField declares an instance field on a synthetic class, allocating
-// the next slot in the layout. Used by native exception classes (Throwable's
+// the next cell in the layout. Used by native exception classes (Throwable's
 // detailMessage).
 func (c *Class) AddInstanceField(name, descriptor string) *Field {
-	slot := c.instSlotCount
-	c.instSlotCount += uint(fieldSlotSize(descriptor))
-	f := NewField(c, name, descriptor, 0, false, slot)
+	cellID := c.instCellCount
+	c.instCellCount++
+	f := NewField(c, name, descriptor, 0, false, cellID)
 	c.instanceFields = append(c.instanceFields, f)
 	return f
 }
