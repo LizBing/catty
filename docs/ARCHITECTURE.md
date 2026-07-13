@@ -74,7 +74,7 @@ same class-loading front end:
 The emitted binary embeds the entire catty runtime (`classloader` + `interpreter`
 + `native` + `runtime` bridge). At run time: AOT'd methods call direct Go /
 the bridge; un-AOT'd methods are served by the interpreter via the bridge — the
-**tiered model** (ADR-0007).
+current implementation of the **multi-engine model** (ADR-0016).
 
 ### Stage responsibilities
 
@@ -221,8 +221,8 @@ strategies use `NewCustom(providers...)`.
 
 The synthetic registry itself is a `map[string]builderFunc` populated by
 `init()` blocks across `native/*.go` via `registerSynthetic(name, fn)`. The
-bootstrap-class boundary (`native.BootstrapClasses`) is the set that
-`BootstrapProvider` claims; see ADR-0015.
+bootstrap-class boundary (`native.BootstrapClasses`) is the current R1 set that
+`BootstrapProvider` claims; ADR-0022 makes its capability boundary revisable.
 
 After a class is provided, `resolveNativeMethods` patches any `ACC_NATIVE`
 methods whose `(class, name, desc)` is in the global `RegisterNative` table
@@ -233,7 +233,7 @@ keep a zero-return stub (graceful `NoSuchMethodError`-free degradation).
 recursively, computes instance field offsets starting from the superclass's
 count (so subclasses inherit offsets), allocates static var slots, and builds a
 `Method` per declared method. Class **initialization** (`<clinit>`) is not done
-here — see ADR-0005.
+here — see ADR-0021.
 
 ### 5a. java.base auto-detection (CLI layer)
 
@@ -275,7 +275,8 @@ runtime packages.
 
 ## 7. Where the performance comes from (and where it doesn't)
 
-The interpreter is a single dense `switch` on the opcode byte (see ADR-0002).
+The current interpreter is a single dense `switch` on the opcode byte; this is
+an implementation choice governed by ADR-0024.
 Measured on `fib(35)` (~29M recursive calls):
 
 | Engine | Time | Relative |
@@ -329,7 +330,8 @@ semantics-preserving.
 **The IR executor is not faster than the tree-walker** (~6% slower on
 `BenchFib`): predecode savings are smaller than the IR dispatch overhead in Go.
 This is expected and fine — the IR's job is validation and as the emitter's
-input; the speed gain is the AOT transpiler's job (ADR-0006).
+input; ADR-0024 keeps its performance role evidence-driven while ADR-0016
+defines AOT as the primary product path.
 
 ## 9. AOT transpiler (A1)
 

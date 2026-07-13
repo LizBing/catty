@@ -1,6 +1,6 @@
 # ADR-0003: Tagged 16-byte Slot (HotSpot stack-word model)
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR-0020](./0020-representation-domains-and-engine-boundaries.md)
 - **Date:** 2026-07-11
 
 ## Context

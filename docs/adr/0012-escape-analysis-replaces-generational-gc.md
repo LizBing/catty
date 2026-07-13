@@ -1,7 +1,11 @@
 # ADR-0012: Escape analysis replaces generational GC
 
-- **Status:** Proposed
+- **Status:** Withdrawn
 - **Date:** 2026-07-12
+- **Withdrawn:** 2026-07-13 — the current generic object representation does
+  not establish the claimed escape-analysis results, while field reordering and
+  value conversion affect identity, reflection, synchronization, and layout.
+  These ideas belong in a measured future performance research workstream.
 
 ## Context
 

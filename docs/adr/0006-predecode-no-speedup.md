@@ -1,6 +1,6 @@
 # ADR-0006: Predecode in the interpreter does not pay off — AOT is the perf path
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR-0024](./0024-interpreter-policy-and-evidence-driven-optimization.md)
 - **Date:** 2026-07-11
 
 ## Context

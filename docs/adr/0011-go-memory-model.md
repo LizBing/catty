@@ -1,7 +1,11 @@
 # ADR-0011: Adopt Go memory model (not JMM/JSR-133)
 
-- **Status:** Proposed
+- **Status:** Withdrawn
 - **Date:** 2026-07-12
+- **Withdrawn:** 2026-07-13 — the compatibility percentage is unsupported and
+  several claimed Go happens-before/final-field guarantees are incorrect.
+  Go is an implementation mechanism, not a replacement for Java observable
+  memory semantics. R2 requires a new Java-semantics-first decision.
 
 ## Context
 

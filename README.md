@@ -76,7 +76,8 @@ binary. The emitter covers:
 - **frem/drem**: float remainder via `runtime.FloatMod`/`DoubleMod`
 
 Methods the emitter can't handle (unsupported opcodes, instance methods) are
-served by the interpreter at runtime via the bridge — the tiered model.
+served by the interpreter through an explicit runtime boundary — the
+multi-engine model of ADR-0016.
 
 `TestBuildProgram` validates HelloWorld + Fibonacci: both build to standalone
 binaries and produce output byte-identical to `java`.
@@ -106,12 +107,13 @@ packages). Set `CATTY_DEBUG=1` for a Go stack trace on a VM error.
 | `java` (HotSpot JIT) | ~50 ms | baseline |
 | `java -Xint` (HotSpot interpreter) | ~600 ms | ~14× AOT |
 | catty interpreter (`Loop`) | ~4.5 s | ~100× AOT |
-| catty IR executor (`-ir`) | ~4.8 s | slightly slower than `Loop` (ADR-0006) |
+| catty IR executor (`-ir`) | ~4.8 s | slightly slower than `Loop` in the R1 benchmark |
 
 The AOT path reaches native speed — **~100× the interpreter and on par with
-HotSpot's JIT**. The interpreter's ~7× gap to `java -Xint` is dispatch overhead
-(switch vs computed goto; 16-byte slots; per-call frame allocation); ADR-0006
-shows predecode doesn't close it — only AOT does.
+HotSpot's JIT**. The interpreter's ~7× gap to `java -Xint` reflects dispatch,
+representation, and frame costs in the R1 benchmark. ADR-0024 treats these as
+evidence-driven implementation choices; ADR-0016 makes AOT the primary product
+path without prohibiting future interpreter improvements.
 
 ## Vision: an experimental JRE platform
 
@@ -121,16 +123,17 @@ Go runtime services. The production AOT boundary and the mapping of Java
 Thread, synchronization, memory, GC, and I/O semantics remain Proposed design
 questions rather than current compatibility promises.
 
-Proposed architectural directions (ADRs 0008–0013) explore:
+Withdrawn historical proposals (ADRs 0008–0013) identified questions about:
 
-- whether production should be AOT-first while retaining an interpreter tier;
+- how far the AOT-primary product path can expand while retaining the
+  interpreter as a permanent semantic fallback;
 - mapping Java threads onto Go runtime mechanisms;
 - defining the required Java memory semantics and any measured deviations;
 - how Go escape analysis may reduce allocation costs;
 - direct Go runtime integration for selected services;
 - a hybrid native/interpreted class-library boundary.
 
-These ADRs remain **Proposed** and do not authorize implementation. See
+These ADRs are **Withdrawn** and do not authorize implementation. See
 [docs/ROADMAP.md](docs/ROADMAP.md) for the phased plan and
 [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) for current authority.
 

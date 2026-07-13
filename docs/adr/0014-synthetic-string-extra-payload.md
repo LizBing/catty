@@ -1,6 +1,6 @@
 # ADR-0014: Synthetic java.lang.String with a Go-string Extra() payload
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR-0023](./0023-string-semantics-and-representation-boundary.md)
 - **Date:** 2026-07-12
 
 ## Context

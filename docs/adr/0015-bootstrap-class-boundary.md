@@ -1,6 +1,6 @@
 # ADR-0015: The bootstrap-class boundary
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR-0022](./0022-bootstrap-kernel-and-java-facades.md)
 - **Date:** 2026-07-12
 
 ## Context

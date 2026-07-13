@@ -1,6 +1,6 @@
 # ADR-0002: Switch dispatch for the interpreter
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR-0024](./0024-interpreter-policy-and-evidence-driven-optimization.md)
 - **Date:** 2026-07-11
 
 ## Context

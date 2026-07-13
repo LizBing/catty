@@ -1,6 +1,6 @@
 # ADR-0007: Reflection & dynamic features — tiered, keep the interpreter
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR-0016](./0016-multi-engine-execution.md)
 - **Date:** 2026-07-11
 
 ## Context

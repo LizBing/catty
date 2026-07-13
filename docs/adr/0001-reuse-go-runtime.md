@@ -1,6 +1,6 @@
 # ADR-0001: Reuse the Go runtime (no custom GC, scheduler, or JIT)
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR-0018](./0018-go-runtime-infrastructure-boundary.md)
 - **Date:** 2026-07-11
 
 ## Context

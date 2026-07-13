@@ -1,7 +1,11 @@
 # ADR-0010: Thread = goroutine (virtual threads from day one)
 
-- **Status:** Proposed
+- **Status:** Withdrawn
 - **Date:** 2026-07-12
+- **Withdrawn:** 2026-07-13 — it conflates a possible goroutine execution
+  carrier with Java Thread identity, lifecycle, monitor, wait-set, interrupt,
+  daemon, join, and VM-liveness semantics. R2 research must define the Java
+  observable contract before selecting Go mechanisms.
 
 ## Context
 

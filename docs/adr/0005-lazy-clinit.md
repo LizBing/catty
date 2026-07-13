@@ -1,6 +1,6 @@
 # ADR-0005: Lazy `<clinit>` via frame push at JVMS §5.5 points
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR-0021](./0021-class-initialization-boundary.md)
 - **Date:** 2026-07-11
 
 ## Context

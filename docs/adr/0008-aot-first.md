@@ -1,7 +1,10 @@
 # ADR-0008: AOT-first architecture (interpreter is the dev tier, not production)
 
-- **Status:** Proposed
+- **Status:** Withdrawn
 - **Date:** 2026-07-12
+- **Withdrawn:** 2026-07-13 — a single `fib(35)` result cannot justify an
+  AOT-only production contract. ADR-0016 subsequently establishes AOT as the
+  primary product path while retaining a permanent interpreter fallback.
 
 ## Context
 

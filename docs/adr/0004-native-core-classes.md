@@ -1,6 +1,6 @@
 # ADR-0004: Synthetic native core classes instead of shipping a JRE
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR-0019](./0019-go-native-dissolution-policy.md)
 - **Date:** 2026-07-11
 
 ## Context

@@ -1,7 +1,11 @@
 # ADR-0013: Direct Go runtime integration (no JVM abstraction layer)
 
-- **Status:** Proposed
+- **Status:** Withdrawn
 - **Date:** 2026-07-12
+- **Withdrawn:** 2026-07-13 — direct API substitution does not by itself
+  preserve Java exceptions, timeout, resource, concurrency, or cross-engine
+  semantics. Future adapters must be decided per API family behind one tested
+  semantic contract.
 
 ## Context
 

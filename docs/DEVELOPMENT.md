@@ -187,9 +187,9 @@ via `init()`:
 
 2. The class loads via `SyntheticProvider` (non-bootstrap) — which means if a
    real java.base is on the classpath, the real `.class` file takes precedence.
-   Only add to `BootstrapClasses` (in `native/registry.go`) if the class must
-   carry a Go↔Java bridge payload and can never be replaced by bytecode — see
-   ADR-0015 for the boundary criteria.
+   Adding to `BootstrapClasses` changes the current implementation boundary;
+   do so only under an Accepted workstream. ADR-0022 defines bootstrap by
+   capabilities rather than a permanent class list.
 
 ### Add a test fixture
 

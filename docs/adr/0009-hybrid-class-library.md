@@ -1,7 +1,10 @@
 # ADR-0009: Hybrid class library (~50 native Go classes + ~7000 interpreted from real JDK)
 
-- **Status:** Proposed
+- **Status:** Withdrawn
 - **Date:** 2026-07-12
+- **Withdrawn:** 2026-07-13 — the numerical boundary and call-frequency claims
+  lack evidence. ADR-0022 governs the bootstrap-capability boundary; future
+  native promotion requires scoped behavioral evidence.
 
 ## Context
 

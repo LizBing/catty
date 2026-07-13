@@ -7,7 +7,8 @@ Java programs into Go programs while reusing appropriate Go runtime services.
 The exact Thread, memory-model, class-library, I/O, and AOT production boundaries
 remain subject to Accepted ADRs and measured workstreams.
 
-See the strategic plan and ADRs 0008–0013 for the architectural vision.
+Withdrawn ADRs 0008–0013 preserve early hypotheses but do not define the
+current architecture.
 
 ## Completed
 
@@ -21,18 +22,22 @@ emitter → invoke bridge → loops → diamonds (phi) → OOP → long/float/do
 edge items → `catty build` (whole-program offline AOT). fib(35) at native
 speed (~44 ms, on par with HotSpot JIT).
 
-## Strategic ADRs (proposed)
+## Strategic decisions and open questions
 
-| ADR | Decision | Impact |
-|---|---|---|
-| 0008 | Evaluate an AOT-first production model | Production-tier boundary |
-| 0009 | Evaluate a hybrid class library | Bootstrap control and compatibility |
-| 0010 | Evaluate Java Thread mapping onto Go runtime mechanisms | Thread identity and lifecycle |
-| 0011 | Determine the required Java memory semantics | Compatibility and optimization boundary |
-| 0012 | Evaluate Go escape analysis for Java objects | Allocation optimization |
-| 0013 | Evaluate direct Go runtime integration | Runtime service boundary |
+| ADR | Status | Decision / question | Impact |
+|---|---|---|---|
+| 0016 | Accepted | AOT is the primary product path; the interpreter remains a permanent semantic fallback | Multi-engine execution boundary |
+| 0017–0024 | Accepted | Java 25 semantics, Go-runtime boundary, dissolution, representation, bootstrap, String, and interpreter policy | R2 governing constraints |
+| 0008 | Withdrawn | Earlier AOT-first proposal | Replaced by ADR-0016's multi-engine model |
+| 0009 | Withdrawn | Evaluate a hybrid class library | Bootstrap control and compatibility |
+| 0010 | Withdrawn | Evaluate Java Thread mapping onto Go runtime mechanisms | Thread identity and lifecycle |
+| 0011 | Withdrawn | Determine the required Java memory semantics | Compatibility and optimization boundary |
+| 0012 | Withdrawn | Evaluate Go escape analysis for Java objects | Allocation optimization |
+| 0013 | Withdrawn | Evaluate direct Go runtime integration | Runtime service boundary |
 
-These ADRs are discussion inputs only. They do not authorize implementation.
+Withdrawn proposals are retained as historical context only and do not
+authorize implementation. Their unresolved questions require research and new
+Proposed ADRs.
 
 ## Implementation phases
 
@@ -46,9 +51,9 @@ These ADRs are discussion inputs only. They do not authorize implementation.
   opcodes). `invokedynamic` deferred to R3.
 - **Bootstrap classpath**: `catty` auto-detects `$CATTY_BOOT` / `$JAVA_HOME` /
   `java_home`, prepends java.base to the user classpath. Uses the JDK's own
-  `jimage extract` tool (no runtime jimage parser — keeps catty lean). The 6
-  bootstrap classes (Object/String/Class/System/Thread/Throwable) stay synthetic;
-  everything else loads from real java.base.
+  `jimage extract` tool (no runtime jimage parser — keeps catty lean). The R1
+  implementation currently serves six bootstrap classes synthetically; ADR-0022
+  makes that a revisable capability boundary rather than a permanent class list.
 - **Native layer expansion**: ~18 synthetic classes + ~40 native
   method registrations. `NoSuchMethodError` (not a crash) on gaps.
 
@@ -56,7 +61,7 @@ These ADRs are discussion inputs only. They do not authorize implementation.
 auto-detected. `RealBaseSmoke` (18 assertions) byte-identical to `java`.
 
 ### Phase R2 — Runtime semantics and concurrency planning
-**Status:** Requires research and Accepted decisions
+**Status:** Research workstream accepted; production implementation not yet authorized
 
 JDK 25's `Integer.toString`/`Double.parseDouble`/`HashMap` paths reach
 `jdk.internal.misc.Unsafe`; concurrency additionally requires explicit Thread,
@@ -64,34 +69,36 @@ monitor, class-initialization, volatile/final, interrupt, liveness, and memory
 ordering contracts. The first post-R1 work should establish evidence and
 Accepted decisions before selecting implementation mechanisms.
 
-Candidate planning outputs include a caller-backed Unsafe profile, protected
-Java memory semantics, explicit Thread identity/lifecycle, monitor behavior,
-and deterministic differential/race/timeout gates. None is authorized until an
-Accepted ADR and workstream require it.
+The accepted research contract is
+[`r2-runtime-semantics-research`](./workstreams/r2-runtime-semantics-research.md).
+It must produce evidence-backed follow-up decisions and a bounded production
+contract before selecting implementation mechanisms.
 
 **Milestone**: multi-threaded producer-consumer program.
 
 ### Phase R3 — Reflection & dynamic features
 **Status:** After R2
 
-- `java.lang.reflect` on retained `rtda` metadata (ADR-0007 tiered model).
+- `java.lang.reflect` on retained runtime metadata, subject to a dedicated
+  reflection design under ADR-0016's multi-engine boundary.
 - `invokedynamic` full support (LambdaMetafactory, dynamic proxies).
 - Annotation parsing (`RuntimeVisibleAnnotations`). ~3–4 weeks.
 
-### Phase R4 — I/O & network (subject to ADR-0013)
+### Phase R4 — I/O & network (future API-family decisions required)
 **Status:** After R3
 
 - Define supported file, socket, selector, and native-integration semantics.
 - Evaluate direct Go runtime adapters against compatibility and maintenance cost.
 
-### Phase R5 — AOT coverage expansion (subject to ADR-0008)
+### Phase R5 — AOT coverage expansion (governed by ADR-0016)
 **Status:** After R3/R4
 
 - Instance method AOT. Exception handling in emitted code.
 - `invokedynamic` AOT (CallSite resolution at build time).
-- Tiered: interpret cold, AOT hot. ~4–6 weeks.
+- Expand AOT coverage with explicit interpreter fallback; engine selection and
+  any runtime promotion policy remain evidence-driven. ~4–6 weeks.
 
-### Phase R6 — Performance & polish (subject to ADR-0012)
+### Phase R6 — Performance & polish (evidence-driven)
 **Status:** After R5
 
 - Escape-analysis and allocation-strategy validation.
@@ -111,6 +118,6 @@ Accepted ADR and workstream require it.
 ## What can't catty run yet?
 
 Minecraft? No. Real Java applications need: exceptions (R1), concurrency (R2),
-reflection (R3), I/O (R4), and the full JDK class library (ADR-0009 hybrid).
-Each is a documented phase. The AOT path proves the performance thesis; the
-class-library gap is the remaining work.
+reflection (R3), I/O (R4), and much broader class-library compatibility. Each
+is a documented phase. The AOT path proves the performance thesis; runtime
+semantics and class-library scope remain the primary research work.
