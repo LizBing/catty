@@ -118,9 +118,16 @@ func loadReachable(cl *classloader.ClassLoader, mainClass string) {
 }
 
 // hasInitTrigger scans a method's IR for instructions that trigger class
-// initialization (getstatic, putstatic, new, invokestatic) targeting a class
-// that has a <clinit>. Returns the class name that triggered the rejection,
-// or "" if the method is safe to AOT-compile.
+// initialization (getstatic, putstatic, new, invokestatic) and computes the
+// full initialization predecessor closure (ADR-0025 / JVMS §5.5) for each
+// target. If any class or interface in the closure has a <clinit>, the
+// entire build is rejected as Not implemented.
+//
+// The closure includes the target class itself, its superclass chain, and
+// for each class in that chain, its recursively-enumerated default-bearing
+// superinterfaces. This is the same set that InitializeClass would traverse
+// at runtime; any member of the closure could fail during initialization,
+// and without cross-engine exception propagation a Go panic would result.
 func hasInitTrigger(method *rtda.Method, ir *lowering.IR, loader rtda.Loader) string {
 	cp := method.Owner().ConstantPool()
 	if cp == nil {
@@ -130,35 +137,69 @@ func hasInitTrigger(method *rtda.Method, ir *lowering.IR, loader rtda.Loader) st
 		if !inst.Present {
 			continue
 		}
+		var target *rtda.Class
 		switch inst.Op {
 		case opcode.Getstatic, opcode.Putstatic:
 			refClass, name, desc := cp.MemberRef(inst.Index)
 			if c := loader.LoadClass(refClass); c != nil {
 				if field := c.LookupField(name, desc); field != nil {
-					owner := field.Owner()
-					if owner.GetMethod("<clinit>", "()V") != nil {
-						return owner.Name()
-					}
+					target = field.Owner()
 				}
 			}
 		case opcode.Invokestatic:
 			refClass, name, desc := cp.MemberRef(inst.Index)
 			if c := loader.LoadClass(refClass); c != nil {
 				if m := c.LookupMethod(name, desc); m != nil {
-					owner := m.Owner()
-					if owner.GetMethod("<clinit>", "()V") != nil {
-						return owner.Name()
-					}
+					target = m.Owner()
 				}
 			}
 		case opcode.New:
 			className := cp.ClassName(inst.Index)
-			if c := loader.LoadClass(className); c != nil {
-				if c.GetMethod("<clinit>", "()V") != nil {
-					return c.Name()
-				}
+			target = loader.LoadClass(className)
+		}
+		if target != nil {
+			if reason := initClosureHasClinit(target); reason != "" {
+				return reason
 			}
 		}
 	}
+	return ""
+}
+
+// initClosureHasClinit checks whether any class or interface in the
+// initialization predecessor closure of `class` (per ADR-0025 / JVMS §5.5)
+// defines a <clinit>. Returns the name of the first match, or "" if none.
+func initClosureHasClinit(class *rtda.Class) string {
+	seen := make(map[string]bool)
+	return checkClosure(class, seen)
+}
+
+func checkClosure(class *rtda.Class, seen map[string]bool) string {
+	if class == nil || seen[class.Name()] {
+		return ""
+	}
+	seen[class.Name()] = true
+
+	if class.GetMethod("<clinit>", "()V") != nil {
+		return class.Name()
+	}
+
+	// For classes (not interfaces): recurse into superclass and
+	// default-bearing superinterfaces per JVMS §5.5 step 7.
+	if !class.IsInterface() {
+		// Superclass chain.
+		if class.SuperClass() != nil {
+			if reason := checkClosure(class.SuperClass(), seen); reason != "" {
+				return reason
+			}
+		}
+		// Default-bearing superinterfaces (depth-first, left-to-right).
+		for _, iface := range class.DefaultBearingSuperInterfaces(make(map[string]bool)) {
+			if reason := checkClosure(iface, seen); reason != "" {
+				return reason
+			}
+		}
+	}
+
 	return ""
 }

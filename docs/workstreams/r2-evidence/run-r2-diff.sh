@@ -13,12 +13,14 @@
 # does not modify production code; it only produces evidence.
 #
 # Usage: bash docs/workstreams/r2-evidence/run-r2-diff.sh
+#   R2_RESULTS_DIR  — if set, write results to $R2_RESULTS_DIR/run-r2-results.txt
+#                     instead of the default baseline location.
 set -u
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"      # docs/workstreams/r2-evidence -> repo root
 FIX="$SCRIPT_DIR/fixtures"
-RESULTS="$SCRIPT_DIR/run-r2-results.txt"
+RESULTS="${R2_RESULTS_DIR:-$SCRIPT_DIR}/run-r2-results.txt"
 
 fail_closed() { echo "r2-diff: $*" >&2; exit 1; }
 
@@ -37,11 +39,15 @@ trap 'rm -rf "$BIN" "$STAGE"' EXIT
 {
   echo "=== R2 differential run ==="
   echo "repo:    $ROOT"
+  echo "commit:  $(cd "$ROOT" && git rev-parse HEAD 2>/dev/null || echo unknown)"
+  echo "branch:  $(cd "$ROOT" && git rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
+  echo "base:    ecb086e"
   echo "java:    $(java -version 2>&1 | head -1)"
   echo "javac:   $(javac -version 2>&1)"
   echo "boot:    CATTY_BOOT=${CATTY_BOOT:-<unset>}; JAVA_HOME=${JAVA_HOME:-<unset>}"
   echo "mode:    catty -no-boot (pure-synthetic, controlled semantic differential)"
   echo "compare: combined stdout+stderr AND exit code must equal Temurin 25"
+  echo "results: $RESULTS"
   echo
 } | tee "$RESULTS"
 
