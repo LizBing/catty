@@ -1,0 +1,351 @@
+=== R2 concurrency research baseline ===
+baseline-id: baseline-63d5658
+catty-base:  63d5658
+repo-head:   63d5658b47e1ab2e11345fb5ce51b969bca80765
+branch:      main
+date:        2026-07-13T15:47:59Z
+java:        openjdk version "25.0.3" 2026-04-21 LTS
+javac:       javac 25.0.3
+go:          go version go1.26.5 darwin/arm64
+mode:        catty -no-boot; combined stdout+stderr and exit code
+timeouts:    run=20s aot-build=120s
+fixtures:    17 fixed research fixtures
+policy:      catty mismatch/NO-BUILD is baseline evidence, not harness failure
+evidence:    /Users/lizbing/Workspace/Projects/catty/docs/workstreams/r2-concurrency-evidence/baseline-63d5658/run-concurrency-results-v3.txt
+
+==> building catty
+fixture                            Temurin25  Interpreter        IR                 AOT
+-------                            ---------  -----------        --                 ---
+CurrentThreadIdentity              ref        MISMATCH(rc=1)     MISMATCH(rc=1)     MISMATCH(rc=2)
+----- CurrentThreadIdentity -----
+[0] temurin25:
+      true
+      true
+[1] catty interpreter:
+      Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Thread.currentThread()Ljava/lang/Thread;
+[1] catty IR:
+      catty: catty: invokeMethod received nil method from frame CurrentThreadIdentity.main([Ljava/lang/String;)V
+[2] catty AOT (build-rc=0):
+      panic: catty/runtime: InvokeStatic method not found: java/lang/Thread.currentThread ()Ljava/lang/Thread;
+      
+      goroutine 1 [running]:
+      catty/runtime.InvokeStatic({0x102ce4a7e, 0x10}, {0x102ce4021, 0xd}, {0x102ce5b34, 0x14}, {0x7ffdd3f24eb0, 0x0, 0x0})
+      	/Users/lizbing/Workspace/Projects/catty/runtime/runtime.go:221 +0x1b4
+      main.CurrentThreadIdentity_main(0x102ced85d?)
+      	/var/folders/43/qdn_rh0j0b5btn_x7mj5_rl00000gn/T/catty-build-151091054.go/program.go:13 +0x50
+      main.main()
+      	/var/folders/43/qdn_rh0j0b5btn_x7mj5_rl00000gn/T/catty-build-151091054.go/program.go:53 +0x3c
+ThreadStartJoin                    ref        MISMATCH(rc=1)     MISMATCH(rc=1)     MISMATCH(rc=2)
+----- ThreadStartJoin -----
+[0] temurin25:
+      false
+      false
+      42
+[1] catty interpreter:
+      Exception in thread "main" java.lang.NoSuchMethodError: ThreadStartJoin$Worker.isAlive()Z
+[1] catty IR:
+      catty: runtime error: invalid memory address or nil pointer dereference
+[2] catty AOT (build-rc=0):
+      panic: runtime error: invalid memory address or nil pointer dereference
+      [signal SIGSEGV: segmentation violation code=0x2 addr=0x80 pc=0x1048f221c]
+      
+      goroutine 1 [running]:
+      catty/rtda.(*Method).IsNative(...)
+      	/Users/lizbing/Workspace/Projects/catty/rtda/method.go:126
+      catty/runtime.runMethod(0x7d55325ca240?, {0x7d5532590ee0?, 0x7?, 0x1048f2c28?})
+      	/Users/lizbing/Workspace/Projects/catty/runtime/runtime.go:111 +0x1c
+      catty/runtime.InvokeVirtual({0x1048f6425?, 0x10?}, {0x1048f30cf, 0x7}, {0x1048f2c28, 0x3}, {0x7d5532590ee0, 0x1, 0x1})
+      	/Users/lizbing/Workspace/Projects/catty/runtime/runtime.go:84 +0x94
+      main.ThreadStartJoin_main(0x1048fd945?)
+      	/var/folders/43/qdn_rh0j0b5btn_x7mj5_rl00000gn/T/catty-build-275945712.go/program.go:18 +0xd8
+      main.main()
+      	/var/folders/43/qdn_rh0j0b5btn_x7mj5_rl00000gn/T/catty-build-275945712.go/program.go:49 +0x3c
+ThreadStartTwice                   ref        MISMATCH(rc=1)     MISMATCH(rc=1)     NO-BUILD
+----- ThreadStartTwice -----
+[0] temurin25:
+      IllegalThreadStateException
+[1] catty interpreter:
+      Exception in thread "main" java.lang.NoSuchMethodError: ThreadStartTwice$Worker.start()V
+[1] catty IR:
+      catty: runtime error: invalid memory address or nil pointer dereference
+[-] catty AOT (build-rc=2):
+      panic: catty: class not found: java/lang/IllegalThreadStateException
+      
+      goroutine 1 [running]:
+      catty/classloader.(*ClassLoader).LoadClass(0x149eb9c9e140, {0x149eb9c50600, 0x25})
+      	/Users/lizbing/Workspace/Projects/catty/classloader/classloader.go:137 +0x140
+      catty/transpile.loadReachable(0x149eb9c9e140, {0x16b48f58f, 0x10})
+      	/Users/lizbing/Workspace/Projects/catty/transpile/build.go:107 +0x174
+      catty/transpile.BuildProgram({0x16b48f58f, 0x10}, {0x16b48f4af, 0x65})
+      	/Users/lizbing/Workspace/Projects/catty/transpile/build.go:24 +0x160
+      catty/launch.Build({0x16b48f4af?, 0x149eb9c480a0?}, {0x16b48f58f?, 0x104a79f00?}, {0x16b48f521, 0x6d}, 0x0)
+      	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:47 +0x50
+      main.buildCmd({0x149eb9c480a0, 0x6, 0x6})
+      	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+      main.main()
+      	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+NonDaemonLiveness                  ref        MISMATCH(rc=1)     MISMATCH(rc=1)     NO-BUILD
+----- NonDaemonLiveness -----
+[0] temurin25:
+      main
+      worker
+[1] catty interpreter:
+      Exception in thread "main" java.lang.NoSuchMethodError: NonDaemonLiveness$Worker.start()V
+[1] catty IR:
+      catty: runtime error: invalid memory address or nil pointer dereference
+[-] catty AOT (build-rc=1):
+      catty build: transpile: NonDaemonLiveness.main cannot be AOT'd (unsupported opcodes?)
+SynchronizedBlocks                 ref        MISMATCH(rc=1)     MISMATCH(rc=1)     NO-BUILD
+----- SynchronizedBlocks -----
+[0] temurin25:
+      2000
+[1] catty interpreter:
+      Exception in thread "main" java.lang.NoSuchMethodError: SynchronizedBlocks$Worker.start()V
+[1] catty IR:
+      catty: runtime error: invalid memory address or nil pointer dereference
+[-] catty AOT (build-rc=1):
+      catty build: transpile: SynchronizedBlocks.main([Ljava/lang/String;)V triggers class initialization on SynchronizedBlocks; AOT exception propagation not yet supported
+SynchronizedMethods                ref        MISMATCH(rc=1)     MISMATCH(rc=1)     MISMATCH(rc=1)
+----- SynchronizedMethods -----
+[0] temurin25:
+      true
+      true
+[1] catty interpreter:
+      Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Thread.holdsLock(Ljava/lang/Object;)Z
+[1] catty IR:
+      catty: catty: invokeMethod received nil method from frame SynchronizedMethods.instanceLockHeld()Z
+[1] catty AOT (build-rc=0):
+      Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Thread.holdsLock(Ljava/lang/Object;)Z
+MonitorNull                        ref        MISMATCH(rc=0)     MISMATCH(rc=0)     NO-BUILD
+----- MonitorNull -----
+[0] temurin25:
+      NullPointerException
+[0] catty interpreter:
+      missing
+[0] catty IR:
+      missing
+[-] catty AOT (build-rc=1):
+      catty build: transpile: MonitorNull.main cannot be AOT'd (unsupported opcodes?)
+MonitorOwnership                   ref        MISMATCH(rc=1)     MISMATCH(rc=1)     NO-BUILD
+----- MonitorOwnership -----
+[0] temurin25:
+      IllegalMonitorStateException
+[1] catty interpreter:
+      catty: catty: class not found: java/lang/IllegalMonitorStateException
+[1] catty IR:
+      catty: runtime error: invalid memory address or nil pointer dereference
+[-] catty AOT (build-rc=2):
+      panic: catty: class not found: java/lang/IllegalMonitorStateException
+      
+      goroutine 1 [running]:
+      catty/classloader.(*ClassLoader).LoadClass(0x49e9d1e30120, {0x49e9d1e3a390, 0x26})
+      	/Users/lizbing/Workspace/Projects/catty/classloader/classloader.go:137 +0x140
+      catty/transpile.loadReachable(0x49e9d1e30120, {0x16aec758f, 0x10})
+      	/Users/lizbing/Workspace/Projects/catty/transpile/build.go:107 +0x174
+      catty/transpile.BuildProgram({0x16aec758f, 0x10}, {0x16aec74af, 0x65})
+      	/Users/lizbing/Workspace/Projects/catty/transpile/build.go:24 +0x160
+      catty/launch.Build({0x16aec74af?, 0x49e9d1e3c020?}, {0x16aec758f?, 0x105041f00?}, {0x16aec7521, 0x6d}, 0x0)
+      	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:47 +0x50
+      main.buildCmd({0x49e9d1e3c020, 0x6, 0x6})
+      	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+      main.main()
+      	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+WaitNotify                         ref        MISMATCH(rc=1)     MISMATCH(rc=1)     NO-BUILD
+----- WaitNotify -----
+[0] temurin25:
+      worker
+      main
+[1] catty interpreter:
+      Exception in thread "main" java.lang.NoSuchMethodError: WaitNotify$Worker.start()V
+[1] catty IR:
+      catty: runtime error: invalid memory address or nil pointer dereference
+[-] catty AOT (build-rc=2):
+      panic: catty: class not found: java/lang/InterruptedException
+      
+      goroutine 1 [running]:
+      catty/classloader.(*ClassLoader).LoadClass(0x6a4012436140, {0x6a40123e4260, 0x1e})
+      	/Users/lizbing/Workspace/Projects/catty/classloader/classloader.go:137 +0x140
+      catty/transpile.loadReachable(0x6a4012436140, {0x16f75b59b, 0xa})
+      	/Users/lizbing/Workspace/Projects/catty/transpile/build.go:107 +0x174
+      catty/transpile.BuildProgram({0x16f75b59b, 0xa}, {0x16f75b4c7, 0x5f})
+      	/Users/lizbing/Workspace/Projects/catty/transpile/build.go:24 +0x160
+      catty/launch.Build({0x16f75b4c7?, 0x6a40123e00a0?}, {0x16f75b59b?, 0x1007adf00?}, {0x16f75b533, 0x67}, 0x0)
+      	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:47 +0x50
+      main.buildCmd({0x6a40123e00a0, 0x6, 0x6})
+      	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+      main.main()
+      	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+NotifyAll                          ref        MISMATCH(rc=1)     MISMATCH(rc=1)     NO-BUILD
+----- NotifyAll -----
+[0] temurin25:
+      2
+[1] catty interpreter:
+      Exception in thread "main" java.lang.NoSuchMethodError: NotifyAll$Worker.start()V
+[1] catty IR:
+      catty: runtime error: invalid memory address or nil pointer dereference
+[-] catty AOT (build-rc=2):
+      panic: catty: class not found: java/lang/InterruptedException
+      
+      goroutine 1 [running]:
+      catty/classloader.(*ClassLoader).LoadClass(0x48fe591b0120, {0x48fe591c2220, 0x1e})
+      	/Users/lizbing/Workspace/Projects/catty/classloader/classloader.go:137 +0x140
+      catty/transpile.loadReachable(0x48fe591b0120, {0x16fbdb599, 0x9})
+      	/Users/lizbing/Workspace/Projects/catty/transpile/build.go:107 +0x174
+      catty/transpile.BuildProgram({0x16fbdb599, 0x9}, {0x16fbdb4c7, 0x5e})
+      	/Users/lizbing/Workspace/Projects/catty/transpile/build.go:24 +0x160
+      catty/launch.Build({0x16fbdb4c7?, 0x48fe591bc020?}, {0x16fbdb599?, 0x10032df00?}, {0x16fbdb532, 0x66}, 0x0)
+      	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:47 +0x50
+      main.buildCmd({0x48fe591bc020, 0x6, 0x6})
+      	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+      main.main()
+      	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+InterruptStatus                    ref        MISMATCH(rc=1)     MISMATCH(rc=1)     MISMATCH(rc=2)
+----- InterruptStatus -----
+[0] temurin25:
+      true
+      true
+      false
+[1] catty interpreter:
+      Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Thread.currentThread()Ljava/lang/Thread;
+[1] catty IR:
+      catty: catty: invokeMethod received nil method from frame InterruptStatus.main([Ljava/lang/String;)V
+[2] catty AOT (build-rc=0):
+      panic: catty/runtime: InvokeStatic method not found: java/lang/Thread.currentThread ()Ljava/lang/Thread;
+      
+      goroutine 1 [running]:
+      catty/runtime.InvokeStatic({0x100548b87, 0x10}, {0x10054810e, 0xd}, {0x100549c3d, 0x14}, {0x5ac7f8bd4eb0, 0x0, 0x0})
+      	/Users/lizbing/Workspace/Projects/catty/runtime/runtime.go:221 +0x1b4
+      main.InterruptStatus_main(0x1005518eb?)
+      	/var/folders/43/qdn_rh0j0b5btn_x7mj5_rl00000gn/T/catty-build-1360758995.go/program.go:12 +0x50
+      main.main()
+      	/var/folders/43/qdn_rh0j0b5btn_x7mj5_rl00000gn/T/catty-build-1360758995.go/program.go:43 +0x3c
+InterruptWait                      ref        MISMATCH(rc=1)     MISMATCH(rc=1)     NO-BUILD
+----- InterruptWait -----
+[0] temurin25:
+      false
+      main
+[1] catty interpreter:
+      Exception in thread "main" java.lang.NoSuchMethodError: InterruptWait$Worker.start()V
+[1] catty IR:
+      catty: runtime error: invalid memory address or nil pointer dereference
+[-] catty AOT (build-rc=2):
+      panic: catty: class not found: java/lang/InterruptedException
+      
+      goroutine 1 [running]:
+      catty/classloader.(*ClassLoader).LoadClass(0x71663c574140, {0x71663c522280, 0x1e})
+      	/Users/lizbing/Workspace/Projects/catty/classloader/classloader.go:137 +0x140
+      catty/transpile.loadReachable(0x71663c574140, {0x16f1f3599, 0xd})
+      	/Users/lizbing/Workspace/Projects/catty/transpile/build.go:107 +0x174
+      catty/transpile.BuildProgram({0x16f1f3599, 0xd}, {0x16f1f34bf, 0x62})
+      	/Users/lizbing/Workspace/Projects/catty/transpile/build.go:24 +0x160
+      catty/launch.Build({0x16f1f34bf?, 0x71663c51e0a0?}, {0x16f1f3599?, 0x100d15f00?}, {0x16f1f352e, 0x6a}, 0x0)
+      	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:47 +0x50
+      main.buildCmd({0x71663c51e0a0, 0x6, 0x6})
+      	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+      main.main()
+      	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+InterruptSleep                     ref        MISMATCH(rc=1)     MISMATCH(rc=1)     NO-BUILD
+----- InterruptSleep -----
+[0] temurin25:
+      false
+      main
+[1] catty interpreter:
+      Exception in thread "main" java.lang.NoSuchMethodError: InterruptSleep$Worker.start()V
+[1] catty IR:
+      catty: runtime error: invalid memory address or nil pointer dereference
+[-] catty AOT (build-rc=2):
+      panic: catty: class not found: java/lang/InterruptedException
+      
+      goroutine 1 [running]:
+      catty/classloader.(*ClassLoader).LoadClass(0x42e82c1f0140, {0x42e82c19e280, 0x1e})
+      	/Users/lizbing/Workspace/Projects/catty/classloader/classloader.go:137 +0x140
+      catty/transpile.loadReachable(0x42e82c1f0140, {0x16d69f593, 0xe})
+      	/Users/lizbing/Workspace/Projects/catty/transpile/build.go:107 +0x174
+      catty/transpile.BuildProgram({0x16d69f593, 0xe}, {0x16d69f4b7, 0x63})
+      	/Users/lizbing/Workspace/Projects/catty/transpile/build.go:24 +0x160
+      catty/launch.Build({0x16d69f4b7?, 0x42e82c19a0a0?}, {0x16d69f593?, 0x102869f00?}, {0x16d69f527, 0x6b}, 0x0)
+      	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:47 +0x50
+      main.buildCmd({0x42e82c19a0a0, 0x6, 0x6})
+      	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+      main.main()
+      	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+InterruptJoin                      ref        MISMATCH(rc=1)     MISMATCH(rc=1)     NO-BUILD
+----- InterruptJoin -----
+[0] temurin25:
+      false
+      main
+[1] catty interpreter:
+      Exception in thread "main" java.lang.NoSuchMethodError: InterruptJoin$Target.start()V
+[1] catty IR:
+      catty: runtime error: invalid memory address or nil pointer dereference
+[-] catty AOT (build-rc=2):
+      panic: catty: class not found: java/lang/InterruptedException
+      
+      goroutine 1 [running]:
+      catty/classloader.(*ClassLoader).LoadClass(0x74db6b2e4140, {0x74db6b292280, 0x1e})
+      	/Users/lizbing/Workspace/Projects/catty/classloader/classloader.go:137 +0x140
+      catty/transpile.loadReachable(0x74db6b2e4140, {0x16f81f599, 0xd})
+      	/Users/lizbing/Workspace/Projects/catty/transpile/build.go:107 +0x174
+      catty/transpile.BuildProgram({0x16f81f599, 0xd}, {0x16f81f4bf, 0x62})
+      	/Users/lizbing/Workspace/Projects/catty/transpile/build.go:24 +0x160
+      catty/launch.Build({0x16f81f4bf?, 0x74db6b28e0a0?}, {0x16f81f599?, 0x1006e9f00?}, {0x16f81f52e, 0x6a}, 0x0)
+      	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:47 +0x50
+      main.buildCmd({0x74db6b28e0a0, 0x6, 0x6})
+      	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+      main.main()
+      	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+VolatilePublication                ref        MISMATCH(rc=1)     MISMATCH(rc=1)     NO-BUILD
+----- VolatilePublication -----
+[0] temurin25:
+      42
+[1] catty interpreter:
+      Exception in thread "main" java.lang.NoSuchMethodError: VolatilePublication$Worker.start()V
+[1] catty IR:
+      catty: runtime error: invalid memory address or nil pointer dereference
+[-] catty AOT (build-rc=1):
+      catty build: transpile: VolatilePublication.main cannot be AOT'd (unsupported opcodes?)
+FinalFieldPublication              ref        MISMATCH(rc=1)     MISMATCH(rc=1)     NO-BUILD
+----- FinalFieldPublication -----
+[0] temurin25:
+      42
+      24
+[1] catty interpreter:
+      Exception in thread "main" java.lang.NoSuchMethodError: FinalFieldPublication$Worker.start()V
+[1] catty IR:
+      catty: runtime error: invalid memory address or nil pointer dereference
+[-] catty AOT (build-rc=1):
+      catty build: transpile: FinalFieldPublication.main cannot be AOT'd (unsupported opcodes?)
+CrossThreadClassInitialization     ref        MISMATCH(rc=1)     MISMATCH(rc=1)     NO-BUILD
+----- CrossThreadClassInitialization -----
+[0] temurin25:
+      1
+      7
+      7
+[1] catty interpreter:
+      Exception in thread "main" java.lang.NoSuchMethodError: CrossThreadClassInitialization$First.start()V
+[1] catty IR:
+      catty: runtime error: invalid memory address or nil pointer dereference
+[-] catty AOT (build-rc=2):
+      panic: catty: class not found: java/lang/InterruptedException
+      
+      goroutine 1 [running]:
+      catty/classloader.(*ClassLoader).LoadClass(0xfbfa250c120, {0xfbfa2520320, 0x1e})
+      	/Users/lizbing/Workspace/Projects/catty/classloader/classloader.go:137 +0x140
+      catty/transpile.loadReachable(0xfbfa250c120, {0x16ef4f583, 0x1e})
+      	/Users/lizbing/Workspace/Projects/catty/transpile/build.go:107 +0x174
+      catty/transpile.BuildProgram({0x16ef4f583, 0x1e}, {0x16ef4f487, 0x73})
+      	/Users/lizbing/Workspace/Projects/catty/transpile/build.go:24 +0x160
+      catty/launch.Build({0x16ef4f487?, 0xfbfa251a020?}, {0x16ef4f583?, 0x100fb9f00?}, {0x16ef4f507, 0x7b}, 0x0)
+      	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:47 +0x50
+      main.buildCmd({0xfbfa251a020, 0x6, 0x6})
+      	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+      main.main()
+      	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+
+==> baseline summary
+rows:              17/17
+interpreter match: 0/17
+IR match:          0/17
+AOT match:         0/17
+AOT NO-BUILD:      13/17
+result:            Pass (complete research baseline; mismatch is expected evidence)

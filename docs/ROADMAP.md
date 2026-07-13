@@ -61,7 +61,7 @@ Proposed ADRs.
 auto-detected. `RealBaseSmoke` (18 assertions) byte-identical to `java`.
 
 ### Phase R2 — Runtime semantics and concurrency planning
-**Status:** Research workstream accepted; production implementation not yet authorized
+**Status:** Initialization and bounded UTF-16 String slices complete; concurrency research Done and Thread/monitor foundation contract Accepted
 
 JDK 25's `Integer.toString`/`Double.parseDouble`/`HashMap` paths reach
 `jdk.internal.misc.Unsafe`; concurrency additionally requires explicit Thread,
@@ -69,10 +69,16 @@ monitor, class-initialization, volatile/final, interrupt, liveness, and memory
 ordering contracts. The first post-R1 work should establish evidence and
 Accepted decisions before selecting implementation mechanisms.
 
-The accepted research contract is
-[`r2-runtime-semantics-research`](./workstreams/r2-runtime-semantics-research.md).
-It must produce evidence-backed follow-up decisions and a bounded production
-contract before selecting implementation mechanisms.
+The completed
+[`r2-runtime-semantics-research`](./workstreams/r2-runtime-semantics-research.md)
+produced the accepted initialization and UTF-16 String decisions and their two
+completed implementation slices. The completed
+[`r2-concurrency-semantics-research`](./workstreams/r2-concurrency-semantics-research.md)
+established Java-visible Thread, monitor, wait-set, interruption, cross-thread
+initialization, and minimum memory-ordering decisions. The accepted
+[`r2-thread-monitor-foundation-slice`](./workstreams/r2-thread-monitor-foundation-slice.md)
+is the next bounded implementation contract. Unsafe-backed class-library
+compatibility remains a separate future workstream.
 
 **Milestone**: multi-threaded producer-consumer program.
 

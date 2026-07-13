@@ -1,10 +1,10 @@
 # Project status
 
-**As of:** 2026-07-13
+**As of:** 2026-07-14
 **Stable baseline:** R2 initialization and bounded UTF-16 String slices complete
 **Baseline commit:** `8171361` (integration; String candidate `00327d6`, evidence `9008b00`)
-**Active workstream:** None
-**Current phase:** R2 runtime-semantics planning
+**Active workstream:** Accepted [`r2-thread-monitor-foundation-slice`](./workstreams/r2-thread-monitor-foundation-slice.md)
+**Current phase:** R2 Thread/monitor foundation contract accepted; acceptance anchor ready for a new Active Agent
 
 This is the single model-neutral current-state entry. Strategy lives in
 [`ROADMAP.md`](./ROADMAP.md); decisions live in [`adr/`](./adr/); scoped work
@@ -52,14 +52,19 @@ unresolved runtime/library dependencies.
 
 ## Decision state
 
-ADRs 0016–0027 (excluding unused 0026) are Accepted. ADRs 0001–0007 and 0014–0015 are superseded;
+ADRs 0016–0030 (excluding unused 0026) are Accepted. ADRs 0001–0007 and 0014–0015 are superseded;
 ADRs 0008–0013 are withdrawn. ADR-0017 fixes Java 25 as the supported-capability
 semantic baseline; ADR-0016 fixes AOT as the primary product path with a
 permanent interpreter fallback. ADR-0025 is implemented by the completed,
 bounded class/interface-initialization workstream; ADR-0027 is implemented by the
-completed bounded UTF-16 String workstream. Bootstrap capability
-mapping, Thread/monitor/JMM, Unsafe, and allocation remain deferred.
+completed bounded UTF-16 String workstream. ADR-0028 through ADR-0030 now
+govern the bounded Thread/monitor/class-init/heap direction. Bootstrap capability
+mapping, Unsafe, and allocation remain deferred. The Proposed Thread/monitor
+implementation contract is accepted. Its acceptance-anchor commit is the required
+base before production implementation begins.
 
 ## Next action
 
-Select or accept the next bounded R2 workstream.
+Start a new Active Agent from this acceptance anchor. The Agent must complete the
+implementation preflight recorded in `r2-thread-monitor-foundation-slice` before
+marking the workstream In Progress or making production changes.

@@ -40,3 +40,6 @@ decision requires a superseding ADR.
 | [0024](./0024-interpreter-policy-and-evidence-driven-optimization.md) | Interpreter simplicity and evidence-driven optimization | Accepted |
 | [0025](./0025-class-initialization-state-machine.md) | Java 25 class and interface initialization state machine | Accepted |
 | [0027](./0027-string-utf16-representation.md) | UTF-16 String kernel backing | Accepted |
+| [0028](./0028-java-thread-identity-and-carriers.md) | Java Thread identity, lifecycle, and execution carriers | Accepted |
+| [0029](./0029-java-object-monitors-and-concurrent-initialization.md) | Java object monitors, wait sets, and concurrent class initialization | Accepted |
+| [0030](./0030-race-free-sc-heap-cells.md) | Race-free sequentially consistent heap cells for R2 concurrency | Accepted |

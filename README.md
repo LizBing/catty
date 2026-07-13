@@ -143,9 +143,9 @@ These ADRs are **Withdrawn** and do not authorize implementation. See
   (R3).
 - **`Integer.toString` / `Double.parseDouble` / `HashMap`** — JDK 25 routes these
   through `DecimalDigits` → `jdk.internal.misc.Unsafe` (~50 native methods).
-  The next workstream must investigate the required semantics; no generic Unsafe
-  stub strategy is currently accepted. (`toHexString` works — it bypasses
-  DecimalDigits.)
+  A dedicated workstream must investigate the required semantics; no generic
+  Unsafe stub strategy is currently accepted. (`toHexString` works — it
+  bypasses DecimalDigits.)
 - **Concurrency** — `Thread.start`, `synchronized`, `wait`/`notify` (post-R1;
   exact Thread/JMM design requires Accepted decisions).
 - **Reflection, JNI, `sun.misc.Unsafe`, the full JDK class library** beyond the

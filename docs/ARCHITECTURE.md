@@ -14,7 +14,7 @@ subsystems are deliberately *not* implemented:
 | JVM subsystem | catty's approach |
 |---|---|
 | Garbage collector | Java objects are Go heap allocations; Go's GC traces them natively. No write barriers, no mark/sweep code. |
-| Thread scheduler | MVP is single-threaded; the concurrency arc maps `java.lang.Thread` to a goroutine and uses the Go GMP scheduler. |
+| Thread scheduler | MVP is single-threaded. A future concurrency arc may use goroutines as carriers, but Java Thread identity, lifecycle, monitors, interruption, and memory semantics require Accepted decisions. |
 | JIT compiler | None directly. Instead, a bytecode→Go-source AOT transpiler (`catty build`) hands optimization to the Go compiler — `go build` IS the optimizing backend. |
 
 This trade is the whole point of the project: by not writing a GC, scheduler, or
@@ -196,7 +196,8 @@ type Thread struct {
 ```
 
 The MVP runs a single `Thread`. Pushing a frame per call and popping on return
-gives the JVM stack. The concurrency arc promotes this to a goroutine.
+gives the JVM stack. ADR-0018 permits goroutines as future execution carriers but
+does not equate them with Java Thread objects or define the concurrency contract.
 
 ## 5. Class loading, in detail
 
