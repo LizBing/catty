@@ -183,8 +183,8 @@ advance `pc` past the bytes they consume.
 - `Object` is `{class *Class, fields []Slot, extra any}`. `fields` backs both
   instance fields (indexed by `Field.SlotID()`) **and** array elements (1 slot
   per category-1 element, 2 for long[]/double[]). `extra` is a native payload —
-  e.g. a `java.lang.String`'s Go `string` value, or a `PrintStream`'s
-  `io.Writer`.
+  e.g. a synthetic `java.lang.String`'s immutable `rtda.StringValue` UTF-16
+  code-unit backing, or a `PrintStream`'s `io.Writer`.
 
 ### `rtda.Thread` — execution context  *(thread.go)*
 
@@ -259,14 +259,15 @@ runtime packages.
 3. `interpreter.Loop` enters its dispatch cycle. `main`'s bytecode is roughly:
    ```
    getstatic   System.out        ; push the PrintStream for stdout
-   ldc         "Hello, World!"   ; push a String object (extra = the Go string)
+   ldc         "Hello, World!"   ; push a String object (extra = UTF-16 units)
    invokevirtual PrintStream.println(String)
    ...
    ```
 4. `getstatic` resolves the fieldref via the owner class's constant pool, loads
    `java.lang.System`, looks up `out`, and pushes the `PrintStream` object that
    `native.buildSystemClass` stored (its `extra` is `os.Stdout`).
-5. `ldc` builds a `String` object whose `extra` holds the Go string.
+5. `ldc` decodes the classfile MUTF-8 literal losslessly to UTF-16 code units
+   and builds a `String` object whose `extra` holds an immutable `StringValue`.
 6. `invokevirtual` peeks the receiver (the `PrintStream`), does dynamic dispatch
    on `receiver.Class()`, finds `println(String)` (native), and calls
    `invokeNative`: it copies args into a throwaway frame, runs
@@ -359,8 +360,9 @@ Kept out of scope deliberately; each is a documented future work item in
 
 - **Concurrency** — single-threaded; no `synchronized`/`wait`/`notify`
   (`monitorenter`/`monitorexit` are nops).
-- **Exceptions** — no `try`/`catch`, no `athrow` handling (exception tables are
-  parsed but unused).
+- **Cross-engine AOT exception propagation** — Interpreter and IR implement
+  `try`/`catch`/`athrow` and bounded native exception propagation, but emitted
+  AOT code still explicitly rejects paths requiring exception propagation.
 - **`invokedynamic` / lambdas** — panics; compile fixtures with `-source 8` to
   get StringBuilder-based string concat instead.
 - **Reflection, JNI, `sun.misc.Unsafe`** — not modeled.

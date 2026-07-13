@@ -4,8 +4,7 @@ Workstreams use the model-neutral protocol in
 [`../COLLABORATION.md`](../COLLABORATION.md) and the
 [`TEMPLATE.md`](./TEMPLATE.md).
 
-**Active workstream:** [`r2-string-utf16-slice`](./r2-string-utf16-slice.md)
-— Accepted; implementation may now begin.
+**Active workstream:** None.
 
 The R2 initialization slice is Done.
 
@@ -19,7 +18,7 @@ Implementation contracts:
 - [`r2-initialization-slice`](./r2-initialization-slice.md) — first R2 implementation slice
   (class-init state machine, owner review). Done.
 - [`r2-string-utf16-slice`](./r2-string-utf16-slice.md) — native String UTF-16 slice
-  (owner review). Accepted with an eight-fixture engine matrix.
+  (owner review). Done; eight-fixture engine matrix accepted and integrated.
 
 R2 research is authorized after the governance baseline is integrated. It is a
 research-only workstream and does not authorize production runtime changes.

@@ -1,10 +1,10 @@
 # Project status
 
 **As of:** 2026-07-13
-**Stable baseline:** R2 initialization slice complete
-**Baseline commit:** `92e4d1f` (implementation; evidence `159b68c`)
-**Active workstream:** [`r2-string-utf16-slice`](./workstreams/r2-string-utf16-slice.md)
-**Current phase:** R2 runtime-semantics implementation
+**Stable baseline:** R2 initialization and bounded UTF-16 String slices complete
+**Baseline commit:** `8171361` (integration; String candidate `00327d6`, evidence `9008b00`)
+**Active workstream:** None
+**Current phase:** R2 runtime-semantics planning
 
 This is the single model-neutral current-state entry. Strategy lives in
 [`ROADMAP.md`](./ROADMAP.md); decisions live in [`adr/`](./adr/); scoped work
@@ -28,6 +28,9 @@ lives in [`workstreams/`](./workstreams/).
   `invokestatic`; 13/13 differential fixtures match in Interpreter and IR.
   AOT supports the constant-field path and explicitly rejects the remaining
   tested initialization paths pending cross-engine exception propagation.
+- R2 String: immutable UTF-16 code-unit backing for the bounded synthetic/native
+  String surface. All eight differential fixtures match Temurin 25 in Interpreter
+  and IR; AOT supports five fixtures and explicitly reports three as Not implemented.
 
 ## Governance-reset validation
 
@@ -43,7 +46,7 @@ Revalidated locally on 2026-07-13:
 catty does not claim Java concurrency, monitors, Unsafe, broad reflection,
 `invokedynamic`, broad I/O/networking, arbitrary `java.base` application
 compatibility, cross-Java-thread initialization behavior, cross-engine AOT
-exception propagation, or full Java String UTF-16 behavior. `Integer/Long.toString`,
+exception propagation, or a complete Java String API. `Integer/Long.toString`,
 `Double.parseDouble`, and representative `HashMap` behavior remain blocked by
 unresolved runtime/library dependencies.
 
@@ -53,11 +56,10 @@ ADRs 0016–0027 (excluding unused 0026) are Accepted. ADRs 0001–0007 and 0014
 ADRs 0008–0013 are withdrawn. ADR-0017 fixes Java 25 as the supported-capability
 semantic baseline; ADR-0016 fixes AOT as the primary product path with a
 permanent interpreter fallback. ADR-0025 is implemented by the completed,
-bounded class/interface-initialization workstream; ADR-0027 fixes the String
-kernel backing for the accepted UTF-16 implementation workstream. Bootstrap capability
+bounded class/interface-initialization workstream; ADR-0027 is implemented by the
+completed bounded UTF-16 String workstream. Bootstrap capability
 mapping, Thread/monitor/JMM, Unsafe, and allocation remain deferred.
 
 ## Next action
 
-Implement the accepted `r2-string-utf16-slice` contract. No capability-complete claim is
-authorized until its fixed eight-fixture and regression evidence gates pass.
+Select or accept the next bounded R2 workstream.
