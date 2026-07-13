@@ -27,10 +27,88 @@ func init() {
 		return buildExceptionSubclass("java/lang/NoSuchMethodError", "java/lang/IncompatibleClassChangeError", loader)
 	})
 	registerSynthetic("java/lang/Comparable", buildComparable)
+	registerSynthetic("java/lang/ExceptionInInitializerError", buildEIIE)
+	registerSynthetic("java/lang/NoClassDefFoundError", func(loader rtda.Loader) *rtda.Class {
+		return buildExceptionSubclass("java/lang/NoClassDefFoundError", "java/lang/LinkageError", loader)
+	})
 }
 
 func buildComparable(loader rtda.Loader) *rtda.Class {
 	return buildInterface("java/lang/Comparable", loader)
+}
+
+// buildEIIE creates java.lang.ExceptionInInitializerError (extends LinkageError).
+// It stores the wrapped Throwable in the object's extra payload.
+func buildEIIE(loader rtda.Loader) *rtda.Class {
+	super := loader.LoadClass("java/lang/LinkageError")
+	c := rtda.NewSyntheticClass("java/lang/ExceptionInInitializerError", super)
+	c.AddMethod(rtda.NativeMethod(c, "<init>", "()V", nop))
+	c.AddMethod(rtda.NativeMethod(c, "<init>", "(Ljava/lang/String;)V", throwableInitMsg))
+	c.AddMethod(rtda.NativeMethod(c, "<init>", "(Ljava/lang/Throwable;)V", eiieInitThrowable))
+	c.AddMethod(rtda.NativeMethod(c, "getException", "()Ljava/lang/Throwable;", eiieGetException))
+	c.AddMethod(rtda.NativeMethod(c, "getMessage", "()Ljava/lang/String;", eiieGetMessage))
+	return c
+}
+
+// eiieInitThrowable implements ExceptionInInitializerError.<init>(Throwable).
+// Sets detailMessage to t.getMessage() and stores t in extra.
+func eiieInitThrowable(f *rtda.Frame) {
+	this := f.GetRef(0)
+	t := f.GetRef(1)
+	// Set detailMessage from t.getMessage() on the Throwable ancestor.
+	slot := detailMessageSlot(this)
+	if t != nil {
+		msg := ""
+		for c := t.Class(); c != nil; c = c.SuperClass() {
+			if mf := c.LookupField("detailMessage", "Ljava/lang/String;"); mf != nil {
+				if msgObj := t.Fields()[mf.SlotID()].Ref(); msgObj != nil {
+					if s, ok := msgObj.Extra().(string); ok {
+						msg = s
+					}
+				}
+				break
+			}
+		}
+		if msg != "" {
+			strClass := f.Thread().Loader().LoadClass("java/lang/String")
+			msgObj := rtda.NewObject(strClass)
+			msgObj.SetExtra(msg)
+			this.Fields()[slot].SetRef(msgObj)
+		}
+	} else {
+		this.Fields()[slot].SetRef(nil)
+	}
+	this.SetExtra(t)
+}
+
+func eiieGetException(f *rtda.Frame) {
+	this := f.GetRef(0)
+	if t, ok := this.Extra().(*rtda.Object); ok {
+		f.PushRef(t)
+	} else {
+		f.PushRef(nil)
+	}
+}
+
+// eiieGetMessage overrides getMessage: if the wrapped throwable has a non-null
+// message, return it; otherwise delegate to Throwable.getMessage.
+func eiieGetMessage(f *rtda.Frame) {
+	this := f.GetRef(0)
+	t, _ := this.Extra().(*rtda.Object)
+	if t != nil {
+		for c := t.Class(); c != nil; c = c.SuperClass() {
+			if mf := c.LookupField("detailMessage", "Ljava/lang/String;"); mf != nil {
+				msgObj := t.Fields()[mf.SlotID()].Ref()
+				if msgObj != nil {
+					f.PushRef(msgObj)
+					return
+				}
+				break
+			}
+		}
+	}
+	// Fall back to Throwable.getMessage which returns this.detailMessage.
+	throwableGetMessage(f)
 }
 
 // buildThrowable creates java.lang.Throwable with a detailMessage field and

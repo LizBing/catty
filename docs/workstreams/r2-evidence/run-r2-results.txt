@@ -25,17 +25,29 @@ ClinitOrder                ref        match      match      NO-BUILD
       main
 [-] catty aot:
       catty build: transpile: ClinitOrder.main cannot be AOT'd (unsupported opcodes?)
-ClinitThrows               ref        MISMATCH   MISMATCH   MISMATCH
+ClinitThrows               ref        match      match      MISMATCH
 ----- ClinitThrows -----
 [0] temurin25:
       java.lang.ExceptionInInitializerError
       java.lang.NoClassDefFoundError
-[1] catty interp:
-      Exception in thread "main" java.lang.RuntimeException: boom
-[1] catty ir:
-      Exception in thread "main" java.lang.RuntimeException: boom
-[1] catty aot:
-      Exception in thread "main" java.lang.RuntimeException: boom
+[0] catty interp:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[0] catty ir:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[2] catty aot:
+      panic: catty/runtime: class initialization failed for Bomb (java/lang/ExceptionInInitializerError); AOT clinit-failure path not yet implemented
+
+      goroutine 1 [running]:
+      catty/runtime.initOrPanic(0x6f58db6585a0)
+	/Users/lizbing/Workspace/Projects/catty/runtime/runtime.go:44 +0xb4
+      catty/runtime.GetStatic({0x100814b4a, 0x4}, {0x100814a40, 0x1}, {0x100814a41, 0x1})
+	/Users/lizbing/Workspace/Projects/catty/runtime/runtime.go:58 +0x1dc
+      main.ClinitThrows_main(0x10081f55c?)
+	/var/folders/43/qdn_rh0j0b5btn_x7mj5_rl00000gn/T/catty-build-3715437135.go/program.go:13 +0x6c
+      main.main()
+	/var/folders/43/qdn_rh0j0b5btn_x7mj5_rl00000gn/T/catty-build-3715437135.go/program.go:52 +0x3c
 ConstantFieldNoInit        ref        match      match      match
 ----- ConstantFieldNoInit -----
 [0] temurin25:
@@ -46,31 +58,20 @@ ConstantFieldNoInit        ref        match      match      match
       7
 [0] catty aot:
       7
-GetstaticOwner             ref        MISMATCH   MISMATCH   MISMATCH
+GetstaticOwner             ref        match      match      match
 ----- GetstaticOwner -----
 [0] temurin25:
       Base
       7
-[1] catty interp:
+[0] catty interp:
       Base
-      Sub
-      catty: runtime error: index out of range [0] with length 0
-[1] catty ir:
+      7
+[0] catty ir:
       Base
-      Sub
-      catty: runtime error: index out of range [0] with length 0
-[2] catty aot:
+      7
+[0] catty aot:
       Base
-      Sub
-      panic: runtime error: index out of range [0] with length 0
-
-      goroutine 1 [running]:
-      catty/runtime.GetStatic({0x104b5e4e4?, 0x799fd4ab20b0?}, {0x104b5e460, 0x1}, {0x104b5e461, 0x1})
-	/Users/lizbing/Workspace/Projects/catty/runtime/runtime.go:41 +0x228
-      main.GetstaticOwner_main(0x104b68e76?)
-	/var/folders/43/qdn_rh0j0b5btn_x7mj5_rl00000gn/T/catty-build-820130354.go/program.go:12 +0x6c
-      main.main()
-	/var/folders/43/qdn_rh0j0b5btn_x7mj5_rl00000gn/T/catty-build-820130354.go/program.go:32 +0x3c
+      7
 HashDivergence             ref        MISMATCH   MISMATCH   MISMATCH
 ----- HashDivergence -----
 [0] temurin25:
@@ -81,19 +82,22 @@ HashDivergence             ref        MISMATCH   MISMATCH   MISMATCH
       2017367872
 [0] catty aot:
       2017367872
-InterfaceDefaultInit       ref        MISMATCH   MISMATCH   MISMATCH
+InterfaceDefaultInit       ref        match      match      match
 ----- InterfaceDefaultInit -----
 [0] temurin25:
       I
       after-new
       I.m
 [0] catty interp:
+      I
       after-new
       I.m
 [0] catty ir:
+      I
       after-new
       I.m
 [0] catty aot:
+      I
       after-new
       I.m
 InterfaceNoInitOnImpl      ref        match      match      NO-BUILD
@@ -212,15 +216,17 @@ StringSubstringUnits       ref        MISMATCH   MISMATCH   MISMATCH
       65533
       1
       65533
-SuperclassInitializationFailure ref        MISMATCH   MISMATCH   NO-BUILD
+SuperclassInitializationFailure ref        match      match      NO-BUILD
 ----- SuperclassInitializationFailure -----
 [0] temurin25:
       java.lang.ExceptionInInitializerError
       java.lang.NoClassDefFoundError
-[1] catty interp:
-      Exception in thread "main" java.lang.RuntimeException: boom
-[1] catty ir:
-      Exception in thread "main" java.lang.RuntimeException: boom
+[0] catty interp:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[0] catty ir:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
 [-] catty aot:
       catty build: transpile: SuperclassInitializationFailure.main cannot be AOT'd (unsupported opcodes?)
 SupplementaryChar          ref        MISMATCH   MISMATCH   MISMATCH

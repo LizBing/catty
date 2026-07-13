@@ -427,20 +427,20 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 	// ---------- fields (shared helpers, seeded stackTop) ----------
 	case opcode.Getstatic:
 		cls, name, desc := cp.MemberRef(inst.Index)
-		class := thread.Loader().LoadClass(cls)
-		ensureInitialized(thread, class)
-		field := class.LookupField(name, desc)
-		loadFieldValue(frame, class.StaticVars(), field.SlotID(), desc)
+		referencedClass := thread.Loader().LoadClass(cls)
+		field := referencedClass.LookupField(name, desc)
+		ensureInitialized(thread, field.Owner())
+		loadFieldValue(frame, field.Owner().StaticVars(), field.SlotID(), desc)
 	case opcode.Putstatic:
 		cls, name, desc := cp.MemberRef(inst.Index)
-		class := thread.Loader().LoadClass(cls)
-		ensureInitialized(thread, class)
-		field := class.LookupField(name, desc)
-		storeFieldValue(frame, class.StaticVars(), field.SlotID(), desc)
+		referencedClass := thread.Loader().LoadClass(cls)
+		field := referencedClass.LookupField(name, desc)
+		ensureInitialized(thread, field.Owner())
+		storeFieldValue(frame, field.Owner().StaticVars(), field.SlotID(), desc)
 	case opcode.Getfield:
 		cls, name, desc := cp.MemberRef(inst.Index)
-		class := thread.Loader().LoadClass(cls)
-		field := class.LookupField(name, desc)
+		referencedClass := thread.Loader().LoadClass(cls)
+		field := referencedClass.LookupField(name, desc)
 		obj := frame.PopRef()
 		loadFieldValue(frame, obj.Fields(), field.SlotID(), desc)
 	case opcode.Putfield:

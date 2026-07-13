@@ -15,6 +15,11 @@ type Loader interface {
 type Thread struct {
 	stack  []*Frame
 	loader Loader
+	// ecID identifies the execution context (ADR-0025). In the single-context
+	// interpreter it is a fixed sentinel; AOT and future multi-threaded runtimes
+	// assign a distinct value per Java thread so recursive same-owner <clinit>
+	// requests complete normally without re-running <clinit>.
+	ecID uint64
 	// bridgeReturn captures a method's return value when run from the AOT bridge
 	// (interpreter.RunMethod): there is no caller frame, so the return helpers
 	// write here instead of pushing. nil outside bridge mode.
@@ -26,11 +31,18 @@ type Thread struct {
 	throwPC          int // PC of the instruction that threw (for exception-table search)
 }
 
+// threadECSeq is a monotonically increasing counter for execution-context
+// identity assignment. It starts at 1 so that 0 is reserved for "no owner".
+var threadECSeq uint64 = 1
+
 func NewThread(loader Loader) *Thread {
-	return &Thread{loader: loader}
+	ecID := threadECSeq
+	threadECSeq++
+	return &Thread{loader: loader, ecID: ecID}
 }
 
 func (t *Thread) Loader() Loader { return t.loader }
+func (t *Thread) EC() uint64     { return t.ecID }
 
 func (t *Thread) PushFrame(frame *Frame) {
 	t.stack = append(t.stack, frame)

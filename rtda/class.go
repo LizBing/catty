@@ -30,9 +30,19 @@ type Class struct {
 	componentKind  int // kindByte, kindChar, ...; 0 for object arrays
 	arrayClass     *Class // cached "[Lthis;" / "[Ithis" array class
 
-	// Class initialization bookkeeping (see build.go).
-	initStarted bool
+	// Class initialization bookkeeping (ADR-0025: Java 25 single-execution-context
+	// state machine).
+	initState int32  // one of the four init* constants
+	initOwner uint64 // identity of the execution context currently initializing this class (0 = none)
 }
+
+// Class initialization states (JVMS §5.5 via ADR-0025).
+const (
+	initNotStarted int32 = iota // not-initialized
+	initInProgress              // initializing — initOwner names the owning execution context
+	initInitialized             // successfully initialized
+	initErroneous               // initialization failed — class is erroneous
+)
 
 const (
 	kindNone int = iota
@@ -153,6 +163,44 @@ func (c *Class) StaticField(name, descriptor string) *Field {
 }
 
 // --- Type compatibility (instanceof / checkcast / array covariance) ---
+
+// DefaultBearingSuperInterfaces returns the superinterfaces of c that declare at
+// least one non-abstract, non-static method ("default methods"), collected
+// recursively and in JVMS §5.5 order (depth-first, left-to-right).
+// Each interface appears at most once.
+func (c *Class) DefaultBearingSuperInterfaces(seen map[string]bool) []*Class {
+	var result []*Class
+	for _, iface := range c.interfaces {
+		collectDefaultBearing(iface, seen, &result)
+	}
+	return result
+}
+
+func collectDefaultBearing(iface *Class, seen map[string]bool, result *[]*Class) {
+	if seen[iface.name] {
+		return
+	}
+	// Recurse into superinterfaces first (JVMS §5.5 order).
+	for _, super := range iface.interfaces {
+		collectDefaultBearing(super, seen, result)
+	}
+	// Then this interface if it declares any default method.
+	if !seen[iface.name] && ifaceHasDefaultMethod(iface) {
+		seen[iface.name] = true
+		*result = append(*result, iface)
+	}
+}
+
+// ifaceHasDefaultMethod reports whether an interface declares at least one
+// non-abstract, non-static method (a "default method" as per JVMS §5.5).
+func ifaceHasDefaultMethod(iface *Class) bool {
+	for _, m := range iface.methods {
+		if m.accessFlags&(accAbstract|accStatic) == 0 {
+			return true
+		}
+	}
+	return false
+}
 
 // isAssignableFrom reports whether a value of class c can be assigned to a
 // variable of type target (the inverse direction of instanceof).

@@ -131,13 +131,59 @@ func (c *Class) AddInstanceField(name, descriptor string) *Field {
 
 func (c *Class) SetSuper(super *Class) { c.superClass = super }
 
-// --- Class initialization (<clinit>) bookkeeping ---
+// --- Class initialization (<clinit>) bookkeeping (ADR-0025) ---
 
-// InitStarted/InitDone track whether <clinit> has run. The interpreter triggers
-// initialization lazily at the JVMS §5.5 events (new/getstatic/putstatic/
-// invokestatic); until then a loaded class is linked but not initialized.
-func (c *Class) InitStarted() bool { return c.initStarted }
-func (c *Class) MarkInitStarted()  { c.initStarted = true }
+// InitState returns the class's four-state initialization value (initNotStarted,
+// initInProgress, initInitialized, or initErroneous).
+func (c *Class) InitState() int32 { return c.initState }
+
+// IsInitialized reports whether the class has completed initialization.
+func (c *Class) IsInitialized() bool { return c.initState == initInitialized }
+
+// InitOwner returns the identity of the execution context that is currently
+// initializing this class, or 0 if no context owns the initializing state.
+func (c *Class) InitOwner() uint64 { return c.initOwner }
+
+// SetInitOwner records the execution context that owns the current initializing
+// state. It is only meaningful when initState == initInProgress.
+func (c *Class) SetInitOwner(owner uint64) { c.initOwner = owner }
+
+// MarkInitInProgress transitions the state from not-initialized to initializing.
+// Returns true if the transition succeeded (caller now owns initialization).
+func (c *Class) MarkInitInProgress(owner uint64) bool {
+	if c.initState != initNotStarted {
+		return false
+	}
+	c.initState = initInProgress
+	c.initOwner = owner
+	return true
+}
+
+// MarkInitialized transitions the state from initializing to initialized.
+func (c *Class) MarkInitialized() {
+	c.initState = initInitialized
+	c.initOwner = 0
+}
+
+// MarkErroneous transitions the state from initializing to erroneous.
+func (c *Class) MarkErroneous() {
+	c.initState = initErroneous
+	c.initOwner = 0
+}
+
+// InitStarted is the legacy accessor; it returns true for any state past
+// not-initialized. Kept for compatibility with existing callers that only need
+// to know whether init has been attempted.
+func (c *Class) InitStarted() bool { return c.initState != initNotStarted }
+
+// MarkInitStarted is the legacy mutator — its only remaining safe use is to
+// set the state to initializing before the shared service takes over.
+// Prefer MarkInitInProgress in new code.
+func (c *Class) MarkInitStarted() {
+	if c.initState == initNotStarted {
+		c.initState = initInProgress
+	}
+}
 
 // NewArrayClass builds the runtime class for an array type name ("[I",
 // "[Ljava/lang/Object;", "[[C", ...). Component resolution for object and array

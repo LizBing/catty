@@ -23,10 +23,6 @@ func invokeMethod(thread *rtda.Thread, method *rtda.Method) {
 		invokeNative(thread, method)
 		return
 	}
-	if method.IsNative() {
-		invokeNative(thread, method)
-		return
-	}
 	caller := thread.CurrentFrame()
 	frame := thread.NewFrame(method)
 	copyArgs(caller, frame, method)
@@ -71,20 +67,24 @@ func transferReturn(caller, callee *rtda.Frame, ret string) {
 	}
 }
 
-// ensureInitialized runs a class's <clinit> the first time the class is used at
-// a JVMS §5.5 initialization point (new/getstatic/putstatic/invokestatic).
-// The <clinit> runs synchronously on a throwaway frame so the caller's frame
-// and operand stack are undisturbed when ensureInitialized returns.
+// ensureInitialized runs class/interface initialization at a JVMS §5.5 point.
+// This is the interpreter's ClinitRunner callback passed to the shared
+// initialization service. The <clinit> runs synchronously via the existing
+// runClinit loop so the caller's frame and operand stack are undisturbed.
 func ensureInitialized(thread *rtda.Thread, class *rtda.Class) {
-	if class.InitStarted() || class.IsInterface() {
+	if class.IsInitialized() {
 		return
 	}
-	class.MarkInitStarted()
-	if class.SuperClass() != nil {
-		ensureInitialized(thread, class.SuperClass())
-	}
-	if clinit := class.GetMethod("<clinit>", "()V"); clinit != nil {
-		runClinit(thread, clinit)
+	loader := thread.Loader()
+	result := rtda.InitializeClass(loader, class, thread.EC(), func(c *rtda.Class, m *rtda.Method) rtda.InitResult {
+		return runClinit(thread, m)
+	})
+	if result.ErrObj != nil {
+		pc := 0
+		if !thread.IsStackEmpty() {
+			pc = thread.CurrentFrame().PC()
+		}
+		thread.Throw(rtda.WrapInitFailure(loader, result.ErrObj), pc)
 	}
 }
 
@@ -92,7 +92,11 @@ func ensureInitialized(thread *rtda.Thread, class *rtda.Class) {
 // clinit frame (not the whole thread), and return when the clinit frame is
 // popped. This prevents Loop from continuing into the caller's frame while
 // the caller's opcode handler (e.g. 'new') is still mid-execution.
-func runClinit(thread *rtda.Thread, method *rtda.Method) {
+//
+// If <clinit> completes abruptly (uncaught exception anywhere in the clinit
+// call chain), runClinit pops every frame back to the caller and returns the
+// thrown object as InitResult.ErrObj.
+func runClinit(thread *rtda.Thread, method *rtda.Method) rtda.InitResult {
 	clinitDepth := thread.FrameCount() + 1 // target depth after push
 	thread.PushFrame(thread.NewFrame(method))
 	for thread.FrameCount() >= clinitDepth && !thread.IsStackEmpty() {
@@ -102,9 +106,38 @@ func runClinit(thread *rtda.Thread, method *rtda.Method) {
 		frame.SetPC(opcodePc + 1)
 		exec(thread, frame, op, opcodePc)
 		if thread.HasException() {
-			handleException(thread, opcodePc)
+			thrown := thread.ClearException()
+			// Walk frames from the throwing frame down to (and including)
+			// the clinit frame, searching for a handler.
+			for thread.FrameCount() >= clinitDepth {
+				f := thread.CurrentFrame()
+				caught := false
+				for _, entry := range f.Method().ExceptionTable() {
+					if opcodePc >= entry.StartPc() && opcodePc < entry.EndPc() {
+						if entry.CatchType() == "" || thrown.IsInstanceOf(thread.Loader().LoadClass(entry.CatchType())) {
+							f.ClearStack()
+							f.PushRef(thrown)
+							f.SetPC(entry.HandlerPc())
+							caught = true
+							break
+						}
+					}
+				}
+				if caught {
+					break // handler found, resume execution
+				}
+				// Not caught in this frame — pop it.
+				thread.PopFrame()
+				if thread.FrameCount() < clinitDepth {
+					// Exception propagated past clinit boundary.
+					return rtda.InitResult{ErrObj: thrown}
+				}
+				// Set throwPC for the caller's exception-table search.
+				opcodePc = thread.CurrentFrame().PC() - 1
+			}
 		}
 	}
+	return rtda.SuccessInit()
 }
 
 // InitClass is the exported form of ensureInitialized, for the launcher to

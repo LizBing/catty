@@ -67,13 +67,53 @@ fixtures. This workstream does not implement Java concurrency.
 
 | Gate | Command / artifact | Result |
 |---|---|---|
-| Interpreter initialization matrix | `bash docs/workstreams/r2-evidence/run-r2-diff.sh` → all 9 initialization fixtures match | Not run |
-| IR initialization matrix | Same harness → all 9 initialization fixtures match | Not run |
-| AOT initialization matrix | Same harness → match where supported; every unsupported path explicitly classified | Not run |
-| R1 regression | `go vet ./... && go test ./... && go test -race ./... && bash tests/run.sh` | Not run |
-| Governance consistency | `git diff --check` | Not run |
+| Interpreter initialization matrix | `bash docs/workstreams/r2-evidence/run-r2-diff.sh` → all 9 initialization fixtures match | Pass |
+| IR initialization matrix | Same harness → all 9 initialization fixtures match | Pass |
+| AOT initialization matrix | Same harness → match where supported; every unsupported path explicitly classified | Pass (5 match, 1 Fallback, 3 NI) |
+| R1 regression | `go vet ./... && go test ./... && go test -race ./... && bash tests/run.sh` | Pass |
+| Governance consistency | `git diff --check` | Pass |
 
 Results key: `Pass` / `Fail` / `Not run` / `Not implemented`.
+
+## Handoff (2026-07-13)
+
+### Interpreter & IR
+
+All 9 initialization fixtures match Temurin 25: ClinitOrder, ClinitThrows,
+ConstantFieldNoInit, GetstaticOwner, InterfaceDefaultInit, InterfaceNoInitOnImpl,
+InvokeStaticInit, RecursiveInitialization, SuperclassInitializationFailure.
+
+### AOT
+
+| Fixture | AOT Result | Classification |
+|---|---|---|
+| ConstantFieldNoInit | match | Supported |
+| GetstaticOwner | match | Supported |
+| InterfaceDefaultInit | match | Supported |
+| InvokeStaticInit | match | Supported |
+| RecursiveInitialization | match | Supported |
+| ClinitThrows | explicit panic (AOT clinit-failure path NI) | Fallback |
+| ClinitOrder | transpile refusal (unsupported opcodes) | Not implemented |
+| InterfaceNoInitOnImpl | transpile refusal (unsupported opcodes) | Not implemented |
+| SuperclassInitializationFailure | transpile refusal (unsupported opcodes) | Not implemented |
+
+### Key decisions
+
+- **Declarer-owner rule**: `getstatic`/`putstatic` initialize and access the
+  field's actual declaring class (`field.Owner()`), not the referenced class
+  from the constant pool. Applied in Interpreter, IR, and AOT bridge.
+- **State machine ordering**: `MarkInitInProgress` is called BEFORE predecessor
+  recursion (JVMS §5.5 step 6 precedes step 7). Same-owner recursive requests
+  during predecessor init detect `initInProgress` + matching `ecID` and return
+  normally.
+- **AOT clinit failure**: When class init fails in AOT mode, the bridge
+  surfaces it as an explicit Go panic with a descriptive message. The
+  interpreter loop's exception-table walking is not yet wired for AOT —
+  tracked as a future AOT hardening item.
+- **AOT InvokeStatic bridge**: Args are now wrapped with `slotConstructor`
+  (e.g. `rtda.IntSlot(t3)`, `rtda.RefSlot(t4)`) — fixes a compilation error
+  in emitted Go code. Nil LookupField/LookupMethod results now panic
+  descriptively instead of nil-dereference.
 
 ## Review
 

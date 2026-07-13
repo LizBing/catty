@@ -276,11 +276,14 @@ func (e *emitter) emitOne(b *strings.Builder, inst *lowering.IRInst, cp *classfi
 	case opcode.Invokestatic:
 		className, name, desc := cp.MemberRef(inst.Index)
 		md := rtda.ParseMethodDescriptor(desc)
-		// One Go arg per logical param (long/double = 1 Go value, not 2 JVM slots).
-		args := make([]string, 0, len(md.ParameterTypes))
+		// Go args: raw for direct AOT calls, Slot-wrapped for the runtime bridge.
+		rawArgs := make([]string, 0, len(md.ParameterTypes))
+		bridgeArgs := make([]string, 0, len(md.ParameterTypes))
 		slot := 0
-		for _, p := range md.ParameterTypes {
-			args = append(args, e.use(int(inst.Uses[slot])))
+		for i, p := range md.ParameterTypes {
+			temp := e.use(int(inst.Uses[slot]))
+			rawArgs = append(rawArgs, temp)
+			bridgeArgs = append(bridgeArgs, slotConstructor(md.ParameterTypes[i], temp))
 			if p == "J" || p == "D" {
 				slot += 2
 			} else {
@@ -291,7 +294,7 @@ func (e *emitter) emitOne(b *strings.Builder, inst *lowering.IRInst, cp *classfi
 		// route through the runtime.InvokeStatic bridge (interpreted/native).
 		key := className + "\x00" + name + "\x00" + desc
 		if e.emittable == nil || e.emittable[key] {
-			call := fmt.Sprintf("%s(%s)", mangle(className, name), strings.Join(args, ", "))
+			call := fmt.Sprintf("%s(%s)", mangle(className, name), strings.Join(rawArgs, ", "))
 			if md.ReturnType == "V" {
 				w("%s", call)
 			} else {
@@ -310,7 +313,7 @@ func (e *emitter) emitOne(b *strings.Builder, inst *lowering.IRInst, cp *classfi
 		} else {
 			// Bridge: runtime.InvokeStatic("class", "name", "desc", []rtda.Slot{...})
 			call := fmt.Sprintf("runtime.InvokeStatic(%q, %q, %q, []rtda.Slot{%s})",
-				className, name, desc, strings.Join(args, ", "))
+				className, name, desc, strings.Join(bridgeArgs, ", "))
 			if md.ReturnType == "V" {
 				w("%s", call)
 			} else {

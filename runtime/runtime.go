@@ -30,15 +30,33 @@ func Bootstrap(classpathStr, mainClass string) {
 	cl := classloader.New(classpath.Parse(classpathStr))
 	loader = cl
 	thread = rtda.NewThread(cl)
-	interpreter.InitClass(thread, cl.LoadClass(mainClass))
+	initOrPanic(cl.LoadClass(mainClass))
+}
+
+// initOrPanic initializes a class for AOT bridge use. Since the interpreter
+// dispatch loop is not running, pending exceptions from class initialization
+// must surface immediately as Go panics (explicit Fallback: AOT clinit-failure
+// exception propagation is not yet wired to Java exception handling).
+func initOrPanic(c *rtda.Class) {
+	interpreter.InitClass(thread, c)
+	if thread.HasException() {
+		ex := thread.ClearException()
+		panic("catty/runtime: class initialization failed for " + c.Name() +
+			" (" + ex.Class().Name() + "); AOT clinit-failure path not yet implemented")
+	}
 }
 
 // GetStatic reads a static field, resolving the declaring class at run time.
+// Per ADR-0025, the field's actual declaring class (field.Owner()) is
+// initialized before reading its storage.
 func GetStatic(class, name, desc string) rtda.Slot {
 	c := loader.LoadClass(class)
-	interpreter.InitClass(thread, c)
 	field := c.LookupField(name, desc)
-	return c.StaticVars()[field.SlotID()]
+	if field == nil {
+		panic("catty/runtime: GetStatic field not found: " + class + "." + name + " " + desc)
+	}
+	initOrPanic(field.Owner())
+	return field.Owner().StaticVars()[field.SlotID()]
 }
 
 // InvokeVirtual dispatches a virtual call: args[0] is `this`, and the target is
@@ -61,10 +79,13 @@ func InvokeSpecial(class, name, desc string, args []rtda.Slot) rtda.Slot {
 	return runMethod(method, args)
 }
 
-// NewObject allocates an instance of class (without running <init> — the caller
-// follows with InvokeSpecial("<init>") to initialize it, matching `new`).
+// NewObject allocates an instance of class and requests its initialization
+// (the 'new' bytecode is a JVMS §5.5 trigger). The caller follows with
+// InvokeSpecial("<init>") to run the constructor.
 func NewObject(class string) *rtda.Object {
-	return rtda.NewObject(loader.LoadClass(class))
+	c := loader.LoadClass(class)
+	initOrPanic(c)
+	return rtda.NewObject(c)
 }
 
 // runMethod runs a native target (synchronously) or an interpreted target (via
@@ -126,9 +147,16 @@ func popReturn(frame *rtda.Frame, ret string) rtda.Slot {
 
 // InvokeStatic resolves and runs a static method (native or interpreted) by
 // (class, name, desc). Used by the AOT bridge when an invokestatic target isn't
-// AOT'd in the emitted binary.
+// AOT'd in the emitted binary. Initializes the declaring class first (ADR-0025:
+// invokestatic is a JVMS §5.5 initialization trigger).
 func InvokeStatic(class, name, desc string, args []rtda.Slot) rtda.Slot {
-	return runMethod(loader.LoadClass(class).LookupMethod(name, desc), args)
+	c := loader.LoadClass(class)
+	initOrPanic(c)
+	method := c.LookupMethod(name, desc)
+	if method == nil {
+		panic("catty/runtime: InvokeStatic method not found: " + class + "." + name + " " + desc)
+	}
+	return runMethod(method, args)
 }
 
 // Thread returns the runtime's thread (for the fallback interpreter path).

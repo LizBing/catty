@@ -38,7 +38,7 @@ func (o *Object) IsInstanceOf(target *Class) bool {
 	if o == nil {
 		return false
 	}
-	return o.class.isAssignableFrom(target)
+	return target.isAssignableFrom(o.class)
 }
 
 // SetExtra / Extra access the native payload slot.
