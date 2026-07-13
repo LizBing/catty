@@ -1,6 +1,6 @@
 # R2 initialization slice
 
-**Status:** Ready
+**Status:** Done
 **Type:** implementation
 **Review:** owner
 **Base commit:** `ecb086e`
@@ -92,8 +92,8 @@ Results key: `Pass` / `Fail` / `Not run` / `Not implemented`.
 
 ## Handoff
 
-Ready for Owner acceptance and integration. Do not mark Done, merge, or push
-until the Owner explicitly authorizes integration.
+Completed: the Owner accepted the fixed candidate and authorized integration
+on 2026-07-13. `main` is to be fast-forwarded to this completion history.
 
 ## Review
 
@@ -103,3 +103,9 @@ until the Owner explicitly authorizes integration.
 
 Accepted by Owner on 2026-07-13. The frozen contract authorizes implementation only within
 this document's Scope, Non-scope, Semantic constraints, and Acceptance gates.
+
+## Completion record
+
+Accepted for integration by Owner on 2026-07-13 after the final read-only audit of
+implementation candidate `92e4d1f` and evidence commit `159b68c`. All amended
+13-fixture, regression, and governance gates passed.

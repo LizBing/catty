@@ -1,16 +1,16 @@
 # Project status
 
 **As of:** 2026-07-13
-**Stable baseline:** R1 complete and hardened
-**Baseline commit:** `5720147`
-**Active workstream:** [`r2-initialization-slice`](./workstreams/r2-initialization-slice.md) (Ready; Owner acceptance and integration pending)
-**Current phase:** R2 runtime-semantics implementation — class/interface initialization
+**Stable baseline:** R2 initialization slice complete
+**Baseline commit:** `92e4d1f` (implementation; evidence `159b68c`)
+**Active workstream:** None
+**Current phase:** R2 runtime-semantics planning
 
 This is the single model-neutral current-state entry. Strategy lives in
 [`ROADMAP.md`](./ROADMAP.md); decisions live in [`adr/`](./adr/); scoped work
 lives in [`workstreams/`](./workstreams/).
 
-## Verified R1 capability
+## Verified capability
 
 - Interpreter: approximately 145 opcodes, exceptions, interface dispatch,
   multidimensional arrays, and class initialization.
@@ -23,6 +23,11 @@ lives in [`workstreams/`](./workstreams/).
   on the development machine.
 - Regression baseline: unit tests, three-engine fixture comparison, and the
   real `java.base` smoke path in CI.
+- R2 initialization: bounded Java 25 single-execution-context class/interface
+  initialization at `new`, resolved `getstatic`/`putstatic`, and resolved
+  `invokestatic`; 13/13 differential fixtures match in Interpreter and IR.
+  AOT supports the constant-field path and explicitly rejects the remaining
+  tested initialization paths pending cross-engine exception propagation.
 
 ## Governance-reset validation
 
@@ -35,25 +40,24 @@ Revalidated locally on 2026-07-13:
 
 ## Explicit boundary
 
-R1 does not claim Java concurrency, monitors, Unsafe, broad reflection,
+catty does not claim Java concurrency, monitors, Unsafe, broad reflection,
 `invokedynamic`, broad I/O/networking, arbitrary `java.base` application
-compatibility, full class/interface initialization semantics, or full Java String
-UTF-16 behavior. `Integer/Long.toString`, `Double.parseDouble`, and representative
-`HashMap` behavior remain blocked by unresolved runtime/library dependencies.
+compatibility, cross-Java-thread initialization behavior, cross-engine AOT
+exception propagation, or full Java String UTF-16 behavior. `Integer/Long.toString`,
+`Double.parseDouble`, and representative `HashMap` behavior remain blocked by
+unresolved runtime/library dependencies.
 
 ## Decision state
 
 ADRs 0016–0027 (excluding unused 0026) are Accepted. ADRs 0001–0007 and 0014–0015 are superseded;
 ADRs 0008–0013 are withdrawn. ADR-0017 fixes Java 25 as the supported-capability
 semantic baseline; ADR-0016 fixes AOT as the primary product path with a
-permanent interpreter fallback. ADR-0025 authorizes the accepted, bounded
-class/interface-initialization workstream; ADR-0027 fixes a future String kernel
-backing but does not yet authorize its implementation. Bootstrap capability mapping,
-Thread/monitor/JMM, Unsafe, and allocation remain deferred.
+permanent interpreter fallback. ADR-0025 is implemented by the completed,
+bounded class/interface-initialization workstream; ADR-0027 fixes a future String
+kernel backing but does not yet authorize its implementation. Bootstrap capability
+mapping, Thread/monitor/JMM, Unsafe, and allocation remain deferred.
 
 ## Next action
 
-Read-only acceptance audit is complete for implementation candidate `92e4d1f` and evidence
-commit `159b68c`. The amended 13-fixture gate and all regression/governance gates passed.
-The next action is the Owner's explicit accept/reject decision and, if accepted,
-authorization to integrate; until then `main` remains the R1 stable baseline.
+Select or accept the next bounded R2 workstream. The proposed UTF-16 String slice remains
+the nearest planned candidate; it still requires Owner acceptance before implementation.
