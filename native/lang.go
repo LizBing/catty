@@ -531,7 +531,12 @@ var knownProperties = map[string]string{
 }
 
 func systemGetProperty(f *rtda.Frame) {
-	key := stringValueSV(f.GetRef(0))
+	keyObj := f.GetRef(0)
+	if keyObj == nil {
+		throwNPE(f, "Cannot invoke \"System.getProperty(String)\" because \"key\" is null")
+		return
+	}
+	key := stringValueSV(keyObj)
 	keyStr := key.GoString()
 	if val, ok := knownProperties[keyStr]; ok {
 		f.PushRef(newStringFromGo(f.Thread(), val))

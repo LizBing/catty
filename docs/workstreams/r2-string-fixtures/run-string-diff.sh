@@ -15,6 +15,11 @@
 #   7. LoneSurrogateLiteral     — lone surrogate from classfile literal (MUTF-8)
 #   8. StringNativeSurface      — null contract + PrintStream + StringBuilder
 #
+# AOT matrix (frozen):
+#   Supported (5):    HashDivergence, StringSubstringUnits, SupplementaryChar,
+#                     LoneSurrogateLiteral, StringNativeSurface
+#   Not implemented (3): LoneSurrogate, StringBounds, StringCharArrayRoundTrip
+#
 # Usage: bash docs/workstreams/r2-string-fixtures/run-string-diff.sh [candidate-ref]
 #   candidate-ref — if provided, used as the candidate directory name and
 #                   substituted for {candidate} in the evidence path. Defaults
@@ -45,7 +50,12 @@ to() { perl -e 'alarm shift; exec @ARGV' "$@"; }
 
 BIN="$(mktemp -t catty-string.XXXXXX)"
 STAGE="$(mktemp -d -t string-stage.XXXXXX)"
-trap 'rm -rf "$BIN" "$STAGE"' EXIT
+AOT_TMP="$(mktemp -d -t aot-status.XXXXXX)"
+trap 'rm -rf "$BIN" "$STAGE" "$AOT_TMP"' EXIT
+
+# Portable per-fixture AOT status store (no bash 4+ associative arrays).
+aot_status() { cat "$AOT_TMP/$1" 2>/dev/null; }
+set_aot_status() { echo "$2" > "$AOT_TMP/$1"; }
 
 {
   echo "=== R2 String differential run ==="
@@ -70,6 +80,10 @@ printf "%-28s %-6s %-10s %-10s %-10s %s\n" "-------" "----" "---------" "------"
 
 PASS=0
 FAIL=0
+
+# AOT matrix (frozen, per owner review).
+AOT_SUPPORTED="HashDivergence StringSubstringUnits SupplementaryChar LoneSurrogateLiteral StringNativeSurface"
+AOT_NOT_IMPL="LoneSurrogate StringBounds StringCharArrayRoundTrip"
 
 run_one() {
   local jf="$1"
@@ -103,6 +117,8 @@ run_one() {
     aot=$(tail -3 "$d/aot_build.out" 2>/dev/null | sed 's/\t/        /g')
   fi
 
+  set_aot_status "$name" "$m_aot"
+
   local m_lp="MISMATCH" m_ir="MISMATCH"
   [ "$tum" = "$lp" ] && [ "$tum_rc" = "$lp_rc" ] && m_lp="match"
   [ "$tum" = "$ir" ] && [ "$tum_rc" = "$ir_rc" ] && m_ir="match"
@@ -110,7 +126,6 @@ run_one() {
   local verdict="PASS"
   [ "$m_lp" != "match" ] && verdict="FAIL"
   [ "$m_ir" != "match" ] && verdict="FAIL"
-  # AOT: fail-closed only if it built but mismatched (NO-BUILD is not a fail).
   [ "$m_aot" = "MISMATCH" ] && verdict="FAIL"
 
   if [ "$verdict" = "PASS" ]; then
@@ -141,6 +156,54 @@ for jf in "$EVI_FIX"/SupplementaryChar.java \
   [ -e "$jf" ] || { printf "%-28s %-6s %-10s %-10s %-10s %s\n" "$(basename "$jf" .java)" "FAIL" "MISSING" "-" "-" "-" | tee -a "$RESULTS"; FAIL=$((FAIL + 1)); continue; }
   run_one "$jf"
 done
+
+# ---- AOT matrix enforcement ----
+echo | tee -a "$RESULTS"
+echo "==> AOT matrix enforcement" | tee -a "$RESULTS"
+
+AOT_OK=0
+
+# Supported: must be "match".
+for f in $AOT_SUPPORTED; do
+  status="UNKNOWN"
+  [ -f "$AOT_TMP/$f" ] && status=$(aot_status "$f")
+  if [ "$status" != "match" ]; then
+    echo "  FAIL: AOT Supported fixture '$f' status=$status (expected match)" | tee -a "$RESULTS"
+    AOT_OK=$((AOT_OK + 1))
+  fi
+done
+
+# Not implemented: must be "NO-BUILD".
+for f in $AOT_NOT_IMPL; do
+  status="UNKNOWN"
+  [ -f "$AOT_TMP/$f" ] && status=$(aot_status "$f")
+  if [ "$status" != "NO-BUILD" ]; then
+    echo "  FAIL: AOT Not-implemented fixture '$f' status=$status (expected NO-BUILD)" | tee -a "$RESULTS"
+    AOT_OK=$((AOT_OK + 1))
+  fi
+done
+
+# Fail-closed: any other fixture that NO-BUILD'd (not in either list) is a failure.
+for f in $(ls "$AOT_TMP" 2>/dev/null); do
+  status=$(aot_status "$f")
+  if [ "$status" != "NO-BUILD" ]; then
+    continue
+  fi
+  known=0
+  for s in $AOT_SUPPORTED; do [ "$f" = "$s" ] && known=1 && break; done
+  for n in $AOT_NOT_IMPL; do [ "$f" = "$n" ] && known=1 && break; done
+  if [ "$known" -eq 0 ]; then
+    echo "  FAIL: unknown fixture '$f' produced NO-BUILD (not in Supported or Not-implemented list)" | tee -a "$RESULTS"
+    AOT_OK=$((AOT_OK + 1))
+  fi
+done
+
+if [ "$AOT_OK" -gt 0 ]; then
+  FAIL=$((FAIL + AOT_OK))
+  echo "  AOT matrix: $AOT_OK violation(s)" | tee -a "$RESULTS"
+else
+  echo "  AOT matrix: all expectations met (5 Supported match, 3 Not implemented NO-BUILD)" | tee -a "$RESULTS"
+fi
 
 echo | tee -a "$RESULTS"
 echo "==> $PASS passed, $FAIL failed ($((PASS + FAIL)) total)" | tee -a "$RESULTS"

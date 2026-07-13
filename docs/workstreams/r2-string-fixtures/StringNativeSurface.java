@@ -1,7 +1,7 @@
 // Category: String native surface — null contract, PrintStream, StringBuilder.
 //
 // Groups:
-//   A: NPE on null constructor / method args
+//   A: NPE on null constructor / method args (7 cases: 6 String + 1 System)
 //   B: "null" output for PrintStream.println/print(String null) and
 //      StringBuilder.append(String null)
 //   C: Lone surrogate println(char) -> '?'
@@ -25,6 +25,8 @@ public class StringNativeSurface {
         try { "x".endsWith(null); System.out.println("A-FAIL"); } catch (Throwable t) { System.out.println("A:NPE"); }
         // compareTo(null)
         try { "x".compareTo(null); System.out.println("A-FAIL"); } catch (Throwable t) { System.out.println("A:NPE"); }
+        // System.getProperty(null)
+        try { System.getProperty(null); System.out.println("A-FAIL"); } catch (Throwable t) { System.out.println("A:NPE"); }
     }
 
     // ---- Group B: "null" output ----
