@@ -90,9 +90,30 @@ func buildClass(loader rtda.Loader) *rtda.Class {
 	return c
 }
 
-// buildThread creates a minimal java.lang.Thread for Thread.currentThread().
+// buildThread creates java.lang.Thread as a full synthetic class with lifecycle,
+// interrupt, daemon, and join support (ADR-0028, Slice B).
 func buildThread(loader rtda.Loader) *rtda.Class {
 	c := rtda.NewSyntheticClass("java/lang/Thread", loader.LoadClass("java/lang/Object"))
-	c.AddMethod(rtda.NativeMethod(c, "<init>", "()V", nop))
+	// Constructor — creates the runtime execution context.
+	c.AddMethod(rtda.NativeMethod(c, "<init>", "()V", threadInit))
+	// run() is a native nop — subclasses override it with bytecode.
+	c.AddMethod(rtda.NativeMethod(c, "run", "()V", nop))
+	// Lifecycle
+	c.AddMethod(rtda.NativeMethod(c, "start", "()V", threadStart))
+	c.AddMethod(rtda.NativeMethod(c, "isAlive", "()Z", threadIsAlive))
+	c.AddMethod(rtda.NativeMethod(c, "join", "()V", threadJoin))
+	// Interrupt
+	c.AddMethod(rtda.NativeMethod(c, "interrupt", "()V", threadInterrupt))
+	c.AddMethod(rtda.NativeMethod(c, "isInterrupted", "()Z", threadIsInterrupted))
+	c.AddMethod(staticNative(c, "interrupted", "()Z", threadInterrupted))
+	// Daemon
+	c.AddMethod(rtda.NativeMethod(c, "setDaemon", "(Z)V", threadSetDaemon))
+	c.AddMethod(rtda.NativeMethod(c, "isDaemon", "()Z", threadIsDaemon))
+	// Static utilities
+	c.AddMethod(staticNative(c, "sleep", "(J)V", threadSleep))
+	c.AddMethod(staticNative(c, "onSpinWait", "()V", threadOnSpinWait))
+	// Native registration stubs (also registered in system.go for real-JDK builds)
+	c.AddMethod(staticNative(c, "currentThread", "()Ljava/lang/Thread;", threadCurrentThread))
+	c.AddMethod(staticNative(c, "registerNatives", "()V", nop))
 	return c
 }

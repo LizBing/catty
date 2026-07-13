@@ -60,7 +60,7 @@ func handleException(thread *rtda.Thread, throwPC int) {
 		}
 	}
 
-	// Uncaught exception — print and exit.
+	// Uncaught exception — print and (for main thread) exit.
 	fmt.Fprintf(os.Stderr, "Exception in thread \"main\" %s", javaClassName(excObj.Class().Name()))
 	msgSlot := findDetailMessage(excObj)
 	if msgSlot >= 0 && excObj.GetRefCell(msgSlot) != nil {
@@ -70,7 +70,11 @@ func handleException(thread *rtda.Thread, throwPC int) {
 		}
 	}
 	fmt.Fprintln(os.Stderr)
-	os.Exit(1)
+	if thread.IsMain() {
+		os.Exit(1)
+	}
+	// For non-main threads: the stack is empty, Loop will exit normally,
+	// and the goroutine's defer handles Thread.Terminate + VM supervisor.
 }
 
 // findDetailMessage returns the slot offset of Throwable's detailMessage, or -1.

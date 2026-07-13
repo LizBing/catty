@@ -28,7 +28,33 @@ func Interpret(cpOpt, mainClass string, useIR bool) {
 		os.Exit(1)
 	}
 
+	// Set the run loop for spawned threads BEFORE any thread starts.
+	// native/thread.go calls this instead of importing interpreter directly,
+	// avoiding a native → interpreter → lowering → classloader → native cycle.
+	if useIR {
+		rtda.DefaultRunLoop = interpreter.LoopIR
+	} else {
+		rtda.DefaultRunLoop = interpreter.Loop
+	}
+
+	// Create the VM supervisor (ADR-0028). Set it before any thread starts
+	// so native Thread.start() can access it via rtda.GetVM().
+	vm := rtda.NewVM()
+	rtda.SetVM(vm)
+
+	// Create the main thread execution context and its canonical Java Thread
+	// facade. The main thread starts RUNNABLE (it's already executing).
 	thread := rtda.NewThread(loader)
+	thread.SetStarted() // CAS NEW → RUNNABLE
+	thread.SetMain(true)
+	threadClass := loader.LoadClass("java/lang/Thread")
+	mainThreadObj := rtda.NewObject(threadClass)
+	mainThreadObj.SetExtra(thread)
+	thread.SetJavaThread(mainThreadObj)
+
+	// Main thread is non-daemon and keeps the VM alive while it runs.
+	vm.ThreadStarted(false)
+
 	frame := thread.NewFrame(mainMethod)
 	frame.SetRef(0, nil) // args = null
 	thread.PushFrame(frame)
@@ -39,6 +65,12 @@ func Interpret(cpOpt, mainClass string, useIR bool) {
 	} else {
 		interpreter.Loop(thread)
 	}
+
+	// Main thread has completed. Wait for all remaining non-daemon threads
+	// before returning (ADR-0028: VM liveness).
+	thread.Terminate()
+	vm.ThreadTerminated(false)
+	vm.WaitForNonDaemonThreads()
 }
 
 // Build transpiles a whole program and produces a standalone native binary.

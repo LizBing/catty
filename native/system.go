@@ -41,8 +41,7 @@ func init() {
 	RegisterNative("java/lang/Class", "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;", classGetPrimitiveClass)
 	RegisterNative("java/lang/Class", "registerNatives", "()V", nop)
 
-	// --- Thread ---
-	RegisterNative("java/lang/Thread", "currentThread", "()Ljava/lang/Thread;", threadCurrentThread)
+	// --- Thread (implementations in thread.go; registered via synthetic class) ---
 	RegisterNative("java/lang/Thread", "holdsLock", "(Ljava/lang/Object;)Z", nopBool0)
 	RegisterNative("java/lang/Thread", "registerNatives", "()V", nop)
 
@@ -235,12 +234,6 @@ func classGetSuperclass(f *rtda.Frame) {
 
 func classIsHidden(f *rtda.Frame) {
 	f.PushInt(0) // no hidden classes in catty
-}
-
-func threadCurrentThread(f *rtda.Frame) {
-	threadClass := f.Thread().Loader().LoadClass("java/lang/Thread")
-	obj := rtda.NewObject(threadClass)
-	f.PushRef(obj)
 }
 
 // --- Float/Double bit conversion ---
