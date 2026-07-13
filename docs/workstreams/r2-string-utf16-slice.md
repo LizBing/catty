@@ -1,6 +1,6 @@
 # R2 String UTF-16 slice
 
-**Status:** In Progress
+**Status:** Ready
 **Type:** implementation
 **Review:** owner
 **Base commit:** `298b723`
@@ -67,11 +67,11 @@ values use the ADR-0027 `[]uint16` kernel backing without exposing mutable alias
 
 | Gate | Command / artifact | Result |
 |---|---|---|
-| String differential matrix | `bash docs/workstreams/r2-string-fixtures/run-string-diff.sh` | Not run |
-| Interpreter / IR | All eight String fixtures match Temurin 25 | Not run |
-| AOT | 5 Supported String fixtures match; 3 Not implemented | Not run |
-| Core regression | `go vet ./... && go test ./... && go test -race ./... && bash tests/run.sh` | Not run |
-| Governance | `git diff --check` | Not run |
+| String differential matrix | `bash docs/workstreams/r2-string-fixtures/run-string-diff.sh` | 8/8 match (candidate `7c1dc04`) |
+| Interpreter / IR | All eight String fixtures match Temurin 25 | 8/8 match |
+| AOT | 5 Supported String fixtures match; 3 Not implemented | 5 match / 3 NO-BUILD |
+| Core regression | `go vet ./... && go test ./... && go test -race ./... && bash tests/run.sh` | 10/10 tests pass |
+| Governance | `git diff --check` | pass |
 
 ## Review
 
