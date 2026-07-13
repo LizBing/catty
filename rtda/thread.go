@@ -1,6 +1,7 @@
 package rtda
 
 import (
+	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -54,8 +55,10 @@ type Thread struct {
 	// ops: Interrupt stores 1 + signals waker; IsInterrupted Loads; Interrupted
 	// Swaps to 0.
 	interruptState int32
-	// daemon is set before start and read immutably after start.
-	daemon bool
+	// daemon flag (ADR-0028). Written by SetDaemon under configMu while
+	// state==NEW; read immutably after start via ConsumeDaemonForStart.
+	daemon   bool
+	configMu sync.Mutex // serializes SetDaemon with the daemon read in start
 	// done is closed when the thread terminates (state → stateTerminated).
 	// join() reads from this channel to detect completion.
 	done chan struct{}
@@ -155,9 +158,13 @@ func (t *Thread) IsAlive() bool {
 }
 
 // Terminate marks the thread as terminated and closes the done channel,
-// unblocking any join() callers.
+// unblocking any join() callers. The CAS ensures exactly-once semantics:
+// repeated or concurrent calls are harmless — only the first transition
+// from RUNNABLE to TERMINATED closes done.
 func (t *Thread) Terminate() {
-	atomic.StoreInt32(&t.state, stateTerminated)
+	if !atomic.CompareAndSwapInt32(&t.state, stateRunnable, stateTerminated) {
+		return // already terminated, or never started
+	}
 	close(t.done)
 }
 
@@ -178,17 +185,60 @@ func (t *Thread) IsInterrupted() bool {
 	return atomic.LoadInt32(&t.interruptState) == 1
 }
 
-// Interrupted atomically reads and clears the interrupt state. Returns the old
-// value (whether the thread was interrupted). This is the static
-// Thread.interrupted() semantic.
+// Interrupted atomically reads and clears the interrupt state and drains any
+// stale waker signal. Returns the old value (whether the thread was interrupted).
+// This is the static Thread.interrupted() semantic.
+//
+// Draining the waker prevents a stale signal (left behind by a previous
+// Interrupt() whose flag has now been cleared) from being consumed by a
+// subsequent Sleep or Join as a spurious interrupt.
 func (t *Thread) Interrupted() bool {
-	return atomic.SwapInt32(&t.interruptState, 0) == 1
+	wasInterrupted := atomic.SwapInt32(&t.interruptState, 0) == 1
+	if wasInterrupted {
+		// Drain the waker. A concurrent Interrupt() that fires after the
+		// Swap above sets interruptState back to 1 before sending to waker,
+		// so a real interrupt cannot be lost — the flag was re-set.
+		select {
+		case <-t.waker:
+		default:
+		}
+	}
+	return wasInterrupted
 }
 
 // --- Daemon ---
 
-func (t *Thread) SetDaemon(v bool) { t.daemon = v }
-func (t *Thread) IsDaemon() bool   { return t.daemon }
+// SetDaemon sets the daemon flag. May only be called before the thread is
+// started (state == NEW). Returns true on success; false means the thread has
+// already been started or terminated, and the caller should throw
+// IllegalThreadStateException.
+//
+// configMu serializes SetDaemon with ConsumeDaemonForStart so the daemon value
+// read at start time is stable and the write is race-free.
+func (t *Thread) SetDaemon(v bool) bool {
+	t.configMu.Lock()
+	defer t.configMu.Unlock()
+	if atomic.LoadInt32(&t.state) != stateNew {
+		return false
+	}
+	t.daemon = v
+	return true
+}
+
+// IsDaemon reports whether this thread is a daemon thread. After start,
+// daemon is immutable so a plain read is safe.
+func (t *Thread) IsDaemon() bool { return t.daemon }
+
+// ConsumeDaemonForStart reads the daemon flag under configMu, establishing a
+// happens-before edge with any SetDaemon call that completed before start.
+// Must be called once, immediately after SetStarted succeeds, to determine
+// whether the thread counts toward VM liveness.
+func (t *Thread) ConsumeDaemonForStart() bool {
+	t.configMu.Lock()
+	d := t.daemon
+	t.configMu.Unlock()
+	return d
+}
 
 // --- Completion (for join) ---
 
@@ -206,11 +256,14 @@ func (t *Thread) IsMain() bool   { return t.isMain }
 // --- Sleep ---
 
 // Sleep blocks the calling goroutine for millis milliseconds, or until the
-// thread is interrupted. If interrupted before or during sleep, it clears the
-// interrupt flag and returns false (caller should throw InterruptedException).
-// Returns true if sleep completed normally.
+// thread is interrupted. If interrupted before sleep, returns false (caller
+// should throw InterruptedException). Returns true if sleep completed normally.
+//
+// On waker signal, re-checks Interrupted() rather than unconditionally clearing
+// the flag. This avoids treating a stale waker signal (drained by Interrupted()
+// but re-delivered due to channel buffering) as a real interrupt.
 func (t *Thread) Sleep(millis int64) bool {
-	if t.Interrupted() { // check and clear before sleeping
+	if t.Interrupted() { // check, clear, and drain before sleeping
 		return false
 	}
 	if millis <= 0 {
@@ -220,7 +273,13 @@ func (t *Thread) Sleep(millis int64) bool {
 	case <-time.After(time.Duration(millis) * time.Millisecond):
 		return true
 	case <-t.waker:
-		atomic.StoreInt32(&t.interruptState, 0) // clear on interrupt
-		return false
+		// Re-check: if the interrupt flag was cleared concurrently
+		// (stale waker), return normally. If still interrupted, the
+		// flag is now cleared by Interrupted() and we return false.
+		if t.Interrupted() {
+			return false
+		}
+		// Stale wake — interrupt was already consumed.
+		return true
 	}
 }

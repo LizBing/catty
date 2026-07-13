@@ -57,22 +57,17 @@ func TestThreadLifecycle(t *testing.T) {
 		}
 	})
 
-	t.Run("Terminate double-call does not panic", func(t *testing.T) {
+	t.Run("Terminate double-call is safe", func(t *testing.T) {
 		tr := NewThread(nil)
 		tr.SetStarted()
 		tr.Terminate()
-		// Second Terminate should not panic (state is already TERMINATED,
-		// and close-once is guarded by CAS in the real implementation).
-		// The current implementation does unconditional close — check that
-		// we at least don't crash.
-		func() {
-			defer func() {
-				if r := recover(); r != nil {
-					t.Log("double close panicked (expected if no CAS guard):", r)
-				}
-			}()
-			tr.Terminate()
-		}()
+		// Second Terminate must be safe — CAS prevents double-close.
+		// No panic allowed; test fails if Terminate panics.
+		tr.Terminate()
+		// State must still be TERMINATED.
+		if tr.IsAlive() {
+			t.Error("thread should not be alive after double Terminate")
+		}
 	})
 }
 
@@ -288,5 +283,227 @@ func TestThreadMainFlag(t *testing.T) {
 	tr.SetMain(true)
 	if !tr.IsMain() {
 		t.Error("SetMain(true) should mark as main")
+	}
+}
+
+// --- Blocker 2: Interrupted() waker drain + Sleep interaction ---
+
+// TestInterruptedDrainsWaker verifies that Interrupted() drains the stale
+// waker signal so subsequent Sleep returns normally.
+func TestInterruptedDrainsWaker(t *testing.T) {
+	t.Run("sleep after interrupted clears normally", func(t *testing.T) {
+		tr := NewThread(nil)
+		tr.Interrupt() // sets flag + sends to waker
+
+		// interrupted() should return true and drain the waker.
+		if !tr.Interrupted() {
+			t.Error("Interrupted should return true after Interrupt")
+		}
+		// Flag should be cleared.
+		if tr.IsInterrupted() {
+			t.Error("flag should be cleared after Interrupted")
+		}
+
+		// Subsequent sleep must complete normally — no stale waker signal.
+		if !tr.Sleep(50) {
+			t.Error("sleep after interrupted() should complete normally, not report interrupted")
+		}
+	})
+
+	t.Run("sleep interrupted during sleep throws", func(t *testing.T) {
+		tr := NewThread(nil)
+		done := make(chan bool)
+		go func() {
+			done <- tr.Sleep(60000) // long sleep
+		}()
+		time.Sleep(10 * time.Millisecond) // let sleep start
+		tr.Interrupt()
+		result := <-done
+		if result {
+			t.Error("sleep should return false (interrupted) when interrupt arrives during sleep")
+		}
+		if tr.IsInterrupted() {
+			t.Error("sleep should clear interrupt flag via Interrupted re-check")
+		}
+	})
+}
+
+// TestInterruptBoundaryCases verifies multiple interrupt/clear/sleep sequences.
+func TestInterruptBoundaryCases(t *testing.T) {
+	t.Run("multiple interrupt then clear all", func(t *testing.T) {
+		tr := NewThread(nil)
+
+		// First interrupt.
+		tr.Interrupt()
+		if !tr.Interrupted() {
+			t.Error("first Interrupted should return true")
+		}
+
+		// Second interrupt.
+		tr.Interrupt()
+		if !tr.IsInterrupted() {
+			t.Error("second Interrupt should set flag")
+		}
+
+		// Sleep should see it.
+		if tr.Sleep(1000) {
+			t.Error("sleep should return false when interrupted")
+		}
+
+		// State is now clear.
+		if tr.IsInterrupted() {
+			t.Error("flag should be clear after sleep interrupted check")
+		}
+
+		// Another sleep should complete normally.
+		if !tr.Sleep(10) {
+			t.Error("sleep after clear should complete normally")
+		}
+	})
+
+	t.Run("interrupt check clear check sleep", func(t *testing.T) {
+		tr := NewThread(nil)
+
+		tr.Interrupt()
+		if !tr.IsInterrupted() {
+			t.Error("IsInterrupted should return true after Interrupt")
+		}
+		if !tr.Interrupted() {
+			t.Error("Interrupted should return true")
+		}
+		if tr.IsInterrupted() {
+			t.Error("IsInterrupted should return false after Interrupted")
+		}
+		// Sleep must complete normally.
+		if !tr.Sleep(20) {
+			t.Error("sleep must complete normally after interrupt is cleared")
+		}
+	})
+
+	t.Run("interrupt during sleep preserves state before clear", func(t *testing.T) {
+		tr := NewThread(nil)
+
+		// Interrupt, then sleep — should return false immediately.
+		tr.Interrupt()
+		if tr.Sleep(1000) {
+			t.Error("sleep should return false when pre-interrupted")
+		}
+		// Flag cleared by sleep's Interrupted check.
+		if tr.IsInterrupted() {
+			t.Error("flag should be clear after sleep detects interrupt")
+		}
+	})
+
+	t.Run("concurrent interrupt and interrupted drain", func(t *testing.T) {
+		tr := NewThread(nil)
+		const N = 50
+
+		var wg sync.WaitGroup
+		for i := 0; i < N; i++ {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				tr.Interrupt()
+			}()
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				tr.Interrupted() // must be race-free
+			}()
+		}
+		wg.Wait()
+
+		// After draining, flag may be set (if last op was Interrupt) or clear
+		// (if last op was Interrupted). Both are valid. Just verify no race.
+	})
+}
+
+// --- Blocker 3: SetDaemon lifecycle rules ---
+
+// TestSetDaemonLifecycle verifies that setDaemon only succeeds before start.
+func TestSetDaemonLifecycle(t *testing.T) {
+	t.Run("setDaemon ok when NEW", func(t *testing.T) {
+		tr := NewThread(nil)
+		if !tr.SetDaemon(true) {
+			t.Error("SetDaemon should succeed when thread is NEW")
+		}
+		if !tr.IsDaemon() {
+			t.Error("IsDaemon should return true after SetDaemon(true)")
+		}
+		// Change back.
+		if !tr.SetDaemon(false) {
+			t.Error("SetDaemon should succeed again when thread is still NEW")
+		}
+		if tr.IsDaemon() {
+			t.Error("IsDaemon should return false after SetDaemon(false)")
+		}
+	})
+
+	t.Run("setDaemon fails after start", func(t *testing.T) {
+		tr := NewThread(nil)
+		tr.SetStarted()
+		if tr.SetDaemon(true) {
+			t.Error("SetDaemon should fail after start")
+		}
+		// Default is non-daemon — must not have changed.
+		if tr.IsDaemon() {
+			t.Error("daemon should remain false after failed SetDaemon")
+		}
+	})
+
+	t.Run("setDaemon fails after terminate", func(t *testing.T) {
+		tr := NewThread(nil)
+		tr.SetStarted()
+		tr.Terminate()
+		if tr.SetDaemon(true) {
+			t.Error("SetDaemon should fail after termination")
+		}
+	})
+}
+
+// TestConcurrentSetDaemonAndStart verifies no race between setDaemon and start,
+// and that the outcome reflects exactly one allowed order.
+func TestConcurrentSetDaemonAndStart(t *testing.T) {
+	// Run many iterations to exercise the race.
+	for i := 0; i < 100; i++ {
+		tr := NewThread(nil)
+
+		var setResult bool
+		var startResult bool
+		var wg sync.WaitGroup
+
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			setResult = tr.SetDaemon(true)
+		}()
+
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			startResult = tr.SetStarted()
+		}()
+
+		wg.Wait()
+
+		// If start won, SetDaemon must have failed.
+		// If SetDaemon won, the daemon value must be true.
+		if startResult && setResult {
+			// Both succeeded → SetDaemon happened before the CAS in SetStarted.
+			// Daemon must be true.
+			if tr.ConsumeDaemonForStart() != true {
+				t.Errorf("iter %d: daemon must be true when SetDaemon won race with start", i)
+			}
+		} else if startResult && !setResult {
+			// Start won, SetDaemon lost → SetDaemon saw state != NEW.
+			// Daemon should remain false (default).
+			if tr.ConsumeDaemonForStart() != false {
+				t.Errorf("iter %d: daemon must be false when SetDaemon lost race with start", i)
+			}
+		}
+		// If !startResult, SetDaemon should succeed (no concurrent start).
+		if !startResult && !setResult {
+			t.Errorf("iter %d: SetDaemon should succeed when start hasn't happened", i)
+		}
 	}
 }

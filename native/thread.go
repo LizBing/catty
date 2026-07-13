@@ -60,7 +60,9 @@ func threadStart(f *rtda.Frame) {
 	}
 
 	vm := rtda.GetVM()
-	vm.ThreadStarted(t.IsDaemon())
+	// ConsumeDaemonForStart establishes a happens-before edge with any
+	// SetDaemon call that completed before the CAS in SetStarted.
+	vm.ThreadStarted(t.ConsumeDaemonForStart())
 
 	// Find run() via virtual dispatch on the actual class of the Thread object
 	// (so subclass overrides like Worker.run() are found).
@@ -181,13 +183,15 @@ func threadSleep(f *rtda.Frame) {
 func threadOnSpinWait(f *rtda.Frame) {}
 
 // threadSetDaemon implements Thread.setDaemon(boolean).
-// May only be called before the thread is started.
+// May only be called before the thread is started; throws ITSE otherwise.
 func threadSetDaemon(f *rtda.Frame) {
 	this := f.GetRef(0)
 	v := f.GetInt(1) != 0
 	if extra := this.Extra(); extra != nil {
 		t := extra.(*rtda.Thread)
-		t.SetDaemon(v)
+		if !t.SetDaemon(v) {
+			throwIllegalThreadState(f)
+		}
 	}
 }
 

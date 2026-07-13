@@ -1,9 +1,6 @@
 # Slice B Evidence — `505d3ee`
 
-**Candidate:** `505d3ee` (branch: `worktree-r2-thread-monitor-foundation`)  
-**Base:** `3034e05` (Slice A acceptance + governance)  
-**Date:** 2026-07-14  
-**Status:** Complete, pending Owner review
+**Candidate:** `505d3ee` (branch: `worktree-r2-thread-monitor-foundation`)**Base:** `3034e05` (Slice A acceptance + governance)**Date:** 2026-07-14**Status:** Complete, pending Owner review
 
 ## Scope delivered
 

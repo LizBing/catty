@@ -1,9 +1,6 @@
 # Slice B Handoff
 
-**Candidate:** `505d3ee`  
-**Branch:** `worktree-r2-thread-monitor-foundation`  
-**Previous slice (A) candidate:** `ec1b398`  
-**Status:** Awaiting Owner review
+**Candidate:** `505d3ee`**Branch:** `worktree-r2-thread-monitor-foundation`**Previous slice (A) candidate:** `ec1b398`**Status:** Awaiting Owner review
 
 ## What Slice B delivers
 

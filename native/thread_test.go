@@ -420,6 +420,113 @@ func TestThreadSetDaemonIsDaemon(t *testing.T) {
 	}
 }
 
+// TestThreadSetDaemonAfterStartThrowsITSE verifies that calling setDaemon
+// after a successful start throws IllegalThreadStateException.
+func TestThreadSetDaemonAfterStartThrowsITSE(t *testing.T) {
+	vm := rtda.NewVM()
+	rtda.SetVM(vm)
+	rtda.DefaultRunLoop = testRunLoop
+
+	loader, threadClass, obj := newTestThreadObj()
+	caller := rtda.NewThread(loader)
+
+	// Start the thread first.
+	startFrame := caller.NewFrame(threadClass.LookupMethod("start", "()V"))
+	startFrame.SetRef(0, obj)
+	threadStart(startFrame)
+	if caller.HasException() {
+		t.Fatal("first start should not throw")
+	}
+
+	// Now try to setDaemon — must throw ITSE.
+	setFrame := caller.NewFrame(threadClass.LookupMethod("setDaemon", "(Z)V"))
+	setFrame.SetRef(0, obj)
+	setFrame.SetInt(1, 1) // true
+	threadSetDaemon(setFrame)
+
+	if !caller.HasException() {
+		t.Error("setDaemon after start should throw IllegalThreadStateException")
+	}
+
+	// Cleanup: wait for the goroutine carrier.
+	rt := obj.Extra().(*rtda.Thread)
+	select {
+	case <-rt.Done():
+	case <-time.After(time.Second):
+		t.Fatal("thread did not terminate")
+	}
+}
+
+// TestThreadSetDaemonAfterTerminateThrowsITSE verifies that calling setDaemon
+// after the thread has terminated throws IllegalThreadStateException.
+func TestThreadSetDaemonAfterTerminateThrowsITSE(t *testing.T) {
+	vm := rtda.NewVM()
+	rtda.SetVM(vm)
+	rtda.DefaultRunLoop = testRunLoop
+
+	loader, threadClass, obj := newTestThreadObj()
+	rt := obj.Extra().(*rtda.Thread)
+	caller := rtda.NewThread(loader)
+
+	// Start and wait for termination.
+	startFrame := caller.NewFrame(threadClass.LookupMethod("start", "()V"))
+	startFrame.SetRef(0, obj)
+	threadStart(startFrame)
+	if caller.HasException() {
+		t.Fatal("start should not throw")
+	}
+
+	select {
+	case <-rt.Done():
+	case <-time.After(time.Second):
+		t.Fatal("thread did not terminate")
+	}
+
+	// Now try to setDaemon — must throw ITSE.
+	setFrame := caller.NewFrame(threadClass.LookupMethod("setDaemon", "(Z)V"))
+	setFrame.SetRef(0, obj)
+	setFrame.SetInt(1, 1) // true
+	threadSetDaemon(setFrame)
+
+	if !caller.HasException() {
+		t.Error("setDaemon after termination should throw IllegalThreadStateException")
+	}
+}
+
+// TestThreadSetDaemonBeforeStartSucceeds verifies setDaemon works when called
+// before start (state == NEW).
+func TestThreadSetDaemonBeforeStartSucceeds(t *testing.T) {
+	_, threadClass, obj := newTestThreadObj()
+	rt := obj.Extra().(*rtda.Thread)
+	caller := rtda.NewThread(nil)
+
+	// Set daemon before start — should succeed.
+	setFrame := caller.NewFrame(threadClass.LookupMethod("setDaemon", "(Z)V"))
+	setFrame.SetRef(0, obj)
+	setFrame.SetInt(1, 1) // true
+	threadSetDaemon(setFrame)
+
+	if caller.HasException() {
+		t.Error("setDaemon before start should not throw")
+	}
+	if !rt.IsDaemon() {
+		t.Error("daemon should be true after setDaemon(true)")
+	}
+
+	// Also verify we can change it back before start.
+	setFrame2 := caller.NewFrame(threadClass.LookupMethod("setDaemon", "(Z)V"))
+	setFrame2.SetRef(0, obj)
+	setFrame2.SetInt(1, 0) // false
+	threadSetDaemon(setFrame2)
+
+	if caller.HasException() {
+		t.Error("setDaemon(false) before start should not throw")
+	}
+	if rt.IsDaemon() {
+		t.Error("daemon should be false after setDaemon(false)")
+	}
+}
+
 // TestVMNonDaemonKeepsAlive verifies a started non-daemon thread keeps the VM
 // from exiting until it terminates.
 func TestVMNonDaemonKeepsAlive(t *testing.T) {
