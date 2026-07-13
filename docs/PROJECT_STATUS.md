@@ -3,8 +3,8 @@
 **As of:** 2026-07-13
 **Stable baseline:** R2 initialization slice complete
 **Baseline commit:** `92e4d1f` (implementation; evidence `159b68c`)
-**Active workstream:** None
-**Current phase:** R2 runtime-semantics planning
+**Active workstream:** [`r2-string-utf16-slice`](./workstreams/r2-string-utf16-slice.md)
+**Current phase:** R2 runtime-semantics implementation
 
 This is the single model-neutral current-state entry. Strategy lives in
 [`ROADMAP.md`](./ROADMAP.md); decisions live in [`adr/`](./adr/); scoped work
@@ -53,11 +53,11 @@ ADRs 0016–0027 (excluding unused 0026) are Accepted. ADRs 0001–0007 and 0014
 ADRs 0008–0013 are withdrawn. ADR-0017 fixes Java 25 as the supported-capability
 semantic baseline; ADR-0016 fixes AOT as the primary product path with a
 permanent interpreter fallback. ADR-0025 is implemented by the completed,
-bounded class/interface-initialization workstream; ADR-0027 fixes a future String
-kernel backing but does not yet authorize its implementation. Bootstrap capability
+bounded class/interface-initialization workstream; ADR-0027 fixes the String
+kernel backing for the accepted UTF-16 implementation workstream. Bootstrap capability
 mapping, Thread/monitor/JMM, Unsafe, and allocation remain deferred.
 
 ## Next action
 
-Select or accept the next bounded R2 workstream. The proposed UTF-16 String slice remains
-the nearest planned candidate; it still requires Owner acceptance before implementation.
+Implement the accepted `r2-string-utf16-slice` contract. No capability-complete claim is
+authorized until its fixed eight-fixture and regression evidence gates pass.
