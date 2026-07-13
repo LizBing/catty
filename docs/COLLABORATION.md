@@ -284,6 +284,28 @@ superseding ADR。
 
 只有合同允许的 `Not implemented` 可以不阻塞当前 workstream；`Not run` 不能计为 Pass。
 
+### 9.1 证据生命周期与候选隔离
+
+已完成 research workstream 的基线证据是历史事实，不得由后续 implementation
+workstream 覆盖。基线矩阵、原始差分输出及其引用的 baseline commit 必须保持可复现；
+后续实现不能通过改写旧的 `MISMATCH`、`NO-BUILD` 或 fixture 总数来把基线变成当前结果。
+
+每个 implementation candidate 的验收证据必须与研究基线分开归档，并至少标明：
+
+- candidate commit、比较的 base commit、JDK/toolchain 与 harness 路径；
+- 实际执行的精确命令、退出状态及每个引擎的结果；
+- 合同 fixture 与新增的补充 fixture 的边界；
+- `Supported`、`Fallback`、`Not implemented` 的逐项分类。
+
+证据目录可以按 workstream 建立；同一 workstream 的不同 candidate 以短 commit ID
+或等价不可变标识区分。复核只引用固定 candidate 的对应证据，不能引用会被下一次
+harness 执行原地覆盖的“最新结果”。若需要修正已归档基线的事实错误，应新增勘误说明，
+保留原始结果、原因和适用范围，而不是静默重写历史。
+
+新增或替换合同 fixture、改变 fixture 数量，或把原本未要求的证据提升为 acceptance
+gate，属于冻结合同的变更：必须以 `Amendments` 记录并由 Owner 接受。补充 fixture
+可以作为额外证据运行，但在 amendment 被接受前不得改写原 gate 的分母或通过声明。
+
 ## 10. Harness 原则
 
 合同定义 harness 必须证明什么，Active Agent 负责具体实现。最低原则：
@@ -296,6 +318,7 @@ superseding ADR。
 - interpreter、IR、AOT 分别报告；
 - 并发测试使用确定性协调，stress 是补充而非替代；
 - 未实现能力显式报告，不能算入通过数；
+- historical baseline 与 candidate evidence 分开保存，且 candidate evidence 绑定固定 commit；
 - CI 运行有界版本，较长 stress 可以独立运行。
 
 ## 11. Handoff

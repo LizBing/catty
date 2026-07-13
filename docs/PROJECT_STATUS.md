@@ -3,7 +3,7 @@
 **As of:** 2026-07-13
 **Stable baseline:** R1 complete and hardened
 **Baseline commit:** `5720147`
-**Active workstream:** [`r2-initialization-slice`](./workstreams/r2-initialization-slice.md) (Accepted; not started)
+**Active workstream:** [`r2-initialization-slice`](./workstreams/r2-initialization-slice.md) (Ready; Owner acceptance and integration pending)
 **Current phase:** R2 runtime-semantics implementation — class/interface initialization
 
 This is the single model-neutral current-state entry. Strategy lives in
@@ -53,6 +53,7 @@ Thread/monitor/JMM, Unsafe, and allocation remain deferred.
 
 ## Next action
 
-Assign an Active Agent to the Accepted `r2-initialization-slice` contract. The agent must
-work on an implementation branch/worktree and satisfy its stated evidence gates before
-Owner review.
+Read-only acceptance audit is complete for implementation candidate `92e4d1f` and evidence
+commit `159b68c`. The amended 13-fixture gate and all regression/governance gates passed.
+The next action is the Owner's explicit accept/reject decision and, if accepted,
+authorization to integrate; until then `main` remains the R1 stable baseline.

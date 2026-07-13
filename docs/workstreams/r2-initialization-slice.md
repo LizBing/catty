@@ -1,6 +1,6 @@
 # R2 initialization slice
 
-**Status:** Accepted
+**Status:** Ready
 **Type:** implementation
 **Review:** owner
 **Base commit:** `ecb086e`
@@ -67,79 +67,33 @@ fixtures. This workstream does not implement Java concurrency.
 
 | Gate | Command / artifact | Result |
 |---|---|---|
-| Interpreter initialization matrix | `bash docs/workstreams/r2-evidence/run-r2-diff.sh` → all 11 initialization fixtures match | Pass |
-| IR initialization matrix | Same harness → all 11 initialization fixtures match | Pass |
-| AOT initialization matrix | Same harness → match where supported; every unsupported path explicitly classified | Pass (2 match, 9 NI) |
+| Interpreter initialization matrix | `bash docs/workstreams/r2-evidence/run-r2-diff.sh` → all 13 fixtures under the accepted amendment match | Pass (13/13) |
+| IR initialization matrix | Same harness → all 13 fixtures under the accepted amendment match | Pass (13/13) |
+| AOT initialization matrix | Same harness → match where supported; every unsupported path explicitly classified | Pass (1 Supported, 12 Not implemented) |
 | R1 regression | `go vet ./... && go test ./... && go test -race ./... && bash tests/run.sh` | Pass |
-| Governance consistency | `git diff --check` | Pass |
+| Governance consistency | `git diff --check e21556a..92e4d1f` and `git diff --check e21556a..159b68c` | Pass |
 
 Results key: `Pass` / `Fail` / `Not run` / `Not implemented`.
 
-## Handoff (2026-07-13)
+## Amendments
 
-### Interpreter & IR
+| Date | Status | Change | Reason and impact |
+|---|---|---|---|
+| 2026-07-13 | Accepted by Owner | Expand the permanent initialization differential fixture gate from 9 to 13 by adding `DirectInvokeStaticInit`, `InheritedStaticInit`, `SuperInitFailureNoOwnClinit`, and `IfaceInitFailureNoOwnClinit`. | The original contract does not separately exercise the required direct-AOT `invokestatic` guard, inherited static declarer resolution, or failure through superclass/default-bearing-interface predecessors when the target has no `<clinit>`. This amendment replaces 9 with 13 as the effective Interpreter and IR gate denominator; all 13 require an explicit AOT `Supported`, `Fallback`, or `Not implemented` classification. Other frozen terms are unchanged. |
 
-All 11 initialization fixtures match Temurin 25: ClinitOrder, ClinitThrows,
-ConstantFieldNoInit, DirectInvokeStaticInit, GetstaticOwner,
-InheritedStaticInit, InterfaceDefaultInit, InterfaceNoInitOnImpl,
-InvokeStaticInit, RecursiveInitialization, SuperclassInitializationFailure.
+## Candidate evidence
 
-### AOT
+- **Implementation candidate (C):** `92e4d1f`
+- **Evidence commit (E):** `159b68c`
+- **Evidence:** `docs/workstreams/r2-initialization-evidence/92e4d1f/`
+- **Review outcome:** final read-only audit passed. The predecessor closure has
+  direct superclass/interface tests; the R2 research matrix and historical
+  output remain identical to `e21556a`.
 
-Conservative build-time rejection is in effect: any emitted method whose IR
-contains an init-triggering instruction (getstatic, putstatic, new,
-invokestatic) targeting a class with `<clinit>` is rejected as Not
-implemented. Neither caught nor uncaught EIIE/NCDFE can be reported without
-a Go panic stack trace; cross-engine exception propagation belongs to a
-separate future workstream.
+## Handoff
 
-| Fixture | AOT Result | Classification |
-|---|---|---|
-| ConstantFieldNoInit | match | Supported (constant field, no init triggered) |
-| InterfaceDefaultInit | match | Supported (no `<clinit>`-targeting init trigger in IR) |
-| ClinitOrder | transpile refusal (unsupported opcodes) | Not implemented |
-| ClinitThrows | transpile refusal (init-trigger access + handlers) | Not implemented |
-| DirectInvokeStaticInit | transpile refusal (init-trigger access) | Not implemented |
-| GetstaticOwner | transpile refusal (init-trigger access) | Not implemented |
-| InheritedStaticInit | transpile refusal (init-trigger access) | Not implemented |
-| InterfaceNoInitOnImpl | transpile refusal (unsupported opcodes) | Not implemented |
-| InvokeStaticInit | transpile refusal (init-trigger access) | Not implemented |
-| RecursiveInitialization | transpile refusal (init-trigger access) | Not implemented |
-| SuperclassInitializationFailure | transpile refusal (unsupported opcodes) | Not implemented |
-
-### Key decisions
-
-- **Declarer-owner rule**: `getstatic`/`putstatic` initialize and access the
-  field's actual declaring class (`field.Owner()`), not the referenced class
-  from the constant pool. Applied in Interpreter, IR, and AOT bridge.
-- **State machine ordering**: `MarkInitInProgress` is called BEFORE predecessor
-  recursion (JVMS §5.5 step 6 precedes step 7). Same-owner recursive requests
-  during predecessor init detect `initInProgress` + matching `ecID` and return
-  normally.
-- **Conservative AOT build-time rejection**: `hasInitTrigger` scans every
-  emitted method's IR for init-triggering opcodes (getstatic, putstatic, new,
-  invokestatic) that reference a class with `<clinit>`. Any such method
-  causes the entire build to be rejected. This is conservative: it rejects
-  paths where init would succeed as well, because failure cannot be reported
-  correctly without a Go panic stack trace. The `EnsureInit` guard and
-  declarer resolution in the transpiler and bridge remain in place for a
-  future workstream that wires cross-engine exception propagation.
-- **Direct AOT invokestatic init guard**: Before every direct Go call to an
-  AOT'd static method, the transpiler emits `runtime.EnsureInit` targeting
-  the resolved method's actual declaring class (not the constant-pool
-  referenced class, in case of inherited static methods). This guard is
-  active but currently reached only when `<clinit>` is absent.
-- **Inherited static method init**: The `InvokeStatic` bridge resolves the
-  method before requesting initialization, using `method.Owner()` for the
-  init target. A new `InheritedStaticInit` fixture proves the declaring
-  ancestor is initialized in Interpreter and IR.
-- **NCDFE detailMessage fix**: `setDetailMessage` now allocates a real
-  `java/lang/String` via the loader instead of allocating from the wrong
-  class in the Throwable hierarchy.
-- **AOT InvokeStatic bridge**: Args are now wrapped with `slotConstructor`
-  (e.g. `rtda.IntSlot(t3)`, `rtda.RefSlot(t4)`) — fixes a compilation error
-  in emitted Go code. Nil LookupField/LookupMethod results now panic
-  descriptively instead of nil-dereference.
+Ready for Owner acceptance and integration. Do not mark Done, merge, or push
+until the Owner explicitly authorizes integration.
 
 ## Review
 
