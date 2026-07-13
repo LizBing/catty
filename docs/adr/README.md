@@ -38,3 +38,5 @@ decision requires a superseding ADR.
 | [0022](./0022-bootstrap-kernel-and-java-facades.md) | Bootstrap kernel capabilities and Java-visible facades | Accepted |
 | [0023](./0023-string-semantics-and-representation-boundary.md) | String semantics precede String representation | Accepted |
 | [0024](./0024-interpreter-policy-and-evidence-driven-optimization.md) | Interpreter simplicity and evidence-driven optimization | Accepted |
+| [0025](./0025-class-initialization-state-machine.md) | Java 25 class and interface initialization state machine | Accepted |
+| [0027](./0027-string-utf16-representation.md) | UTF-16 String kernel backing | Accepted |

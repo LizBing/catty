@@ -3,8 +3,8 @@
 **As of:** 2026-07-13
 **Stable baseline:** R1 complete and hardened
 **Baseline commit:** `5720147`
-**Active workstream:** [`r2-runtime-semantics-research`](./workstreams/r2-runtime-semantics-research.md) (Accepted; not started)
-**Current phase:** R2 runtime-semantics research
+**Active workstream:** [`r2-initialization-slice`](./workstreams/r2-initialization-slice.md) (Accepted; not started)
+**Current phase:** R2 runtime-semantics implementation — class/interface initialization
 
 This is the single model-neutral current-state entry. Strategy lives in
 [`ROADMAP.md`](./ROADMAP.md); decisions live in [`adr/`](./adr/); scoped work
@@ -43,15 +43,16 @@ UTF-16 behavior. `Integer/Long.toString`, `Double.parseDouble`, and representati
 
 ## Decision state
 
-ADRs 0016–0024 are Accepted. ADRs 0001–0007 and 0014–0015 are superseded;
+ADRs 0016–0027 (excluding unused 0026) are Accepted. ADRs 0001–0007 and 0014–0015 are superseded;
 ADRs 0008–0013 are withdrawn. ADR-0017 fixes Java 25 as the supported-capability
 semantic baseline; ADR-0016 fixes AOT as the primary product path with a
-permanent interpreter fallback. Detailed class/interface initialization,
-bootstrap capability mapping, String representation, Thread/monitor/JMM,
-Unsafe, and allocation decisions remain R2 research outputs rather than
-implementation authority.
+permanent interpreter fallback. ADR-0025 authorizes the accepted, bounded
+class/interface-initialization workstream; ADR-0027 fixes a future String kernel
+backing but does not yet authorize its implementation. Bootstrap capability mapping,
+Thread/monitor/JMM, Unsafe, and allocation remain deferred.
 
 ## Next action
 
-Integrate the governance baseline, then begin Slice A of the Accepted R2
-research workstream. No R2 production implementation is authorized yet.
+Assign an Active Agent to the Accepted `r2-initialization-slice` contract. The agent must
+work on an implementation branch/worktree and satisfy its stated evidence gates before
+Owner review.

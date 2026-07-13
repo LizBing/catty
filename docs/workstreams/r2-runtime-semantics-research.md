@@ -1,9 +1,9 @@
 # R2: runtime semantics research
 
-**Status:** Accepted
+**Status:** Done
 **Type:** research
 **Review:** owner
-**Base commit:** `5720147`
+**Base commit:** `ecb086e`
 **Roadmap item:** Phase R2 — Runtime semantics and concurrency planning
 **Governing ADRs:** ADR-0016 through ADR-0024
 **Prerequisites:** Governance baseline integrated on `main`
@@ -47,11 +47,11 @@ class-library capabilities in this workstream.
 
 | Gate | Command / artifact | Result |
 |---|---|---|
-| Initialization evidence | Versioned fixture matrix and Temurin 25 comparison report | Not run |
-| Bootstrap evidence | Capability/dependency graph with R1 implementation mapping | Not run |
-| String evidence | UTF-16 edge-case matrix and representation trade-off report | Not run |
-| R2 proposal | Proposed ADRs plus a bounded implementation workstream contract | Not run |
-| Governance consistency | ADR/status/roadmap links and `git diff --check` | Not run |
+| Initialization evidence | `docs/workstreams/r2-evidence/matrix.md` + `docs/workstreams/r2-evidence/run-r2-results.txt` | Pass — 16 fixtures, 3-engine matrix run against Temurin 25.0.3; 9 initialization fixtures with per-engine results recorded |
+| Bootstrap evidence | `docs/workstreams/r2-evidence/reports/r2-bootstrap-graph.md` | Pass — 7 candidate capabilities mapped to R1 providers and minimum observed responsibilities; facade/provider decisions explicitly deferred |
+| String evidence | `docs/workstreams/r2-evidence/reports/r2-string-matrix.md` + `docs/workstreams/r2-evidence/reports/r2-string-representation.md` | Pass — UTF-16 fixture matrix and representation analysis: `[]uint16` proposed as kernel backing; facade, bridge ABI, and host-text policy explicitly deferred |
+| R2 proposal | `docs/adr/0025-*.md` (Accepted) + `docs/adr/0027-*.md` (Accepted) + two Proposed implementation contracts | Pass — both architecture decisions accepted; both bounded R2 implementation contracts remain Proposed for owner review |
+| Governance consistency | `git diff --check` | Pass — document diff is clean; production validation was not re-run because this workstream changed no production code |
 
 ## Amendments
 
@@ -63,19 +63,19 @@ None.
 
 | Slice | Status | Evidence |
 |---|---|---|
-| A — baseline and fixture design | Pending | — |
-| B — initialization and bootstrap analysis | Pending | — |
-| C — String and representation analysis | Pending | — |
-| D — proposed R2 implementation contract | Pending | — |
+| A — baseline and fixture design | Complete | `docs/workstreams/r2-evidence/`: 16 fixtures, `run-r2-diff.sh` harness, `matrix.md`, `run-r2-results.txt` — 16/16 fixtures compiled, 3-engine differential run against Temurin 25.0.3 |
+| B — initialization and bootstrap analysis | Complete | `reports/r2-init-deltas.md` (7-area JVMS §5.5 gap analysis, GetstaticOwner crash confirmed as bug), `reports/r2-bootstrap-graph.md` (7-capability → R1 mapping, java.base gating analysis) |
+| C — String and representation analysis | Complete | `reports/r2-string-matrix.md` (six-fixture UTF-16 matrix), `reports/r2-string-representation.md` (four-candidate analysis; `[]uint16` kernel-backing recommendation) |
+| D — proposed R2 implementation contracts | Complete | `docs/adr/0025-*.md` (Accepted — class-init), `docs/adr/0027-*.md` (Accepted — UTF-16 String kernel backing), `r2-initialization-slice.md` and `r2-string-utf16-slice.md` (Proposed) |
 
 ---
 
 ## Handoff
 
-- **Branch / candidate:** Governance changes awaiting integration
-- **Dirty files:** Governance ADR and planning documents
-- **Last location:** R2 research is accepted but has not started
-- **Checks run / not run:** Document checks pending
-- **Blocker:** Governance baseline must be committed before research work begins
-- **Next action:** Integrate governance baseline, then begin Slice A
-- **Non-derivable context:** This is a research-only workstream; no production implementation is authorized.
+- **Branch / candidate:** `main` (dirty — research artifacts uncommitted)
+- **Dirty files:** Research evidence and fixtures under `docs/workstreams/r2-evidence/`, 2 Proposed ADRs under `docs/adr/`, 1 Proposed implementation contract under `docs/workstreams/`, plus their indexes/status documents
+- **Last location:** All 4 slices Complete; 5/5 gates scored Pass. Owner accepted ADR-0025, ADR-0027, and `r2-initialization-slice`; research workstream is Done.
+- **Checks run / not run:** Differential harness run (16/16 fixtures compiled, full matrix populated) and `git diff --check` passed; `go vet ./...`, `go test ./...`, `go test -race ./...`, `bash tests/run.sh` were not re-run because production code is unchanged
+- **Blocker:** None — `r2-initialization-slice` is Accepted. The separate String contract remains Proposed.
+- **Next action:** Assign one Active Agent to `r2-initialization-slice` on an implementation branch/worktree.
+- **Non-derivable context:** The research harness requires `catty build` to be invoked from the repo root for AOT (module-context issue documented in `matrix.md`). The 16 differential fixtures are concat-free (Java 25 `javac` emits `invokedynamic` for `+`; catty defers `invokedynamic` to R3). The `ReachUnsafe` fixture exercises the bootstrap boundary in pure-synthetic mode (no java.base extracted) — extracting java.base with `jimage` is an Owner decision for broader coverage.
