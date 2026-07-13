@@ -157,7 +157,7 @@ Any missing item keeps the workstream `Accepted`; it may not become `In Progress
 | Slice | Status | Evidence |
 |---|---|---|
 | A — SC heap cells, concurrency-safe loader, and canonical Class mirrors | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/9576828/` — `ec1b398`, 22 files, all gates Pass |
-| B — stable Thread facade/context, lifecycle, carriers, join, and VM liveness | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/a0e336c/` — `a0e336c` (rework), 6 files reworked, all gates Pass |
+| B — stable Thread facade/context, lifecycle, carriers, join, and VM liveness | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/b0a7b70/` — `b0a7b70` (final), 2 files reworked, all gates Pass |
 | C — monitors, synchronized methods, wait sets, and interruption | Pending | — |
 | D — concurrent ADR-0025 initialization and full Interpreter/IR fixture matrix | Pending | — |
 | E — AOT fail-closed rejection, race stress, regression, evidence, and docs | Pending | — |
@@ -168,23 +168,21 @@ Status uses `Pending`, `In progress`, or `Complete`.
 
 ## Handoff
 
-- **Branch / candidate:** `worktree-r2-thread-monitor-foundation` / `a0e336c` (Slice B rework, awaiting Owner review)
+- **Branch / candidate:** `worktree-r2-thread-monitor-foundation` / `b0a7b70` (Slice B final, awaiting Owner review)
 - **Acceptance anchor / base:** `a0288be` governance commit / research baseline `63d5658`
 - **Slice A evidence:** `docs/workstreams/r2-concurrency-candidate-evidence/9576828/` — `ec1b398`, accepted by Owner
 - **Slice B original:** `docs/workstreams/r2-concurrency-candidate-evidence/505d3ee/` — `505d3ee`
-- **Slice B rework evidence:** `docs/workstreams/r2-concurrency-candidate-evidence/a0e336c/` — `a0e336c`
-- **Rework scope:** 6 files, +421/−40 — fix 3 acceptance blockers:
-  1. Terminate exactly-once (CAS guard)
-  2. Interrupted() waker drain + Sleep re-check
-  3. setDaemon lifecycle rules + configMu synchronization
-- **Gates (all run on `a0e336c`):**
+- **Slice B rework 1:** `docs/workstreams/r2-concurrency-candidate-evidence/a0e336c/` — `a0e336c` (3 blockers)
+- **Slice B rework 2 (final):** `docs/workstreams/r2-concurrency-candidate-evidence/b0a7b70/` — `b0a7b70` (daemon race fix)
+- **Rework 2 scope:** 2 files, +76/−3 — IsDaemon holds configMu
+- **Gates (all run on `b0a7b70`):**
   - `go build ./...` — **Pass**
   - `go vet ./...` — **Pass**
   - `go test ./...` — **Pass**
   - `go test -race ./...` — **Pass** (all 8 packages)
   - `bash tests/run.sh` — **Pass** (10/10 fixtures)
-  - `git diff --check 3034e05..a0e336c` — **Pass**
-- **New tests:** rtda: +8 test functions (15 subtests); native: +3 tests — all under `-race`
+  - `git diff --check 3034e05..b0a7b70` — **Pass**
+- **New test:** rtda: +1 test function `TestConcurrentSetDaemonAndIsDaemon` (3 subtests) — all under `-race`
 - **Contract gates not yet run:** 19-fixture matrix, AOT rejection matrix, race stress, evidence isolation check
 - **Slice A scope:** 22 files, +1306/−259 — HeapCell typed accessors, CopyObjectCells overlap-safe, Cells()/StaticCells() removed, classloader CAS/double-check, canonical Class mirrors via ClassObject CAS-once, 34 new `-race` tests
 - **Slice B scope (original):** 10 files, +1464/−23 — VM supervisor, Thread lifecycle/interrupt/daemon/sleep, 15 native Thread methods, goroutine carrier, join, DefaultRunLoop callback, 51 new `-race` tests (rtda: 32 thread + 5 vm; native: 14)
