@@ -3,6 +3,7 @@ package native
 import (
 	"fmt"
 	"io"
+	"unicode/utf8"
 
 	"catty/rtda"
 )
@@ -35,7 +36,8 @@ func writer(f *rtda.Frame) io.Writer {
 }
 
 func printlnString(f *rtda.Frame) {
-	fmt.Fprintln(writer(f), stringValue(f.GetRef(1)))
+	sv := stringValueSV(f.GetRef(1))
+	fmt.Fprintln(writer(f), sv.GoString())
 }
 
 func printlnInt(f *rtda.Frame) {
@@ -58,7 +60,10 @@ func printlnBool(f *rtda.Frame) {
 // printlnChar prints the int argument as a Unicode code point, matching Java's
 // println(char) which prints the character itself (not its numeric value).
 func printlnChar(f *rtda.Frame) {
-	fmt.Fprintln(writer(f), string(rune(f.GetInt(1))))
+	ch := rune(f.GetInt(1))
+	var buf [utf8.UTFMax]byte
+	n := utf8.EncodeRune(buf[:], ch)
+	fmt.Fprintln(writer(f), string(buf[:n]))
 }
 
 func printlnEmpty(f *rtda.Frame) {
@@ -66,7 +71,8 @@ func printlnEmpty(f *rtda.Frame) {
 }
 
 func printString(f *rtda.Frame) {
-	fmt.Fprint(writer(f), stringValue(f.GetRef(1)))
+	sv := stringValueSV(f.GetRef(1))
+	fmt.Fprint(writer(f), sv.GoString())
 }
 
 func printInt(f *rtda.Frame) {

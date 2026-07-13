@@ -147,10 +147,7 @@ func classGetName(f *rtda.Frame) {
 	this := f.GetRef(0)
 	cls := getClassFromExtra(this)
 	name := javaToDot(cls.Name())
-	strClass := f.Thread().Loader().LoadClass("java/lang/String")
-	out := rtda.NewObject(strClass)
-	out.SetExtra(name)
-	f.PushRef(out)
+	f.PushRef(newStringFromGo(f.Thread(), name))
 }
 
 func classGetSimpleName(f *rtda.Frame) {
@@ -164,10 +161,7 @@ func classGetSimpleName(f *rtda.Frame) {
 			break
 		}
 	}
-	strClass := f.Thread().Loader().LoadClass("java/lang/String")
-	out := rtda.NewObject(strClass)
-	out.SetExtra(name)
-	f.PushRef(out)
+	f.PushRef(newStringFromGo(f.Thread(), name))
 }
 
 func classDesiredAssertionStatus(f *rtda.Frame) {
@@ -311,8 +305,9 @@ func classGetPrimitiveClass(f *rtda.Frame) {
 		f.PushRef(nil)
 		return
 	}
-	// Extract the primitive class name from the "String" object extra
-	primName, _ := name.Extra().(string)
+	// Extract the primitive class name from the StringValue.
+	sv := stringValueSV(name)
+	primName := sv.GoString()
 	// Map JVM internal primitive names
 	switch primName {
 	case "int":

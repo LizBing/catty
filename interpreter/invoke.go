@@ -34,6 +34,13 @@ func invokeNative(thread *rtda.Thread, method *rtda.Method) {
 	frame := thread.NewFrame(method)
 	copyArgs(caller, frame, method)
 	method.NativeFunc()(frame)
+	// A native method that throws an exception (via Thread.Throw) must
+	// NOT transfer a return value — the callee frame's stack may be in
+	// an inconsistent state, and the interpreter will dispatch the
+	// pending exception instead.
+	if thread.HasException() {
+		return
+	}
 	transferReturn(caller, frame, method.ReturnType())
 }
 
@@ -155,7 +162,7 @@ func pushConstant(thread *rtda.Thread, frame *rtda.Frame, cp *classfile.Constant
 	case classfile.ConstantFloat:
 		frame.PushFloat(cp.Float(index))
 	case classfile.ConstantString:
-		frame.PushRef(newString(thread, cp.String(index)))
+		frame.PushRef(newString(thread, cp.UTF16(index)))
 	case classfile.ConstantClass:
 		className := cp.ClassName(index)
 		cls := thread.Loader().LoadClass(className)
@@ -163,11 +170,12 @@ func pushConstant(thread *rtda.Thread, frame *rtda.Frame, cp *classfile.Constant
 	}
 }
 
-// newString creates a java.lang.String object backed by a Go string value.
-func newString(thread *rtda.Thread, value string) *rtda.Object {
+// newString creates a java.lang.String object from lossless UTF-16 code units
+// (obtained from the classfile constant pool via decodeMUTF8ToUTF16).
+func newString(thread *rtda.Thread, units []uint16) *rtda.Object {
 	class := thread.Loader().LoadClass("java/lang/String")
 	obj := rtda.NewObject(class)
-	obj.SetExtra(value)
+	obj.SetExtra(rtda.NewStringValueFromUTF16Literal(units))
 	return obj
 }
 

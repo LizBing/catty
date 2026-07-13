@@ -114,12 +114,56 @@ func runMethod(method *rtda.Method, args []rtda.Slot) rtda.Slot {
 	return interpreter.RunMethod(thread, method, args)
 }
 
-// NewString creates a java.lang.String carrying the Go string in its extra
-// payload, matching how the interpreter represents ldc strings.
-func NewString(s string) *rtda.Object {
+// NewString creates a java.lang.String from UTF-16 code units decoded
+// losslessly from the classfile constant pool.
+func NewString(units []uint16) *rtda.Object {
 	obj := rtda.NewObject(loader.LoadClass("java/lang/String"))
-	obj.SetExtra(s)
+	obj.SetExtra(rtda.NewStringValueFromUTF16Literal(units))
 	return obj
+}
+
+// NewStringFromGo creates a java.lang.String from a Go string by converting
+// each rune to UTF-16 code units. Used by AOT-emitted code for String literal
+// constants where the Go source representation is the only practical
+// interchange format. For ASCII/BMP strings this is lossless; lone surrogates
+// encoded in MUTF-8 will be preserved through the raw bytes.
+func NewStringFromGo(s string) *rtda.Object {
+	obj := rtda.NewObject(loader.LoadClass("java/lang/String"))
+	units := goToUTF16(s)
+	obj.SetExtra(rtda.NewStringValueFromUTF16Literal(units))
+	return obj
+}
+
+// goToUTF16 converts a Go string to UTF-16 code units.
+func goToUTF16(s string) []uint16 {
+	if s == "" {
+		return []uint16{}
+	}
+	ascii := true
+	for _, r := range s {
+		if r >= 0x80 {
+			ascii = false
+			break
+		}
+	}
+	if ascii {
+		units := make([]uint16, len(s))
+		for i, b := range []byte(s) {
+			units[i] = uint16(b)
+		}
+		return units
+	}
+	var units []uint16
+	for _, r := range s {
+		if r < 0x10000 {
+			units = append(units, uint16(r))
+		} else {
+			r -= 0x10000
+			units = append(units, uint16((r>>10)&0x3FF)+0xD800)
+			units = append(units, uint16(r&0x3FF)+0xDC00)
+		}
+	}
+	return units
 }
 
 // NewIntArray builds a Java int[] from Go values — a convenience for transpiled
@@ -139,13 +183,17 @@ func FloatMod(a, b float32) float32  { return float32(math.Mod(float64(a), float
 func DoubleMod(a, b float64) float64 { return math.Mod(a, b) }
 
 // runNative sets up a frame with the given argument slots, runs the native
-// method, and returns its result slot (zero for void).
+// method, and returns its result slot (zero for void). If the native method
+// signals an exception on the thread, no return value is transferred.
 func runNative(method *rtda.Method, args []rtda.Slot) rtda.Slot {
 	frame := thread.NewFrame(method)
 	for i, a := range args {
 		frame.SetSlot(i, a)
 	}
 	method.NativeFunc()(frame)
+	if thread.HasException() {
+		return rtda.Slot{}
+	}
 	return popReturn(frame, method.ReturnType())
 }
 

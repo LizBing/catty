@@ -142,7 +142,8 @@ func (e *emitter) emitOne(b *strings.Builder, inst *lowering.IRInst, cp *classfi
 			w("%s = %g", t, cp.Float(inst.Index))
 		case classfile.ConstantString:
 			t := e.defTemp(int(inst.Defs[0]), "*rtda.Object")
-			w("%s = runtime.NewString(%q)", t, cp.String(inst.Index))
+			units := cp.UTF16(inst.Index)
+			w("%s = runtime.NewString(%s)", t, formatUTF16Slice(units))
 		default:
 			return fmt.Errorf("ldc: unsupported constant tag %d", cp.Tag(inst.Index))
 		}
@@ -1120,4 +1121,41 @@ func setAccessor(desc string) string {
 // isRefDesc reports whether a descriptor is an object/array reference.
 func isRefDesc(desc string) bool {
 	return strings.HasPrefix(desc, "L") || strings.HasPrefix(desc, "[")
+}
+
+// formatUTF16Slice formats a []uint16 as a Go composite literal for AOT source
+// emission. Uses hex for compactness with non-ASCII values.
+func formatUTF16Slice(units []uint16) string {
+	if len(units) == 0 {
+		return "[]uint16{}"
+	}
+	allASCII := true
+	for _, u := range units {
+		if u >= 0x80 {
+			allASCII = false
+			break
+		}
+	}
+	if allASCII {
+		var b strings.Builder
+		b.WriteString("[]uint16{")
+		for i, u := range units {
+			if i > 0 {
+				b.WriteString(", ")
+			}
+			fmt.Fprintf(&b, "%d", u)
+		}
+		b.WriteByte('}')
+		return b.String()
+	}
+	var b strings.Builder
+	b.WriteString("[]uint16{")
+	for i, u := range units {
+		if i > 0 {
+			b.WriteString(", ")
+		}
+		fmt.Fprintf(&b, "0x%x", u)
+	}
+	b.WriteByte('}')
+	return b.String()
 }

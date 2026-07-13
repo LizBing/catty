@@ -1,10 +1,15 @@
 === R2 differential run ===
-repo:    /Users/lizbing/Workspace/Projects/catty
+repo:    /Users/lizbing/Workspace/Projects/catty/.claude/worktrees/r2-string-utf16-slice
+commit:  298b723ad124938e057b84b3bfced37d83beea3e
+branch:  worktree-r2-string-utf16-slice
+base:    ecb086e
 java:    openjdk version "25.0.3" 2026-04-21 LTS
 javac:   javac 25.0.3
+go:      go version go1.26.5 darwin/arm64
 boot:    CATTY_BOOT=<unset>; JAVA_HOME=<unset>
 mode:    catty -no-boot (pure-synthetic, controlled semantic differential)
 compare: combined stdout+stderr AND exit code must equal Temurin 25
+results: /Users/lizbing/Workspace/Projects/catty/.claude/worktrees/r2-string-utf16-slice/docs/workstreams/r2-evidence/run-r2-results.txt
 
 ==> building catty
 fixture                    Temurin25  Interp     IR         AOT
@@ -25,17 +30,19 @@ ClinitOrder                ref        match      match      NO-BUILD
       main
 [-] catty aot:
       catty build: transpile: ClinitOrder.main cannot be AOT'd (unsupported opcodes?)
-ClinitThrows               ref        MISMATCH   MISMATCH   MISMATCH
+ClinitThrows               ref        match      match      NO-BUILD
 ----- ClinitThrows -----
 [0] temurin25:
       java.lang.ExceptionInInitializerError
       java.lang.NoClassDefFoundError
-[1] catty interp:
-      Exception in thread "main" java.lang.RuntimeException: boom
-[1] catty ir:
-      Exception in thread "main" java.lang.RuntimeException: boom
-[1] catty aot:
-      Exception in thread "main" java.lang.RuntimeException: boom
+[0] catty interp:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[0] catty ir:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[-] catty aot:
+      catty build: transpile: ClinitThrows.main([Ljava/lang/String;)V triggers class initialization on Bomb; AOT exception propagation not yet supported
 ConstantFieldNoInit        ref        match      match      match
 ----- ConstantFieldNoInit -----
 [0] temurin25:
@@ -46,56 +53,90 @@ ConstantFieldNoInit        ref        match      match      match
       7
 [0] catty aot:
       7
-GetstaticOwner             ref        MISMATCH   MISMATCH   MISMATCH
+DirectInvokeStaticInit     ref        match      match      NO-BUILD
+----- DirectInvokeStaticInit -----
+[0] temurin25:
+      SideEffect
+      1
+      2
+[0] catty interp:
+      SideEffect
+      1
+      2
+[0] catty ir:
+      SideEffect
+      1
+      2
+[-] catty aot:
+      catty build: transpile: DirectInvokeStaticInit.main([Ljava/lang/String;)V triggers class initialization on SideEffect; AOT exception propagation not yet supported
+GetstaticOwner             ref        match      match      NO-BUILD
 ----- GetstaticOwner -----
 [0] temurin25:
       Base
       7
-[1] catty interp:
+[0] catty interp:
       Base
-      Sub
-      catty: runtime error: index out of range [0] with length 0
-[1] catty ir:
+      7
+[0] catty ir:
       Base
-      Sub
-      catty: runtime error: index out of range [0] with length 0
-[2] catty aot:
-      Base
-      Sub
-      panic: runtime error: index out of range [0] with length 0
-
-      goroutine 1 [running]:
-      catty/runtime.GetStatic({0x104b5e4e4?, 0x799fd4ab20b0?}, {0x104b5e460, 0x1}, {0x104b5e461, 0x1})
-	/Users/lizbing/Workspace/Projects/catty/runtime/runtime.go:41 +0x228
-      main.GetstaticOwner_main(0x104b68e76?)
-	/var/folders/43/qdn_rh0j0b5btn_x7mj5_rl00000gn/T/catty-build-820130354.go/program.go:12 +0x6c
-      main.main()
-	/var/folders/43/qdn_rh0j0b5btn_x7mj5_rl00000gn/T/catty-build-820130354.go/program.go:32 +0x3c
-HashDivergence             ref        MISMATCH   MISMATCH   MISMATCH
+      7
+[-] catty aot:
+      catty build: transpile: GetstaticOwner.main([Ljava/lang/String;)V triggers class initialization on Base; AOT exception propagation not yet supported
+HashDivergence             ref        match      match      match
 ----- HashDivergence -----
 [0] temurin25:
       1772899
 [0] catty interp:
-      2017367872
+      1772899
 [0] catty ir:
-      2017367872
+      1772899
 [0] catty aot:
-      2017367872
-InterfaceDefaultInit       ref        MISMATCH   MISMATCH   MISMATCH
+      1772899
+IfaceInitFailureNoOwnClinit ref        match      match      NO-BUILD
+----- IfaceInitFailureNoOwnClinit -----
+[0] temurin25:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[0] catty interp:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[0] catty ir:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[-] catty aot:
+      catty build: transpile: IfaceInitFailureNoOwnClinit.main cannot be AOT'd (unsupported opcodes?)
+InheritedStaticInit        ref        match      match      NO-BUILD
+----- InheritedStaticInit -----
+[0] temurin25:
+      Ancestor
+      99
+      99
+[0] catty interp:
+      Ancestor
+      99
+      99
+[0] catty ir:
+      Ancestor
+      99
+      99
+[-] catty aot:
+      catty build: transpile: InheritedStaticInit.main([Ljava/lang/String;)V triggers class initialization on Ancestor; AOT exception propagation not yet supported
+InterfaceDefaultInit       ref        match      match      NO-BUILD
 ----- InterfaceDefaultInit -----
 [0] temurin25:
       I
       after-new
       I.m
 [0] catty interp:
+      I
       after-new
       I.m
 [0] catty ir:
+      I
       after-new
       I.m
-[0] catty aot:
-      after-new
-      I.m
+[-] catty aot:
+      catty build: transpile: InterfaceDefaultInit.main([Ljava/lang/String;)V triggers class initialization on Iface; AOT exception propagation not yet supported
 InterfaceNoInitOnImpl      ref        match      match      NO-BUILD
 ----- InterfaceNoInitOnImpl -----
 [0] temurin25:
@@ -106,7 +147,7 @@ InterfaceNoInitOnImpl      ref        match      match      NO-BUILD
       main
 [-] catty aot:
       catty build: transpile: InterfaceNoInitOnImpl.main cannot be AOT'd (unsupported opcodes?)
-InvokeStaticInit           ref        match      match      match
+InvokeStaticInit           ref        match      match      NO-BUILD
 ----- InvokeStaticInit -----
 [0] temurin25:
       Holder
@@ -117,18 +158,19 @@ InvokeStaticInit           ref        match      match      match
 [0] catty ir:
       Holder
       42
-[0] catty aot:
-      Holder
-      42
-LoneSurrogate              ref        MISMATCH   MISMATCH   NO-BUILD
+[-] catty aot:
+      catty build: transpile: Holder.getX()I triggers class initialization on Holder; AOT exception propagation not yet supported
+LoneSurrogate              ref        match      match      NO-BUILD
 ----- LoneSurrogate -----
 [0] temurin25:
       1
       55357
-[1] catty interp:
-      catty: catty: invokeMethod received nil method from frame LoneSurrogate.main([Ljava/lang/String;)V
-[1] catty ir:
-      catty: catty: invokeMethod received nil method from frame LoneSurrogate.main([Ljava/lang/String;)V
+[0] catty interp:
+      1
+      55357
+[0] catty ir:
+      1
+      55357
 [-] catty aot:
       catty build: transpile: LoneSurrogate.main cannot be AOT'd (unsupported opcodes?)
 ReachUnsafe                ref        MISMATCH   MISMATCH   NO-BUILD
@@ -140,10 +182,10 @@ ReachUnsafe                ref        MISMATCH   MISMATCH   NO-BUILD
 [1] catty ir:
       catty: catty: class not found: java/lang/Integer
 [-] catty aot:
-	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+              /Users/lizbing/Workspace/Projects/catty/.claude/worktrees/r2-string-utf16-slice/cmd/jvm/main.go:134 +0x244
       main.main()
-	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
-RecursiveInitialization    ref        match      match      match
+              /Users/lizbing/Workspace/Projects/catty/.claude/worktrees/r2-string-utf16-slice/cmd/jvm/main.go:21 +0x98
+RecursiveInitialization    ref        match      match      NO-BUILD
 ----- RecursiveInitialization -----
 [0] temurin25:
       init
@@ -157,22 +199,22 @@ RecursiveInitialization    ref        match      match      match
       init
       0
       5
-[0] catty aot:
-      init
-      0
-      5
-StringBounds               ref        MISMATCH   MISMATCH   NO-BUILD
+[-] catty aot:
+      catty build: transpile: RecursiveInit.initialize()I triggers class initialization on RecursiveInit; AOT exception propagation not yet supported
+StringBounds               ref        match      match      NO-BUILD
 ----- StringBounds -----
 [0] temurin25:
       java.lang.StringIndexOutOfBoundsException
       java.lang.StringIndexOutOfBoundsException
 [0] catty interp:
-
+      java.lang.StringIndexOutOfBoundsException
+      java.lang.StringIndexOutOfBoundsException
 [0] catty ir:
-
+      java.lang.StringIndexOutOfBoundsException
+      java.lang.StringIndexOutOfBoundsException
 [-] catty aot:
       catty build: transpile: StringBounds.main cannot be AOT'd (unsupported opcodes?)
-StringCharArrayRoundTrip   ref        MISMATCH   MISMATCH   NO-BUILD
+StringCharArrayRoundTrip   ref        match      match      NO-BUILD
 ----- StringCharArrayRoundTrip -----
 [0] temurin25:
       3
@@ -180,13 +222,21 @@ StringCharArrayRoundTrip   ref        MISMATCH   MISMATCH   NO-BUILD
       56832
       55357
       55357
-[1] catty interp:
-      catty: catty: invokeMethod received nil method from frame StringCharArrayRoundTrip.main([Ljava/lang/String;)V
-[1] catty ir:
-      catty: catty: invokeMethod received nil method from frame StringCharArrayRoundTrip.main([Ljava/lang/String;)V
+[0] catty interp:
+      3
+      55357
+      56832
+      55357
+      55357
+[0] catty ir:
+      3
+      55357
+      56832
+      55357
+      55357
 [-] catty aot:
       catty build: transpile: StringCharArrayRoundTrip.main cannot be AOT'd (unsupported opcodes?)
-StringSubstringUnits       ref        MISMATCH   MISMATCH   MISMATCH
+StringSubstringUnits       ref        match      match      match
 ----- StringSubstringUnits -----
 [0] temurin25:
       2
@@ -196,50 +246,65 @@ StringSubstringUnits       ref        MISMATCH   MISMATCH   MISMATCH
       55357
 [0] catty interp:
       2
-      65533
-      65533
+      55357
+      56832
       1
-      65533
+      55357
 [0] catty ir:
       2
-      65533
-      65533
+      55357
+      56832
       1
-      65533
+      55357
 [0] catty aot:
       2
-      65533
-      65533
+      55357
+      56832
       1
-      65533
-SuperclassInitializationFailure ref        MISMATCH   MISMATCH   NO-BUILD
+      55357
+SuperclassInitializationFailure ref        match      match      NO-BUILD
 ----- SuperclassInitializationFailure -----
 [0] temurin25:
       java.lang.ExceptionInInitializerError
       java.lang.NoClassDefFoundError
-[1] catty interp:
-      Exception in thread "main" java.lang.RuntimeException: boom
-[1] catty ir:
-      Exception in thread "main" java.lang.RuntimeException: boom
+[0] catty interp:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[0] catty ir:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
 [-] catty aot:
       catty build: transpile: SuperclassInitializationFailure.main cannot be AOT'd (unsupported opcodes?)
-SupplementaryChar          ref        MISMATCH   MISMATCH   MISMATCH
+SuperInitFailureNoOwnClinit ref        match      match      NO-BUILD
+----- SuperInitFailureNoOwnClinit -----
+[0] temurin25:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[0] catty interp:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[0] catty ir:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[-] catty aot:
+      catty build: transpile: SuperInitFailureNoOwnClinit.main cannot be AOT'd (unsupported opcodes?)
+SupplementaryChar          ref        match      match      match
 ----- SupplementaryChar -----
 [0] temurin25:
       2
       55357
       56832
 [0] catty interp:
-      4
-      65533
-      65533
+      2
+      55357
+      56832
 [0] catty ir:
-      4
-      65533
-      65533
+      2
+      55357
+      56832
 [0] catty aot:
-      4
-      65533
-      65533
+      2
+      55357
+      56832
 
-==> full evidence written to: /Users/lizbing/Workspace/Projects/catty/docs/workstreams/r2-evidence/run-r2-results.txt
+==> full evidence written to: /Users/lizbing/Workspace/Projects/catty/.claude/worktrees/r2-string-utf16-slice/docs/workstreams/r2-evidence/run-r2-results.txt

@@ -64,7 +64,8 @@ func handleException(thread *rtda.Thread, throwPC int) {
 	fmt.Fprintf(os.Stderr, "Exception in thread \"main\" %s", javaClassName(excObj.Class().Name()))
 	msgSlot := findDetailMessage(excObj)
 	if msgSlot >= 0 && excObj.Fields()[msgSlot].Ref() != nil {
-		if s, ok := excObj.Fields()[msgSlot].Ref().Extra().(string); ok && s != "" {
+		s := stringValueFromObj(excObj.Fields()[msgSlot].Ref())
+		if s != "" {
 			fmt.Fprintf(os.Stderr, ": %s", s)
 		}
 	}
@@ -80,6 +81,19 @@ func findDetailMessage(obj *rtda.Object) int {
 		}
 	}
 	return -1
+}
+
+// stringValueFromObj extracts a human-readable Go string from a String object
+// for diagnostic output (uncaught exception handler). Returns "" if nil or
+// not a StringValue.
+func stringValueFromObj(obj *rtda.Object) string {
+	if obj == nil {
+		return ""
+	}
+	if sv, ok := obj.Extra().(*rtda.StringValue); ok {
+		return sv.GoString()
+	}
+	return ""
 }
 
 func javaClassName(internal string) string {
@@ -104,15 +118,48 @@ func throwRuntime(thread *rtda.Thread, pc int, className, message string) {
 		// Set detailMessage on the Throwable ancestor.
 		for c := cls; c != nil; c = c.SuperClass() {
 			if f := c.LookupField("detailMessage", "Ljava/lang/String;"); f != nil {
+				// Build a StringValue from the Go string message.
 				strClass := thread.Loader().LoadClass("java/lang/String")
 				msgObj := rtda.NewObject(strClass)
-				msgObj.SetExtra(message)
+				msgObj.SetExtra(rtda.NewStringValueFromUTF16Literal(goStringToUTF16Units(message)))
 				obj.Fields()[f.SlotID()].SetRef(msgObj)
 				break
 			}
 		}
 	}
 	thread.Throw(obj, pc)
+}
+
+// goStringToUTF16Units converts a Go string to UTF-16 code units.
+func goStringToUTF16Units(s string) []uint16 {
+	if s == "" {
+		return []uint16{}
+	}
+	ascii := true
+	for _, r := range s {
+		if r >= 0x80 {
+			ascii = false
+			break
+		}
+	}
+	if ascii {
+		units := make([]uint16, len(s))
+		for i, b := range []byte(s) {
+			units[i] = uint16(b)
+		}
+		return units
+	}
+	var units []uint16
+	for _, r := range s {
+		if r < 0x10000 {
+			units = append(units, uint16(r))
+		} else {
+			r -= 0x10000
+			units = append(units, uint16((r>>10)&0x3FF)+0xD800)
+			units = append(units, uint16(r&0x3FF)+0xDC00)
+		}
+	}
+	return units
 }
 
 // checkArrayBounds verifies array access bounds, throwing the appropriate

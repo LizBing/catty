@@ -14,6 +14,7 @@ func init() {
 	registerSynthetic("java/lang/IndexOutOfBoundsException", buildIndexOutOfBounds)
 	registerSynthetic("java/lang/ClassCastException", buildCCE)
 	registerSynthetic("java/lang/IllegalArgumentException", buildIAE)
+	registerSynthetic("java/lang/StringIndexOutOfBoundsException", buildStringIndexOutOfBounds)
 	registerSynthetic("java/lang/Error", func(loader rtda.Loader) *rtda.Class {
 		return buildExceptionSubclass("java/lang/Error", "java/lang/Throwable", loader)
 	})
@@ -55,24 +56,21 @@ func buildEIIE(loader rtda.Loader) *rtda.Class {
 func eiieInitThrowable(f *rtda.Frame) {
 	this := f.GetRef(0)
 	t := f.GetRef(1)
-	// Set detailMessage from t.getMessage() on the Throwable ancestor.
 	slot := detailMessageSlot(this)
 	if t != nil {
-		msg := ""
+		var msgSV *rtda.StringValue
 		for c := t.Class(); c != nil; c = c.SuperClass() {
 			if mf := c.LookupField("detailMessage", "Ljava/lang/String;"); mf != nil {
 				if msgObj := t.Fields()[mf.SlotID()].Ref(); msgObj != nil {
-					if s, ok := msgObj.Extra().(string); ok {
-						msg = s
+					if sv, ok := msgObj.Extra().(*rtda.StringValue); ok {
+						msgSV = sv
 					}
 				}
 				break
 			}
 		}
-		if msg != "" {
-			strClass := f.Thread().Loader().LoadClass("java/lang/String")
-			msgObj := rtda.NewObject(strClass)
-			msgObj.SetExtra(msg)
+		if msgSV != nil && !msgSV.IsEmpty() {
+			msgObj := newStringFromSV(f.Thread(), msgSV)
 			this.Fields()[slot].SetRef(msgObj)
 		}
 	} else {
@@ -155,18 +153,15 @@ func throwableToString(f *rtda.Frame) {
 	msgObj := this.Fields()[msgSlot].Ref()
 	msg := ""
 	if msgObj != nil {
-		if s, ok := msgObj.Extra().(string); ok {
-			msg = s
+		if sv, ok := msgObj.Extra().(*rtda.StringValue); ok {
+			msg = sv.GoString()
 		}
 	}
 	result := className
 	if msg != "" {
 		result += ": " + msg
 	}
-	strClass := f.Thread().Loader().LoadClass("java/lang/String")
-	out := rtda.NewObject(strClass)
-	out.SetExtra(result)
-	f.PushRef(out)
+	f.PushRef(newStringFromGo(f.Thread(), result))
 }
 
 // javaClassName converts an internal class name ("java/lang/NullPointerException")
@@ -225,4 +220,8 @@ func buildCCE(loader rtda.Loader) *rtda.Class {
 
 func buildIAE(loader rtda.Loader) *rtda.Class {
 	return buildExceptionSubclass("java/lang/IllegalArgumentException", "java/lang/RuntimeException", loader)
+}
+
+func buildStringIndexOutOfBounds(loader rtda.Loader) *rtda.Class {
+	return buildExceptionSubclass("java/lang/StringIndexOutOfBoundsException", "java/lang/IndexOutOfBoundsException", loader)
 }

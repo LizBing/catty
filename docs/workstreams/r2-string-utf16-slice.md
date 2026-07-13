@@ -1,6 +1,6 @@
 # R2 String UTF-16 slice
 
-**Status:** Proposed
+**Status:** In Progress
 **Type:** implementation
 **Review:** owner
 **Base commit:** `ecb086e`
