@@ -1,0 +1,209 @@
+=== R2 String differential run ===
+candidate: 7c1dc04
+repo:      /Users/lizbing/Workspace/Projects/catty/.claude/worktrees/r2-string-utf16-slice
+commit:    7c1dc04b20dc3a741cc690db4398e4e502ea5d71
+base:      298b723
+date:      2026-07-13T14:48:43Z
+toolchain: java=25.0.3, go=go1.26.5, javac=25.0.3
+compare:   combined stdout+stderr AND exit code must equal Temurin 25 (fail-closed)
+
+==> building catty
+fixture                      exit   Temurin25  Interp     IR         AOT
+-------                      ----   ---------  ------     --         ---
+SupplementaryChar            0      2
+55357
+56832 match      match      match
+----- SupplementaryChar -----
+[0] temurin25:
+2
+55357
+56832
+[0] catty interp:
+2
+55357
+56832
+[0] catty ir:
+2
+55357
+56832
+[0] catty aot:
+2
+55357
+56832
+HashDivergence               0      1772899    match      match      match
+----- HashDivergence -----
+[0] temurin25:
+1772899
+[0] catty interp:
+1772899
+[0] catty ir:
+1772899
+[0] catty aot:
+1772899
+LoneSurrogate                0      1
+55357    match      match      NO-BUILD
+----- LoneSurrogate -----
+[0] temurin25:
+1
+55357
+[0] catty interp:
+1
+55357
+[0] catty ir:
+1
+55357
+[-] catty aot:
+catty build: transpile: LoneSurrogate.main cannot be AOT'd (unsupported opcodes?)
+StringBounds                 0      java.lang.StringIndexOutOfBoundsException
+java.lang.StringIndexOutOfBoundsException match      match      NO-BUILD
+----- StringBounds -----
+[0] temurin25:
+java.lang.StringIndexOutOfBoundsException
+java.lang.StringIndexOutOfBoundsException
+[0] catty interp:
+java.lang.StringIndexOutOfBoundsException
+java.lang.StringIndexOutOfBoundsException
+[0] catty ir:
+java.lang.StringIndexOutOfBoundsException
+java.lang.StringIndexOutOfBoundsException
+[-] catty aot:
+catty build: transpile: StringBounds.main cannot be AOT'd (unsupported opcodes?)
+StringSubstringUnits         0      2
+55357
+56832
+1
+55357 match      match      match
+----- StringSubstringUnits -----
+[0] temurin25:
+2
+55357
+56832
+1
+55357
+[0] catty interp:
+2
+55357
+56832
+1
+55357
+[0] catty ir:
+2
+55357
+56832
+1
+55357
+[0] catty aot:
+2
+55357
+56832
+1
+55357
+StringCharArrayRoundTrip     0      3
+55357
+56832
+55357
+55357 match      match      NO-BUILD
+----- StringCharArrayRoundTrip -----
+[0] temurin25:
+3
+55357
+56832
+55357
+55357
+[0] catty interp:
+3
+55357
+56832
+55357
+55357
+[0] catty ir:
+3
+55357
+56832
+55357
+55357
+[-] catty aot:
+catty build: transpile: StringCharArrayRoundTrip.main cannot be AOT'd (unsupported opcodes?)
+LoneSurrogateLiteral         0      1
+55296    match      match      match
+----- LoneSurrogateLiteral -----
+[0] temurin25:
+1
+55296
+[0] catty interp:
+1
+55296
+[0] catty ir:
+1
+55296
+[0] catty aot:
+1
+55296
+StringNativeSurface          0      A:NPE
+A:NPE
+A:NPE
+A:NPE
+A:NPE
+A:NPE
+null
+null
+null|X
+lone-high:?
+lone-low:?
+valid:A match      match      match
+----- StringNativeSurface -----
+[0] temurin25:
+A:NPE
+A:NPE
+A:NPE
+A:NPE
+A:NPE
+A:NPE
+null
+null
+null|X
+lone-high:?
+lone-low:?
+valid:A
+[0] catty interp:
+A:NPE
+A:NPE
+A:NPE
+A:NPE
+A:NPE
+A:NPE
+null
+null
+null|X
+lone-high:?
+lone-low:?
+valid:A
+[0] catty ir:
+A:NPE
+A:NPE
+A:NPE
+A:NPE
+A:NPE
+A:NPE
+null
+null
+null|X
+lone-high:?
+lone-low:?
+valid:A
+[0] catty aot:
+A:NPE
+A:NPE
+A:NPE
+A:NPE
+A:NPE
+A:NPE
+null
+null
+null|X
+lone-high:?
+lone-low:?
+valid:A
+
+==> 8 passed, 0 failed (8 total)
+evidence: /Users/lizbing/Workspace/Projects/catty/.claude/worktrees/r2-string-utf16-slice/docs/workstreams/r2-string-evidence/7c1dc04/run-string-results.txt

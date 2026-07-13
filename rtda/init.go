@@ -123,7 +123,7 @@ func setEIIEData(loader Loader, eiie, cause *Object) {
 			if msg != "" {
 				strClass := loader.LoadClass("java/lang/String")
 				msgObj := NewObject(strClass)
-				msgObj.SetExtra(msg)
+				msgObj.SetExtra(newStringValueFromGo(msg))
 				eiie.Fields()[f.SlotID()].SetRef(msgObj)
 			}
 			break
@@ -137,8 +137,8 @@ func getThrowableMessage(obj *Object) string {
 	for cls := obj.Class(); cls != nil; cls = cls.superClass {
 		if f := cls.LookupField("detailMessage", "Ljava/lang/String;"); f != nil {
 			if msgObj := obj.Fields()[f.SlotID()].Ref(); msgObj != nil {
-				if s, ok := msgObj.Extra().(string); ok {
-					return s
+				if sv, ok := msgObj.Extra().(*StringValue); ok {
+					return sv.GoString()
 				}
 			}
 			return ""
@@ -148,18 +148,50 @@ func getThrowableMessage(obj *Object) string {
 }
 
 // setDetailMessage writes a string into a Throwable's detailMessage field.
-// The string is allocated as a real java/lang/String object via the loader,
-// preserving the R1 string payload convention (Go string in Extra).
 func setDetailMessage(loader Loader, obj *Object, msg string) {
 	for cls := obj.Class(); cls != nil; cls = cls.superClass {
 		if f := cls.LookupField("detailMessage", "Ljava/lang/String;"); f != nil {
 			if msg != "" {
 				strClass := loader.LoadClass("java/lang/String")
 				strObj := NewObject(strClass)
-				strObj.SetExtra(msg)
+				strObj.SetExtra(newStringValueFromGo(msg))
 				obj.Fields()[f.SlotID()].SetRef(strObj)
 			}
 			return
 		}
 	}
+}
+
+// newStringValueFromGo converts a Go string to a StringValue by encoding
+// each rune as UTF-16 code units. Used for diagnostic messages and class
+// names that originate from Go-level strings rather than classfile data.
+func newStringValueFromGo(s string) *StringValue {
+	if s == "" {
+		return NewStringValue([]uint16{})
+	}
+	ascii := true
+	for _, r := range s {
+		if r >= 0x80 {
+			ascii = false
+			break
+		}
+	}
+	if ascii {
+		units := make([]uint16, len(s))
+		for i, b := range []byte(s) {
+			units[i] = uint16(b)
+		}
+		return NewStringValue(units)
+	}
+	var units []uint16
+	for _, r := range s {
+		if r < 0x10000 {
+			units = append(units, uint16(r))
+		} else {
+			r -= 0x10000
+			units = append(units, uint16((r>>10)&0x3FF)+0xD800)
+			units = append(units, uint16(r&0x3FF)+0xDC00)
+		}
+	}
+	return NewStringValue(units)
 }

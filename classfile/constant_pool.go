@@ -46,9 +46,10 @@ func readConstantInfo(reader *ClassReader, cp *ConstantPool) ConstantInfo {
 		return &ConstantDoubleInfo{val: math.Float64frombits(reader.ReadUint64())}
 	case ConstantUtf8:
 		length := reader.ReadUint16()
-		raw := reader.data[:length]
+		raw := make([]byte, length)
+		copy(raw, reader.data[:length])
 		reader.data = reader.data[length:]
-		return &ConstantUtf8Info{str: decodeMUTF8(raw)}
+		return &ConstantUtf8Info{str: decodeMUTF8(raw), raw: raw}
 	case ConstantString:
 		return &ConstantStringInfo{cp: cp, strIndex: reader.ReadUint16()}
 	case ConstantClass:
@@ -100,10 +101,17 @@ const (
 
 // --- Concrete constant info types ---
 
-type ConstantUtf8Info struct{ str string }
+type ConstantUtf8Info struct {
+	str string // Go string decoded via decodeMUTF8 (for names/descriptors)
+	raw []byte // raw MUTF-8 bytes (for lossless UTF-16 String constant decoding)
+}
 
 func (c *ConstantUtf8Info) Tag() uint8 { return ConstantUtf8 }
 func (c *ConstantUtf8Info) Str() string { return c.str }
+
+// UTF16 returns the lossless UTF-16 code units decoded from the raw MUTF-8
+// bytes. Used only for CONSTANT_String entries.
+func (c *ConstantUtf8Info) UTF16() []uint16 { return decodeMUTF8ToUTF16(c.raw) }
 
 type ConstantIntegerInfo struct{ val int32 }
 
@@ -130,8 +138,25 @@ type ConstantStringInfo struct {
 	strIndex uint16
 }
 
-func (c *ConstantStringInfo) Tag() uint8    { return ConstantString }
-func (c *ConstantStringInfo) Str() string   { return c.cp.UTF8(c.strIndex) }
+func (c *ConstantStringInfo) Tag() uint8  { return ConstantString }
+func (c *ConstantStringInfo) Str() string { return c.cp.UTF8(c.strIndex) }
+
+// UTF16 returns the CONSTANT_String literal as lossless UTF-16 code units,
+// preserving every code unit including unpaired surrogates and NUL encoded
+// via MUTF-8. This is the accessor for String literal materialization
+// (Interpreter, IR, and AOT). Names and descriptors should continue to use
+// the Str() accessor (which decodes to a Go string via decodeMUTF8).
+// UTF16 returns the CONSTANT_String literal as lossless UTF-16 code units,
+// preserving every code unit including unpaired surrogates and NUL encoded
+// via MUTF-8. This is the accessor for String literal materialization
+// (Interpreter, IR, and AOT). Names and descriptors should continue to use
+// the Str() accessor (which decodes to a Go string via decodeMUTF8).
+func (c *ConstantStringInfo) UTF16() []uint16 {
+	if info, ok := c.cp.get(c.strIndex).(*ConstantUtf8Info); ok {
+		return info.UTF16()
+	}
+	return nil
+}
 
 type ConstantClassInfo struct {
 	cp        *ConstantPool
@@ -231,6 +256,16 @@ func (cp *ConstantPool) String(index uint16) string {
 		return info.Str()
 	}
 	return ""
+}
+
+// UTF16 returns the lossless UTF-16 code units for the CONSTANT_String at
+// index, preserving every code unit including unpaired surrogates and NUL
+// encoded via MUTF-8. Used for String literal materialization.
+func (cp *ConstantPool) UTF16(index uint16) []uint16 {
+	if info, ok := cp.get(index).(*ConstantStringInfo); ok {
+		return info.UTF16()
+	}
+	return nil
 }
 
 // Integer returns the int constant at a CONSTANT_Integer index (for ldc).

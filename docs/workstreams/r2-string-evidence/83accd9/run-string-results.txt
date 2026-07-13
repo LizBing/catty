@@ -1,0 +1,42 @@
+=== R2 String differential run ===
+candidate: 83accd9
+repo:      /Users/lizbing/Workspace/Projects/catty/.claude/worktrees/r2-string-utf16-slice
+commit:    83accd93ee93e38cdf607f316cf3c9cca16f23a8
+base:      298b723
+date:      2026-07-13T14:42:44Z
+toolchain: java=25.0.3, go=go1.26.5, javac=25.0.3
+compare:   combined stdout+stderr AND exit code must equal Temurin 25 (fail-closed)
+
+==> building catty
+fixture                      exit   Temurin25  Interp     IR         AOT
+-------                      ----   ---------  ------     --         ---
+SupplementaryChar            0      2
+55357
+56832 match      match      match
+----- SupplementaryChar -----
+[0] temurin25:
+2
+55357
+56832
+[0] catty interp:
+2
+55357
+56832
+[0] catty ir:
+2
+55357
+56832
+[0] catty aot:
+2
+55357
+56832
+HashDivergence               0      1772899    match      match      match
+----- HashDivergence -----
+[0] temurin25:
+1772899
+[0] catty interp:
+1772899
+[0] catty ir:
+1772899
+[0] catty aot:
+1772899

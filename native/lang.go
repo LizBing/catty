@@ -3,9 +3,6 @@ package native
 import (
 	"fmt"
 	"os"
-	"strings"
-	"unicode/utf16"
-	"unicode/utf8"
 
 	"catty/rtda"
 )
@@ -17,9 +14,7 @@ func init() {
 	registerSynthetic("java/lang/System", buildSystemClass)
 }
 
-// buildObjectClass makes java.lang.Object. It has no superclass. Its constructor
-// is a nop; getClass returns a stub Class object (catty does not model
-// java.lang.Class richly for MVP, so most reflection paths are out of scope).
+// buildObjectClass makes java.lang.Object.
 func buildObjectClass(_ rtda.Loader) *rtda.Class {
 	c := rtda.NewSyntheticClass("java/lang/Object", nil)
 	c.AddMethod(rtda.NativeMethod(c, "<init>", "()V", nop))
@@ -44,12 +39,9 @@ func objectEquals(f *rtda.Frame) {
 func objectToString(f *rtda.Frame) {
 	this := f.GetRef(0)
 	name := javaToDot(this.Class().Name())
-	hash := int32(uintptr(0)) // simplified
+	hash := int32(uintptr(0))
 	result := name + "@" + itoaHex(hash)
-	strClass := f.Thread().Loader().LoadClass("java/lang/String")
-	out := rtda.NewObject(strClass)
-	out.SetExtra(result)
-	f.PushRef(out)
+	f.PushRef(newStringFromGo(f.Thread(), result))
 }
 
 func itoaHex(n int32) string {
@@ -68,14 +60,12 @@ func itoaHex(n int32) string {
 	return string(b[i:])
 }
 
-// buildStringClass makes java.lang.String. Instances created by the `ldc`
-// instruction carry their Go string value in extra; these constructors cover the
-// few cases where user code calls `new String(...)`.
+// buildStringClass makes java.lang.String. The canonical backing is an
+// immutable *rtda.StringValue ([]uint16) stored in Object.Extra().
 func buildStringClass(loader rtda.Loader) *rtda.Class {
 	c := rtda.NewSyntheticClass("java/lang/String", loader.LoadClass("java/lang/Object"))
-	// Static fields referenced by real JDK methods (Integer.toHexString etc).
+	// Static fields referenced by real JDK methods.
 	compact := c.AddStaticField("COMPACT_STRINGS", "Z")
-	c.SetStaticRef(compact.SlotID(), nil) // Z fields use num, not ref — use SetNum
 	c.StaticVars()[compact.SlotID()].SetNum(1) // true
 	latin1 := c.AddStaticField("LATIN1", "B")
 	c.StaticVars()[latin1.SlotID()].SetNum(0)
@@ -85,7 +75,8 @@ func buildStringClass(loader rtda.Loader) *rtda.Class {
 	c.AddInstanceField("coder", "B")
 	c.AddMethod(rtda.NativeMethod(c, "<init>", "()V", stringInit))
 	c.AddMethod(rtda.NativeMethod(c, "<init>", "(Ljava/lang/String;)V", stringInitString))
-	c.AddMethod(rtda.NativeMethod(c, "<init>", "([BB)V", stringInitBytes)) // called by JDK Integer/Long toString
+	c.AddMethod(rtda.NativeMethod(c, "<init>", "([C)V", stringInitChars))
+	c.AddMethod(rtda.NativeMethod(c, "<init>", "([BB)V", stringInitBytes))
 	c.AddMethod(rtda.NativeMethod(c, "length", "()I", stringLength))
 	c.AddMethod(rtda.NativeMethod(c, "charAt", "(I)C", stringCharAt))
 	c.AddMethod(rtda.NativeMethod(c, "equals", "(Ljava/lang/Object;)Z", stringEquals))
@@ -102,87 +93,146 @@ func buildStringClass(loader rtda.Loader) *rtda.Class {
 	return c
 }
 
+// --- String native methods ---
+
 func stringInit(f *rtda.Frame) {
-	f.GetRef(0).SetExtra("")
+	f.GetRef(0).SetExtra(rtda.NewStringValue([]uint16{}))
 }
 
 func stringInitString(f *rtda.Frame) {
 	this := f.GetRef(0)
 	arg := f.GetRef(1)
-	this.SetExtra(stringValue(arg))
+	if arg == nil {
+		throwNPE(f, "Cannot invoke \"String.<init>(String)\" because \"original\" is null")
+		return
+	}
+	this.SetExtra(stringValueSV(arg))
 }
 
-// stringInitBytes decodes a byte[] per its coder into a Go string.
-// coder=0 is LATIN-1 (each byte → code point), coder=1 is big-endian UTF-16.
+// stringInitChars builds a String from a char[] with a defensive copy, per
+// JLS String(char[]). Each char array element is treated as a UTF-16 code unit.
+func stringInitChars(f *rtda.Frame) {
+	this := f.GetRef(0)
+	chars := f.GetRef(1) // char[]
+	if chars == nil {
+		throwNPE(f, "Cannot invoke \"String.<init>(char[])\" because \"value\" is null")
+		return
+	}
+	n := chars.ArrayLength()
+	units := make([]uint16, n)
+	for i := 0; i < n; i++ {
+		units[i] = uint16(chars.ArrayElementSlot(i).Num())
+	}
+	this.SetExtra(rtda.NewStringValue(units))
+}
+
+// stringInitBytes decodes a byte[] per its coder into a UTF-16 StringValue.
+// coder=0 is LATIN-1 (each byte → code point → uint16), coder=1 is big-endian UTF-16.
 func stringInitBytes(f *rtda.Frame) {
 	this := f.GetRef(0)
 	buf := f.GetRef(1) // byte[]
 	coder := f.GetInt(2)
 	if buf == nil {
-		this.SetExtra("")
+		this.SetExtra(rtda.NewStringValue([]uint16{}))
 		return
 	}
 	n := buf.ArrayLength()
 	if n == 0 {
-		this.SetExtra("")
+		this.SetExtra(rtda.NewStringValue([]uint16{}))
 		return
 	}
 	if coder == 0 {
 		// LATIN-1: each byte is a Unicode code point.
-		raw := make([]byte, n)
+		units := make([]uint16, n)
 		for i := 0; i < n; i++ {
-			raw[i] = byte(buf.ArrayElementSlot(i).Num())
+			units[i] = uint16(buf.ArrayElementSlot(i).Num() & 0xFF)
 		}
-		// Convert Latin-1 bytes to runes for correct Go string.
-		runes := make([]rune, n)
-		for i, b := range raw {
-			runes[i] = rune(b)
-		}
-		this.SetExtra(string(runes))
+		this.SetExtra(rtda.NewStringValue(units))
 	} else {
 		// UTF-16 big-endian.
 		if n%2 != 0 {
-			this.SetExtra("")
+			this.SetExtra(rtda.NewStringValue([]uint16{}))
 			return
 		}
-		u16 := make([]uint16, n/2)
+		units := make([]uint16, n/2)
 		for i := 0; i < n; i += 2 {
 			hi := uint16(buf.ArrayElementSlot(i).Num())
 			lo := uint16(buf.ArrayElementSlot(i+1).Num())
-			u16[i/2] = hi<<8 | lo
+			units[i/2] = hi<<8 | lo
 		}
-		this.SetExtra(string(utf16.Decode(u16)))
+		this.SetExtra(rtda.NewStringValue(units))
 	}
 }
 
-// runesOf returns the rune slice for a String's Go value.
-func runesOf(f *rtda.Frame) string { return stringValue(f.GetRef(0)) }
+// stringValueSV returns the StringValue held by a String object, or an empty
+// StringValue if the object is nil or carries no payload.
+func stringValueSV(obj *rtda.Object) *rtda.StringValue {
+	if obj == nil {
+		return rtda.NewStringValue([]uint16{})
+	}
+	if sv, ok := obj.Extra().(*rtda.StringValue); ok {
+		return sv
+	}
+	return rtda.NewStringValue([]uint16{})
+}
+
+// throwStringBounds throws a StringIndexOutOfBoundsException with the given
+// message and signals it on the thread.
+func throwStringBounds(f *rtda.Frame, message string) {
+	throwException(f, "java/lang/StringIndexOutOfBoundsException", message)
+}
+
+// throwNPE throws a NullPointerException with the given message.
+func throwNPE(f *rtda.Frame, message string) {
+	throwException(f, "java/lang/NullPointerException", message)
+}
+
+// throwException throws a named exception with the given detail message on the
+// thread's current frame.
+func throwException(f *rtda.Frame, className, message string) {
+	thread := f.Thread()
+	pc := 0
+	if cf := thread.CurrentFrame(); cf != nil {
+		pc = cf.PC()
+	}
+	cls := thread.Loader().LoadClass(className)
+	obj := rtda.NewObject(cls)
+	if message != "" {
+		for c := cls; c != nil; c = c.SuperClass() {
+			if mf := c.LookupField("detailMessage", "Ljava/lang/String;"); mf != nil {
+				msgObj := newStringFromGo(thread, message)
+				obj.Fields()[mf.SlotID()].SetRef(msgObj)
+				break
+			}
+		}
+	}
+	thread.Throw(obj, pc)
+}
 
 func stringLength(f *rtda.Frame) {
-	f.PushInt(int32(utf8.RuneCountInString(stringValue(f.GetRef(0)))))
+	sv := stringValueSV(f.GetRef(0))
+	f.PushInt(int32(sv.Len()))
 }
 
 func stringCharAt(f *rtda.Frame) {
-	s := stringValue(f.GetRef(0))
-	idx := f.GetInt(1)
-	// Slow path: convert to runes for indexed access.
-	r := []rune(s)
-	if int(idx) < 0 || int(idx) >= len(r) {
-		f.PushInt(0)
+	sv := stringValueSV(f.GetRef(0))
+	idx := int(f.GetInt(1))
+	if idx < 0 || idx >= sv.Len() {
+		throwStringBounds(f, "String index out of range: "+itoaInt(idx))
 		return
 	}
-	f.PushInt(int32(r[idx]))
+	f.PushInt(int32(sv.CharAt(idx)))
 }
 
 func stringEquals(f *rtda.Frame) {
-	a := stringValue(f.GetRef(0))
+	a := stringValueSV(f.GetRef(0))
 	other := f.GetRef(1)
 	if other == nil || other.Class().Name() != "java/lang/String" {
 		f.PushInt(0)
 		return
 	}
-	b := stringValue(other)
-	if a == b {
+	b := stringValueSV(other)
+	if a.Equals(b) {
 		f.PushInt(1)
 	} else {
 		f.PushInt(0)
@@ -190,17 +240,13 @@ func stringEquals(f *rtda.Frame) {
 }
 
 func stringHashCode(f *rtda.Frame) {
-	s := stringValue(f.GetRef(0))
-	runes := []rune(s)
-	h := int32(0)
-	for _, c := range runes {
-		h = h*31 + c
-	}
-	f.PushInt(h)
+	sv := stringValueSV(f.GetRef(0))
+	f.PushInt(sv.HashCode())
 }
 
 func stringIsEmpty(f *rtda.Frame) {
-	if len(stringValue(f.GetRef(0))) == 0 {
+	sv := stringValueSV(f.GetRef(0))
+	if sv.IsEmpty() {
 		f.PushInt(1)
 	} else {
 		f.PushInt(0)
@@ -208,65 +254,60 @@ func stringIsEmpty(f *rtda.Frame) {
 }
 
 func stringSubstring(f *rtda.Frame) {
-	s := stringValue(f.GetRef(0))
-	begin := f.GetInt(1)
-	runes := []rune(s)
-	if int(begin) < 0 || int(begin) > len(runes) {
-		begin = int32(len(runes))
+	sv := stringValueSV(f.GetRef(0))
+	begin := int(f.GetInt(1))
+	if begin < 0 || begin > sv.Len() {
+		throwStringBounds(f, "String index out of range: "+itoaInt(begin))
+		return
 	}
-	result := string(runes[begin:])
-	strClass := f.Thread().Loader().LoadClass("java/lang/String")
-	out := rtda.NewObject(strClass)
-	out.SetExtra(result)
-	f.PushRef(out)
+	f.PushRef(newStringFromSV(f.Thread(), sv.Substring(begin, sv.Len())))
 }
 
 func stringSubstringII(f *rtda.Frame) {
-	s := stringValue(f.GetRef(0))
-	begin := f.GetInt(1)
-	end := f.GetInt(2)
-	runes := []rune(s)
-	if int(begin) < 0 {
-		begin = 0
-	}
-	if int(end) > len(runes) {
-		end = int32(len(runes))
-	}
-	if int(begin) > int(end) {
-		result := ""
-		strClass := f.Thread().Loader().LoadClass("java/lang/String")
-		out := rtda.NewObject(strClass)
-		out.SetExtra(result)
-		f.PushRef(out)
+	sv := stringValueSV(f.GetRef(0))
+	begin := int(f.GetInt(1))
+	end := int(f.GetInt(2))
+	if begin < 0 {
+		throwStringBounds(f, "String index out of range: "+itoaInt(begin))
 		return
 	}
-	result := string(runes[begin:end])
-	strClass := f.Thread().Loader().LoadClass("java/lang/String")
-	out := rtda.NewObject(strClass)
-	out.SetExtra(result)
-	f.PushRef(out)
+	if end > sv.Len() {
+		throwStringBounds(f, "String index out of range: "+itoaInt(end))
+		return
+	}
+	if begin > end {
+		throwStringBounds(f, "String index out of range: "+itoaInt(begin-end))
+		return
+	}
+	f.PushRef(newStringFromSV(f.Thread(), sv.Substring(begin, end)))
 }
 
 func stringConcat(f *rtda.Frame) {
-	a := stringValue(f.GetRef(0))
-	b := stringValue(f.GetRef(1))
-	strClass := f.Thread().Loader().LoadClass("java/lang/String")
-	out := rtda.NewObject(strClass)
-	out.SetExtra(a + b)
-	f.PushRef(out)
+	a := stringValueSV(f.GetRef(0))
+	other := f.GetRef(1)
+	if other == nil {
+		throwNPE(f, "Cannot invoke \"String.concat(String)\" because \"str\" is null")
+		return
+	}
+	b := stringValueSV(other)
+	f.PushRef(newStringFromSV(f.Thread(), a.Concat(b)))
 }
 
 func stringIndexOf(f *rtda.Frame) {
-	s := stringValue(f.GetRef(0))
-	ch := rune(f.GetInt(1))
-	idx := strings.IndexRune(s, ch)
-	f.PushInt(int32(idx)) // -1 if not found
+	sv := stringValueSV(f.GetRef(0))
+	ch := int(f.GetInt(1))
+	f.PushInt(int32(sv.IndexOf(ch)))
 }
 
 func stringStartsWith(f *rtda.Frame) {
-	s := stringValue(f.GetRef(0))
-	prefix := stringValue(f.GetRef(1))
-	if strings.HasPrefix(s, prefix) {
+	sv := stringValueSV(f.GetRef(0))
+	prefixObj := f.GetRef(1)
+	if prefixObj == nil {
+		throwNPE(f, "Cannot invoke \"String.startsWith(String)\" because \"prefix\" is null")
+		return
+	}
+	prefix := stringValueSV(prefixObj)
+	if sv.StartsWith(prefix) {
 		f.PushInt(1)
 	} else {
 		f.PushInt(0)
@@ -274,9 +315,14 @@ func stringStartsWith(f *rtda.Frame) {
 }
 
 func stringEndsWith(f *rtda.Frame) {
-	s := stringValue(f.GetRef(0))
-	suffix := stringValue(f.GetRef(1))
-	if strings.HasSuffix(s, suffix) {
+	sv := stringValueSV(f.GetRef(0))
+	suffixObj := f.GetRef(1)
+	if suffixObj == nil {
+		throwNPE(f, "Cannot invoke \"String.endsWith(String)\" because \"suffix\" is null")
+		return
+	}
+	suffix := stringValueSV(suffixObj)
+	if sv.EndsWith(suffix) {
 		f.PushInt(1)
 	} else {
 		f.PushInt(0)
@@ -284,42 +330,87 @@ func stringEndsWith(f *rtda.Frame) {
 }
 
 func stringCompareTo(f *rtda.Frame) {
-	a := stringValue(f.GetRef(0))
-	b := stringValue(f.GetRef(1))
-	if a < b {
-		f.PushInt(-1)
-	} else if a > b {
-		f.PushInt(1)
-	} else {
-		f.PushInt(0)
+	a := stringValueSV(f.GetRef(0))
+	other := f.GetRef(1)
+	if other == nil {
+		throwNPE(f, "Cannot invoke \"String.compareTo(String)\" because \"anotherString\" is null")
+		return
 	}
+	b := stringValueSV(other)
+	f.PushInt(int32(a.CompareTo(b)))
 }
 
 func stringToCharArray(f *rtda.Frame) {
-	s := stringValue(f.GetRef(0))
-	runes := []rune(s)
+	sv := stringValueSV(f.GetRef(0))
+	units := sv.ToCharArray()
 	charClass := f.Thread().Loader().LoadClass("[C")
-	arr := rtda.NewArray(charClass, len(runes))
-	for i, c := range runes {
-		arr.ArrayElementSlot(i).SetNum(c)
+	arr := rtda.NewArray(charClass, len(units))
+	for i, u := range units {
+		arr.ArrayElementSlot(i).SetNum(int32(u))
 	}
 	f.PushRef(arr)
 }
 
-// stringValue returns the Go string held by a java.lang.String object (or "" if
-// the object carries no payload, e.g. it was allocated but never assigned).
-func stringValue(obj *rtda.Object) string {
-	if obj == nil {
-		return ""
-	}
-	if s, ok := obj.Extra().(string); ok {
-		return s
-	}
-	return ""
+// --- String construction helpers ---
+
+// newStringFromSV creates a new java.lang.String backed by sv.
+func newStringFromSV(thread *rtda.Thread, sv *rtda.StringValue) *rtda.Object {
+	class := thread.Loader().LoadClass("java/lang/String")
+	obj := rtda.NewObject(class)
+	obj.SetExtra(sv)
+	return obj
 }
 
+// newStringFromGo creates a new java.lang.String from a Go string by
+// converting each rune to UTF-16 code units (validating surrogates as-is).
+// Used for exception messages, property values, etc. where the source is
+// known-safe ASCII or BMP text.
+func newStringFromGo(thread *rtda.Thread, s string) *rtda.Object {
+	class := thread.Loader().LoadClass("java/lang/String")
+	obj := rtda.NewObject(class)
+	units := goStringToUTF16(s)
+	obj.SetExtra(rtda.NewStringValue(units))
+	return obj
+}
+
+// goStringToUTF16 converts a Go string to UTF-16 code units. Each rune < 0x10000
+// becomes one unit; supplementary runes become two units (surrogate pair).
+func goStringToUTF16(s string) []uint16 {
+	if s == "" {
+		return []uint16{}
+	}
+	// Fast path: ASCII.
+	ascii := true
+	for _, r := range s {
+		if r >= 0x80 {
+			ascii = false
+			break
+		}
+	}
+	if ascii {
+		units := make([]uint16, len(s))
+		for i, b := range []byte(s) {
+			units[i] = uint16(b)
+		}
+		return units
+	}
+	var units []uint16
+	for _, r := range s {
+		if r < 0x10000 {
+			units = append(units, uint16(r))
+		} else {
+			r -= 0x10000
+			units = append(units, uint16((r>>10)&0x3FF)+0xD800)
+			units = append(units, uint16(r&0x3FF)+0xDC00)
+		}
+	}
+	return units
+}
+
+// --- StringBuilder ---
+
 // buildStringBuilderClass makes java.lang.StringBuilder with append/toString,
-// backed by a Go strings.Builder stored in extra.
+// backed by a []uint16 buffer stored in extra.
 func buildStringBuilderClass(loader rtda.Loader) *rtda.Class {
 	c := rtda.NewSyntheticClass("java/lang/StringBuilder", loader.LoadClass("java/lang/Object"))
 	c.AddMethod(rtda.NativeMethod(c, "<init>", "()V", sbInit))
@@ -332,26 +423,47 @@ func buildStringBuilderClass(loader rtda.Loader) *rtda.Class {
 	return c
 }
 
+// utf16Builder is a growable UTF-16 code-unit buffer.
+type utf16Builder struct{ units []uint16 }
+
+func (b *utf16Builder) appendUnits(u []uint16) { b.units = append(b.units, u...) }
+func (b *utf16Builder) appendRune(r rune) {
+	if r < 0x10000 {
+		b.units = append(b.units, uint16(r))
+	} else {
+		r -= 0x10000
+		b.units = append(b.units, uint16((r>>10)&0x3FF)+0xD800, uint16(r&0x3FF)+0xDC00)
+	}
+}
+func (b *utf16Builder) toSV() *rtda.StringValue { return rtda.NewStringValue(b.units) }
+
 func sbInit(f *rtda.Frame) {
-	f.GetRef(0).SetExtra(&stringsBuilder{})
+	f.GetRef(0).SetExtra(&utf16Builder{})
 }
 
 func sbAppendString(f *rtda.Frame) {
 	this := f.GetRef(0)
-	this.Extra().(*stringsBuilder).WriteString(stringValue(f.GetRef(1)))
+	arg := f.GetRef(1)
+	if arg == nil {
+		this.Extra().(*utf16Builder).appendUnits(goStringToUTF16("null"))
+	} else {
+		sv := stringValueSV(arg)
+		this.Extra().(*utf16Builder).appendUnits(sv.Units())
+	}
 	f.PushRef(this)
 }
 
 func sbAppendInt(f *rtda.Frame) {
 	this := f.GetRef(0)
-	this.Extra().(*stringsBuilder).WriteString(fmt.Sprintf("%d", f.GetInt(1)))
+	s := fmt.Sprintf("%d", f.GetInt(1))
+	this.Extra().(*utf16Builder).appendUnits(goStringToUTF16(s))
 	f.PushRef(this)
 }
 
-// sbAppendLong: long arg occupies locals[1] (high) and locals[2] (low).
 func sbAppendLong(f *rtda.Frame) {
 	this := f.GetRef(0)
-	this.Extra().(*stringsBuilder).WriteString(fmt.Sprintf("%d", f.GetLong(1)))
+	s := fmt.Sprintf("%d", f.GetLong(1))
+	this.Extra().(*utf16Builder).appendUnits(goStringToUTF16(s))
 	f.PushRef(this)
 }
 
@@ -359,30 +471,26 @@ func sbAppendBool(f *rtda.Frame) {
 	this := f.GetRef(0)
 	v := f.GetInt(1)
 	if v != 0 {
-		this.Extra().(*stringsBuilder).WriteString("true")
+		this.Extra().(*utf16Builder).appendUnits(goStringToUTF16("true"))
 	} else {
-		this.Extra().(*stringsBuilder).WriteString("false")
+		this.Extra().(*utf16Builder).appendUnits(goStringToUTF16("false"))
 	}
 	f.PushRef(this)
 }
 
 func sbAppendChar(f *rtda.Frame) {
 	this := f.GetRef(0)
-	this.Extra().(*stringsBuilder).WriteString(string(rune(f.GetInt(1))))
+	this.Extra().(*utf16Builder).appendRune(rune(f.GetInt(1)))
 	f.PushRef(this)
 }
 
 func sbToString(f *rtda.Frame) {
 	this := f.GetRef(0)
-	strClass := f.Thread().Loader().LoadClass("java/lang/String")
-	out := rtda.NewObject(strClass)
-	out.SetExtra(this.Extra().(*stringsBuilder).String())
-	f.PushRef(out)
+	f.PushRef(newStringFromSV(f.Thread(), this.Extra().(*utf16Builder).toSV()))
 }
 
-// buildSystemClass makes java.lang.System with the static `out`/`err` fields,
-// each holding a PrintStream whose extra is the underlying io.Writer (os.Stdout
-// / os.Stderr). Initialized eagerly here since System has no <clinit> to run.
+// --- System ---
+
 func buildSystemClass(loader rtda.Loader) *rtda.Class {
 	c := rtda.NewSyntheticClass("java/lang/System", loader.LoadClass("java/lang/Object"))
 	ps := loader.LoadClass("java/io/PrintStream")
@@ -398,14 +506,11 @@ func buildSystemClass(loader rtda.Loader) *rtda.Class {
 	errObj.SetExtra(os.Stderr)
 	c.SetStaticRef(errf.SlotID(), errObj)
 
-	// Native methods on System (referenced directly by user code).
 	c.AddMethod(staticNative(c, "identityHashCode", "(Ljava/lang/Object;)I", systemIdentityHashCode))
 	c.AddMethod(staticNative(c, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;", systemGetProperty))
 	return c
 }
 
-// knownProperties maps commonly-referenced system properties to their values.
-// Unknown keys return null (nil). Expanded as needed.
 var knownProperties = map[string]string{
 	"line.separator":  "\n",
 	"file.separator":  "/",
@@ -426,21 +531,38 @@ var knownProperties = map[string]string{
 }
 
 func systemGetProperty(f *rtda.Frame) {
-	key := stringValue(f.GetRef(0))
-	if val, ok := knownProperties[key]; ok {
-		strClass := f.Thread().Loader().LoadClass("java/lang/String")
-		out := rtda.NewObject(strClass)
-		out.SetExtra(val)
-		f.PushRef(out)
+	keyObj := f.GetRef(0)
+	if keyObj == nil {
+		throwNPE(f, "Cannot invoke \"System.getProperty(String)\" because \"key\" is null")
+		return
+	}
+	key := stringValueSV(keyObj)
+	keyStr := key.GoString()
+	if val, ok := knownProperties[keyStr]; ok {
+		f.PushRef(newStringFromGo(f.Thread(), val))
 		return
 	}
 	f.PushRef(nil)
 }
 
-// stringsBuilder is a thin wrapper around a growable byte buffer, avoiding an
-// import of strings.Builder solely to keep the native package dependency-free
-// of stdlib quirks (and letting us swap implementations trivially).
-type stringsBuilder struct{ buf []byte }
-
-func (b *stringsBuilder) WriteString(s string) { b.buf = append(b.buf, s...) }
-func (b *stringsBuilder) String() string       { return string(b.buf) }
+func itoaInt(n int) string {
+	if n == 0 {
+		return "0"
+	}
+	neg := n < 0
+	if neg {
+		n = -n
+	}
+	var b [20]byte
+	i := len(b)
+	for n > 0 {
+		i--
+		b[i] = byte('0' + n%10)
+		n /= 10
+	}
+	if neg {
+		i--
+		b[i] = '-'
+	}
+	return string(b[i:])
+}

@@ -1,6 +1,6 @@
 # R2 String UTF-16 slice
 
-**Status:** Accepted
+**Status:** Done
 **Type:** implementation
 **Review:** owner
 **Base commit:** `298b723`
@@ -91,13 +91,13 @@ rather than silently approximated. Every Java String value uses an immutable ADR
 
 | Gate | Command / artifact | Result |
 |---|---|---|
-| String differential matrix | `bash docs/workstreams/r2-string-fixtures/run-string-diff.sh` over the fixed eight fixtures; nonzero on any required mismatch or missing tool/fixture | Not run |
-| Interpreter / IR | All eight fixtures match Temurin 25 stdout, stderr, and exit code | Not run |
-| AOT | `HashDivergence`, `StringSubstringUnits`, `SupplementaryChar`, `LoneSurrogateLiteral`, and `StringNativeSurface` match; the other three are explicit `Not implemented` | Not run |
-| Kernel/unit invariants | `go test ./...` includes lossless MUTF-8 units, immutable-copy boundaries, native exception return suppression, and host-output adapter tests | Not run |
-| Core regression | `go vet ./... && go test -race ./... && bash tests/run.sh` | Not run |
-| Evidence isolation | Historical `docs/workstreams/r2-evidence/{matrix.md,run-r2-results.txt}` unchanged; candidate results archived under `docs/workstreams/r2-string-evidence/<candidate>/` | Not run |
-| Governance | `git diff --check 298b723..<candidate>` | Not run |
+| String differential matrix | `bash docs/workstreams/r2-string-fixtures/run-string-diff.sh` over the fixed eight fixtures; nonzero on any required mismatch or missing tool/fixture | Pass — 8/8, candidate `00327d6` |
+| Interpreter / IR | All eight fixtures match Temurin 25 stdout, stderr, and exit code | Pass — 8/8 each |
+| AOT | `HashDivergence`, `StringSubstringUnits`, `SupplementaryChar`, `LoneSurrogateLiteral`, and `StringNativeSurface` match; the other three are explicit `Not implemented` | Pass — 5 Supported / 3 Not implemented |
+| Kernel/unit invariants | `go test ./...` includes lossless MUTF-8 units, immutable-copy boundaries, native exception return suppression, and host-output adapter tests | Pass |
+| Core regression | `go vet ./... && go test -race ./... && bash tests/run.sh` | Pass — 10/10 end-to-end fixtures |
+| Evidence isolation | Historical `docs/workstreams/r2-evidence/{matrix.md,run-r2-results.txt}` unchanged; candidate results archived under `docs/workstreams/r2-string-evidence/<candidate>/` | Pass |
+| Governance | `git diff --check 298b723..<candidate>` | Pass |
 
 Results use only `Pass`, `Fail`, `Not run`, or `Not implemented`.
 
@@ -132,22 +132,22 @@ rewritten to reduce gates.
 
 | Slice | Status | Evidence |
 |---|---|---|
-| A — kernel value, MUTF-8 unit decoding, copy/host adapters | Pending | Focused classfile and kernel unit tests |
-| B — migrate native/runtime/interpreter/rtda producers and consumers | Pending | Package tests plus repository-wide producer/consumer audit |
-| C — String API correctness and bounded native exception propagation | Pending | Eight-fixture Interpreter/IR differential |
-| D — AOT lossless literal/bridge path and explicit unsupported matrix | Pending | Five AOT matches; three classified `Not implemented` |
-| E — full gates, immutable candidate evidence, docs and self-review | Pending | Candidate evidence directory and gate summary |
+| A — kernel value, MUTF-8 unit decoding, copy/host adapters | Complete | Classfile and kernel unit tests pass |
+| B — migrate native/runtime/interpreter/rtda producers and consumers | Complete | Producer/consumer audit and differential coverage |
+| C — String API correctness and bounded native exception propagation | Complete | Eight-fixture Interpreter/IR differential pass |
+| D — AOT lossless literal/bridge path and explicit unsupported matrix | Complete | Five AOT matches; three `Not implemented` |
+| E — full gates, immutable candidate evidence, docs and self-review | Complete | Evidence `9008b00`; owner review accepted |
 
 ---
 
 ## Handoff
 
-- **Branch / candidate:** not started; implementation base `298b723` on `main`
-- **Dirty files:** governance documents updated for acceptance; no implementation files
-- **Last location:** accepted contract, before implementation
-- **Checks run / not run:** `git diff --check` Pass; implementation gates not run
-- **Blocker:** None; Active Agent may begin within the frozen contract
-- **Next action:** Active Agent creates the work branch, marks the workstream In Progress, and starts Plan slice A
+- **Branch / candidate:** `worktree-r2-string-utf16-slice`; candidate `00327d6`, evidence `9008b00`
+- **Dirty files:** none at owner acceptance
+- **Last location:** integrated to `main`
+- **Checks run / not run:** all acceptance gates Pass
+- **Blocker:** none
+- **Next action:** proceed to the next bounded R2 workstream
 - **Non-derivable context:** local Temurin 25.0.3 UTF-8 PrintStream probe encoded an isolated high surrogate between ASCII sentinels as byte `0x3f`
 
 ## Review
@@ -158,3 +158,102 @@ rewritten to reduce gates.
 
 Accepted by Owner on 2026-07-13. The frozen contract authorizes implementation only within
 this document's Outcome, Scope, Non-scope, Semantic constraints, and Acceptance gates.
+
+## Amendments
+
+*A1 — Owner review round 1 (candidate `83accd9` rejected). 2026-07-13.*
+
+1. **Fixture expansion.** The contract is upgraded from six fixtures to eight.
+   `docs/workstreams/r2-string-fixtures/` holds two new fixtures:
+   - `LoneSurrogateLiteral` — lone surrogate from classfile literal (MUTF-8 path).
+   - `StringNativeSurface` — null contract (NPE / "null" output) + PrintStream +
+     StringBuilder + lone surrogate `println(char)` → `?`.
+   All eight fixtures are promoted to regression evidence.
+
+2. **Null contract.** Correct Java null semantics are required:
+   - NPE on: `new String((String)null)`, `new String((char[])null)`,
+     `concat(null)`, `startsWith(null)`, `endsWith(null)`, `compareTo(null)`.
+   - `"null"` output: `PrintStream.print/println((String)null)` and
+     `StringBuilder.append((String)null)`.
+
+3. **Host-text adaptation.** Valid surrogate pairs → UTF-8 scalar; lone surrogates in
+   `GoString()` and `println(char)` → `?` (0x3f), matching Temurin 25.0.3.
+
+4. **Mutable alias removal.** No `RawUnits()` accessor; no no-copy constructor. All
+   access paths return defensive copies. Tests must not treat aliasing as correct.
+
+5. **Harness.** `run-string-diff.sh` replaces `run-r2-diff.sh`, running all eight
+   fixtures across Interpreter, IR, and AOT with output + exit-code comparison.
+   Harness is fail-closed (non-zero exit on mismatch or missing toolchain).
+
+6. **Repository siting.** `docs/workstreams/r2-string-fixtures/` is part of this
+   workstream, not of the evidence directory. Evidence stays under
+   `docs/workstreams/r2-string-evidence/<candidate>/`.
+
+7. **Engine completion state (frozen AOT matrix).**
+
+   | Method | Interpreter | IR | AOT |
+   |---|---|---|---|
+   | `ldc` String constant | Supported | Supported | Supported |
+   | String.length / charAt / isEmpty | Supported | Supported | Supported |
+   | String.hashCode | Supported | Supported | Supported |
+   | String.equals | Supported | Supported | Supported |
+   | String.compareTo | Supported | Supported | Supported |
+   | String.concat / substring | Supported | Supported | Supported |
+   | String.startsWith / endsWith / indexOf | Supported | Supported | Supported |
+   | String.(char[]) / toCharArray / StringBuilder | Supported | Supported | Not implemented |
+   | Null contract (NPE / "null") | Supported | Supported | Not implemented |
+   | `println(char)` lone surrogate → `?` | Supported | Supported | Not implemented |
+
+   **AOT: 5 Supported, 3 Not implemented.**
+
+---
+
+*A2 — Owner review round 2 (candidate `7c1dc04` / `da3e7d0` revisions). 2026-07-13.*
+
+1. **System.getProperty(null) → NPE.** `System.getProperty(null)` must throw
+   NullPointerException. Differential coverage is asserted in `StringNativeSurface`
+   fixture alongside the existing six NPE cases.
+
+2. **Evidence preservation.** All prior candidate evidence directories under
+   `docs/workstreams/r2-string-evidence/` must be preserved in git history.
+   No silent deletion of any candidate evidence is permitted.
+
+3. **Workstream contract immutability.** The owner-accepted frozen workstream
+   contract (this document above the `---` line) is restored from base commit
+   `298b723` as-is, changing only Status from Proposed to In Progress. All
+   new requirements are appended as Amendments rather than rewriting the document.
+
+4. **Harness AOT expectation enforcement.** `run-string-diff.sh` must explicitly
+   encode the AOT Supported / Not implemented matrix:
+   - **Supported (must match Temurin 25):** HashDivergence, StringSubstringUnits,
+     SupplementaryChar, LoneSurrogateLiteral, StringNativeSurface.
+   - **Not implemented (must NO-BUILD):** LoneSurrogate, StringBounds,
+     StringCharArrayRoundTrip.
+   - Any other fixture producing NO-BUILD must fail-closed.
+   Any fixture expected to be Supported that produces NO-BUILD or MISMATCH must
+   fail-closed.
+
+5. **Candidate hygiene.** The final candidate commit and its evidence commit must be
+   cleanly recorded. The evidence directory must be bound to the final candidate.
+   The worktree must be clean (no staged/unstaged changes) before the workstream is
+   marked Ready.
+
+6. **Gate rerun.** Before marking Ready, rerun and record exit codes for:
+   - `bash docs/workstreams/r2-string-fixtures/run-string-diff.sh`
+   - `go vet ./...`
+   - `go test ./...`
+   - `go test -race ./...`
+   - `bash tests/run.sh`
+
+## Candidate evidence
+
+- **Implementation candidate (C):** `00327d6`
+- **Evidence commit (E):** `9008b00`
+- **Ready record:** `bfaa6f6`
+- **Evidence:** `docs/workstreams/r2-string-evidence/00327d6/`
+
+## Completion record
+
+Owner accepted the Ready candidate and authorized integration on 2026-07-13. Integrated to
+`main` after all acceptance gates passed; this workstream is Done.
