@@ -1,0 +1,46 @@
+=== go vet ===
+go vet exit: 0
+=== go test ===
+ok  	catty/classfile	(cached)
+?   	catty/classloader	[no test files]
+?   	catty/classpath	[no test files]
+?   	catty/cmd/jvm	[no test files]
+?   	catty/interpreter	[no test files]
+?   	catty/launch	[no test files]
+ok  	catty/lowering	2.558s
+?   	catty/native	[no test files]
+?   	catty/opcode	[no test files]
+ok  	catty/rtda	(cached)
+?   	catty/runtime	[no test files]
+ok  	catty/transpile	15.232s
+go test exit: 0
+=== go test -race ===
+ok  	catty/classfile	(cached)
+?   	catty/classloader	[no test files]
+?   	catty/classpath	[no test files]
+?   	catty/cmd/jvm	[no test files]
+?   	catty/interpreter	[no test files]
+?   	catty/launch	[no test files]
+ok  	catty/lowering	3.213s
+?   	catty/native	[no test files]
+?   	catty/opcode	[no test files]
+ok  	catty/rtda	(cached)
+?   	catty/runtime	[no test files]
+ok  	catty/transpile	15.980s
+go test -race exit: 0
+=== R1 regression ===
+==> building catty
+==> compiling fixtures
+PASS  HelloWorld
+PASS  Fibonacci
+PASS  Factorial
+PASS  ArraySum
+PASS  OOPDemo
+PASS  StaticFields
+PASS  SwitchDemo
+PASS  EmptyMain
+PASS  ExceptionTest
+PASS  InterfaceTest
+
+==> 10 passed, 0 failed
+tests/run.sh exit: 0

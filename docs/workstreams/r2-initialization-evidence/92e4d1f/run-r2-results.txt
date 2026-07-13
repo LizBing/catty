@@ -1,0 +1,296 @@
+=== R2 differential run ===
+repo:    /Users/lizbing/Workspace/Projects/catty
+commit:  92e4d1f3e8a231f6d2293e4696742d0023426b0f
+branch:  r2-init-slice
+base:    ecb086e
+java:    openjdk version "25.0.3" 2026-04-21 LTS
+javac:   javac 25.0.3
+go:      go version go1.26.5 darwin/arm64
+boot:    CATTY_BOOT=<unset>; JAVA_HOME=<unset>
+mode:    catty -no-boot (pure-synthetic, controlled semantic differential)
+compare: combined stdout+stderr AND exit code must equal Temurin 25
+results: docs/workstreams/r2-initialization-evidence/92e4d1f/run-r2-results.txt
+
+==> building catty
+fixture                    Temurin25  Interp     IR         AOT
+-------                    ---------  ------     --         ---
+ClinitOrder                ref        match      match      NO-BUILD
+----- ClinitOrder -----
+[0] temurin25:
+      A
+      B
+      main
+[0] catty interp:
+      A
+      B
+      main
+[0] catty ir:
+      A
+      B
+      main
+[-] catty aot:
+      catty build: transpile: ClinitOrder.main cannot be AOT'd (unsupported opcodes?)
+ClinitThrows               ref        match      match      NO-BUILD
+----- ClinitThrows -----
+[0] temurin25:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[0] catty interp:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[0] catty ir:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[-] catty aot:
+      catty build: transpile: ClinitThrows.main([Ljava/lang/String;)V triggers class initialization on Bomb; AOT exception propagation not yet supported
+ConstantFieldNoInit        ref        match      match      match
+----- ConstantFieldNoInit -----
+[0] temurin25:
+      7
+[0] catty interp:
+      7
+[0] catty ir:
+      7
+[0] catty aot:
+      7
+DirectInvokeStaticInit     ref        match      match      NO-BUILD
+----- DirectInvokeStaticInit -----
+[0] temurin25:
+      SideEffect
+      1
+      2
+[0] catty interp:
+      SideEffect
+      1
+      2
+[0] catty ir:
+      SideEffect
+      1
+      2
+[-] catty aot:
+      catty build: transpile: DirectInvokeStaticInit.main([Ljava/lang/String;)V triggers class initialization on SideEffect; AOT exception propagation not yet supported
+GetstaticOwner             ref        match      match      NO-BUILD
+----- GetstaticOwner -----
+[0] temurin25:
+      Base
+      7
+[0] catty interp:
+      Base
+      7
+[0] catty ir:
+      Base
+      7
+[-] catty aot:
+      catty build: transpile: GetstaticOwner.main([Ljava/lang/String;)V triggers class initialization on Base; AOT exception propagation not yet supported
+HashDivergence             ref        MISMATCH   MISMATCH   MISMATCH
+----- HashDivergence -----
+[0] temurin25:
+      1772899
+[0] catty interp:
+      2017367872
+[0] catty ir:
+      2017367872
+[0] catty aot:
+      2017367872
+IfaceInitFailureNoOwnClinit ref        match      match      NO-BUILD
+----- IfaceInitFailureNoOwnClinit -----
+[0] temurin25:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[0] catty interp:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[0] catty ir:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[-] catty aot:
+      catty build: transpile: IfaceInitFailureNoOwnClinit.main cannot be AOT'd (unsupported opcodes?)
+InheritedStaticInit        ref        match      match      NO-BUILD
+----- InheritedStaticInit -----
+[0] temurin25:
+      Ancestor
+      99
+      99
+[0] catty interp:
+      Ancestor
+      99
+      99
+[0] catty ir:
+      Ancestor
+      99
+      99
+[-] catty aot:
+      catty build: transpile: InheritedStaticInit.main([Ljava/lang/String;)V triggers class initialization on Ancestor; AOT exception propagation not yet supported
+InterfaceDefaultInit       ref        match      match      NO-BUILD
+----- InterfaceDefaultInit -----
+[0] temurin25:
+      I
+      after-new
+      I.m
+[0] catty interp:
+      I
+      after-new
+      I.m
+[0] catty ir:
+      I
+      after-new
+      I.m
+[-] catty aot:
+      catty build: transpile: InterfaceDefaultInit.main([Ljava/lang/String;)V triggers class initialization on Iface; AOT exception propagation not yet supported
+InterfaceNoInitOnImpl      ref        match      match      NO-BUILD
+----- InterfaceNoInitOnImpl -----
+[0] temurin25:
+      main
+[0] catty interp:
+      main
+[0] catty ir:
+      main
+[-] catty aot:
+      catty build: transpile: InterfaceNoInitOnImpl.main cannot be AOT'd (unsupported opcodes?)
+InvokeStaticInit           ref        match      match      NO-BUILD
+----- InvokeStaticInit -----
+[0] temurin25:
+      Holder
+      42
+[0] catty interp:
+      Holder
+      42
+[0] catty ir:
+      Holder
+      42
+[-] catty aot:
+      catty build: transpile: InvokeStaticInit.main([Ljava/lang/String;)V triggers class initialization on Holder; AOT exception propagation not yet supported
+LoneSurrogate              ref        MISMATCH   MISMATCH   NO-BUILD
+----- LoneSurrogate -----
+[0] temurin25:
+      1
+      55357
+[1] catty interp:
+      catty: catty: invokeMethod received nil method from frame LoneSurrogate.main([Ljava/lang/String;)V
+[1] catty ir:
+      catty: catty: invokeMethod received nil method from frame LoneSurrogate.main([Ljava/lang/String;)V
+[-] catty aot:
+      catty build: transpile: LoneSurrogate.main cannot be AOT'd (unsupported opcodes?)
+ReachUnsafe                ref        MISMATCH   MISMATCH   NO-BUILD
+----- ReachUnsafe -----
+[0] temurin25:
+      42
+[1] catty interp:
+      catty: catty: class not found: java/lang/Integer
+[1] catty ir:
+      catty: catty: class not found: java/lang/Integer
+[-] catty aot:
+              /Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+      main.main()
+              /Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+RecursiveInitialization    ref        match      match      NO-BUILD
+----- RecursiveInitialization -----
+[0] temurin25:
+      init
+      0
+      5
+[0] catty interp:
+      init
+      0
+      5
+[0] catty ir:
+      init
+      0
+      5
+[-] catty aot:
+      catty build: transpile: RecursiveInit.initialize()I triggers class initialization on RecursiveInit; AOT exception propagation not yet supported
+StringBounds               ref        MISMATCH   MISMATCH   NO-BUILD
+----- StringBounds -----
+[0] temurin25:
+      java.lang.StringIndexOutOfBoundsException
+      java.lang.StringIndexOutOfBoundsException
+[0] catty interp:
+[0] catty ir:
+[-] catty aot:
+      catty build: transpile: StringBounds.main cannot be AOT'd (unsupported opcodes?)
+StringCharArrayRoundTrip   ref        MISMATCH   MISMATCH   NO-BUILD
+----- StringCharArrayRoundTrip -----
+[0] temurin25:
+      3
+      55357
+      56832
+      55357
+      55357
+[1] catty interp:
+      catty: catty: invokeMethod received nil method from frame StringCharArrayRoundTrip.main([Ljava/lang/String;)V
+[1] catty ir:
+      catty: catty: invokeMethod received nil method from frame StringCharArrayRoundTrip.main([Ljava/lang/String;)V
+[-] catty aot:
+      catty build: transpile: StringCharArrayRoundTrip.main cannot be AOT'd (unsupported opcodes?)
+StringSubstringUnits       ref        MISMATCH   MISMATCH   MISMATCH
+----- StringSubstringUnits -----
+[0] temurin25:
+      2
+      55357
+      56832
+      1
+      55357
+[0] catty interp:
+      2
+      65533
+      65533
+      1
+      65533
+[0] catty ir:
+      2
+      65533
+      65533
+      1
+      65533
+[0] catty aot:
+      2
+      65533
+      65533
+      1
+      65533
+SuperclassInitializationFailure ref        match      match      NO-BUILD
+----- SuperclassInitializationFailure -----
+[0] temurin25:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[0] catty interp:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[0] catty ir:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[-] catty aot:
+      catty build: transpile: SuperclassInitializationFailure.main cannot be AOT'd (unsupported opcodes?)
+SuperInitFailureNoOwnClinit ref        match      match      NO-BUILD
+----- SuperInitFailureNoOwnClinit -----
+[0] temurin25:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[0] catty interp:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[0] catty ir:
+      java.lang.ExceptionInInitializerError
+      java.lang.NoClassDefFoundError
+[-] catty aot:
+      catty build: transpile: SuperInitFailureNoOwnClinit.main cannot be AOT'd (unsupported opcodes?)
+SupplementaryChar          ref        MISMATCH   MISMATCH   MISMATCH
+----- SupplementaryChar -----
+[0] temurin25:
+      2
+      55357
+      56832
+[0] catty interp:
+      4
+      65533
+      65533
+[0] catty ir:
+      4
+      65533
+      65533
+[0] catty aot:
+      4
+      65533
+      65533
+
+==> full evidence written to: docs/workstreams/r2-initialization-evidence/92e4d1f/run-r2-results.txt
