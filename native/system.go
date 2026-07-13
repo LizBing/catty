@@ -70,25 +70,21 @@ func init() {
 // --- System native methods ---
 
 func systemArrayCopy(f *rtda.Frame) {
-	dst := f.GetRef(2)
-	dstPos := int(f.GetInt(3))
 	src := f.GetRef(0)
 	srcPos := int(f.GetInt(1))
+	dst := f.GetRef(2)
+	dstPos := int(f.GetInt(3))
 	length := int(f.GetInt(4))
 
 	if src == nil || dst == nil {
-		// NPE would be thrown by JVM; for now, just return
 		return
 	}
-
-	srcCells := src.Cells()
-	dstCells := dst.Cells()
-
-	// ADR-0030: every array element is exactly one heap cell.
-	for i := 0; i < length; i++ {
-		dstCells[dstPos+i].SetInt(srcCells[srcPos+i].GetInt())
-		dstCells[dstPos+i].SetRef(srcCells[srcPos+i].GetRef())
+	if !src.Class().IsArray() || !dst.Class().IsArray() {
+		return
 	}
+	// Use typed copy with overlap-safe memmove semantics and per-component-kind
+	// dispatch so long/double preserve the full 64-bit value.
+	rtda.CopyObjectCells(dst, src, dstPos, srcPos, length, src.Class().ComponentKind())
 }
 
 func systemCurrentTimeMillis(f *rtda.Frame) {
@@ -128,8 +124,7 @@ func objectClone(f *rtda.Frame) {
 		return
 	}
 	// Shallow clone: copy all fields.
-	clone := rtda.NewObject(this.Class())
-	rtda.CopyHeapCells(clone.Cells(), this.Cells())
+	clone := rtda.CloneObject(this)
 	f.PushRef(clone)
 }
 

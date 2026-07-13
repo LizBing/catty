@@ -72,8 +72,44 @@ func (c *Class) SuperClass() *Class   { return c.superClass }
 func (c *Class) AccessFlags() uint16  { return c.accessFlags }
 func (c *Class) ConstantPool() *classfile.ConstantPool { return c.cp }
 func (c *Class) InstCellCount() uint    { return c.instCellCount }
-func (c *Class) StaticCells() []HeapCell { return c.staticCells }
 func (c *Class) IsArray() bool          { return c.isArray }
+
+// --- Typed static cell accessors (ADR-0030) ---
+// staticCells is unexported; all external access goes through these methods.
+
+// GetStaticInt returns the static cell at slotID as int32.
+func (c *Class) GetStaticInt(slotID uint) int32 { return c.staticCells[slotID].GetInt() }
+
+// SetStaticInt stores v into the static cell at slotID.
+func (c *Class) SetStaticInt(slotID uint, v int32) { c.staticCells[slotID].SetInt(v) }
+
+// GetStaticLong returns the static cell at slotID as int64.
+func (c *Class) GetStaticLong(slotID uint) int64 { return c.staticCells[slotID].GetLong() }
+
+// SetStaticLong stores v into the static cell at slotID.
+func (c *Class) SetStaticLong(slotID uint, v int64) { c.staticCells[slotID].SetLong(v) }
+
+// GetStaticFloat returns the static cell at slotID as float32.
+func (c *Class) GetStaticFloat(slotID uint) float32 { return c.staticCells[slotID].GetFloat() }
+
+// SetStaticFloat stores v into the static cell at slotID.
+func (c *Class) SetStaticFloat(slotID uint, v float32) { c.staticCells[slotID].SetFloat(v) }
+
+// GetStaticDouble returns the static cell at slotID as float64.
+func (c *Class) GetStaticDouble(slotID uint) float64 { return c.staticCells[slotID].GetDouble() }
+
+// SetStaticDouble stores v into the static cell at slotID.
+func (c *Class) SetStaticDouble(slotID uint, v float64) { c.staticCells[slotID].SetDouble(v) }
+
+// GetStaticRef returns the static cell at slotID as an object reference.
+func (c *Class) GetStaticRef(slotID uint) *Object { return c.staticCells[slotID].GetRef() }
+
+// StaticCellToSlot returns the static cell at slotID as a frame Slot for AOT
+// bridge interop. For long/double the result is truncated (Slot.num is int32);
+// callers must use GetStaticLong/GetStaticDouble for full 64-bit values.
+func (c *Class) StaticCellToSlot(slotID uint, desc string) Slot {
+	return c.staticCells[slotID].ToSlot(desc)
+}
 
 // IsInterface / IsAbstract etc.
 func (c *Class) IsInterface() bool { return c.accessFlags&accInterface != 0 }

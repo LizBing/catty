@@ -45,11 +45,11 @@ func storeLocal(frame *rtda.Frame, op opcode.Opcode, idx int) {
 // double access is a single atomic operation.
 
 func readTwoSlots(arr *rtda.Object, i int) int64 {
-	return arr.Cells()[i].GetLong()
+	return arr.GetLongCell(i)
 }
 
 func writeTwoSlots(arr *rtda.Object, i int, v int64) {
-	arr.Cells()[i].SetLong(v)
+	arr.SetLongCell(i, v)
 }
 
 // ---------- float/double bit helpers (named wrappers keep the switch tidy) ----------

@@ -68,8 +68,43 @@ func GetStatic(class, name, desc string) rtda.Slot {
 		panic("catty/runtime: GetStatic: class initialization failed for " +
 			field.Owner().Name() + " (" + ex.Class().Name() + ")")
 	}
-	cell := &field.Owner().StaticCells()[field.SlotID()]
-return cell.ToSlot(desc)
+	return field.Owner().StaticCellToSlot(field.SlotID(), desc)
+}
+
+// GetStaticLong reads a static long field from an initialized declaring class,
+// returning the full 64-bit int64 value. Used by AOT-emitted code for getstatic
+// with J descriptors.
+func GetStaticLong(class, name, desc string) int64 {
+	c := loader.LoadClass(class)
+	field := c.LookupField(name, desc)
+	if field == nil {
+		panic("catty/runtime: GetStaticLong field not found: " + class + "." + name + " " + desc)
+	}
+	interpreter.InitClass(thread, field.Owner())
+	if thread.HasException() {
+		ex := thread.ClearException()
+		panic("catty/runtime: GetStaticLong: class initialization failed for " +
+			field.Owner().Name() + " (" + ex.Class().Name() + ")")
+	}
+	return field.Owner().GetStaticLong(field.SlotID())
+}
+
+// GetStaticDouble reads a static double field from an initialized declaring class,
+// returning the full 64-bit float64 value. Used by AOT-emitted code for getstatic
+// with D descriptors.
+func GetStaticDouble(class, name, desc string) float64 {
+	c := loader.LoadClass(class)
+	field := c.LookupField(name, desc)
+	if field == nil {
+		panic("catty/runtime: GetStaticDouble field not found: " + class + "." + name + " " + desc)
+	}
+	interpreter.InitClass(thread, field.Owner())
+	if thread.HasException() {
+		ex := thread.ClearException()
+		panic("catty/runtime: GetStaticDouble: class initialization failed for " +
+			field.Owner().Name() + " (" + ex.Class().Name() + ")")
+	}
+	return field.Owner().GetStaticDouble(field.SlotID())
 }
 
 // InvokeVirtual dispatches a virtual call: args[0] is `this`, and the target is
@@ -172,7 +207,7 @@ func goToUTF16(s string) []uint16 {
 func NewIntArray(values ...int32) *rtda.Object {
 	arr := rtda.NewArray(loader.LoadClass("[I"), len(values))
 	for i, v := range values {
-		arr.Cells()[i].SetInt(v)
+		arr.SetIntCell(i, v)
 	}
 	return arr
 }

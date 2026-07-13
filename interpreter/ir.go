@@ -137,7 +137,7 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 	case opcode.Iaload, opcode.Baload, opcode.Caload, opcode.Saload:
 		i := frame.StackSlotNum(int(inst.Uses[1]))
 		arr := frame.StackSlotRef(int(inst.Uses[0]))
-		frame.SetStackSlotNum(int(inst.Defs[0]), arr.Cells()[int(i)].GetInt())
+		frame.SetStackSlotNum(int(inst.Defs[0]), arr.GetIntCell(int(i)))
 	case opcode.Laload, opcode.Daload:
 		i := frame.StackSlotNum(int(inst.Uses[1]))
 		arr := frame.StackSlotRef(int(inst.Uses[0]))
@@ -151,18 +151,18 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 	case opcode.Faload:
 		i := frame.StackSlotNum(int(inst.Uses[1]))
 		arr := frame.StackSlotRef(int(inst.Uses[0]))
-		frame.SetStackSlotNum(int(inst.Defs[0]), arr.Cells()[int(i)].GetInt())
+		frame.SetStackSlotNum(int(inst.Defs[0]), arr.GetIntCell(int(i)))
 	case opcode.Aaload:
 		i := frame.StackSlotNum(int(inst.Uses[1]))
 		arr := frame.StackSlotRef(int(inst.Uses[0]))
-		frame.SetStackSlotRef(int(inst.Defs[0]), arr.Cells()[int(i)].GetRef())
+		frame.SetStackSlotRef(int(inst.Defs[0]), arr.GetRefCell(int(i)))
 
 	// ---------- array store (slot-index) ----------
 	case opcode.Iastore, opcode.Bastore, opcode.Castore, opcode.Sastore:
 		v := frame.StackSlotNum(int(inst.Uses[2]))
 		i := frame.StackSlotNum(int(inst.Uses[1]))
 		arr := frame.StackSlotRef(int(inst.Uses[0]))
-		arr.Cells()[int(i)].SetInt(v)
+		arr.SetIntCell(int(i), v)
 	case opcode.Lastore, opcode.Dastore:
 		v := slotLong(frame, int(inst.Uses[2]), int(inst.Uses[3]))
 		i := frame.StackSlotNum(int(inst.Uses[1]))
@@ -176,12 +176,12 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 		v := frame.StackSlotNum(int(inst.Uses[2]))
 		i := frame.StackSlotNum(int(inst.Uses[1]))
 		arr := frame.StackSlotRef(int(inst.Uses[0]))
-		arr.Cells()[int(i)].SetInt(v)
+		arr.SetIntCell(int(i), v)
 	case opcode.Aastore:
 		v := frame.StackSlotRef(int(inst.Uses[2]))
 		i := frame.StackSlotNum(int(inst.Uses[1]))
 		arr := frame.StackSlotRef(int(inst.Uses[0]))
-		arr.Cells()[int(i)].SetRef(v)
+		arr.SetRefCell(int(i), v)
 
 	// ---------- stack shuffles (Push/Pop, seeded) ----------
 	case opcode.Pop:
@@ -430,19 +430,19 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 		referencedClass := thread.Loader().LoadClass(cls)
 		field := referencedClass.LookupField(name, desc)
 		ensureInitialized(thread, field.Owner())
-		loadFieldValue(frame, field.Owner().StaticCells(), field.SlotID(), desc)
+		loadStaticField(frame, field.Owner(), field.SlotID(), desc)
 	case opcode.Putstatic:
 		cls, name, desc := cp.MemberRef(inst.Index)
 		referencedClass := thread.Loader().LoadClass(cls)
 		field := referencedClass.LookupField(name, desc)
 		ensureInitialized(thread, field.Owner())
-		storeFieldValue(frame, field.Owner().StaticCells(), field.SlotID(), desc)
+		storeStaticField(frame, field.Owner(), field.SlotID(), desc)
 	case opcode.Getfield:
 		cls, name, desc := cp.MemberRef(inst.Index)
 		referencedClass := thread.Loader().LoadClass(cls)
 		field := referencedClass.LookupField(name, desc)
 		obj := frame.PopRef()
-		loadFieldValue(frame, obj.Cells(), field.SlotID(), desc)
+		loadInstanceField(frame, obj, field.SlotID(), desc)
 	case opcode.Putfield:
 		// Stack: [..., objref, value], value on top — pop value first, then objref.
 		cls, name, desc := cp.MemberRef(inst.Index)
@@ -452,23 +452,23 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 		case 'J':
 			v := frame.PopLong()
 			obj := frame.PopRef()
-			obj.Cells()[slotID].SetLong(v)
+			obj.SetLongCell(int(slotID), v)
 		case 'D':
 			v := frame.PopDouble()
 			obj := frame.PopRef()
-			obj.Cells()[slotID].SetDouble(v)
+			obj.SetDoubleCell(int(slotID), v)
 		case 'F':
 			v := frame.PopFloat()
 			obj := frame.PopRef()
-			obj.Cells()[slotID].SetFloat(v)
+			obj.SetFloatCell(int(slotID), v)
 		case 'L', '[':
 			v := frame.PopRef()
 			obj := frame.PopRef()
-			obj.Cells()[slotID].SetRef(v)
+			obj.SetRefCell(int(slotID), v)
 		default:
 			v := frame.PopInt()
 			obj := frame.PopRef()
-			obj.Cells()[slotID].SetInt(v)
+			obj.SetIntCell(int(slotID), v)
 		}
 
 	// ---------- invocations (shared helpers) ----------

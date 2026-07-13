@@ -124,7 +124,7 @@ func setEIIEData(loader Loader, eiie, cause *Object) {
 				strClass := loader.LoadClass("java/lang/String")
 				msgObj := NewObject(strClass)
 				msgObj.SetExtra(newStringValueFromGo(msg))
-				eiie.Cells()[f.SlotID()].SetRef(msgObj)
+				eiie.SetRefCell(int(f.SlotID()), msgObj)
 			}
 			break
 		}
@@ -136,7 +136,7 @@ func setEIIEData(loader Loader, eiie, cause *Object) {
 func getThrowableMessage(obj *Object) string {
 	for cls := obj.Class(); cls != nil; cls = cls.superClass {
 		if f := cls.LookupField("detailMessage", "Ljava/lang/String;"); f != nil {
-			if msgObj := obj.Cells()[f.SlotID()].GetRef(); msgObj != nil {
+			if msgObj := obj.GetRefCell(int(f.SlotID())); msgObj != nil {
 				if sv, ok := msgObj.Extra().(*StringValue); ok {
 					return sv.GoString()
 				}
@@ -155,7 +155,7 @@ func setDetailMessage(loader Loader, obj *Object, msg string) {
 				strClass := loader.LoadClass("java/lang/String")
 				strObj := NewObject(strClass)
 				strObj.SetExtra(newStringValueFromGo(msg))
-				obj.Cells()[f.SlotID()].SetRef(strObj)
+				obj.SetRefCell(int(f.SlotID()), strObj)
 			}
 			return
 		}

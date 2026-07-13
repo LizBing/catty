@@ -6,40 +6,73 @@ import (
 	"catty/rtda"
 )
 
-// loadFieldValue reads a field/array heap cell and pushes its value onto the
-// operand stack, interpreting the bits by descriptor. storage is a slice of
-// rtda.HeapCell per ADR-0030; long/double occupy exactly one cell.
-func loadFieldValue(frame *rtda.Frame, storage []rtda.HeapCell, cellID uint, desc string) {
+// loadInstanceField reads an instance field from obj and pushes its typed value
+// onto the operand stack. cellID is the field's cell index (0-based, per ADR-0030).
+func loadInstanceField(frame *rtda.Frame, obj *rtda.Object, cellID uint, desc string) {
 	switch desc[0] {
 	case 'Z', 'B', 'C', 'S', 'I':
-		frame.PushInt(storage[cellID].GetInt())
+		frame.PushInt(obj.GetIntCell(int(cellID)))
 	case 'F':
-		frame.PushFloat(storage[cellID].GetFloat())
+		frame.PushFloat(obj.GetFloatCell(int(cellID)))
 	case 'J':
-		frame.PushLong(storage[cellID].GetLong())
+		frame.PushLong(obj.GetLongCell(int(cellID)))
 	case 'D':
-		frame.PushDouble(storage[cellID].GetDouble())
+		frame.PushDouble(obj.GetDoubleCell(int(cellID)))
 	default: // 'L' object or '[' array
-		frame.PushRef(storage[cellID].GetRef())
+		frame.PushRef(obj.GetRefCell(int(cellID)))
 	}
 }
 
-// storeFieldValue pops a value off the operand stack and writes it into a heap
-// cell, encoding by descriptor. storage is a slice of rtda.HeapCell per ADR-0030.
-func storeFieldValue(frame *rtda.Frame, storage []rtda.HeapCell, cellID uint, desc string) {
+// storeInstanceField pops a typed value from the operand stack and writes it into
+// an instance field. cellID is the field's cell index.
+func storeInstanceField(frame *rtda.Frame, obj *rtda.Object, cellID uint, desc string) {
 	switch desc[0] {
 	case 'Z', 'B', 'C', 'S', 'I':
-		storage[cellID].SetInt(frame.PopInt())
+		obj.SetIntCell(int(cellID), frame.PopInt())
 	case 'F':
-		storage[cellID].SetFloat(frame.PopFloat())
+		obj.SetFloatCell(int(cellID), frame.PopFloat())
 	case 'J':
-		storage[cellID].SetLong(frame.PopLong())
+		obj.SetLongCell(int(cellID), frame.PopLong())
 	case 'D':
-		storage[cellID].SetDouble(frame.PopDouble())
+		obj.SetDoubleCell(int(cellID), frame.PopDouble())
 	default:
-		storage[cellID].SetRef(frame.PopRef())
+		obj.SetRefCell(int(cellID), frame.PopRef())
 	}
 }
 
-// bits32 extracts the float bits from a uint32 for use with HeapCell.SetFloat.
+// loadStaticField reads a static field from class and pushes its typed value
+// onto the operand stack. slotID is the field's static cell index.
+func loadStaticField(frame *rtda.Frame, class *rtda.Class, slotID uint, desc string) {
+	switch desc[0] {
+	case 'Z', 'B', 'C', 'S', 'I':
+		frame.PushInt(class.GetStaticInt(slotID))
+	case 'F':
+		frame.PushFloat(class.GetStaticFloat(slotID))
+	case 'J':
+		frame.PushLong(class.GetStaticLong(slotID))
+	case 'D':
+		frame.PushDouble(class.GetStaticDouble(slotID))
+	default:
+		frame.PushRef(class.GetStaticRef(slotID))
+	}
+}
+
+// storeStaticField pops a typed value from the operand stack and writes it into
+// a static field. slotID is the field's static cell index.
+func storeStaticField(frame *rtda.Frame, class *rtda.Class, slotID uint, desc string) {
+	switch desc[0] {
+	case 'Z', 'B', 'C', 'S', 'I':
+		class.SetStaticInt(slotID, frame.PopInt())
+	case 'F':
+		class.SetStaticFloat(slotID, frame.PopFloat())
+	case 'J':
+		class.SetStaticLong(slotID, frame.PopLong())
+	case 'D':
+		class.SetStaticDouble(slotID, frame.PopDouble())
+	default:
+		class.SetStaticRef(slotID, frame.PopRef())
+	}
+}
+
+// floatbits extracts the float bits from a uint32 for use with HeapCell.SetFloat.
 func floatbits(v float32) uint32 { return math.Float32bits(v) }

@@ -119,8 +119,8 @@ func TestEmitFirst(t *testing.T) {
 	if !strings.Contains(src, "func ArrayOps_first(l0 *rtda.Object) int32") {
 		t.Errorf("ref-typed signature missing:\n%s", src)
 	}
-	if !strings.Contains(src, ".Cells()[") {
-		t.Errorf("heap-cell array-element access missing:\n%s", src)
+	if !strings.Contains(src, "GetIntCell(int") {
+		t.Errorf("heap-cell typed array-element access missing:\n%s", src)
 	}
 
 	// Compile-check: the emitted func must be valid Go (gate for the Go-source

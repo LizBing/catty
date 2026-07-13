@@ -80,11 +80,20 @@ func cloneHeapCells(src []HeapCell) []HeapCell {
 // ToSlot converts a heap cell to a frame Slot for AOT bridge interop.
 // desc is the field/element descriptor. Caller must use a pointer to avoid
 // copying the atomic value inside HeapCell.
+//
+// Long and double cannot be represented in a single Slot (Slot.num is int32).
+// Callers must use the long/double-specific bridge path or direct typed access.
 func (c *HeapCell) ToSlot(desc string) Slot {
 	switch desc[0] {
 	case 'L', '[':
 		return Slot{ref: c.GetRef()}
-	default:
+	case 'F':
+		return Slot{num: int32(math.Float32bits(c.GetFloat()))}
+	case 'J':
+		panic("HeapCell.ToSlot: long values cannot be represented as a single Slot; use direct cell access")
+	case 'D':
+		panic("HeapCell.ToSlot: double values cannot be represented as a single Slot; use direct cell access")
+	default: // Z, B, C, S, I
 		return Slot{num: c.GetInt()}
 	}
 }

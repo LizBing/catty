@@ -167,8 +167,15 @@ func (e *emitter) emitOne(b *strings.Builder, inst *lowering.IRInst, cp *classfi
 			return err
 		}
 		t := e.defTemp(int(inst.Defs[0]), goType)
-		call := fmt.Sprintf("runtime.GetStatic(%q, %q, %q)", className, name, desc)
-		w("%s = %s", t, slotExtract(call, desc))
+		switch desc[0] {
+		case 'J':
+			w("%s = runtime.GetStaticLong(%q, %q, %q)", t, className, name, desc)
+		case 'D':
+			w("%s = runtime.GetStaticDouble(%q, %q, %q)", t, className, name, desc)
+		default:
+			call := fmt.Sprintf("runtime.GetStatic(%q, %q, %q)", className, name, desc)
+			w("%s = %s", t, slotExtract(call, desc))
+		}
 
 	// --- invokevirtual (native target via the runtime bridge) ---
 	case opcode.Invokevirtual:
@@ -231,17 +238,17 @@ func (e *emitter) emitOne(b *strings.Builder, inst *lowering.IRInst, cp *classfi
 	case opcode.Iaload, opcode.Baload, opcode.Caload, opcode.Saload:
 		arr, idx := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[1]))
 		t := e.defTemp(int(inst.Defs[0]), "int32")
-		w("%s = %s.Cells()[int(%s)].GetInt()", t, arr, idx)
+		w("%s = %s.GetIntCell(int(%s))", t, arr, idx)
 	case opcode.Aaload:
 		arr, idx := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[1]))
 		t := e.defTemp(int(inst.Defs[0]), "*rtda.Object")
-		w("%s = %s.Cells()[int(%s)].GetRef()", t, arr, idx)
+		w("%s = %s.GetRefCell(int(%s))", t, arr, idx)
 	case opcode.Iastore, opcode.Bastore, opcode.Castore, opcode.Sastore:
 		arr, idx, val := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[1])), e.use(int(inst.Uses[2]))
-		w("%s.Cells()[int(%s)].SetInt(%s)", arr, idx, val)
+		w("%s.SetIntCell(int(%s), %s)", arr, idx, val)
 	case opcode.Aastore:
 		arr, idx, val := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[1])), e.use(int(inst.Uses[2]))
-		w("%s.Cells()[int(%s)].SetRef(%s)", arr, idx, val)
+		w("%s.SetRefCell(int(%s), %s)", arr, idx, val)
 	case opcode.Arraylength:
 		arr := e.use(int(inst.Uses[0]))
 		t := e.defTemp(int(inst.Defs[0]), "int32")
@@ -390,12 +397,12 @@ func (e *emitter) emitOne(b *strings.Builder, inst *lowering.IRInst, cp *classfi
 		field := e.loader.LoadClass(className).LookupField(name, desc)
 		obj := e.use(int(inst.Uses[0])) // read the objref before allocating the def (slot reuse)
 		t := e.defTemp(int(inst.Defs[0]), goType)
-		w("%s = %s", t, cellExtract(fmt.Sprintf("%s.Cells()[%d]", obj, field.SlotID()), desc))
+		w("%s = %s.%s(%d)", t, obj, cellGetterName(desc), field.SlotID())
 	case opcode.Putfield:
 		className, name, desc := cp.MemberRef(inst.Index)
 		field := e.loader.LoadClass(className).LookupField(name, desc)
 		obj, val := e.use(int(inst.Uses[0])), e.use(int(inst.Uses[1]))
-		w("%s.Cells()[%d].%s(%s)", obj, field.SlotID(), setAccessor(desc), val)
+		w("%s.%s(%d, %s)", obj, cellSetterName(desc), field.SlotID(), val)
 
 	// --- float (category-1, float32) ---
 	case opcode.Fload, opcode.Fload0, opcode.Fload1, opcode.Fload2, opcode.Fload3:
@@ -1094,36 +1101,63 @@ func icmp(op opcode.Opcode) string {
 }
 
 // slotConstructor wraps a typed temp in the rtda slot constructor for its
-// descriptor (ref → RefSlot, int → IntSlot), for boxing invoke args.
+// descriptor (ref → RefSlot, int → IntSlot, float → IntSlot with bits), for
+// boxing invoke args.
 func slotConstructor(desc, temp string) string {
 	if isRefDesc(desc) {
 		return "rtda.RefSlot(" + temp + ")"
+	}
+	if desc[0] == 'F' {
+		return "rtda.IntSlot(int32(math.Float32bits(" + temp + ")))"
 	}
 	return "rtda.IntSlot(" + temp + ")"
 }
 
 // slotExtract extracts a typed value from a Slot-bearing expression (AOT bridge).
+// For float, the Slot stores the float32 bits as int32; emitted code must call
+// math.Float32frombits to recover the Go float32 value.
 func slotExtract(call, desc string) string {
 	if isRefDesc(desc) {
 		return call + ".Ref()"
 	}
+	if desc[0] == 'F' {
+		return "math.Float32frombits(uint32(" + call + ".Num()))"
+	}
 	return call + ".Num()"
 }
 
-// cellExtract extracts a typed value from a HeapCell-bearing expression (ADR-0030).
-func cellExtract(expr, desc string) string {
-	if isRefDesc(desc) {
-		return expr + ".GetRef()"
+// cellGetterName returns the typed cell getter method name for the given field
+// descriptor (e.g., "GetIntCell" for I, "GetLongCell" for J).
+func cellGetterName(desc string) string {
+	switch desc[0] {
+	case 'L', '[':
+		return "GetRefCell"
+	case 'F':
+		return "GetFloatCell"
+	case 'J':
+		return "GetLongCell"
+	case 'D':
+		return "GetDoubleCell"
+	default: // Z, B, C, S, I
+		return "GetIntCell"
 	}
-	return expr + ".GetInt()"
 }
 
-// setAccessor maps a field descriptor to the HeapCell setter per ADR-0030.
-func setAccessor(desc string) string {
-	if isRefDesc(desc) {
-		return "SetRef"
+// cellSetterName returns the typed cell setter method name for the given field
+// descriptor (e.g., "SetIntCell" for I, "SetLongCell" for J).
+func cellSetterName(desc string) string {
+	switch desc[0] {
+	case 'L', '[':
+		return "SetRefCell"
+	case 'F':
+		return "SetFloatCell"
+	case 'J':
+		return "SetLongCell"
+	case 'D':
+		return "SetDoubleCell"
+	default: // Z, B, C, S, I
+		return "SetIntCell"
 	}
-	return "SetInt"
 }
 
 // isRefDesc reports whether a descriptor is an object/array reference.

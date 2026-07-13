@@ -63,8 +63,8 @@ func handleException(thread *rtda.Thread, throwPC int) {
 	// Uncaught exception — print and exit.
 	fmt.Fprintf(os.Stderr, "Exception in thread \"main\" %s", javaClassName(excObj.Class().Name()))
 	msgSlot := findDetailMessage(excObj)
-	if msgSlot >= 0 && excObj.Cells()[msgSlot].GetRef() != nil {
-		s := stringValueFromObj(excObj.Cells()[msgSlot].GetRef())
+	if msgSlot >= 0 && excObj.GetRefCell(msgSlot) != nil {
+		s := stringValueFromObj(excObj.GetRefCell(msgSlot))
 		if s != "" {
 			fmt.Fprintf(os.Stderr, ": %s", s)
 		}
@@ -122,7 +122,7 @@ func throwRuntime(thread *rtda.Thread, pc int, className, message string) {
 				strClass := thread.Loader().LoadClass("java/lang/String")
 				msgObj := rtda.NewObject(strClass)
 				msgObj.SetExtra(rtda.NewStringValue(goStringToUTF16Units(message)))
-				obj.Cells()[f.SlotID()].SetRef(msgObj)
+				obj.SetRefCell(int(f.SlotID()), msgObj)
 				break
 			}
 		}
@@ -274,7 +274,7 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		if err := checkArrayBounds(thread, opcodePc, arr, int(i)); err {
 			return
 		}
-		frame.PushInt(arr.Cells()[int(i)].GetInt())
+		frame.PushInt(arr.GetIntCell(int(i)))
 	case opcode.Laload:
 		i := frame.PopInt()
 		arr := frame.PopRef()
@@ -296,7 +296,7 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		if err := checkArrayBounds(thread, opcodePc, arr, int(i)); err {
 			return
 		}
-		frame.PushFloat(float32frombits(uint32(arr.Cells()[int(i)].GetInt())))
+		frame.PushFloat(float32frombits(uint32(arr.GetIntCell(int(i)))))
 	case opcode.Daload:
 		i := frame.PopInt()
 		arr := frame.PopRef()
@@ -318,7 +318,7 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		if err := checkArrayBounds(thread, opcodePc, arr, int(i)); err {
 			return
 		}
-		frame.PushRef(arr.Cells()[int(i)].GetRef())
+		frame.PushRef(arr.GetRefCell(int(i)))
 
 	// ---------- array store ----------
 	case opcode.Iastore, opcode.Bastore, opcode.Castore, opcode.Sastore:
@@ -332,7 +332,7 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		if err := checkArrayBounds(thread, opcodePc, arr, int(i)); err {
 			return
 		}
-		arr.Cells()[int(i)].SetInt(v)
+		arr.SetIntCell(int(i), v)
 	case opcode.Lastore:
 		v := frame.PopLong()
 		i := frame.PopInt()
@@ -356,7 +356,7 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		if err := checkArrayBounds(thread, opcodePc, arr, int(i)); err {
 			return
 		}
-		arr.Cells()[int(i)].SetInt(int32(float32bits(v)))
+		arr.SetIntCell(int(i), int32(float32bits(v)))
 	case opcode.Dastore:
 		v := frame.PopDouble()
 		i := frame.PopInt()
@@ -380,7 +380,7 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		if err := checkArrayBounds(thread, opcodePc, arr, int(i)); err {
 			return
 		}
-		arr.Cells()[int(i)].SetRef(v)
+		arr.SetRefCell(int(i), v)
 
 	// ---------- stack manipulation ----------
 	case opcode.Pop:
@@ -716,21 +716,21 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		referencedClass := thread.Loader().LoadClass(cls)
 		field := referencedClass.LookupField(name, desc)
 		ensureInitialized(thread, field.Owner())
-		loadFieldValue(frame, field.Owner().StaticCells(), field.SlotID(), desc)
+		loadStaticField(frame, field.Owner(), field.SlotID(), desc)
 	case opcode.Putstatic:
 		idx := frame.ReadUint16()
 		cls, name, desc := frame.Method().Owner().ConstantPool().MemberRef(idx)
 		referencedClass := thread.Loader().LoadClass(cls)
 		field := referencedClass.LookupField(name, desc)
 		ensureInitialized(thread, field.Owner())
-		storeFieldValue(frame, field.Owner().StaticCells(), field.SlotID(), desc)
+		storeStaticField(frame, field.Owner(), field.SlotID(), desc)
 	case opcode.Getfield:
 		idx := frame.ReadUint16()
 		cls, name, desc := frame.Method().Owner().ConstantPool().MemberRef(idx)
 		referencedClass := thread.Loader().LoadClass(cls)
 		field := referencedClass.LookupField(name, desc)
 		obj := frame.PopRef()
-		loadFieldValue(frame, obj.Cells(), field.SlotID(), desc)
+		loadInstanceField(frame, obj, field.SlotID(), desc)
 	case opcode.Putfield:
 		// Stack layout is [objref, value] with value on top, so the value must
 		// be popped before the object reference.
@@ -742,23 +742,23 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		case 'J':
 			v := frame.PopLong()
 			obj := frame.PopRef()
-			obj.Cells()[slotID].SetLong(v)
+			obj.SetLongCell(int(slotID), v)
 		case 'D':
 			v := frame.PopDouble()
 			obj := frame.PopRef()
-			obj.Cells()[slotID].SetDouble(v)
+			obj.SetDoubleCell(int(slotID), v)
 		case 'F':
 			v := frame.PopFloat()
 			obj := frame.PopRef()
-			obj.Cells()[slotID].SetFloat(v)
+			obj.SetFloatCell(int(slotID), v)
 		case 'L', '[':
 			v := frame.PopRef()
 			obj := frame.PopRef()
-			obj.Cells()[slotID].SetRef(v)
+			obj.SetRefCell(int(slotID), v)
 		default: // 'Z','B','C','S','I'
 			v := frame.PopInt()
 			obj := frame.PopRef()
-			obj.Cells()[slotID].SetInt(v)
+			obj.SetIntCell(int(slotID), v)
 		}
 
 	// ---------- invocations ----------

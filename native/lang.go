@@ -66,11 +66,11 @@ func buildStringClass(loader rtda.Loader) *rtda.Class {
 	c := rtda.NewSyntheticClass("java/lang/String", loader.LoadClass("java/lang/Object"))
 	// Static fields referenced by real JDK methods.
 	compact := c.AddStaticField("COMPACT_STRINGS", "Z")
-	c.StaticCells()[compact.SlotID()].SetInt(1) // true
+	c.SetStaticInt(compact.SlotID(), 1) // true
 	latin1 := c.AddStaticField("LATIN1", "B")
-	c.StaticCells()[latin1.SlotID()].SetInt(0)
+	c.SetStaticInt(latin1.SlotID(), 0)
 	utf16 := c.AddStaticField("UTF16", "B")
-	c.StaticCells()[utf16.SlotID()].SetInt(1)
+	c.SetStaticInt(utf16.SlotID(), 1)
 	// Instance field: byte coder (0 = LATIN1).
 	c.AddInstanceField("coder", "B")
 	c.AddMethod(rtda.NativeMethod(c, "<init>", "()V", stringInit))
@@ -121,7 +121,7 @@ func stringInitChars(f *rtda.Frame) {
 	n := chars.ArrayLength()
 	units := make([]uint16, n)
 	for i := 0; i < n; i++ {
-		units[i] = uint16(chars.Cells()[i].GetInt())
+		units[i] = uint16(chars.GetIntCell(i))
 	}
 	this.SetExtra(rtda.NewStringValue(units))
 }
@@ -145,7 +145,7 @@ func stringInitBytes(f *rtda.Frame) {
 		// LATIN-1: each byte is a Unicode code point.
 		units := make([]uint16, n)
 		for i := 0; i < n; i++ {
-			units[i] = uint16(buf.Cells()[i].GetInt() & 0xFF)
+			units[i] = uint16(buf.GetIntCell(i) & 0xFF)
 		}
 		this.SetExtra(rtda.NewStringValue(units))
 	} else {
@@ -156,8 +156,8 @@ func stringInitBytes(f *rtda.Frame) {
 		}
 		units := make([]uint16, n/2)
 		for i := 0; i < n; i += 2 {
-			hi := uint16(buf.Cells()[i].GetInt())
-			lo := uint16(buf.Cells()[i+1].GetInt())
+			hi := uint16(buf.GetIntCell(i))
+			lo := uint16(buf.GetIntCell(i+1))
 			units[i/2] = hi<<8 | lo
 		}
 		this.SetExtra(rtda.NewStringValue(units))
@@ -201,7 +201,7 @@ func throwException(f *rtda.Frame, className, message string) {
 		for c := cls; c != nil; c = c.SuperClass() {
 			if mf := c.LookupField("detailMessage", "Ljava/lang/String;"); mf != nil {
 				msgObj := newStringFromGo(thread, message)
-				obj.Cells()[mf.SlotID()].SetRef(msgObj)
+				obj.SetRefCell(int(mf.SlotID()), msgObj)
 				break
 			}
 		}
@@ -346,7 +346,7 @@ func stringToCharArray(f *rtda.Frame) {
 	charClass := f.Thread().Loader().LoadClass("[C")
 	arr := rtda.NewArray(charClass, len(units))
 	for i, u := range units {
-		arr.Cells()[i].SetInt(int32(u))
+		arr.SetIntCell(i, int32(u))
 	}
 	f.PushRef(arr)
 }
