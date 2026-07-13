@@ -69,10 +69,32 @@ func BuildProgram(mainClass, classpathStr string) (string, error) {
 		src.WriteString("\n")
 	}
 
-	// Assemble: emitted funcs + main() wrapper.
+	// Refuse to AOT-compile methods whose exception handlers could observe
+	// clinit failure. AOT exception propagation is not yet wired; methods
+	// without exception handlers are fine — uncaught exceptions are surfaced
+	// via the InitFailure→FallbackToInterpreter path.
+	if len(mainMethod.ExceptionTable()) > 0 {
+		return "", fmt.Errorf("transpile: %s.main has exception handlers; AOT exception propagation not yet supported", mainClass)
+	}
+
+	// Assemble: emitted funcs + main() wrapper with InitFailure recovery.
+	// If any bridge call triggers a clinit failure, the InitFailure panic
+	// unwinds the Go stack, the recover catches it, and FallbackToInterpreter
+	// re-runs the entire program through the interpreter — the real semantic
+	// fallback.
 	program := "package main\n\nimport (\n\t\"catty/runtime\"\n\t\"catty/rtda\"\n)\n\n" +
 		src.String() +
-		"\nfunc main() {\n\truntime.Bootstrap(" + fmt.Sprintf("%q, %q", classpathStr, mainClass) + ")\n\t" +
+		"\nfunc main() {\n" +
+		"\tdefer func() {\n" +
+		"\t\tif r := recover(); r != nil {\n" +
+		"\t\t\tif _, ok := r.(runtime.InitFailure); ok {\n" +
+		"\t\t\t\truntime.FallbackToInterpreter(" + fmt.Sprintf("%q, %q", classpathStr, mainClass) + ")\n" +
+		"\t\t\t\treturn\n" +
+		"\t\t\t}\n" +
+		"\t\t\tpanic(r)\n" +
+		"\t\t}\n" +
+		"\t}()\n" +
+		"\truntime.Bootstrap(" + fmt.Sprintf("%q, %q", classpathStr, mainClass) + ")\n\t" +
 		mangle(mainClass, "main") + "((*rtda.Object)(nil))\n}\n"
 	return program, nil
 }

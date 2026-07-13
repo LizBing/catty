@@ -290,10 +290,30 @@ func (e *emitter) emitOne(b *strings.Builder, inst *lowering.IRInst, cp *classfi
 				slot++
 			}
 		}
-		// If the target is AOT'd in this build, emit a direct Go call; otherwise
+		// Resolve the actual declaring class for init: the constant-pool
+		// referenced class may differ from the class that declares the
+		// method (inherited static methods). The declaring class is the
+		// one whose <clinit> must execute (ADR-0025 / JVMS §5.5).
+		initClass := className
+		if e.loader != nil {
+			if rc := e.loader.LoadClass(className); rc != nil {
+				if m := rc.LookupMethod(name, desc); m != nil {
+					initClass = m.Owner().Name()
+				}
+			}
+		}
+
+		// If the target is AOT'd in this build, emit a direct Go call
+		// preceded by an init request for the declaring class; otherwise
 		// route through the runtime.InvokeStatic bridge (interpreted/native).
 		key := className + "\x00" + name + "\x00" + desc
 		if e.emittable == nil || e.emittable[key] {
+			// Emit init guard only during BuildProgram pass 2
+			// (emittable != nil); standalone Emit() calls and pass 1
+			// trials don't wrap in a main with runtime imports.
+			if e.emittable != nil {
+				w("runtime.EnsureInit(%q)", initClass)
+			}
 			call := fmt.Sprintf("%s(%s)", mangle(className, name), strings.Join(rawArgs, ", "))
 			if md.ReturnType == "V" {
 				w("%s", call)

@@ -25,7 +25,7 @@ ClinitOrder                ref        match      match      NO-BUILD
       main
 [-] catty aot:
       catty build: transpile: ClinitOrder.main cannot be AOT'd (unsupported opcodes?)
-ClinitThrows               ref        match      match      MISMATCH
+ClinitThrows               ref        match      match      NO-BUILD
 ----- ClinitThrows -----
 [0] temurin25:
       java.lang.ExceptionInInitializerError
@@ -36,18 +36,8 @@ ClinitThrows               ref        match      match      MISMATCH
 [0] catty ir:
       java.lang.ExceptionInInitializerError
       java.lang.NoClassDefFoundError
-[2] catty aot:
-      panic: catty/runtime: class initialization failed for Bomb (java/lang/ExceptionInInitializerError); AOT clinit-failure path not yet implemented
-
-      goroutine 1 [running]:
-      catty/runtime.initOrPanic(0x6f58db6585a0)
-	/Users/lizbing/Workspace/Projects/catty/runtime/runtime.go:44 +0xb4
-      catty/runtime.GetStatic({0x100814b4a, 0x4}, {0x100814a40, 0x1}, {0x100814a41, 0x1})
-	/Users/lizbing/Workspace/Projects/catty/runtime/runtime.go:58 +0x1dc
-      main.ClinitThrows_main(0x10081f55c?)
-	/var/folders/43/qdn_rh0j0b5btn_x7mj5_rl00000gn/T/catty-build-3715437135.go/program.go:13 +0x6c
-      main.main()
-	/var/folders/43/qdn_rh0j0b5btn_x7mj5_rl00000gn/T/catty-build-3715437135.go/program.go:52 +0x3c
+[-] catty aot:
+      catty build: transpile: ClinitThrows.main has exception handlers; AOT exception propagation not yet supported
 ConstantFieldNoInit        ref        match      match      match
 ----- ConstantFieldNoInit -----
 [0] temurin25:
@@ -58,6 +48,24 @@ ConstantFieldNoInit        ref        match      match      match
       7
 [0] catty aot:
       7
+DirectInvokeStaticInit     ref        match      match      match
+----- DirectInvokeStaticInit -----
+[0] temurin25:
+      SideEffect
+      1
+      2
+[0] catty interp:
+      SideEffect
+      1
+      2
+[0] catty ir:
+      SideEffect
+      1
+      2
+[0] catty aot:
+      SideEffect
+      1
+      2
 GetstaticOwner             ref        match      match      match
 ----- GetstaticOwner -----
 [0] temurin25:
@@ -82,6 +90,24 @@ HashDivergence             ref        MISMATCH   MISMATCH   MISMATCH
       2017367872
 [0] catty aot:
       2017367872
+InheritedStaticInit        ref        match      match      match
+----- InheritedStaticInit -----
+[0] temurin25:
+      Ancestor
+      99
+      99
+[0] catty interp:
+      Ancestor
+      99
+      99
+[0] catty ir:
+      Ancestor
+      99
+      99
+[0] catty aot:
+      Ancestor
+      99
+      99
 InterfaceDefaultInit       ref        match      match      match
 ----- InterfaceDefaultInit -----
 [0] temurin25:

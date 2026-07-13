@@ -89,7 +89,7 @@ func InitializeClass(loader Loader, class *Class, ecID uint64, runClinit ClinitR
 func buildNCDFE(loader Loader, className string) InitResult {
 	ncdfeClass := loader.LoadClass("java/lang/NoClassDefFoundError")
 	ncdfe := NewObject(ncdfeClass)
-	setDetailMessage(ncdfe, className)
+	setDetailMessage(loader, ncdfe, className)
 	return InitResult{ErrObj: ncdfe}
 }
 
@@ -148,11 +148,14 @@ func getThrowableMessage(obj *Object) string {
 }
 
 // setDetailMessage writes a string into a Throwable's detailMessage field.
-func setDetailMessage(obj *Object, msg string) {
+// The string is allocated as a real java/lang/String object via the loader,
+// preserving the R1 string payload convention (Go string in Extra).
+func setDetailMessage(loader Loader, obj *Object, msg string) {
 	for cls := obj.Class(); cls != nil; cls = cls.superClass {
 		if f := cls.LookupField("detailMessage", "Ljava/lang/String;"); f != nil {
 			if msg != "" {
-				strObj := NewObject(cls)
+				strClass := loader.LoadClass("java/lang/String")
+				strObj := NewObject(strClass)
 				strObj.SetExtra(msg)
 				obj.Fields()[f.SlotID()].SetRef(strObj)
 			}

@@ -67,9 +67,9 @@ fixtures. This workstream does not implement Java concurrency.
 
 | Gate | Command / artifact | Result |
 |---|---|---|
-| Interpreter initialization matrix | `bash docs/workstreams/r2-evidence/run-r2-diff.sh` → all 9 initialization fixtures match | Pass |
-| IR initialization matrix | Same harness → all 9 initialization fixtures match | Pass |
-| AOT initialization matrix | Same harness → match where supported; every unsupported path explicitly classified | Pass (5 match, 1 Fallback, 3 NI) |
+| Interpreter initialization matrix | `bash docs/workstreams/r2-evidence/run-r2-diff.sh` → all 11 initialization fixtures match | Pass |
+| IR initialization matrix | Same harness → all 11 initialization fixtures match | Pass |
+| AOT initialization matrix | Same harness → match where supported; every unsupported path explicitly classified | Pass (7 match, 4 NI) |
 | R1 regression | `go vet ./... && go test ./... && go test -race ./... && bash tests/run.sh` | Pass |
 | Governance consistency | `git diff --check` | Pass |
 
@@ -79,8 +79,9 @@ Results key: `Pass` / `Fail` / `Not run` / `Not implemented`.
 
 ### Interpreter & IR
 
-All 9 initialization fixtures match Temurin 25: ClinitOrder, ClinitThrows,
-ConstantFieldNoInit, GetstaticOwner, InterfaceDefaultInit, InterfaceNoInitOnImpl,
+All 11 initialization fixtures match Temurin 25: ClinitOrder, ClinitThrows,
+ConstantFieldNoInit, DirectInvokeStaticInit, GetstaticOwner,
+InheritedStaticInit, InterfaceDefaultInit, InterfaceNoInitOnImpl,
 InvokeStaticInit, RecursiveInitialization, SuperclassInitializationFailure.
 
 ### AOT
@@ -88,11 +89,13 @@ InvokeStaticInit, RecursiveInitialization, SuperclassInitializationFailure.
 | Fixture | AOT Result | Classification |
 |---|---|---|
 | ConstantFieldNoInit | match | Supported |
+| DirectInvokeStaticInit | match | Supported |
 | GetstaticOwner | match | Supported |
+| InheritedStaticInit | match | Supported |
 | InterfaceDefaultInit | match | Supported |
 | InvokeStaticInit | match | Supported |
 | RecursiveInitialization | match | Supported |
-| ClinitThrows | explicit panic (AOT clinit-failure path NI) | Fallback |
+| ClinitThrows | transpile refusal (exception handlers in main) | Not implemented |
 | ClinitOrder | transpile refusal (unsupported opcodes) | Not implemented |
 | InterfaceNoInitOnImpl | transpile refusal (unsupported opcodes) | Not implemented |
 | SuperclassInitializationFailure | transpile refusal (unsupported opcodes) | Not implemented |
@@ -106,10 +109,27 @@ InvokeStaticInit, RecursiveInitialization, SuperclassInitializationFailure.
   recursion (JVMS §5.5 step 6 precedes step 7). Same-owner recursive requests
   during predecessor init detect `initInProgress` + matching `ecID` and return
   normally.
-- **AOT clinit failure**: When class init fails in AOT mode, the bridge
-  surfaces it as an explicit Go panic with a descriptive message. The
-  interpreter loop's exception-table walking is not yet wired for AOT —
-  tracked as a future AOT hardening item.
+- **AOT clinit failure — interpreter fallback**: When class initialization
+  fails during AOT execution, the bridge panics with a typed `InitFailure`
+  sentinel. The emitted program's `main()` recovers this sentinel and calls
+  `FallbackToInterpreter` to re-run the entire program through the interpreter
+  — providing real semantic fallback where Java exception handlers can observe
+  ExceptionInInitializerError / NoClassDefFoundError. Methods with their own
+  exception handlers that could intercept clinit failure are explicitly
+  refused at build time (NO-BUILD) until AOT exception propagation is wired.
+- **Direct AOT invokestatic init guard**: Before every direct Go call to an
+  AOT'd static method, the transpiler emits `runtime.EnsureInit` targeting
+  the resolved method's actual declaring class (not the constant-pool
+  referenced class, in case of inherited static methods). A new
+  `DirectInvokeStaticInit` fixture proves `<clinit>` runs exactly once even
+  when the called method does not read/write static state.
+- **Inherited static method init**: The `InvokeStatic` bridge resolves the
+  method before requesting initialization, using `method.Owner()` for the
+  init target. A new `InheritedStaticInit` fixture proves the declaring
+  ancestor is initialized, not the constant-pool referenced subclass.
+- **NCDFE detailMessage fix**: `setDetailMessage` now allocates a real
+  `java/lang/String` via the loader instead of allocating from the wrong
+  class in the Throwable hierarchy.
 - **AOT InvokeStatic bridge**: Args are now wrapped with `slotConstructor`
   (e.g. `rtda.IntSlot(t3)`, `rtda.RefSlot(t4)`) — fixes a compilation error
   in emitted Go code. Nil LookupField/LookupMethod results now panic
