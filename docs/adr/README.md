@@ -6,6 +6,10 @@ new ADR that references the old one rather than editing it.
 
 Format (Michael Nygard's template): Status, Context, Decision, Consequences.
 
+Only **Accepted** ADRs govern implementation. Proposed ADRs are discussion
+inputs: age, Roadmap placement, or repeated references do not make them
+accepted. Reversing an Accepted decision requires a superseding ADR.
+
 | # | Title | Status |
 |---|---|---|
 | [0001](./0001-reuse-go-runtime.md) | Reuse the Go runtime (no custom GC, scheduler, or JIT) | Accepted |

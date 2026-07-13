@@ -2,10 +2,10 @@
 
 ## Vision: catty as an experimental JRE
 
-catty is not just "a JVM written in Go" — it is **a platform that compiles Java
-programs into Go programs**, where the final product is a native Go binary running
-on Go's GC, scheduler, and network stack. Java's Thread/synchronized/volatile/
-GC/IO are "dissolved" into Go's goroutine/mutex/atomic/GC/netpoll at compile time.
+catty is not just "a JVM written in Go" — it explores a platform that compiles
+Java programs into Go programs while reusing appropriate Go runtime services.
+The exact Thread, memory-model, class-library, I/O, and AOT production boundaries
+remain subject to Accepted ADRs and measured workstreams.
 
 See the strategic plan and ADRs 0008–0013 for the architectural vision.
 
@@ -25,12 +25,14 @@ speed (~44 ms, on par with HotSpot JIT).
 
 | ADR | Decision | Impact |
 |---|---|---|
-| 0008 | AOT-first (interpreter is dev tier) | No JIT warmup, no safepoints |
-| 0009 | Hybrid class library (~50 native + ~7000 interpreted) | Bootstrap control + semantic compat |
-| 0010 | Thread = goroutine | Virtual threads from day one |
-| 0011 | Go memory model (not JMM) | Simpler, 99.9% compatible |
-| 0012 | Escape analysis replaces generational GC | Stack-allocate Java objects |
-| 0013 | Direct Go runtime integration | I/O = native Go performance |
+| 0008 | Evaluate an AOT-first production model | Production-tier boundary |
+| 0009 | Evaluate a hybrid class library | Bootstrap control and compatibility |
+| 0010 | Evaluate Java Thread mapping onto Go runtime mechanisms | Thread identity and lifecycle |
+| 0011 | Determine the required Java memory semantics | Compatibility and optimization boundary |
+| 0012 | Evaluate Go escape analysis for Java objects | Allocation optimization |
+| 0013 | Evaluate direct Go runtime integration | Runtime service boundary |
+
+These ADRs are discussion inputs only. They do not authorize implementation.
 
 ## Implementation phases
 
@@ -47,25 +49,25 @@ speed (~44 ms, on par with HotSpot JIT).
   `jimage extract` tool (no runtime jimage parser — keeps catty lean). The 6
   bootstrap classes (Object/String/Class/System/Thread/Throwable) stay synthetic;
   everything else loads from real java.base.
-- **Native layer expansion** (ADR-0009): ~18 synthetic classes + ~40 native
+- **Native layer expansion**: ~18 synthetic classes + ~40 native
   method registrations. `NoSuchMethodError` (not a crash) on gaps.
 
 **Milestone** ✅: `catty -cp . HelloWorld` with real java.base — one command,
 auto-detected. `RealBaseSmoke` (18 assertions) byte-identical to `java`.
 
-### Phase R2 — Concurrency (ADR-0010)
-**Status:** Next
+### Phase R2 — Runtime semantics and concurrency planning
+**Status:** Requires research and Accepted decisions
 
-Prerequisite sizing (honest): JDK 25's `Integer.toString`/`Double.parseDouble`/
-`HashMap` cascade through `DecimalDigits` → `jdk.internal.misc.Unsafe` (~50
-native methods). R2 begins with a minimum Unsafe stub layer to unblock these;
-full Unsafe semantics (compareAndSet, field offsets, fences) are entangled with
-ADR-0010 (Thread=goroutine) and ADR-0011 (Go memory model).
+JDK 25's `Integer.toString`/`Double.parseDouble`/`HashMap` paths reach
+`jdk.internal.misc.Unsafe`; concurrency additionally requires explicit Thread,
+monitor, class-initialization, volatile/final, interrupt, liveness, and memory
+ordering contracts. The first post-R1 work should establish evidence and
+Accepted decisions before selecting implementation mechanisms.
 
-- `java.lang.Thread` → goroutine. Thread.start = `go func()`.
-- Per-object `sync.Mutex` for `synchronized`. `wait/notify` → `sync.Cond`.
-- `Thread.sleep` → `time.Sleep`. `Thread.interrupt` → `context.Cancel`.
-- JMM approximation (ADR-0011). ~4–6 weeks.
+Candidate planning outputs include a caller-backed Unsafe profile, protected
+Java memory semantics, explicit Thread identity/lifecycle, monitor behavior,
+and deterministic differential/race/timeout gates. None is authorized until an
+Accepted ADR and workstream require it.
 
 **Milestone**: multi-threaded producer-consumer program.
 
@@ -76,24 +78,23 @@ ADR-0010 (Thread=goroutine) and ADR-0011 (Go memory model).
 - `invokedynamic` full support (LambdaMetafactory, dynamic proxies).
 - Annotation parsing (`RuntimeVisibleAnnotations`). ~3–4 weeks.
 
-### Phase R4 — I/O & network (ADR-0013)
+### Phase R4 — I/O & network (subject to ADR-0013)
 **Status:** After R3
 
-- java.io → Go os.File. java.net → Go net.Conn/Listener.
-- NIO Selector → Go netpoll. JNI bridge (long-term, for LWJGL).
-- ~4–8 weeks (scope-dependent).
+- Define supported file, socket, selector, and native-integration semantics.
+- Evaluate direct Go runtime adapters against compatibility and maintenance cost.
 
-### Phase R5 — AOT coverage expansion (ADR-0008)
+### Phase R5 — AOT coverage expansion (subject to ADR-0008)
 **Status:** After R3/R4
 
 - Instance method AOT. Exception handling in emitted code.
 - `invokedynamic` AOT (CallSite resolution at build time).
 - Tiered: interpret cold, AOT hot. ~4–6 weeks.
 
-### Phase R6 — Performance & polish (ADR-0012)
+### Phase R6 — Performance & polish (subject to ADR-0012)
 **Status:** After R5
 
-- Escape analysis validation (stack-allocated Java objects).
+- Escape-analysis and allocation-strategy validation.
 - Object layout optimization (field reordering).
 - Value-type identification. Core class optimization.
 - JCK testing. ~8+ weeks.
