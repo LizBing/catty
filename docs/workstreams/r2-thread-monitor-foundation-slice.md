@@ -164,12 +164,206 @@ Any missing item keeps the workstream `Accepted`; it may not become `In Progress
 
 Status uses `Pending`, `In progress`, or `Complete`.
 
+### Slice C technical investigation
+
+Investigated on 2026-07-14 against the accepted Slice B lineage at `d4008c0`,
+Java 25 JVMS/JLS/API text, the frozen fixtures, and current Interpreter/IR/native
+entry and unwind paths.
+
+The research establishes these implementation facts:
+
+- Java 25 `monitorenter` is reentrant, blocks competing execution contexts, and throws
+  `NullPointerException` for null. `monitorexit` throws `NullPointerException` for null
+  and `IllegalMonitorStateException` for a non-owner. Ordinary entry is not
+  interruptible.
+- `ACC_SYNCHRONIZED` is implicit invocation behavior. Instance methods lock the receiver;
+  static methods lock the canonical `Class` mirror for the method's actual declaring
+  runtime Class. The VM releases only that implicit entry when the invocation completes
+  normally or when an exception escapes the method.
+- Javac emits explicit `monitorenter`/`monitorexit` plus exception-table cleanup for a
+  synchronized block. Slice C must not release arbitrary explicit entries when a frame is
+  popped; the shared frame lifecycle owns only the method's implicit entry.
+- Current ordinary Interpreter and IR calls share `invokeMethod`, but `Thread.start()` and
+  the interpreter bridge can push frames directly. Implicit synchronized entry therefore
+  belongs in a shared frame-entry boundary, not only in invoke opcode handlers. Native
+  throwaway frames need an equivalent paired cleanup because they are not pushed.
+- A pre-interrupted call to `wait()` clears interrupt status and throws without releasing
+  the monitor. An interrupt after wait-set enrollment removes the waiter, but the thread
+  throws only after reacquiring the monitor and restoring its prior recursion depth.
+- Notify and interrupt must be ordered per waiter. If notify wins, wait returns normally
+  and the later interrupt remains pending. If interrupt wins, a later notify skips that
+  waiter and can select another; a notification cannot be consumed by an already
+  interrupted waiter.
+- The existing Thread waker channel is sufficient for sleep/join wakeup but cannot alone
+  order monitor notification against interruption. Thread needs an atomic active-waiter
+  registration boundary; the interrupt path must not hold that registration lock while
+  acquiring a monitor state lock.
+- The fixed bytecode calls `Object.wait:()V` directly. `SynchronizedMethods` and
+  `ProducerConsumer.OneSlot` carry `ACC_SYNCHRONIZED` rather than explicit monitor
+  opcodes. The bounded synthetic facade must therefore declare the exact `wait()`,
+  `notify()`, and `notifyAll()` descriptors.
+
+Authoritative semantic references are
+[JVMS 2.11.10](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.10),
+[JVMS monitorenter/monitorexit](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.monitorenter),
+[JLS 17.1-17.2](https://docs.oracle.com/javase/specs/jls/se25/html/jls-17.html#jls-17.2),
+and the Java 25 [`Object`](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html)
+and [`Thread`](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Thread.html)
+APIs.
+
+### Slice C working contract
+
+**Status:** Accepted by Owner on 2026-07-14
+
+**Type:** implementation within this Accepted parent workstream
+
+**Review:** owner
+
+**Planned base:** `d4008c0` (accepted Slice B governance)
+
+**Parent acceptance anchor:** `a0288be`
+
+**Governing decisions:** the parent contract and ADR-0017, ADR-0018, ADR-0020,
+ADR-0022, and ADR-0028 through ADR-0030
+
+This checkpoint refines the existing plan without amending the parent's frozen Outcome,
+Scope, Non-scope, Semantic constraints, engine matrix, or Acceptance gates. Its evidence
+does not replace the fixed 19-fixture denominator or any final workstream gate. Owner
+acceptance authorizes an Active Agent to change Slice C from `Pending` to `In progress`
+after it records its implementation preflight. Production work remains limited by the
+parent contract and the Owner's session authority.
+
+#### Slice C outcome
+
+Interpreter and IR share one race-free Java object-monitor service covering explicit
+monitor bytecodes, implicit synchronized methods, untimed Object wait sets, notification,
+and wait interruption. The eight Slice C fixtures match Temurin 25, the three existing
+interrupt fixtures remain matching regressions, and the one-slot `ProducerConsumer`
+milestone works without moving concurrent class initialization or AOT acceptance into
+this slice.
+
+#### Slice C scope
+
+- Add one lazy, CAS-published monitor sidecar to every `rtda.Object`, including arrays and
+  canonical Class mirrors. Keep owner execution-context ID, recursion depth, entry
+  coordination, and ordered waiters under one monitor state lock. `CloneObject` creates a
+  fresh object with no copied monitor state.
+- Implement monitor enter, exit, ownership query, untimed wait, notify-one, notify-all,
+  and waiter interruption in `rtda`. Entry is reentrant and non-interruptible; notify
+  selection need not be fair.
+- Add a Thread active-waiter registration protocol that closes the race between the
+  pre-wait interrupt check and waiter publication. Preserve the accepted Slice B
+  sleep/join waker behavior and clear interrupt status exactly when an
+  `InterruptedException` is selected.
+- Implement `monitorenter` and `monitorexit` in both Interpreter and IR using the same
+  `rtda` service and existing Java exception transport.
+- Recognize `ACC_SYNCHRONIZED`. Acquire the instance receiver or the declaring Class's
+  canonical mirror at the shared frame-entry boundary. Record exactly one implicit entry
+  on the frame and release it exactly once through normal return or exception unwind.
+  Apply equivalent paired handling to native throwaway frames.
+- Cover every interpreted frame-entry route in scope, including ordinary invocation,
+  spawned `Thread.run()` dispatch, `<clinit>` callbacks when applicable, and the existing
+  interpreter bridge. This does not claim concurrent AOT support.
+- Add bounded synthetic/native Object `wait()`, `notify()`, and `notifyAll()` methods,
+  real `Thread.holdsLock`, and the `IllegalMonitorStateException` facade. Preserve
+  `InterruptedException` transport from Slice B.
+- Add deterministic unit tests for lazy single-monitor identity, exclusion, recursion,
+  ownership failures, exact depth restore, pre-interrupted wait, notify-one/all,
+  interrupt-before-notify, notify-before-interrupt, no lost notification, frame cleanup,
+  static Class-mirror locking, and clone isolation.
+- Add a fail-closed Slice C runner whose explicit fixture list and output are isolated
+  under `docs/workstreams/r2-concurrency-candidate-evidence/<candidate>/slice-c/`.
+
+#### Slice C non-scope
+
+- Concurrent class initialization or changes to ADR-0025 state/locking; that remains
+  Slice D.
+- The full 19-fixture candidate matrix, AOT reachability rejection, full stress gate, or
+  final architecture/development documentation; those remain later parent slices.
+- Timed `wait`/`join`, nanosecond timing, fairness, deliberate spurious wakeups, deadlock
+  detection, monitor deflation, thin/biased locking, virtual-thread pinning, or broad
+  java.base Object/Thread replacement.
+- Interruptible monitor acquisition, Thread stop/suspend/resume, asynchronous exception
+  injection, or changes to the accepted Thread lifecycle and VM-liveness model except the
+  active-waiter integration required here.
+- Concurrent AOT, an AOT execution-context ABI, emitted monitor operations, or any AOT
+  `Supported`/`Fallback` claim. Incidental single-context bridge behavior is not evidence
+  of AOT concurrency support.
+- Reworking heap cells, loader identity, Class-mirror canonicality, or mutable native
+  payloads beyond changes strictly required to attach and exercise monitor state.
+
+#### Slice C semantic constraints
+
+- Monitor ownership is keyed only by stable Java execution-context identity. Goroutine
+  identity and Java Thread facade pointer identity are not owner keys.
+- Monitor state transitions and waiter state transitions are race-free. An unlock is the
+  release edge for a later successful lock of the same monitor; the implementation may
+  use stronger ordering.
+- A pre-interrupted `wait()` throws while retaining the caller's current ownership and
+  recursion depth. A waiter interrupted after enrollment reacquires the monitor and
+  restores the exact prior depth before its cleared-status `InterruptedException` is
+  observed by Java code.
+- Waiter states are single-transition: `waiting` becomes `notified` or `interrupted` once.
+  Wake signals are private and exactly-once. Notify skips non-waiting entries.
+- If notify wins its ordering against interrupt, wait returns normally and interrupt
+  status remains set. If interrupt wins, the waiter throws after reacquisition and later
+  notify remains available to another eligible waiter.
+- A notified or interrupted waiter competes normally for monitor reacquisition; it does
+  not resume Java execution while another execution context still owns the monitor.
+- Static synchronized methods lock `method.Owner()`'s canonical Class mirror, including
+  inherited resolution through another symbolic class. Instance synchronized methods
+  lock local 0 (`this`).
+- Only the implicit synchronized-method entry is attached to frame cleanup. Explicit
+  block entries remain governed by bytecode `monitorexit` and its exception handlers.
+  A handler caught inside the synchronized method does not release the implicit entry;
+  an exception escaping that frame does.
+- Interpreter and IR use identical services and exception classes. Neither engine may
+  busy-wait, silently ignore ownership errors, or approximate wait with sleep/polling.
+
+#### Slice C review evidence
+
+These are slice-review checks, not amendments or substitutes for the parent's final
+Acceptance table. Results use only `Pass`, `Fail`, `Not run`, or `Not implemented`.
+
+| Check | Required evidence before Slice C can be proposed Complete |
+|---|---|
+| Monitor kernel | `go test -race ./rtda` covers lazy CAS identity, exclusion, recursion, non-owner exit, wait depth, both notify/interrupt orders, no lost notification, and clone isolation |
+| Invocation/unwind | Unit coverage proves instance/static implicit entry, canonical Class mirror identity, all return types, caught versus escaping exceptions, direct frame entry, native cleanup, and exactly-once release |
+| Native facade | `go test -race ./native` covers Object ownership failures, wait interruption and status clearing, `holdsLock`, and preservation of Slice B sleep/join interrupt behavior |
+| Direct Slice C differential | `bash docs/workstreams/r2-concurrency-fixtures/run-concurrency-slice-c.sh <candidate>` asserts exactly eleven Interpreter/IR rows. The direct rows are `SynchronizedBlocks`, `SynchronizedMethods`, `MonitorNull`, `MonitorOwnership`, `WaitNotify`, `NotifyAll`, `InterruptWait`, and `ProducerConsumer`; each matches Temurin 25 combined stdout, stderr, and exit code |
+| Interrupt regression differential | The same runner asserts `InterruptStatus`, `InterruptSleep`, and `InterruptJoin` still match Temurin 25 in Interpreter and IR |
+| Bounded race repetition | `R2_CONCURRENCY_STRESS=20 bash docs/workstreams/r2-concurrency-fixtures/run-concurrency-slice-c.sh <candidate>` uses a race-built catty binary for the direct Slice C set; no Go race, timeout, deadlock, missing iteration, or mismatch. This does not replace the parent's later `R2_CONCURRENCY_STRESS=100` full-matrix gate |
+| Core regression | `go vet ./...`, `go test ./...`, `go test -race ./...`, and `bash tests/run.sh` all Pass |
+| Evidence isolation | The runner requires an explicit immutable candidate ID, refuses overwrite, records toolchain/base/fixture list, and writes only its candidate `slice-c/` directory; all historical evidence hashes remain unchanged |
+| Scope audit | Diff from `d4008c0` contains no concurrent class-init implementation, AOT concurrency claim, fixture denominator change, or stale single-threaded claim introduced by Slice C |
+
+The Slice C runner may share code with the future full candidate harness, but it must
+hard-code and report the eleven rows above. Additional tests are supplemental and cannot
+change the parent's 19-fixture denominator or final pass count.
+
+#### Slice C implementation order
+
+1. Monitor sidecar and kernel invariants.
+2. Thread active-waiter ordering and interrupt race tests.
+3. Explicit Interpreter/IR monitor opcodes and Java exception mapping.
+4. Shared synchronized frame entry/return/unwind, including direct frame and native paths.
+5. Object/Thread facades and exception hierarchy.
+6. Targeted differential runner, race repetition, regression, isolated evidence, and
+   owner review candidate.
+
+#### Slice C acceptance record
+
+Accepted by Owner on 2026-07-14. This acceptance approves the Slice C refinement within
+the parent workstream. It does not itself start production implementation, authorize a
+commit/integration action, or alter the parent workstream's final acceptance gates.
+
 ---
 
 ## Handoff
 
-- **Branch / candidate:** `worktree-r2-thread-monitor-foundation` / `b0a7b70` (Slice B final, Owner accepted 2026-07-14)
-- **Acceptance anchor / base:** `a0288be` governance commit / research baseline `63d5658`
+- **Branch / current head:** `worktree-r2-thread-monitor-foundation` / `d4008c0` (accepted Slice B governance)
+- **Last implementation candidate:** `b0a7b70` (Slice B final, Owner accepted 2026-07-14)
+- **Acceptance anchor / planned Slice C base / research baseline:** `a0288be` / `d4008c0` / `63d5658`
 - **Slice A evidence:** `docs/workstreams/r2-concurrency-candidate-evidence/9576828/` — `ec1b398`, accepted by Owner
 - **Slice B original:** `docs/workstreams/r2-concurrency-candidate-evidence/505d3ee/` — `505d3ee`
 - **Slice B rework 1:** `docs/workstreams/r2-concurrency-candidate-evidence/a0e336c/` — `a0e336c` (3 blockers)
@@ -186,8 +380,9 @@ Status uses `Pending`, `In progress`, or `Complete`.
 - **Contract gates not yet run:** 19-fixture matrix, AOT rejection matrix, race stress, evidence isolation check
 - **Slice A scope:** 22 files, +1306/−259 — HeapCell typed accessors, CopyObjectCells overlap-safe, Cells()/StaticCells() removed, classloader CAS/double-check, canonical Class mirrors via ClassObject CAS-once, 34 new `-race` tests
 - **Slice B scope (original):** 10 files, +1464/−23 — VM supervisor, Thread lifecycle/interrupt/daemon/sleep, 15 native Thread methods, goroutine carrier, join, DefaultRunLoop callback, 51 new `-race` tests (rtda: 32 thread + 5 vm; native: 14)
-- **Dirty files:** contract, evidence, and handoff updated
-- **Next action (Slice C):** monitors, synchronized methods, wait sets, and interruption
+- **Dirty files:** this contract only; no production code or candidate evidence changed
+- **Current Slice C state:** technical investigation complete; internal working contract accepted by Owner, implementation not started
+- **Next action (Slice C):** a new Active Agent records the implementation preflight, changes Slice C to `In progress`, then implements only the accepted Slice C contract
 - **Non-derivable context:** the 19-fixture denominator includes explicit daemon and non-daemon liveness, all three interruptible blocking points, and the producer-consumer milestone
 
 ### Slice B acceptance record
