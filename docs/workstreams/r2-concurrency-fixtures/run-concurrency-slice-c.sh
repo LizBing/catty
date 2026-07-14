@@ -50,7 +50,11 @@ STRESS="${R2_CONCURRENCY_STRESS:-1}"
 
 # --- Evidence directory ---
 EVIDENCE_DIR="$ROOT/docs/workstreams/r2-concurrency-candidate-evidence/$CANDIDATE/slice-c"
-RESULTS="$EVIDENCE_DIR/results.txt"
+if [ "$STRESS" -gt 1 ]; then
+  RESULTS="$EVIDENCE_DIR/results-stress-${STRESS}x.txt"
+else
+  RESULTS="$EVIDENCE_DIR/results.txt"
+fi
 
 if [ -f "$RESULTS" ]; then
   fail_closed "refusing to overwrite existing evidence: $RESULTS"
