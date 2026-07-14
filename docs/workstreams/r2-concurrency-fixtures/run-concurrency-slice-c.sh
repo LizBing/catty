@@ -6,6 +6,10 @@
 # in combined stdout+stderr and exit code. Any mismatch, timeout, missing
 # fixture, or build failure is a hard failure.
 #
+# The candidate commit is resolved to a full SHA and checked out in a
+# temporary detached worktree so the build and fixtures are sourced from
+# exactly that commit — the caller's working state is irrelevant.
+#
 # Usage:
 #   bash docs/workstreams/r2-concurrency-fixtures/run-concurrency-slice-c.sh <candidate>
 #
@@ -13,14 +17,15 @@
 #     Runs each fixture that many times per engine.  Default is 1.
 #
 # Output:
-#   docs/workstreams/r2-concurrency-candidate-evidence/<candidate>/slice-c/results.txt
+#   docs/workstreams/r2-concurrency-candidate-evidence/<candidate>/slice-c/
+#     results.txt              — 1× run
+#     results-stress-<N>x.txt  — stress run (when STRESS > 1)
 #
-# Guard: refuses to overwrite an existing results.txt.
+# Guard: refuses to overwrite an existing evidence file.
 set -eu
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-FIXTURE_DIR="$SCRIPT_DIR"
 
 fail_closed() { echo "slice-c-runner: $*" >&2; exit 1; }
 
@@ -28,10 +33,11 @@ fail_closed() { echo "slice-c-runner: $*" >&2; exit 1; }
 [ $# -eq 1 ] || fail_closed "usage: $0 <candidate-commit-id>"
 CANDIDATE="$1"
 
-# Verify we are working with a real Git checkout.
-(cd "$ROOT" && git rev-parse --git-dir) >/dev/null || fail_closed "not a git repository: $ROOT"
+# Verify we are in a real Git checkout.
+(cd "$ROOT" && git rev-parse --git-dir) >/dev/null 2>&1 \
+  || fail_closed "not a git repository: $ROOT"
 
-# Verify the candidate is a valid commit.
+# Resolve candidate to a full, immutable SHA.
 CANDIDATE_FULL="$(cd "$ROOT" && git rev-parse --verify "$CANDIDATE^{commit}")" \
   || fail_closed "not a valid commit: $CANDIDATE"
 
@@ -48,7 +54,7 @@ javac -version 2>&1 | grep '^javac 25\.' >/dev/null || fail_closed "javac 25 req
 STRESS="${R2_CONCURRENCY_STRESS:-1}"
 [ "$STRESS" -ge 1 ] || fail_closed "R2_CONCURRENCY_STRESS must be >= 1, got $STRESS"
 
-# --- Evidence directory ---
+# --- Evidence directory (main repo, never in the detached worktree) ---
 EVIDENCE_DIR="$ROOT/docs/workstreams/r2-concurrency-candidate-evidence/$CANDIDATE/slice-c"
 if [ "$STRESS" -gt 1 ]; then
   RESULTS="$EVIDENCE_DIR/results-stress-${STRESS}x.txt"
@@ -60,6 +66,33 @@ if [ -f "$RESULTS" ]; then
   fail_closed "refusing to overwrite existing evidence: $RESULTS"
 fi
 mkdir -p "$EVIDENCE_DIR" || fail_closed "cannot create evidence directory: $EVIDENCE_DIR"
+
+# --- Detached worktree at candidate ---
+# Prune any stale worktree metadata from previous aborted runs.
+(cd "$ROOT" && git worktree prune) >/dev/null 2>&1 || true
+
+BUILD_DIR="$(mktemp -d -t catty-slice-c-build.XXXXXX)"
+git -C "$ROOT" worktree add --detach --no-checkout "$BUILD_DIR" "$CANDIDATE_FULL" >/dev/null 2>&1 \
+  || fail_closed "failed to create detached worktree at $CANDIDATE"
+# Checkout the full tree now that the worktree exists.
+git -C "$BUILD_DIR" checkout --detach "$CANDIDATE_FULL" >/dev/null 2>&1 \
+  || fail_closed "failed to checkout candidate in detached worktree"
+
+BUILD_COMMIT="$(git -C "$BUILD_DIR" rev-parse HEAD)"
+[ "$BUILD_COMMIT" = "$CANDIDATE_FULL" ] \
+  || fail_closed "build worktree HEAD ($BUILD_COMMIT) != candidate ($CANDIDATE_FULL)"
+
+FIXTURE_DIR="$BUILD_DIR/docs/workstreams/r2-concurrency-fixtures"
+
+# Cleanup: remove detached worktree + temp files.
+BIN="$(mktemp -t catty-slice-c.XXXXXX)"
+STAGE="$(mktemp -d -t slice-c-stage.XXXXXX)"
+cleanup() {
+  rm -rf "$BIN" "$STAGE"
+  git -C "$ROOT" worktree remove --force "$BUILD_DIR" >/dev/null 2>&1 || true
+  rm -rf "$BUILD_DIR"
+}
+trap cleanup EXIT
 
 # --- Slice C fixture list (11) ---
 FIXTURES="
@@ -79,14 +112,10 @@ ProducerConsumer
 EXPECTED=11
 to() { perl -e 'alarm shift; exec @ARGV' "$@"; }
 
-BIN="$(mktemp -t catty-slice-c.XXXXXX)"
-STAGE="$(mktemp -d -t slice-c-stage.XXXXXX)"
-trap 'rm -rf "$BIN" "$STAGE"' EXIT
-
-# Verify all fixtures exist.
+# Verify all fixtures exist in the candidate worktree.
 count=0
 for name in $FIXTURES; do
-  [ -f "$FIXTURE_DIR/$name.java" ] || fail_closed "missing fixture: $name.java"
+  [ -f "$FIXTURE_DIR/$name.java" ] || fail_closed "missing fixture in candidate: $name.java"
   count=$((count + 1))
 done
 [ "$count" -eq "$EXPECTED" ] || fail_closed "fixture count $count != $EXPECTED"
@@ -96,24 +125,26 @@ T_RUN=20
 # --- Header ---
 {
   echo "=== Slice C runner ==="
-  echo "candidate:    $CANDIDATE"
-  echo "candidate-full: $CANDIDATE_FULL"
-  echo "catty-commit: $(cd "$ROOT" && git rev-parse HEAD)"
-  echo "branch:       $(cd "$ROOT" && git rev-parse --abbrev-ref HEAD)"
-  echo "date:         $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-  echo "java:         $(java -version 2>&1 | head -1)"
-  echo "javac:        $(javac -version 2>&1)"
-  echo "go:           $(go version 2>&1)"
-  echo "stress:       ${STRESS}x"
-  echo "timeout:      ${T_RUN}s"
-  echo "fixtures:     $EXPECTED"
-  echo "policy:       fail-closed — any mismatch or missing row is a failure"
+  echo "candidate:           $CANDIDATE"
+  echo "candidate-full:      $CANDIDATE_FULL"
+  echo "build-commit:        $BUILD_COMMIT"
+  echo "build-source:        detached worktree at $CANDIDATE_FULL"
+  echo "worktree-cleanliness: detached (immutable candidate snapshot)"
+  echo "date:                $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  echo "java:                $(java -version 2>&1 | head -1)"
+  echo "javac:               $(javac -version 2>&1)"
+  echo "go:                  $(go version 2>&1)"
+  echo "stress:              ${STRESS}x"
+  echo "timeout:             ${T_RUN}s"
+  echo "fixtures:            $EXPECTED"
+  echo "policy:              fail-closed — any mismatch or missing row is a failure"
   echo
 } | tee "$RESULTS"
 
-# --- Build ---
+# --- Build from the detached worktree ---
 echo "==> building catty" | tee -a "$RESULTS"
-(cd "$ROOT" && go build -o "$BIN" ./cmd/jvm) >>"$RESULTS" 2>&1 || fail_closed "catty build failed"
+go build -o "$BIN" "$BUILD_DIR/cmd/jvm" >>"$RESULTS" 2>&1 \
+  || fail_closed "catty build failed"
 
 if [ "$STRESS" -eq 1 ]; then
   printf "%-30s %-14s %-14s %-14s\n" "fixture" "Temurin25" "Interpreter" "IR" | tee -a "$RESULTS"
@@ -130,7 +161,7 @@ for name in $FIXTURES; do
   dir="$STAGE/$name"
   mkdir -p "$dir"
 
-  # Compile.
+  # Compile fixture from the candidate worktree.
   if ! javac --release 25 -nowarn -d "$dir" "$FIXTURE_DIR/$name.java" 2>"$dir/javac.err"; then
     cat "$dir/javac.err"
     fail_closed "javac failed for $name"
