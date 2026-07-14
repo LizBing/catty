@@ -147,11 +147,11 @@ echo "==> building catty" | tee -a "$RESULTS"
   || fail_closed "catty build failed"
 
 if [ "$STRESS" -eq 1 ]; then
-  printf "%-30s %-14s %-14s %-14s\n" "fixture" "Temurin25" "Interpreter" "IR" | tee -a "$RESULTS"
-  printf "%-30s %-14s %-14s %-14s\n" "-------" "---------" "-----------" "--" | tee -a "$RESULTS"
+  printf "%-30s %-14s %-14s %s\n" "fixture" "Temurin25" "Interpreter" "IR" | tee -a "$RESULTS"
+  printf "%-30s %-14s %-14s %s\n" "-------" "---------" "-----------" "--" | tee -a "$RESULTS"
 else
-  printf "%-30s %-14s %-14s %-14s\n" "fixture" "Temurin25" "Interpreter(${STRESS}x)" "IR(${STRESS}x)" | tee -a "$RESULTS"
-  printf "%-30s %-14s %-14s %-14s\n" "-------" "---------" "-----------------" "-----------" | tee -a "$RESULTS"
+  printf "%-30s %-14s %-18s %s\n" "fixture" "Temurin25" "Interpreter(${STRESS}x)" "IR(${STRESS}x)" | tee -a "$RESULTS"
+  printf "%-30s %-14s %-18s %s\n" "-------" "---------" "-----------------" "-----------" | tee -a "$RESULTS"
 fi
 
 passed_i=0
@@ -193,7 +193,7 @@ for name in $FIXTURES; do
   done
   [ "$ir_status" = "Match" ] && passed_ir=$((passed_ir + 1))
 
-  printf "%-30s %-14s %-14s %-14s\n" "$name" "ref" "$interp_status" "$ir_status" | tee -a "$RESULTS"
+  printf "%-30s %-14s %-14s %s\n" "$name" "ref" "$interp_status" "$ir_status" | tee -a "$RESULTS"
 
   {
     echo "----- $name -----"
