@@ -143,7 +143,7 @@ T_RUN=20
 
 # --- Build from the detached worktree ---
 echo "==> building catty" | tee -a "$RESULTS"
-go build -o "$BIN" "$BUILD_DIR/cmd/jvm" >>"$RESULTS" 2>&1 \
+(cd "$BUILD_DIR" && go build -o "$BIN" ./cmd/jvm) >>"$RESULTS" 2>&1 \
   || fail_closed "catty build failed"
 
 if [ "$STRESS" -eq 1 ]; then
