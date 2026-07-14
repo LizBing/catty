@@ -16,6 +16,7 @@ func RunMethod(thread *rtda.Thread, method *rtda.Method, args []rtda.Slot) rtda.
 	for i, a := range args {
 		frame.SetSlot(i, a)
 	}
+	frame.EnterSyncMonitor()
 	thread.PushFrame(frame)
 	Loop(thread)
 	thread.SetBridgeReturn(nil)

@@ -23,6 +23,11 @@ func buildObjectClass(_ rtda.Loader) *rtda.Class {
 	c.AddMethod(rtda.NativeMethod(c, "clone", "()Ljava/lang/Object;", objectClone))
 	c.AddMethod(rtda.NativeMethod(c, "equals", "(Ljava/lang/Object;)Z", objectEquals))
 	c.AddMethod(rtda.NativeMethod(c, "toString", "()Ljava/lang/String;", objectToString))
+	c.AddMethod(rtda.NativeMethod(c, "wait", "()V", objectWait0))
+	c.AddMethod(rtda.NativeMethod(c, "wait", "(J)V", objectWait))
+	c.AddMethod(rtda.NativeMethod(c, "wait", "(JI)V", objectWaitJI))
+	c.AddMethod(rtda.NativeMethod(c, "notify", "()V", objectNotify))
+	c.AddMethod(rtda.NativeMethod(c, "notifyAll", "()V", objectNotifyAll))
 	return c
 }
 

@@ -22,9 +22,11 @@ func init() {
 	RegisterNative("java/lang/Object", "hashCode", "()I", objectHashCode)
 	RegisterNative("java/lang/Object", "getClass", "()Ljava/lang/Class;", objectGetClass)
 	RegisterNative("java/lang/Object", "clone", "()Ljava/lang/Object;", objectClone)
-	RegisterNative("java/lang/Object", "notify", "()V", nop)
-	RegisterNative("java/lang/Object", "notifyAll", "()V", nop)
-	RegisterNative("java/lang/Object", "wait", "(J)V", nop)
+	RegisterNative("java/lang/Object", "notify", "()V", objectNotify)
+	RegisterNative("java/lang/Object", "notifyAll", "()V", objectNotifyAll)
+	RegisterNative("java/lang/Object", "wait", "()V", objectWait0)
+	RegisterNative("java/lang/Object", "wait", "(J)V", objectWait)
+	RegisterNative("java/lang/Object", "wait", "(JI)V", objectWaitJI)
 	RegisterNative("java/lang/Object", "registerNatives", "()V", nop)
 
 	// --- Class ---
@@ -42,7 +44,7 @@ func init() {
 	RegisterNative("java/lang/Class", "registerNatives", "()V", nop)
 
 	// --- Thread (implementations in thread.go; registered via synthetic class) ---
-	RegisterNative("java/lang/Thread", "holdsLock", "(Ljava/lang/Object;)Z", nopBool0)
+	RegisterNative("java/lang/Thread", "holdsLock", "(Ljava/lang/Object;)Z", threadHoldsLock)
 	RegisterNative("java/lang/Thread", "registerNatives", "()V", nop)
 
 	// --- String ---
@@ -319,3 +321,114 @@ func classGetPrimitiveClass(f *rtda.Frame) {
 func nopBool0(f *rtda.Frame) { f.PushInt(0) }
 
 func nopRef0(f *rtda.Frame) { f.PushRef(nil) }
+
+// --- Object.wait / notify / notifyAll (Slice C, ADR-0029) ---
+
+// objectWait0 implements Object.wait() — the no-argument indefinite wait.
+func objectWait0(f *rtda.Frame) {
+	this := f.GetRef(0)
+	if this == nil {
+		throwNPE(f, "null Object")
+		return
+	}
+	m := this.Monitor()
+	thread := f.Thread()
+	ec := thread.EC()
+
+	if !m.HoldsLock(ec) {
+		throwIMSE(f)
+		return
+	}
+
+	savedDepth := m.RecursionDepth()
+	_, interrupted := thread.MonitorWait(m, savedDepth)
+	if interrupted {
+		throwInterruptedException(f)
+	}
+}
+
+// objectWait implements Object.wait(long timeoutMillis).
+// It releases the monitor, blocks until notified or interrupted, then reacquires
+// the monitor with the original recursion depth restored. If the thread was
+// interrupted before or during the wait, InterruptedException is thrown.
+// The timeout is ignored for now (indefinite wait); timed wait is Slice D.
+func objectWait(f *rtda.Frame) {
+	this := f.GetRef(0)
+	if this == nil {
+		throwNPE(f, "null Object")
+		return
+	}
+	m := this.Monitor()
+	thread := f.Thread()
+	ec := thread.EC()
+
+	if !m.HoldsLock(ec) {
+		throwIMSE(f)
+		return
+	}
+
+	savedDepth := m.RecursionDepth()
+	_, interrupted := thread.MonitorWait(m, savedDepth)
+	if interrupted {
+		throwInterruptedException(f)
+	}
+	// Normal return: notify won, thread reacquired monitor with depth restored.
+	// No need to clear interrupt — if interrupted, the flag was already handled.
+}
+
+// objectWaitJI implements Object.wait(long timeoutMillis, int nanos).
+// The nanos are ignored for now (indefinite wait); timed wait is Slice D.
+func objectWaitJI(f *rtda.Frame) {
+	// Same behavior as objectWait for the MVP — nanos and timeout are ignored.
+	objectWait(f)
+}
+
+// objectNotify implements Object.notify(). It wakes a single thread waiting on
+// this object's monitor. The caller must own the monitor, or
+// IllegalMonitorStateException is thrown.
+func objectNotify(f *rtda.Frame) {
+	this := f.GetRef(0)
+	if this == nil {
+		throwNPE(f, "null Object")
+		return
+	}
+	m := this.Monitor()
+	if !m.Notify(f.Thread().EC()) {
+		throwIMSE(f)
+	}
+}
+
+// objectNotifyAll implements Object.notifyAll(). It wakes all threads waiting on
+// this object's monitor. The caller must own the monitor, or
+// IllegalMonitorStateException is thrown.
+func objectNotifyAll(f *rtda.Frame) {
+	this := f.GetRef(0)
+	if this == nil {
+		throwNPE(f, "null Object")
+		return
+	}
+	m := this.Monitor()
+	if !m.NotifyAll(f.Thread().EC()) {
+		throwIMSE(f)
+	}
+}
+
+// threadHoldsLock implements the static Thread.holdsLock(Object).
+// Returns true if the calling thread owns the monitor on the given object.
+func threadHoldsLock(f *rtda.Frame) {
+	obj := f.GetRef(0) // static method: local 0 = first arg
+	if obj == nil {
+		f.PushInt(0)
+		return
+	}
+	if obj.Monitor().HoldsLock(f.Thread().EC()) {
+		f.PushInt(1)
+	} else {
+		f.PushInt(0)
+	}
+}
+
+// throwIMSE throws an IllegalMonitorStateException on the calling thread.
+func throwIMSE(f *rtda.Frame) {
+	throwException(f, "java/lang/IllegalMonitorStateException", "")
+}

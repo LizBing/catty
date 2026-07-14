@@ -538,8 +538,23 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 		} else {
 			frame.PushInt(0)
 		}
-	case opcode.Monitorenter, opcode.Monitorexit:
-		frame.PopRef()
+	case opcode.Monitorenter:
+			obj := frame.PopRef()
+			if obj == nil {
+				throwRuntime(thread, pc, "java/lang/NullPointerException", "")
+				return
+			}
+			obj.Monitor().Enter(thread.EC())
+		case opcode.Monitorexit:
+			obj := frame.PopRef()
+			if obj == nil {
+				throwRuntime(thread, pc, "java/lang/NullPointerException", "")
+				return
+			}
+			if !obj.Monitor().Exit(thread.EC()) {
+				throwRuntime(thread, pc, "java/lang/IllegalMonitorStateException", "")
+				return
+			}
 
 	case opcode.Athrow:
 		excObj := frame.PopRef()

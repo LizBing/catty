@@ -112,6 +112,7 @@ func buildThread(loader rtda.Loader) *rtda.Class {
 	// Static utilities
 	c.AddMethod(staticNative(c, "sleep", "(J)V", threadSleep))
 	c.AddMethod(staticNative(c, "onSpinWait", "()V", threadOnSpinWait))
+	c.AddMethod(staticNative(c, "holdsLock", "(Ljava/lang/Object;)Z", threadHoldsLock))
 	// Native registration stubs (also registered in system.go for real-JDK builds)
 	c.AddMethod(staticNative(c, "currentThread", "()Ljava/lang/Thread;", threadCurrentThread))
 	c.AddMethod(staticNative(c, "registerNatives", "()V", nop))

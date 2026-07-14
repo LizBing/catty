@@ -143,12 +143,15 @@ the frozen sections without an accepted amendment.
 
 Before production implementation record:
 
-- **Acceptance anchor / actual base:** `a0288be` (2026-07-14 governance commit) / worktree at `a0288be`
-- **Historical evidence check:** `sha256sum` matches between worktree and anchor for all baseline v2-v5, three reports, and matrix.md — **Pass**
-- **Candidate evidence destination:** `docs/workstreams/r2-concurrency-candidate-evidence/<candidate>/` (not yet created)
+- **Parent acceptance anchor:** `a0288be` (2026-07-14 parent governance commit)
+- **Slice C acceptance anchor / actual base:** `f3800b7` (2026-07-14 Slice C governance commit) / worktree at `f3800b7`
+- **Historical evidence check:** all files under `docs/workstreams/r2-evidence/`, `docs/workstreams/r2-concurrency-evidence/` unchanged from `a0288be` through `d4008c0` — **Pass**
+- **Slice A/B evidence:** `9576828/`, `505d3ee/`, `a0e336c/`, `b0a7b70/` intact — **Pass**
+- **Required ADRs confirmed Accepted:** 0017, 0018, 0020, 0022, 0028, 0029, 0030 — **Pass**
+- **Candidate evidence destination:** `docs/workstreams/r2-concurrency-candidate-evidence/<candidate>/slice-c/` (not yet created)
 - **Harness output policy:** explicit candidate required; never writes research baseline or shared/latest path
 
-Any missing item keeps the workstream `Accepted`; it may not become `In Progress`.
+All preflight items complete. Slice C may proceed to `In progress`.
 
 ---
 
@@ -158,7 +161,7 @@ Any missing item keeps the workstream `Accepted`; it may not become `In Progress
 |---|---|---|
 | A — SC heap cells, concurrency-safe loader, and canonical Class mirrors | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/9576828/` — `ec1b398`, 22 files, all gates Pass |
 | B — stable Thread facade/context, lifecycle, carriers, join, and VM liveness | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/b0a7b70/` — `b0a7b70` (final), Owner accepted 2026-07-14, all Slice B gates Pass |
-| C — monitors, synchronized methods, wait sets, and interruption | Pending | — |
+| C — monitors, synchronized methods, wait sets, and interruption | In progress | Rework per Owner feedback 2026-07-14 — new candidate pending |
 | D — concurrent ADR-0025 initialization and full Interpreter/IR fixture matrix | Pending | — |
 | E — AOT fail-closed rejection, race stress, regression, evidence, and docs | Pending | — |
 

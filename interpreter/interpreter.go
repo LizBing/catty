@@ -860,8 +860,23 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		} else {
 			frame.PushInt(0)
 		}
-	case opcode.Monitorenter, opcode.Monitorexit:
-		frame.PopRef() // concurrency deferred: monitors are nops in the single-threaded MVP
+	case opcode.Monitorenter:
+			obj := frame.PopRef()
+			if obj == nil {
+				throwRuntime(thread, opcodePc, "java/lang/NullPointerException", "")
+				return
+			}
+			obj.Monitor().Enter(thread.EC())
+		case opcode.Monitorexit:
+			obj := frame.PopRef()
+			if obj == nil {
+				throwRuntime(thread, opcodePc, "java/lang/NullPointerException", "")
+				return
+			}
+			if !obj.Monitor().Exit(thread.EC()) {
+				throwRuntime(thread, opcodePc, "java/lang/IllegalMonitorStateException", "")
+				return
+			}
 
 	case opcode.Athrow:
 		excObj := frame.PopRef()

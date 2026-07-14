@@ -26,6 +26,7 @@ func invokeMethod(thread *rtda.Thread, method *rtda.Method) {
 	caller := thread.CurrentFrame()
 	frame := thread.NewFrame(method)
 	copyArgs(caller, frame, method)
+	frame.EnterSyncMonitor()
 	thread.PushFrame(frame)
 }
 
@@ -33,7 +34,18 @@ func invokeNative(thread *rtda.Thread, method *rtda.Method) {
 	caller := thread.CurrentFrame()
 	frame := thread.NewFrame(method)
 	copyArgs(caller, frame, method)
+
+	// Native throwaway frames are never pushed to the stack, so PopFrame won't
+	// release the implicit monitor. Enter before the native call and exit after,
+	// even on exception (ADR-0029).
+	frame.EnterSyncMonitor()
+
 	method.NativeFunc()(frame)
+
+	if so := frame.SyncObject(); so != nil {
+		so.Monitor().Exit(thread.EC())
+	}
+
 	// A native method that throws an exception (via Thread.Throw) must
 	// NOT transfer a return value — the callee frame's stack may be in
 	// an inconsistent state, and the interpreter will dispatch the
@@ -105,7 +117,9 @@ func ensureInitialized(thread *rtda.Thread, class *rtda.Class) {
 // thrown object as InitResult.ErrObj.
 func runClinit(thread *rtda.Thread, method *rtda.Method) rtda.InitResult {
 	clinitDepth := thread.FrameCount() + 1 // target depth after push
-	thread.PushFrame(thread.NewFrame(method))
+	frame := thread.NewFrame(method)
+	frame.EnterSyncMonitor()
+	thread.PushFrame(frame)
 	for thread.FrameCount() >= clinitDepth && !thread.IsStackEmpty() {
 		frame := thread.CurrentFrame()
 		opcodePc := frame.PC()

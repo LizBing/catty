@@ -68,6 +68,19 @@ type Thread struct {
 	// isMain is true only for the primordial main thread. The interpreter uses
 	// this to decide whether an uncaught exception should call os.Exit.
 	isMain bool
+
+	// --- Slice C: active-waiter protocol (ADR-0029) ---
+
+	// waiterMu serializes the pre-wait interrupt check and active-waiter
+	// publication. It closes the race between wait() observing the interrupt
+	// flag and Interrupt() finding the waiter.
+	waiterMu sync.Mutex
+	// waitingOn is non-nil while this execution context is enrolled in a
+	// monitor's wait set. Set under waiterMu before releasing the monitor;
+	// cleared under waiterMu after reacquisition. Read by Interrupt under
+	// waiterMu to locate and interrupt the waiter without holding the
+	// monitor's state lock.
+	waitingOn *Monitor
 }
 
 // threadECSeq is a monotonically increasing counter for execution-context
@@ -100,6 +113,12 @@ func (t *Thread) PushFrame(frame *Frame) {
 func (t *Thread) PopFrame() *Frame {
 	n := len(t.stack)
 	f := t.stack[n-1]
+	// Release the implicit synchronized-method monitor (ADR-0029).
+	// Only the implicit ACC_SYNCHRONIZED entry is attached to frame cleanup;
+	// explicit block entries are governed by bytecode monitorexit.
+	if f.syncObject != nil {
+		f.syncObject.Monitor().Exit(t.ecID)
+	}
 	t.stack[n-1] = nil // let the frame (and its slots' refs) be GC'd
 	t.stack = t.stack[:n-1]
 	return f
@@ -171,12 +190,25 @@ func (t *Thread) Terminate() {
 // --- Interrupt (ADR-0028) ---
 
 // Interrupt sets the interrupt flag and signals the waker channel to unblock
-// any sleep/join operation on this thread.
+// any sleep/join operation on this thread. If the target thread is waiting on
+// a monitor (Object.wait), Interrupt also tries to atomically claim the waiter
+// entry under the monitor's state lock (ADR-0029). The ordering between notify
+// and interrupt is determined under that lock — one wins, the other does not.
 func (t *Thread) Interrupt() {
 	atomic.StoreInt32(&t.interruptState, 1)
+
+	// Wake any sleep/join waiter.
 	select {
 	case t.waker <- struct{}{}:
 	default:
+	}
+
+	// Wake any monitor waiter (Object.wait).
+	t.waiterMu.Lock()
+	m := t.waitingOn
+	t.waiterMu.Unlock()
+	if m != nil {
+		m.InterruptWaiter(t.ecID)
 	}
 }
 
@@ -257,6 +289,56 @@ func (t *Thread) Waker() <-chan struct{} { return t.waker }
 
 func (t *Thread) SetMain(v bool) { t.isMain = v }
 func (t *Thread) IsMain() bool   { return t.isMain }
+
+// --- Monitor wait (Slice C, ADR-0029) ---
+
+// MonitorWait implements the execution-context side of Object.wait().
+//
+// Phase 1 (under waiterMu): atomically check interrupt status AND publish the
+// active waiter. If already interrupted, clear interrupt status and return
+// false — the caller MUST throw InterruptedException WITHOUT releasing the
+// monitor or altering recursion depth.
+//
+// Phase 2 (monitor): if the pre-check passed, delegate to Monitor.InternalWait
+// which fully releases the monitor, blocks, and reacquires. The monitor
+// restores the exact saved recursion depth before returning.
+//
+// Phase 3 (cleanup): clear waitingOn under waiterMu. If the waiter was
+// interrupted (notify lost the race), the interrupt flag is cleared per JLS
+// and the caller MUST throw InterruptedException — the monitor has already
+// been reacquired and depth restored. If the waiter was notified normally,
+// the caller returns normally; any pending interrupt flag remains set.
+//
+// Returns (normal, interrupted). The caller is responsible for throwing
+// InterruptedException when interrupted is true.
+func (t *Thread) MonitorWait(m *Monitor, savedDepth int) (normal bool, interrupted bool) {
+	// Phase 1: pre-check + publish under waiterMu (closes the race).
+	t.waiterMu.Lock()
+	if atomic.LoadInt32(&t.interruptState) == 1 {
+		// Pre-interrupted: clear, do NOT release monitor.
+		t.Interrupted()
+		t.waiterMu.Unlock()
+		return false, true
+	}
+	t.waitingOn = m
+	t.waiterMu.Unlock()
+
+	// Phase 2: monitor handles release/enqueue/block/reacquire/depth restore.
+	normal = m.InternalWait(t.ecID, savedDepth)
+
+	// Phase 3: cleanup.
+	t.waiterMu.Lock()
+	t.waitingOn = nil
+	t.waiterMu.Unlock()
+
+	// If interrupt won the race against notify, clear the interrupt flag
+	// per JLS so InterruptedException is thrown with status cleared.
+	if !normal {
+		t.Interrupted()
+	}
+
+	return normal, !normal
+}
 
 // --- Sleep ---
 

@@ -15,6 +15,7 @@ func init() {
 	registerSynthetic("java/lang/ClassCastException", buildCCE)
 	registerSynthetic("java/lang/IllegalArgumentException", buildIAE)
 	registerSynthetic("java/lang/StringIndexOutOfBoundsException", buildStringIndexOutOfBounds)
+	registerSynthetic("java/lang/IllegalMonitorStateException", buildIMSE)
 	registerSynthetic("java/lang/Error", func(loader rtda.Loader) *rtda.Class {
 		return buildExceptionSubclass("java/lang/Error", "java/lang/Throwable", loader)
 	})
@@ -224,4 +225,8 @@ func buildIAE(loader rtda.Loader) *rtda.Class {
 
 func buildStringIndexOutOfBounds(loader rtda.Loader) *rtda.Class {
 	return buildExceptionSubclass("java/lang/StringIndexOutOfBoundsException", "java/lang/IndexOutOfBoundsException", loader)
+}
+
+func buildIMSE(loader rtda.Loader) *rtda.Class {
+	return buildExceptionSubclass("java/lang/IllegalMonitorStateException", "java/lang/RuntimeException", loader)
 }

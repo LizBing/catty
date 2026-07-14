@@ -122,7 +122,8 @@ func (m *Method) Owner() *Class      { return m.owner }
 func (m *Method) Name() string       { return m.name }
 func (m *Method) Descriptor() string { return m.descriptor }
 func (m *Method) AccessFlags() uint16 { return m.accessFlags }
-func (m *Method) IsStatic() bool      { return m.accessFlags&accStatic != 0 }
+func (m *Method) IsStatic() bool       { return m.accessFlags&accStatic != 0 }
+func (m *Method) IsSynchronized() bool { return m.accessFlags&accSynchronized != 0 }
 func (m *Method) IsNative() bool            { return m.native }
 func (m *Method) NativeFunc() func(*Frame)  { return m.nativeFunc }
 func (m *Method) ArgSlotCount() uint        { return m.argSlotCount }
@@ -151,12 +152,13 @@ func (m *Method) SetStackMap(smt *classfile.StackMapTableAttribute) { m.stackMap
 
 // JVM access flags (JVMS §4.6 / §4.5), reused by Method, Field, Class.
 const (
-	accPublic     uint16 = 0x0001
-	accPrivate    uint16 = 0x0002
-	accProtected  uint16 = 0x0004
-	accStatic     uint16 = 0x0008
-	accFinal      uint16 = 0x0010
-	accNative     uint16 = 0x0100
-	accInterface  uint16 = 0x0200
-	accAbstract   uint16 = 0x0400
+	accPublic       uint16 = 0x0001
+	accPrivate      uint16 = 0x0002
+	accProtected    uint16 = 0x0004
+	accStatic       uint16 = 0x0008
+	accFinal        uint16 = 0x0010
+	accSynchronized uint16 = 0x0020
+	accNative       uint16 = 0x0100
+	accInterface    uint16 = 0x0200
+	accAbstract     uint16 = 0x0400
 )

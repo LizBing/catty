@@ -17,6 +17,14 @@ type Frame struct {
 	stack    []Slot
 	stackTop int  // index of the next free slot = current operand-stack size
 	pc       int  // index into code of the next instruction
+
+	// syncObject is non-nil when this frame is for an ACC_SYNCHRONIZED method.
+	// The monitor was implicitly entered at frame entry and will be exited when
+	// the frame is popped (normal return or exception unwind). Only the implicit
+	// synchronized-method entry is attached to frame cleanup; explicit block
+	// entries are governed by bytecode monitorexit and its exception handlers
+	// (ADR-0029).
+	syncObject *Object
 }
 
 func NewFrame(thread *Thread, method *Method) *Frame {
@@ -32,6 +40,35 @@ func NewFrame(thread *Thread, method *Method) *Frame {
 func (f *Frame) Thread() *Thread { return f.thread }
 func (f *Frame) Method() *Method { return f.method }
 func (f *Frame) Code() []byte    { return f.method.code }
+
+// SyncObject returns the object whose monitor was implicitly entered for an
+// ACC_SYNCHRONIZED method, or nil if the method is not synchronized.
+func (f *Frame) SyncObject() *Object { return f.syncObject }
+
+// EnterSyncMonitor checks whether the frame's method is ACC_SYNCHRONIZED and,
+// if so, enters the appropriate monitor. For instance methods the lock object
+// is the receiver in local 0; for static methods it is the declaring class's
+// canonical Class mirror. The lock object is recorded on the frame so PopFrame
+// can release it automatically.
+//
+// The caller MUST have already copied arguments into the frame's locals before
+// calling this method (for instance methods, `this` must be in local 0).
+func (f *Frame) EnterSyncMonitor() {
+	if !f.method.IsSynchronized() {
+		return
+	}
+	var lockObj *Object
+	if f.method.IsStatic() {
+		lockObj = f.method.Owner().ClassObject(func() *Object {
+			classClass := f.thread.Loader().LoadClass("java/lang/Class")
+			return NewObject(classClass)
+		})
+	} else {
+		lockObj = f.GetRef(0)
+	}
+	lockObj.Monitor().Enter(f.thread.EC())
+	f.syncObject = lockObj
+}
 
 func (f *Frame) PC() int       { return f.pc }
 func (f *Frame) SetPC(pc int)  { f.pc = pc }

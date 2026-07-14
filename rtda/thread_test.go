@@ -575,3 +575,101 @@ func TestConcurrentSetDaemonAndIsDaemon(t *testing.T) {
 		}
 	})
 }
+
+// --- Slice C: monitor wait and interrupt ordering (ADR-0029) ---
+
+func TestMonitorWaitPreInterrupted(t *testing.T) {
+	obj := NewObject(newMinimalClass("Test"))
+	m := obj.Monitor()
+	tr := NewThread(nil)
+
+	m.Enter(tr.EC())
+	tr.Interrupt()
+
+	normal, interrupted := tr.MonitorWait(m, 1)
+	if normal {
+		t.Fatal("MonitorWait returned normal after pre-interrupt")
+	}
+	if !interrupted {
+		t.Fatal("MonitorWait did not return interrupted after pre-interrupt")
+	}
+
+	// Monitor must still be held.
+	if !m.HoldsLock(tr.EC()) {
+		t.Fatal("monitor was released by pre-interrupted MonitorWait")
+	}
+	m.Exit(tr.EC())
+}
+
+func TestMonitorWaitInterruptAfterEnrollment(t *testing.T) {
+	obj := NewObject(newMinimalClass("Test"))
+	m := obj.Monitor()
+	tr := NewThread(nil)
+
+	m.Enter(tr.EC())
+
+	var normal, interrupted bool
+	ready := make(chan struct{})
+	done := make(chan struct{})
+
+	go func() {
+		m.Enter(tr.EC())
+		close(ready)
+		normal, interrupted = tr.MonitorWait(m, 2)
+		close(done)
+	}()
+
+	<-ready
+	for m.WaitSetLen() == 0 {
+	}
+
+	tr.Interrupt()
+	<-done
+
+	if normal {
+		t.Fatal("MonitorWait should return interrupted after post-enrollment interrupt")
+	}
+	if !interrupted {
+		t.Fatal("MonitorWait interrupted flag should be true")
+	}
+	if !m.HoldsLock(tr.EC()) {
+		t.Fatal("monitor not reacquired after interrupted wait")
+	}
+	m.Exit(tr.EC())
+}
+
+func TestMonitorWaitNotifyWinsInterruptPending(t *testing.T) {
+	obj := NewObject(newMinimalClass("Test"))
+	m := obj.Monitor()
+	tr := NewThread(nil)
+
+	m.Enter(tr.EC())
+
+	var normal, interrupted bool
+	ready := make(chan struct{})
+	done := make(chan struct{})
+
+	go func() {
+		m.Enter(tr.EC())
+		close(ready)
+		normal, interrupted = tr.MonitorWait(m, 2)
+		close(done)
+	}()
+
+	<-ready
+	for m.WaitSetLen() == 0 {
+	}
+
+	tr.Interrupt()
+	m.Enter(tr.EC())
+	m.Notify(tr.EC())
+	m.Exit(tr.EC())
+
+	<-done
+
+	if !m.HoldsLock(tr.EC()) {
+		t.Fatal("monitor not reacquired after wait")
+	}
+	t.Logf("normal=%v interrupted=%v isInterrupted=%v", normal, interrupted, tr.IsInterrupted())
+	m.Exit(tr.EC())
+}

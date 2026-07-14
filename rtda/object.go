@@ -1,5 +1,7 @@
 package rtda
 
+import "sync/atomic"
+
 // Object is the runtime representation of a Java object OR array. Both are
 // references on the operand stack and in fields/locals.
 //
@@ -12,12 +14,16 @@ package rtda
 // Extra carries a native payload: java.lang.String stores its Go string here so
 // System.out.println needs no interpreter-visible char array.
 //
+// monitor is the lazy CAS-published Java monitor sidecar (ADR-0029). It is
+// allocated on first use and shared by all goroutines. CloneObject does not copy it.
+//
 // heapCells is unexported per ADR-0030: no code outside rtda may access the
 // mutable backing slice. All access goes through the typed per-cell accessors.
 type Object struct {
 	class     *Class
 	heapCells []HeapCell
 	extra     any
+	monitor   atomic.Pointer[Monitor]
 }
 
 func NewObject(class *Class) *Object {

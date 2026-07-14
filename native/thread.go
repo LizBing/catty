@@ -77,6 +77,7 @@ func threadStart(f *rtda.Frame) {
 		if runMethod != nil {
 			frame := t.NewFrame(runMethod)
 			frame.SetRef(0, this) // 'this' = the Thread object
+			frame.EnterSyncMonitor()
 			t.PushFrame(frame)
 			rtda.DefaultRunLoop(t)
 		}
