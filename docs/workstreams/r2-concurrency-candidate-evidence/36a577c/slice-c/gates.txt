@@ -1,0 +1,21 @@
+=== Slice C verification gates ===
+candidate:       36a577c
+candidate-full:  36a577c3e8ecd5a4b335600ae18b88bbd531480d
+base:            f3800b7 (governance)
+date:            2026-07-14T01:38:00Z
+
+Gate                                       Result  Notes
+----                                       ------  -----
+git diff --check f3800b7                   Pass    clean whitespace
+go test -race ./rtda                       Pass    all OK
+go test -race ./native                     Pass    all OK
+go vet ./...                               Pass    no findings
+go test ./...                              Pass    all packages OK
+go test -race ./...                        Pass    all packages OK
+bash tests/run.sh                          Pass    10/10
+bash run-concurrency-slice-c.sh 36a577c    Pass    11/11 Interpreter + IR
+R2_CONCURRENCY_STRESS=20 ...               Pass    11/11 Interpreter + IR (20x stress)
+
+Go:   go version go1.26.5 darwin/arm64
+Java: openjdk version "25.0.3" 2026-04-21 LTS
+OS:   Darwin 25.5.0 (arm64)
