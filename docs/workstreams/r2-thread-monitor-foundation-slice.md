@@ -161,7 +161,7 @@ All preflight items complete. Slice C may proceed to `In progress`.
 |---|---|---|
 | A — SC heap cells, concurrency-safe loader, and canonical Class mirrors | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/9576828/` — `ec1b398`, 22 files, all gates Pass |
 | B — stable Thread facade/context, lifecycle, carriers, join, and VM liveness | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/b0a7b70/` — `b0a7b70` (final), Owner accepted 2026-07-14, all Slice B gates Pass |
-| C — monitors, synchronized methods, wait sets, and interruption | In progress | `docs/workstreams/r2-concurrency-candidate-evidence/36a577c/slice-c/` — `36a577c` (rework, detached-worktree runner), 11/11 fixtures Interpreter + IR (1x + 20x stress), all 9 gates Pass |
+| C — monitors, synchronized methods, wait sets, and interruption | In progress | `docs/workstreams/r2-concurrency-candidate-evidence/0a96b59/slice-c/` — `0a96b59` (rework, detached-worktree runner, clean evidence), 11/11 fixtures Interpreter + IR (1x + 20x stress), all 9 gates Pass |
 | D — concurrent ADR-0025 initialization and full Interpreter/IR fixture matrix | Pending | — |
 | E — AOT fail-closed rejection, race stress, regression, evidence, and docs | Pending | — |
 
