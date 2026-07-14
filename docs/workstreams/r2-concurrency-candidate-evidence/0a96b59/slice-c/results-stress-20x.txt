@@ -1,0 +1,134 @@
+=== Slice C runner ===
+candidate:           0a96b59
+candidate-full:      0a96b593b3819dc30d3ab7f77a32dda2be35b00b
+build-commit:        0a96b593b3819dc30d3ab7f77a32dda2be35b00b
+build-source:        detached worktree at 0a96b593b3819dc30d3ab7f77a32dda2be35b00b
+worktree-cleanliness: detached (immutable candidate snapshot)
+date:                2026-07-14T13:13:11Z
+java:                openjdk version "25.0.3" 2026-04-21 LTS
+javac:               javac 25.0.3
+go:                  go version go1.26.5 darwin/arm64
+stress:              20x
+timeout:             20s
+fixtures:            11
+policy:              fail-closed — any mismatch or missing row is a failure
+
+==> building catty
+fixture                        Temurin25      Interpreter(20x)   IR(20x)
+-------                        ---------      -----------------  -----------
+SynchronizedBlocks             ref            Match          Match
+----- SynchronizedBlocks -----
+[0] temurin25:
+2000
+[0] catty interpreter:
+2000
+[0] catty IR:
+2000
+SynchronizedMethods            ref            Match          Match
+----- SynchronizedMethods -----
+[0] temurin25:
+true
+true
+[0] catty interpreter:
+true
+true
+[0] catty IR:
+true
+true
+MonitorNull                    ref            Match          Match
+----- MonitorNull -----
+[0] temurin25:
+NullPointerException
+[0] catty interpreter:
+NullPointerException
+[0] catty IR:
+NullPointerException
+MonitorOwnership               ref            Match          Match
+----- MonitorOwnership -----
+[0] temurin25:
+IllegalMonitorStateException
+[0] catty interpreter:
+IllegalMonitorStateException
+[0] catty IR:
+IllegalMonitorStateException
+WaitNotify                     ref            Match          Match
+----- WaitNotify -----
+[0] temurin25:
+worker
+main
+[0] catty interpreter:
+worker
+main
+[0] catty IR:
+worker
+main
+NotifyAll                      ref            Match          Match
+----- NotifyAll -----
+[0] temurin25:
+2
+[0] catty interpreter:
+2
+[0] catty IR:
+2
+InterruptWait                  ref            Match          Match
+----- InterruptWait -----
+[0] temurin25:
+false
+main
+[0] catty interpreter:
+false
+main
+[0] catty IR:
+false
+main
+InterruptStatus                ref            Match          Match
+----- InterruptStatus -----
+[0] temurin25:
+true
+true
+false
+[0] catty interpreter:
+true
+true
+false
+[0] catty IR:
+true
+true
+false
+InterruptSleep                 ref            Match          Match
+----- InterruptSleep -----
+[0] temurin25:
+false
+main
+[0] catty interpreter:
+false
+main
+[0] catty IR:
+false
+main
+InterruptJoin                  ref            Match          Match
+----- InterruptJoin -----
+[0] temurin25:
+false
+main
+[0] catty interpreter:
+false
+main
+[0] catty IR:
+false
+main
+ProducerConsumer               ref            Match          Match
+----- ProducerConsumer -----
+[0] temurin25:
+15
+[0] catty interpreter:
+15
+[0] catty IR:
+15
+
+==> Slice C summary
+fixtures:          11
+interpreter match: 11/11
+IR match:          11/11
+stress:            20x
+result:            Pass
