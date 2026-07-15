@@ -169,6 +169,50 @@ of the Slice C review evidence table was not honored by the harness.
 constraints, the engine matrix, the 11 fixture rows, the parent workstream's
 acceptance gates, or the monitor/Thread implementation.
 
+### Amendment 2 — R2 Slice C boundary argument validation
+
+Accepted by Owner on 2026-07-15. This amendment adds two bounded Java
+argument-validation corrections to the Slice C native surface. Neither changes
+the behavior of any of the 11 fixed Slice C fixtures or any parent
+acceptance gate; both repair observable Java semantics that were not exercised
+by the fixture set.
+
+**Problem.** `Thread.holdsLock(null)` returned `false` instead of throwing
+`NullPointerException`, and `Object.wait(long)` / `Object.wait(long, int)`
+accepted negative `timeoutMillis` (and, for the two-argument form, ignored the
+`nanos` range) instead of throwing `IllegalArgumentException`. The Java 25
+API specifies:
+
+- `java.lang.Thread` (class level): "Unless otherwise specified, passing a null
+  argument to a constructor or method in this class will cause a
+  NullPointerException to be thrown." `holdsLock(Object)` does not specify
+  otherwise, so `holdsLock(null)` throws `NullPointerException`.
+- `java.lang.Object.wait(long timeoutMillis)`:
+  `IllegalArgumentException` - if timeoutMillis is negative.
+- `java.lang.Object.wait(long timeoutMillis, int nanos)`:
+  `IllegalArgumentException` - if timeoutMillis is negative, or if the value of
+  nanos is out of range (`0-999999`).
+
+**Change.**
+
+1. `threadHoldsLock` now throws `NullPointerException` when its argument is null.
+2. `objectWait` and `objectWaitJI` now throw `IllegalArgumentException` for a
+   negative `timeoutMillis`; `objectWaitJI` also throws it when `nanos` is
+   outside `0-999999`. For the two-argument form the argument-range check
+   precedes the monitor-ownership check, matching `Object.wait(long,int)`.
+
+**Non-scope.** Timed-wait behavior (actual timeout enforcement), spurious
+wakeup handling, nanosecond timer precision, and any change to the monitor
+kernel, Thread lifecycle, interrupt protocol, the 11 fixture rows, or the
+parent workstream's acceptance gates. Timed wait remains Slice D scope; this
+amendment adds only argument-range validation.
+
+**Evidence.** `native/object_test.go` covers `holdsLock(null)` → NPE,
+`wait(-1)` → IAE, `wait(-5, 0)` → IAE, `wait(100, 1000000)` → IAE, and
+`wait(100, -1)` → IAE; ownership and depth are asserted unchanged after the
+rejected call. The 11 Slice C fixtures remain byte-identical to Temurin 25 in
+Interpreter and IR (1× and race-built 20×).
+
 ## Acceptance record
 
 Accepted by Owner on 2026-07-14. This acceptance authorizes production work only
@@ -201,7 +245,7 @@ All preflight items complete. Slice C may proceed to `In progress`.
 |---|---|---|
 | A — SC heap cells, concurrency-safe loader, and canonical Class mirrors | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/9576828/` — `ec1b398`, 22 files, all gates Pass |
 | B — stable Thread facade/context, lifecycle, carriers, join, and VM liveness | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/b0a7b70/` — `b0a7b70` (final), Owner accepted 2026-07-14, all Slice B gates Pass |
-| C — monitors, synchronized methods, wait sets, and interruption | Ready | `docs/workstreams/r2-concurrency-candidate-evidence/f0fc2ca/slice-c/` — `f0fc2ca` (rework: stress runner now race-built per Amendment 1), 11/11 fixtures Interpreter + IR (1x + race-built 20x stress), corrected gates Pass; awaiting Owner completion acceptance |
+| C — monitors, synchronized methods, wait sets, and interruption | Ready | `docs/workstreams/r2-concurrency-candidate-evidence/eea253d/slice-c/` — `eea253d` (Amendment 1 race-built stress gate + Amendment 2 holdsLock/wait argument validation), 11/11 fixtures Interpreter + IR (1x + race-built 20x stress), all gates Pass; awaiting Owner completion acceptance |
 | D — concurrent ADR-0025 initialization and full Interpreter/IR fixture matrix | Pending | — |
 | E — AOT fail-closed rejection, race stress, regression, evidence, and docs | Pending | — |
 
@@ -423,21 +467,23 @@ commit/integration action, or alter the parent workstream's final acceptance gat
 - **Contract gates not yet run:** 19-fixture matrix, AOT rejection matrix, race stress, evidence isolation check
 - **Slice A scope:** 22 files, +1306/−259 — HeapCell typed accessors, CopyObjectCells overlap-safe, Cells()/StaticCells() removed, classloader CAS/double-check, canonical Class mirrors via ClassObject CAS-once, 34 new `-race` tests
 - **Slice B scope (original):** 10 files, +1464/−23 — VM supervisor, Thread lifecycle/interrupt/daemon/sleep, 15 native Thread methods, goroutine carrier, join, DefaultRunLoop callback, 51 new `-race` tests (rtda: 32 thread + 5 vm; native: 14)
-- **Dirty files:** this contract and `run-concurrency-slice-c.sh` updated for Slice C rework (Amendment 1); production code unchanged from `0a96b59`
-- **Current Slice C state:** rework candidate `f0fc2ca` Ready; stress runner now race-built, `git diff --check` gap resolved by Amendment 1; awaiting Owner completion acceptance
-- **Slice C implementation candidate (prior):** `0a96b59` — monitor/Thread implementation, 11/11 fixtures (1x + non-race 20x)
-- **Slice C rework candidate:** `f0fc2ca` — runner race-build fix only, 11/11 fixtures (1x + race-built 20x), corrected gates Pass
-- **Slice C evidence:** `docs/workstreams/r2-concurrency-candidate-evidence/f0fc2ca/slice-c/` — `results.txt` (1x) and `results-stress-20x.txt` (race-built), both original `0a96b59/slice-c` evidence preserved
-- **Gates (all run on `f0fc2ca`):**
+- **Dirty files:** this contract only (`run-concurrency-slice-c.sh`, `native/system.go`, `native/object_test.go` committed as candidates below)
+- **Current Slice C state:** rework candidate `eea253d` Ready; Amendment 1 (race-built stress gate, scoped `git diff --check`) and Amendment 2 (`holdsLock(null)` → NPE, `wait`/`wait(long,int)` argument-range validation) applied; all gates Pass; awaiting Owner completion acceptance
+- **Slice C implementation candidate (original):** `0a96b59` — monitor/Thread implementation, 11/11 fixtures (1x + non-race 20x)
+- **Slice C rework candidate 1:** `f0fc2ca` — runner race-build fix only (Amendment 1)
+- **Slice C rework candidate 2 (current):** `eea253d` — adds Amendment 2 boundary validation; 11/11 fixtures (1x + race-built 20x), corrected gates Pass
+- **Slice C evidence:** `docs/workstreams/r2-concurrency-candidate-evidence/eea253d/slice-c/` — `results.txt` (1x) and `results-stress-20x.txt` (race-built); `0a96b59/` and `f0fc2ca/` evidence preserved
+- **Gates (all run on `eea253d`):**
   - `go vet ./...` — **Pass**
   - `go test ./...` — **Pass**
   - `go test -race ./...` — **Pass**
   - `bash tests/run.sh` — **Pass** (10/10)
-  - `bash docs/workstreams/r2-concurrency-fixtures/run-concurrency-slice-c.sh f0fc2ca` — **Pass** 11/11 Interpreter + IR
+  - `bash docs/workstreams/r2-concurrency-fixtures/run-concurrency-slice-c.sh eea253d` — **Pass** 11/11 Interpreter + IR
   - `R2_CONCURRENCY_STRESS=20 ...` (race-built) — **Pass** 11/11 Interpreter + IR
-  - `git diff --check f3800b7..f0fc2ca` (scoped per Amendment 1) — **Pass**
+  - `git diff --check f3800b7..eea253d` (scoped per Amendment 1) — **Pass**
   - historical evidence unchanged — **Pass**
-- **Next action (Slice C):** Owner completion acceptance of `f0fc2ca`; on accept, update Plan to Complete and proceed to Slice D contract
+  - Amendment 2 unit tests (`native/object_test.go`) under `-race` — **Pass**
+- **Next action (Slice C):** Owner completion acceptance of `eea253d`; on accept, update Plan to Complete and proceed to Slice D contract
 - **Non-derivable context:** the 19-fixture denominator includes explicit daemon and non-daemon liveness, all three interruptible blocking points, and the producer-consumer milestone
 
 ### Slice B acceptance record
@@ -449,12 +495,21 @@ integration gates remain not run.
 
 ### Slice C completion record
 
-Rework candidate `f0fc2ca` was produced on 2026-07-15 under Amendment 1 to make
-the Slice C review gates reproducible. All Slice C review gates Pass on
-`f0fc2ca`: core regression, 11-fixture 1× matrix (Interpreter + IR), race-built
-20× stress (Interpreter + IR), the scoped `git diff --check`, and evidence
-isolation. The parent workstream's final 19-fixture, AOT rejection, `STRESS=100`,
-and integration gates remain not run and are governed by Slices D and E.
+Rework candidate `eea253d` consolidates the Slice C implementation under two
+accepted amendments. Amendment 1 (rework candidate `f0fc2ca`) makes the Slice C
+review gates reproducible: stress uses a race-built catty binary and the
+`git diff --check` scope excludes immutable intermediate candidate evidence.
+Amendment 2 (`eea253d`) adds bounded argument validation: `Thread.holdsLock(null)`
+throws `NullPointerException` and `Object.wait(long)` / `Object.wait(long, int)`
+throw `IllegalArgumentException` for negative/out-of-range arguments, with timed
+wait behavior itself still deferred to Slice D.
+
+All Slice C review gates Pass on `eea253d`: core regression, the Amendment 2
+`native` unit tests under `-race`, the 11-fixture 1× matrix (Interpreter + IR),
+race-built 20× stress (Interpreter + IR), the scoped `git diff --check`, and
+evidence isolation. The parent workstream's final 19-fixture, AOT rejection,
+`STRESS=100`, and integration gates remain not run and are governed by Slices
+D and E.
 
 Status: **Ready — awaiting Owner completion acceptance.** On Owner acceptance,
 Slice C is marked Complete in the Plan table and the next action is to draft the
