@@ -358,6 +358,13 @@ func objectWait(f *rtda.Frame) {
 		throwNPE(f, "null Object")
 		return
 	}
+	// java.lang.Object.wait(long timeoutMillis) specifies:
+	//   IllegalArgumentException - if timeoutMillis is negative
+	timeoutMillis := f.GetLong(1)
+	if timeoutMillis < 0 {
+		throwIllegalArgumentException(f, "timeout value is negative")
+		return
+	}
 	m := this.Monitor()
 	thread := f.Thread()
 	ec := thread.EC()
@@ -377,10 +384,46 @@ func objectWait(f *rtda.Frame) {
 }
 
 // objectWaitJI implements Object.wait(long timeoutMillis, int nanos).
-// The nanos are ignored for now (indefinite wait); timed wait is Slice D.
+// The nanos are ignored for now (indefinite wait); timed wait is Slice D,
+// but the argument range is validated per java.lang.Object.wait(long,int):
+//   IllegalArgumentException - if timeoutMillis is negative,
+//                              or if the value of nanos is out of range
 func objectWaitJI(f *rtda.Frame) {
-	// Same behavior as objectWait for the MVP — nanos and timeout are ignored.
-	objectWait(f)
+	this := f.GetRef(0)
+	if this == nil {
+		throwNPE(f, "null Object")
+		return
+	}
+	timeoutMillis := f.GetLong(1)
+	nanos := f.GetInt(3)
+	if timeoutMillis < 0 {
+		throwIllegalArgumentException(f, "timeout value is negative")
+		return
+	}
+	if nanos < 0 || nanos > 999999 {
+		throwIllegalArgumentException(f, "nanosecond timeout value out of range")
+		return
+	}
+	m := this.Monitor()
+	thread := f.Thread()
+	ec := thread.EC()
+
+	if !m.HoldsLock(ec) {
+		throwIMSE(f)
+		return
+	}
+
+	savedDepth := m.RecursionDepth()
+	_, interrupted := thread.MonitorWait(m, savedDepth)
+	if interrupted {
+		throwInterruptedException(f)
+	}
+}
+
+// throwIllegalArgumentException throws an IllegalArgumentException with the
+// given detail message on the calling thread.
+func throwIllegalArgumentException(f *rtda.Frame, message string) {
+	throwException(f, "java/lang/IllegalArgumentException", message)
 }
 
 // objectNotify implements Object.notify(). It wakes a single thread waiting on
@@ -418,7 +461,9 @@ func objectNotifyAll(f *rtda.Frame) {
 func threadHoldsLock(f *rtda.Frame) {
 	obj := f.GetRef(0) // static method: local 0 = first arg
 	if obj == nil {
-		f.PushInt(0)
+		// Per java.lang.Thread: passing null to a method in this class
+		// throws NullPointerException unless otherwise specified.
+		throwNPE(f, "null")
 		return
 	}
 	if obj.Monitor().HoldsLock(f.Thread().EC()) {

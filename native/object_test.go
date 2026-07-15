@@ -18,6 +18,7 @@ func buildObjectMonitorHierarchy() *simpleLoader {
 	obj.AddMethod(rtda.NativeMethod(obj, "wait", "()V", objectWait0))
 	obj.AddMethod(rtda.NativeMethod(obj, "notify", "()V", objectNotify))
 	obj.AddMethod(rtda.NativeMethod(obj, "wait", "(J)V", objectWait))
+	obj.AddMethod(rtda.NativeMethod(obj, "wait", "(JI)V", objectWaitJI))
 	l.classes["java/lang/Object"] = obj
 
 	// Throwable with detailMessage field (needed by throwException).
@@ -33,6 +34,12 @@ func buildObjectMonitorHierarchy() *simpleLoader {
 
 	imse := rtda.NewSyntheticClass("java/lang/IllegalMonitorStateException", re)
 	l.classes["java/lang/IllegalMonitorStateException"] = imse
+
+	npe := rtda.NewSyntheticClass("java/lang/NullPointerException", re)
+	l.classes["java/lang/NullPointerException"] = npe
+
+	iae := rtda.NewSyntheticClass("java/lang/IllegalArgumentException", re)
+	l.classes["java/lang/IllegalArgumentException"] = iae
 
 	// String (needed by throwException for the detail message String object).
 	str := rtda.NewSyntheticClass("java/lang/String", obj)
@@ -159,7 +166,7 @@ func TestThreadHoldsLockFalse(t *testing.T) {
 	}
 }
 
-// TestThreadHoldsLockNull verifies holdsLock returns false for a null object.
+// TestThreadHoldsLockNull verifies holdsLock(null) throws NullPointerException.
 func TestThreadHoldsLockNull(t *testing.T) {
 	loader := buildObjectMonitorHierarchy()
 	threadClass := loader.classes["java/lang/Thread"]
@@ -168,10 +175,15 @@ func TestThreadHoldsLockNull(t *testing.T) {
 
 	frame := caller.NewFrame(threadClass.LookupMethod("holdsLock", "(Ljava/lang/Object;)Z"))
 	frame.SetRef(0, nil)
+	caller.PushFrame(frame)
 	threadHoldsLock(frame)
 
-	if frame.PopInt() != 0 {
-		t.Fatal("holdsLock(null) should return false (0)")
+	if !caller.HasException() {
+		t.Fatal("holdsLock(null) should throw NullPointerException")
+	}
+	exc := caller.ClearException()
+	if exc == nil || exc.Class().Name() != "java/lang/NullPointerException" {
+		t.Fatalf("holdsLock(null) threw %v, want NullPointerException", exc)
 	}
 }
 
@@ -212,4 +224,137 @@ func TestThreadHoldsLockNative(t *testing.T) {
 
 // --- wait/notify successful path: verified by rtda.TestMonitorWaitNotify and
 // the Slice C concurrency fixtures. The unique contract-mandated unit tests
-// for the native layer are ownership failure (above) and holdsLock (below). ---
+// for the native layer are ownership failure (above) and holdsLock (above). ---
+
+// --- Amendment 2: Object.wait argument-range validation (ADR-0029 + JDK API) ---
+
+// TestObjectWaitNegativeTimeoutThrowsIAE verifies Object.wait(long) throws
+// IllegalArgumentException when timeoutMillis is negative, before any monitor
+// ownership check (per java.lang.Object.wait(long) specification).
+func TestObjectWaitNegativeTimeoutThrowsIAE(t *testing.T) {
+	loader := buildObjectMonitorHierarchy()
+	objClass := loader.classes["java/lang/Object"]
+	threadClass := loader.classes["java/lang/Thread"]
+
+	lockObj := rtda.NewObject(objClass)
+	_, rt := newTestThreadWithLoader(loader, threadClass)
+	caller := rtda.NewThread(loader)
+
+	// Own the monitor so the only failure is the negative timeout.
+	m := lockObj.Monitor()
+	m.Enter(rt.EC())
+
+	frame := caller.NewFrame(objClass.LookupMethod("wait", "(J)V"))
+	frame.SetRef(0, lockObj)
+	frame.SetLong(1, -1)
+	caller.PushFrame(frame)
+	objectWait(frame)
+
+	if !caller.HasException() {
+		t.Fatal("wait(-1) should throw IllegalArgumentException")
+	}
+	exc := caller.ClearException()
+	if exc == nil || exc.Class().Name() != "java/lang/IllegalArgumentException" {
+		t.Fatalf("wait(-1) threw %v, want IllegalArgumentException", exc)
+	}
+	// Monitor ownership and depth must be unaffected.
+	if !m.HoldsLock(rt.EC()) {
+		t.Fatal("monitor released after negative-timeout wait")
+	}
+	if d := m.RecursionDepth(); d != 1 {
+		t.Fatalf("monitor depth = %d after negative-timeout wait, want 1", d)
+	}
+	m.Exit(rt.EC())
+}
+
+// TestObjectWaitJINegativeTimeoutThrowsIAE verifies Object.wait(long, int)
+// throws IllegalArgumentException for a negative timeoutMillis.
+func TestObjectWaitJINegativeTimeoutThrowsIAE(t *testing.T) {
+	loader := buildObjectMonitorHierarchy()
+	objClass := loader.classes["java/lang/Object"]
+	threadClass := loader.classes["java/lang/Thread"]
+
+	lockObj := rtda.NewObject(objClass)
+	_, rt := newTestThreadWithLoader(loader, threadClass)
+	caller := rtda.NewThread(loader)
+
+	m := lockObj.Monitor()
+	m.Enter(rt.EC())
+
+	frame := caller.NewFrame(objClass.LookupMethod("wait", "(JI)V"))
+	frame.SetRef(0, lockObj)
+	frame.SetLong(1, -5)
+	frame.SetInt(3, 0)
+	caller.PushFrame(frame)
+	objectWaitJI(frame)
+
+	if !caller.HasException() {
+		t.Fatal("wait(-5, 0) should throw IllegalArgumentException")
+	}
+	exc := caller.ClearException()
+	if exc == nil || exc.Class().Name() != "java/lang/IllegalArgumentException" {
+		t.Fatalf("wait(-5, 0) threw %v, want IllegalArgumentException", exc)
+	}
+	m.Exit(rt.EC())
+}
+
+// TestObjectWaitJINanosOutOfRangeThrowsIAE verifies Object.wait(long, int)
+// throws IllegalArgumentException when nanos is outside 0-999999.
+func TestObjectWaitJINanosOutOfRangeThrowsIAE(t *testing.T) {
+	loader := buildObjectMonitorHierarchy()
+	objClass := loader.classes["java/lang/Object"]
+	threadClass := loader.classes["java/lang/Thread"]
+
+	lockObj := rtda.NewObject(objClass)
+	_, rt := newTestThreadWithLoader(loader, threadClass)
+	caller := rtda.NewThread(loader)
+
+	m := lockObj.Monitor()
+	m.Enter(rt.EC())
+
+	frame := caller.NewFrame(objClass.LookupMethod("wait", "(JI)V"))
+	frame.SetRef(0, lockObj)
+	frame.SetLong(1, 100)
+	frame.SetInt(3, 1000000) // > 999999
+	caller.PushFrame(frame)
+	objectWaitJI(frame)
+
+	if !caller.HasException() {
+		t.Fatal("wait(100, 1000000) should throw IllegalArgumentException")
+	}
+	exc := caller.ClearException()
+	if exc == nil || exc.Class().Name() != "java/lang/IllegalArgumentException" {
+		t.Fatalf("wait(100, 1000000) threw %v, want IllegalArgumentException", exc)
+	}
+	m.Exit(rt.EC())
+}
+
+// TestObjectWaitJINegativeNanosThrowsIAE verifies the nanos lower bound.
+func TestObjectWaitJINegativeNanosThrowsIAE(t *testing.T) {
+	loader := buildObjectMonitorHierarchy()
+	objClass := loader.classes["java/lang/Object"]
+	threadClass := loader.classes["java/lang/Thread"]
+
+	lockObj := rtda.NewObject(objClass)
+	_, rt := newTestThreadWithLoader(loader, threadClass)
+	caller := rtda.NewThread(loader)
+
+	m := lockObj.Monitor()
+	m.Enter(rt.EC())
+
+	frame := caller.NewFrame(objClass.LookupMethod("wait", "(JI)V"))
+	frame.SetRef(0, lockObj)
+	frame.SetLong(1, 100)
+	frame.SetInt(3, -1)
+	caller.PushFrame(frame)
+	objectWaitJI(frame)
+
+	if !caller.HasException() {
+		t.Fatal("wait(100, -1) should throw IllegalArgumentException")
+	}
+	exc := caller.ClearException()
+	if exc == nil || exc.Class().Name() != "java/lang/IllegalArgumentException" {
+		t.Fatalf("wait(100, -1) threw %v, want IllegalArgumentException", exc)
+	}
+	m.Exit(rt.EC())
+}
