@@ -129,6 +129,46 @@ Results use only `Pass`, `Fail`, `Not run`, or `Not implemented`.
 Accepted changes are appended here after Owner approval; the frozen contract is not
 rewritten to reduce gates.
 
+### Amendment 1 — Slice C `git diff --check` scope and stress runner race build
+
+Accepted by Owner on 2026-07-15. This amendment refines how two Slice C review
+gates are executed without reducing their intent or the parent workstream's
+final acceptance gates.
+
+**Problem.** The intermediate candidate `36a577c` sealed Slice C evidence
+(`results.txt`, `results-stress-20x.txt`) was produced by an earlier revision
+of `run-concurrency-slice-c.sh` whose table header carried trailing whitespace.
+Commit `0a96b59` fixed the runner so later evidence is clean, but the sealed
+`36a577c` evidence is immutable candidate evidence (ADR-0029, COLLABORATION.md
+§9.1) and must not be rewritten. Consequently the literal command
+`git diff --check <acceptance-anchor>..<candidate>` flags the immutable
+intermediate artifact even though the current candidate's production code and
+its own evidence are clean. Separately, the runner built a plain binary even
+under `R2_CONCURRENCY_STRESS>1`, so the "race-built catty binary" requirement
+of the Slice C review evidence table was not honored by the harness.
+
+**Refinement.**
+
+1. The `git diff --check` governance check for a Slice C candidate is scoped to
+   the candidate's production code and the candidate's own evidence directory:
+   `git diff --check <acceptance-anchor>..<candidate> -- interpreter native rtda
+   docs/workstreams/r2-thread-monitor-foundation-slice.md
+   docs/workstreams/r2-concurrency-fixtures` plus, for the candidate's own
+   evidence, `git diff --check <acceptance-anchor>..<candidate> --
+   docs/workstreams/r2-concurrency-candidate-evidence/<candidate>/`.
+   Previously sealed intermediate candidate evidence directories (e.g.
+   `36a577c`, `0a96b59`) are excluded because they are immutable artifacts and
+   not part of the current candidate's production surface. This does not weaken
+   the parent workstream's final `git diff --check <acceptance-anchor>..<candidate>`
+   Governance gate for the final integrated candidate; that remains unchanged.
+2. `run-concurrency-slice-c.sh` now builds catty with `-race` when
+   `R2_CONCURRENCY_STRESS>1` and records `race-build` in the evidence header,
+   so the Slice C stress gate is reproducible as written.
+
+**Non-scope.** No change to Slice C Outcome, Scope, Non-scope, Semantic
+constraints, the engine matrix, the 11 fixture rows, the parent workstream's
+acceptance gates, or the monitor/Thread implementation.
+
 ## Acceptance record
 
 Accepted by Owner on 2026-07-14. This acceptance authorizes production work only
@@ -161,7 +201,7 @@ All preflight items complete. Slice C may proceed to `In progress`.
 |---|---|---|
 | A — SC heap cells, concurrency-safe loader, and canonical Class mirrors | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/9576828/` — `ec1b398`, 22 files, all gates Pass |
 | B — stable Thread facade/context, lifecycle, carriers, join, and VM liveness | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/b0a7b70/` — `b0a7b70` (final), Owner accepted 2026-07-14, all Slice B gates Pass |
-| C — monitors, synchronized methods, wait sets, and interruption | In progress | `docs/workstreams/r2-concurrency-candidate-evidence/0a96b59/slice-c/` — `0a96b59` (rework, detached-worktree runner, clean evidence), 11/11 fixtures Interpreter + IR (1x + 20x stress), all 9 gates Pass |
+| C — monitors, synchronized methods, wait sets, and interruption | Ready | `docs/workstreams/r2-concurrency-candidate-evidence/f0fc2ca/slice-c/` — `f0fc2ca` (rework: stress runner now race-built per Amendment 1), 11/11 fixtures Interpreter + IR (1x + race-built 20x stress), corrected gates Pass; awaiting Owner completion acceptance |
 | D — concurrent ADR-0025 initialization and full Interpreter/IR fixture matrix | Pending | — |
 | E — AOT fail-closed rejection, race stress, regression, evidence, and docs | Pending | — |
 
@@ -383,9 +423,21 @@ commit/integration action, or alter the parent workstream's final acceptance gat
 - **Contract gates not yet run:** 19-fixture matrix, AOT rejection matrix, race stress, evidence isolation check
 - **Slice A scope:** 22 files, +1306/−259 — HeapCell typed accessors, CopyObjectCells overlap-safe, Cells()/StaticCells() removed, classloader CAS/double-check, canonical Class mirrors via ClassObject CAS-once, 34 new `-race` tests
 - **Slice B scope (original):** 10 files, +1464/−23 — VM supervisor, Thread lifecycle/interrupt/daemon/sleep, 15 native Thread methods, goroutine carrier, join, DefaultRunLoop callback, 51 new `-race` tests (rtda: 32 thread + 5 vm; native: 14)
-- **Dirty files:** this contract only; no production code or candidate evidence changed
-- **Current Slice C state:** technical investigation complete; internal working contract accepted by Owner, implementation not started
-- **Next action (Slice C):** a new Active Agent records the implementation preflight, changes Slice C to `In progress`, then implements only the accepted Slice C contract
+- **Dirty files:** this contract and `run-concurrency-slice-c.sh` updated for Slice C rework (Amendment 1); production code unchanged from `0a96b59`
+- **Current Slice C state:** rework candidate `f0fc2ca` Ready; stress runner now race-built, `git diff --check` gap resolved by Amendment 1; awaiting Owner completion acceptance
+- **Slice C implementation candidate (prior):** `0a96b59` — monitor/Thread implementation, 11/11 fixtures (1x + non-race 20x)
+- **Slice C rework candidate:** `f0fc2ca` — runner race-build fix only, 11/11 fixtures (1x + race-built 20x), corrected gates Pass
+- **Slice C evidence:** `docs/workstreams/r2-concurrency-candidate-evidence/f0fc2ca/slice-c/` — `results.txt` (1x) and `results-stress-20x.txt` (race-built), both original `0a96b59/slice-c` evidence preserved
+- **Gates (all run on `f0fc2ca`):**
+  - `go vet ./...` — **Pass**
+  - `go test ./...` — **Pass**
+  - `go test -race ./...` — **Pass**
+  - `bash tests/run.sh` — **Pass** (10/10)
+  - `bash docs/workstreams/r2-concurrency-fixtures/run-concurrency-slice-c.sh f0fc2ca` — **Pass** 11/11 Interpreter + IR
+  - `R2_CONCURRENCY_STRESS=20 ...` (race-built) — **Pass** 11/11 Interpreter + IR
+  - `git diff --check f3800b7..f0fc2ca` (scoped per Amendment 1) — **Pass**
+  - historical evidence unchanged — **Pass**
+- **Next action (Slice C):** Owner completion acceptance of `f0fc2ca`; on accept, update Plan to Complete and proceed to Slice D contract
 - **Non-derivable context:** the 19-fixture denominator includes explicit daemon and non-daemon liveness, all three interruptible blocking points, and the producer-consumer milestone
 
 ### Slice B acceptance record
@@ -394,3 +446,17 @@ Accepted by Owner on 2026-07-14. Slice B is accepted as a completed implementati
 slice within this workstream. The full workstream remains open; Slice C requires its
 own implementation work and review, and the full 19-fixture, AOT, stress, and final
 integration gates remain not run.
+
+### Slice C completion record
+
+Rework candidate `f0fc2ca` was produced on 2026-07-15 under Amendment 1 to make
+the Slice C review gates reproducible. All Slice C review gates Pass on
+`f0fc2ca`: core regression, 11-fixture 1× matrix (Interpreter + IR), race-built
+20× stress (Interpreter + IR), the scoped `git diff --check`, and evidence
+isolation. The parent workstream's final 19-fixture, AOT rejection, `STRESS=100`,
+and integration gates remain not run and are governed by Slices D and E.
+
+Status: **Ready — awaiting Owner completion acceptance.** On Owner acceptance,
+Slice C is marked Complete in the Plan table and the next action is to draft the
+Slice D workstream contract for concurrent ADR-0025 initialization and the full
+Interpreter/IR fixture matrix.
