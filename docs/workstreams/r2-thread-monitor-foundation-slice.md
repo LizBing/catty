@@ -213,6 +213,50 @@ amendment adds only argument-range validation.
 rejected call. The 11 Slice C fixtures remain byte-identical to Temurin 25 in
 Interpreter and IR (1× and race-built 20×).
 
+### Amendment 3 — Correct stale single-threaded/monitor-as-nop claims in `ARCHITECTURE.md`
+
+Accepted by Owner on 2026-07-15. This amendment corrects `docs/ARCHITECTURE.md`
+so its stated capability boundary matches the Accepted Slice A/B/C
+implementation and ADRs 0028–0030, instead of the pre-R2 single-threaded MVP.
+
+**Problem.** Slice C implements `monitorenter`/`monitorexit`,
+`ACC_SYNCHRONIZED`, `Object.wait`/`notify`/`notifyAll`, interruption, and
+Thread lifecycle, and Slices A/B added race-free SC heap, concurrency-safe
+loading, canonical Class mirrors, and VM daemon liveness. `ARCHITECTURE.md`
+still described the runtime as "MVP single-threaded", listed
+`monitorenter`/`monitorexit` as nops and `synchronized`/`wait`/`notify` as
+missing, and treated the Java memory model as moot. This contradicted the
+repository's Accepted capability evidence and could mislead a future Active
+Agent.
+
+**Change.** Three corrections to `ARCHITECTURE.md` only (no code):
+
+1. The Thread-scheduler row of the §1 premise table now states the bounded
+   Java 25 concurrency implemented in Interpreter/IR and lists the
+   `Not implemented` remainder (timed `wait`/`join`, `Unsafe`, JMM
+   optimizations, virtual threads, fairness, deadlock detection, AOT
+   concurrency).
+2. The `rtda.Thread` section now reflects `ecID`, Java Thread facade,
+   lifecycle, one goroutine carrier per started platform Thread, and the
+   ADR-0028/0029/0030 implemented surface.
+3. §10 "What catty does *not* model (yet)" replaces the
+   "Concurrency — single-threaded; no synchronized/wait/notify" and
+   "Java memory model — moot while single-threaded" bullets with the
+   implemented bounded concurrency surface and its `Not implemented`
+   remainder.
+
+**Non-scope.** No change to Slice C Outcome, Scope (production code),
+Non-scope, Semantic constraints, the engine matrix, the 11 fixture rows, the
+parent workstream's acceptance gates, or further architecture/development
+documentation beyond these three corrections. `DEVELOPMENT.md` has no stale
+single-threaded/monitor text and is unchanged. Remaining architecture/
+development doc updates remain Slice E scope.
+
+**Evidence.** The three `ARCHITECTURE.md` hunks are doc-only; the scoped
+`git diff --check f3808b7..HEAD` over `docs/ARCHITECTURE.md` and the
+production surface is clean. The 11 Slice C fixtures are unaffected (docs-only
+change); no gate is re-run beyond the whitespace and build sanity check.
+
 ## Acceptance record
 
 Accepted by Owner on 2026-07-14. This acceptance authorizes production work only
@@ -245,7 +289,7 @@ All preflight items complete. Slice C may proceed to `In progress`.
 |---|---|---|
 | A — SC heap cells, concurrency-safe loader, and canonical Class mirrors | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/9576828/` — `ec1b398`, 22 files, all gates Pass |
 | B — stable Thread facade/context, lifecycle, carriers, join, and VM liveness | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/b0a7b70/` — `b0a7b70` (final), Owner accepted 2026-07-14, all Slice B gates Pass |
-| C — monitors, synchronized methods, wait sets, and interruption | Ready | `docs/workstreams/r2-concurrency-candidate-evidence/eea253d/slice-c/` — `eea253d` (Amendment 1 race-built stress gate + Amendment 2 holdsLock/wait argument validation), 11/11 fixtures Interpreter + IR (1x + race-built 20x stress), all gates Pass; awaiting Owner completion acceptance |
+| C — monitors, synchronized methods, wait sets, and interruption | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/eea253d/slice-c/` — `eea253d` (Amendment 1 race-built stress gate + Amendment 2 holdsLock/wait argument validation), 11/11 fixtures Interpreter + IR (1x + race-built 20x stress), all gates Pass; Owner accepted 2026-07-15 |
 | D — concurrent ADR-0025 initialization and full Interpreter/IR fixture matrix | Pending | — |
 | E — AOT fail-closed rejection, race stress, regression, evidence, and docs | Pending | — |
 
@@ -468,7 +512,7 @@ commit/integration action, or alter the parent workstream's final acceptance gat
 - **Slice A scope:** 22 files, +1306/−259 — HeapCell typed accessors, CopyObjectCells overlap-safe, Cells()/StaticCells() removed, classloader CAS/double-check, canonical Class mirrors via ClassObject CAS-once, 34 new `-race` tests
 - **Slice B scope (original):** 10 files, +1464/−23 — VM supervisor, Thread lifecycle/interrupt/daemon/sleep, 15 native Thread methods, goroutine carrier, join, DefaultRunLoop callback, 51 new `-race` tests (rtda: 32 thread + 5 vm; native: 14)
 - **Dirty files:** this contract only (`run-concurrency-slice-c.sh`, `native/system.go`, `native/object_test.go` committed as candidates below)
-- **Current Slice C state:** rework candidate `eea253d` Ready; Amendment 1 (race-built stress gate, scoped `git diff --check`) and Amendment 2 (`holdsLock(null)` → NPE, `wait`/`wait(long,int)` argument-range validation) applied; all gates Pass; awaiting Owner completion acceptance
+- **Current Slice C state:** rework candidate `eea253d` Complete; Amendment 1 (race-built stress gate, scoped `git diff --check`), Amendment 2 (`holdsLock(null)` → NPE, `wait`/`wait(long,int)` argument-range validation), and Amendment 3 (`ARCHITECTURE.md` single-threaded/monitor-as-nop corrections) applied; Owner accepted 2026-07-15
 - **Slice C implementation candidate (original):** `0a96b59` — monitor/Thread implementation, 11/11 fixtures (1x + non-race 20x)
 - **Slice C rework candidate 1:** `f0fc2ca` — runner race-build fix only (Amendment 1)
 - **Slice C rework candidate 2 (current):** `eea253d` — adds Amendment 2 boundary validation; 11/11 fixtures (1x + race-built 20x), corrected gates Pass
@@ -483,7 +527,7 @@ commit/integration action, or alter the parent workstream's final acceptance gat
   - `git diff --check f3800b7..eea253d` (scoped per Amendment 1) — **Pass**
   - historical evidence unchanged — **Pass**
   - Amendment 2 unit tests (`native/object_test.go`) under `-race` — **Pass**
-- **Next action (Slice C):** Owner completion acceptance of `eea253d`; on accept, update Plan to Complete and proceed to Slice D contract
+- **Next action (Slice C):** accepted by Owner 2026-07-15; Plan marked Complete; proceed to Slice D contract
 - **Non-derivable context:** the 19-fixture denominator includes explicit daemon and non-daemon liveness, all three interruptible blocking points, and the producer-consumer milestone
 
 ### Slice B acceptance record
@@ -495,14 +539,16 @@ integration gates remain not run.
 
 ### Slice C completion record
 
-Rework candidate `eea253d` consolidates the Slice C implementation under two
+Rework candidate `eea253d` consolidates the Slice C implementation under three
 accepted amendments. Amendment 1 (rework candidate `f0fc2ca`) makes the Slice C
 review gates reproducible: stress uses a race-built catty binary and the
 `git diff --check` scope excludes immutable intermediate candidate evidence.
 Amendment 2 (`eea253d`) adds bounded argument validation: `Thread.holdsLock(null)`
 throws `NullPointerException` and `Object.wait(long)` / `Object.wait(long, int)`
 throw `IllegalArgumentException` for negative/out-of-range arguments, with timed
-wait behavior itself still deferred to Slice D.
+wait behavior itself still deferred to Slice D. Amendment 3 (docs-only) corrects
+`ARCHITECTURE.md`'s stale single-threaded/monitor-as-nop claims to match the
+Accepted A/B/C capability boundary.
 
 All Slice C review gates Pass on `eea253d`: core regression, the Amendment 2
 `native` unit tests under `-race`, the 11-fixture 1× matrix (Interpreter + IR),
@@ -511,7 +557,7 @@ evidence isolation. The parent workstream's final 19-fixture, AOT rejection,
 `STRESS=100`, and integration gates remain not run and are governed by Slices
 D and E.
 
-Status: **Ready — awaiting Owner completion acceptance.** On Owner acceptance,
-Slice C is marked Complete in the Plan table and the next action is to draft the
-Slice D workstream contract for concurrent ADR-0025 initialization and the full
-Interpreter/IR fixture matrix.
+Status: **Complete — accepted by Owner on 2026-07-15.** Slice C is marked
+Complete in the Plan table. The next action is to draft the Slice D workstream
+contract for concurrent ADR-0025 initialization and the full Interpreter/IR
+fixture matrix.

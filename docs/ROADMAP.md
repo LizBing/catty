@@ -61,7 +61,7 @@ Proposed ADRs.
 auto-detected. `RealBaseSmoke` (18 assertions) byte-identical to `java`.
 
 ### Phase R2 — Runtime semantics and concurrency planning
-**Status:** Initialization and bounded UTF-16 String slices complete; concurrency research Done and Thread/monitor foundation contract Accepted
+**Status:** Initialization and bounded UTF-16 String slices complete; Thread/monitor foundation Slices A/B/C complete (monitors, wait sets, interruption, race-free heap); Slice D (concurrent ADR-0025 initialization and full 19-fixture matrix) is the next bounded slice
 
 JDK 25's `Integer.toString`/`Double.parseDouble`/`HashMap` paths reach
 `jdk.internal.misc.Unsafe`; concurrency additionally requires explicit Thread,

@@ -14,7 +14,7 @@ subsystems are deliberately *not* implemented:
 | JVM subsystem | catty's approach |
 |---|---|
 | Garbage collector | Java objects are Go heap allocations; Go's GC traces them natively. No write barriers, no mark/sweep code. |
-| Thread scheduler | MVP is single-threaded. A future concurrency arc may use goroutines as carriers, but Java Thread identity, lifecycle, monitors, interruption, and memory semantics require Accepted decisions. |
+| Thread scheduler | Bounded Java 25 concurrency is implemented in Interpreter and IR: one goroutine carrier per started platform Thread, race-free SC heap (ADR-0030), Java object monitors and wait sets (ADR-0029), interruptible wait/join/sleep, VM daemon liveness, and synchronized cross-thread class initialization is the next bounded slice. Timed `wait`/`join`, `Unsafe`, JMM optimizations, virtual threads, fairness, deadlock detection, and AOT concurrency remain `Not implemented`. |
 | JIT compiler | None directly. Instead, a bytecode→Go-source AOT transpiler (`catty build`) hands optimization to the Go compiler — `go build` IS the optimizing backend. |
 
 This trade is the whole point of the project: by not writing a GC, scheduler, or
@@ -190,14 +190,23 @@ advance `pc` past the bytes they consume.
 
 ```go
 type Thread struct {
-    stack  []*Frame
-    loader Loader
+    stack      []*Frame
+    loader     Loader
+    ecID       uint64
+    // Slice B/C: Java Thread facade, lifecycle, interrupt, daemon, monitor wait
+    javaThread *Object
+    state      int32
+    // ...
 }
 ```
 
-The MVP runs a single `Thread`. Pushing a frame per call and popping on return
-gives the JVM stack. ADR-0018 permits goroutines as future execution carriers but
-does not equate them with Java Thread objects or define the concurrency contract.
+Each `Thread` is one Java execution context with a stable `ecID` (ADR-0028). A
+started platform Thread runs on one goroutine carrier; the primordial `main`
+thread is created by the launcher. Pushing a frame per call and popping on
+return gives the JVM stack. Per ADR-0028/ADR-0029/ADR-0030, Java Thread
+identity/lifecycle, daemon liveness, object monitors, wait sets, and
+interruption are implemented in Interpreter/IR; AOT concurrency remains
+`Not implemented`.
 
 ## 5. Class loading, in detail
 
@@ -359,13 +368,20 @@ the object model, and runtime integration are A1.5/A2/A4.
 Kept out of scope deliberately; each is a documented future work item in
 [`ROADMAP.md`](./ROADMAP.md):
 
-- **Concurrency** — single-threaded; no `synchronized`/`wait`/`notify`
-  (`monitorenter`/`monitorexit` are nops).
+- **Concurrency** — bounded Java 25 concurrency is implemented in Interpreter
+  and IR for the fixed R2 matrix: Java Thread identity/lifecycle, one goroutine
+  carrier per started platform Thread, VM daemon liveness, race-free SC heap
+  (ADR-0030), object monitors and wait sets (ADR-0029), and interruptible
+  wait/join/sleep. Not implemented: AOT concurrency, timed `wait`/`join` beyond
+  argument validation, `Unsafe`/`VarHandle`, virtual threads, ThreadGroup/
+  ThreadLocal, `java.util.concurrent`, deadlock detection, fairness, and
+  weak-memory optimization (see ROADMAP Phase R2/R3).
 - **Cross-engine AOT exception propagation** — Interpreter and IR implement
   `try`/`catch`/`athrow` and bounded native exception propagation, but emitted
   AOT code still explicitly rejects paths requiring exception propagation.
 - **`invokedynamic` / lambdas** — panics; compile fixtures with `-source 8` to
   get StringBuilder-based string concat instead.
 - **Reflection, JNI, `sun.misc.Unsafe`** — not modeled.
-- **Java memory model** — moot while single-threaded; a correctness concern for
-  the concurrency arc (Java and Go memory models are related but not identical).
+- **Java memory model** — bounded ordinary/volatile/final field visibility is
+  covered by the race-free SC heap (ADR-0030) for the implemented concurrency
+  surface; broad JMM/Unsafe semantics remain a future correctness arc.
