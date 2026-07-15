@@ -54,6 +54,15 @@ javac -version 2>&1 | grep '^javac 25\.' >/dev/null || fail_closed "javac 25 req
 STRESS="${R2_CONCURRENCY_STRESS:-1}"
 [ "$STRESS" -ge 1 ] || fail_closed "R2_CONCURRENCY_STRESS must be >= 1, got $STRESS"
 
+# Stress runs MUST use a race-built catty binary per the Slice C contract's
+# review evidence table. 1x runs use a normal build (the race-instrumented
+# binary is slower and not required for the 1x differential).
+if [ "$STRESS" -gt 1 ]; then
+  RACE_BUILD=1
+else
+  RACE_BUILD=0
+fi
+
 # --- Evidence directory (main repo, never in the detached worktree) ---
 EVIDENCE_DIR="$ROOT/docs/workstreams/r2-concurrency-candidate-evidence/$CANDIDATE/slice-c"
 if [ "$STRESS" -gt 1 ]; then
@@ -135,6 +144,7 @@ T_RUN=20
   echo "javac:               $(javac -version 2>&1)"
   echo "go:                  $(go version 2>&1)"
   echo "stress:              ${STRESS}x"
+  echo "race-build:          ${RACE_BUILD}"
   echo "timeout:             ${T_RUN}s"
   echo "fixtures:            $EXPECTED"
   echo "policy:              fail-closed — any mismatch or missing row is a failure"
@@ -142,8 +152,14 @@ T_RUN=20
 } | tee "$RESULTS"
 
 # --- Build from the detached worktree ---
-echo "==> building catty" | tee -a "$RESULTS"
-(cd "$BUILD_DIR" && go build -o "$BIN" ./cmd/jvm) >>"$RESULTS" 2>&1 \
+BUILD_FLAGS=""
+if [ "$RACE_BUILD" -eq 1 ]; then
+  BUILD_FLAGS="-race"
+  echo "==> building catty (race-enabled)" | tee -a "$RESULTS"
+else
+  echo "==> building catty" | tee -a "$RESULTS"
+fi
+(cd "$BUILD_DIR" && go build $BUILD_FLAGS -o "$BIN" ./cmd/jvm) >>"$RESULTS" 2>&1 \
   || fail_closed "catty build failed"
 
 if [ "$STRESS" -eq 1 ]; then
