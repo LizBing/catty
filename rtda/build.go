@@ -1,6 +1,10 @@
 package rtda
 
-import "catty/classfile"
+import (
+	"sync"
+
+	"catty/classfile"
+)
 
 // NewClass builds a runtime Class from a parsed class file, resolving the
 // superclass and interfaces through loader (which avoids an import cycle with
@@ -18,6 +22,7 @@ func NewClass(cf *classfile.ClassFile, loader Loader) *Class {
 		interfaceNames: cf.InterfaceNames(),
 		methodTable:    make(map[string]*Method),
 	}
+	c.initCond = sync.NewCond(&c.initMu)
 
 	if c.superName != "" {
 		c.superClass = loader.LoadClass(c.superName)
@@ -91,6 +96,7 @@ func convertExceptionTable(entries []*classfile.ExceptionTableEntry, cp *classfi
 // The native package adds fields and native methods to it.
 func NewSyntheticClass(name string, super *Class) *Class {
 	c := &Class{name: name, superClass: super, methodTable: make(map[string]*Method)}
+	c.initCond = sync.NewCond(&c.initMu)
 	if super != nil {
 		c.instCellCount = super.instCellCount
 	}
@@ -135,25 +141,57 @@ func (c *Class) AddInterface(iface *Class) {
 }
 
 // --- Class initialization (<clinit>) bookkeeping (ADR-0025) ---
+//
+// All accessors are guarded by initMu (ADR-0029). The lock is distinct from the
+// Class mirror's Java monitor and protects initState, initOwner, and initCond.
+// InitializeClass itself holds initMu across the full protocol, so the
+// Mark*/Init* methods below are safe for external callers but NOT called
+// internally by InitializeClass (which manipulates fields directly).
 
 // InitState returns the class's four-state initialization value (initNotStarted,
-// initInProgress, initInitialized, or initErroneous).
-func (c *Class) InitState() int32 { return c.initState }
+// initInProgress, initInitialized, or initErroneous). Lock-guarded.
+func (c *Class) InitState() int32 {
+	c.initMu.Lock()
+	s := c.initState
+	c.initMu.Unlock()
+	return s
+}
 
 // IsInitialized reports whether the class has completed initialization.
-func (c *Class) IsInitialized() bool { return c.initState == initInitialized }
+// Lock-guarded — establishes acquire visibility for the published state,
+// including any clinit-written static fields.
+func (c *Class) IsInitialized() bool {
+	c.initMu.Lock()
+	ok := c.initState == initInitialized
+	c.initMu.Unlock()
+	return ok
+}
 
 // InitOwner returns the identity of the execution context that is currently
 // initializing this class, or 0 if no context owns the initializing state.
-func (c *Class) InitOwner() uint64 { return c.initOwner }
+// Lock-guarded.
+func (c *Class) InitOwner() uint64 {
+	c.initMu.Lock()
+	o := c.initOwner
+	c.initMu.Unlock()
+	return o
+}
 
 // SetInitOwner records the execution context that owns the current initializing
 // state. It is only meaningful when initState == initInProgress.
-func (c *Class) SetInitOwner(owner uint64) { c.initOwner = owner }
+// Lock-guarded.
+func (c *Class) SetInitOwner(owner uint64) {
+	c.initMu.Lock()
+	c.initOwner = owner
+	c.initMu.Unlock()
+}
 
 // MarkInitInProgress transitions the state from not-initialized to initializing.
 // Returns true if the transition succeeded (caller now owns initialization).
+// Lock-guarded.
 func (c *Class) MarkInitInProgress(owner uint64) bool {
+	c.initMu.Lock()
+	defer c.initMu.Unlock()
 	if c.initState != initNotStarted {
 		return false
 	}
@@ -162,30 +200,47 @@ func (c *Class) MarkInitInProgress(owner uint64) bool {
 	return true
 }
 
-// MarkInitialized transitions the state from initializing to initialized.
+// MarkInitialized transitions the state from initializing to initialized and
+// broadcasts on initCond to wake all waiters (ADR-0029 terminal publication).
+// Lock-guarded.
 func (c *Class) MarkInitialized() {
+	c.initMu.Lock()
 	c.initState = initInitialized
 	c.initOwner = 0
+	c.initCond.Broadcast()
+	c.initMu.Unlock()
 }
 
-// MarkErroneous transitions the state from initializing to erroneous.
+// MarkErroneous transitions the state from initializing to erroneous and
+// broadcasts on initCond to wake all waiters (ADR-0029 terminal publication).
+// Lock-guarded.
 func (c *Class) MarkErroneous() {
+	c.initMu.Lock()
 	c.initState = initErroneous
 	c.initOwner = 0
+	c.initCond.Broadcast()
+	c.initMu.Unlock()
 }
 
 // InitStarted is the legacy accessor; it returns true for any state past
-// not-initialized. Kept for compatibility with existing callers that only need
-// to know whether init has been attempted.
-func (c *Class) InitStarted() bool { return c.initState != initNotStarted }
+// not-initialized. Lock-guarded. Kept for compatibility with existing callers
+// that only need to know whether init has been attempted.
+func (c *Class) InitStarted() bool {
+	c.initMu.Lock()
+	ok := c.initState != initNotStarted
+	c.initMu.Unlock()
+	return ok
+}
 
 // MarkInitStarted is the legacy mutator — its only remaining safe use is to
 // set the state to initializing before the shared service takes over.
-// Prefer MarkInitInProgress in new code.
+// Lock-guarded. Prefer MarkInitInProgress in new code.
 func (c *Class) MarkInitStarted() {
+	c.initMu.Lock()
 	if c.initState == initNotStarted {
 		c.initState = initInProgress
 	}
+	c.initMu.Unlock()
 }
 
 // NewArrayClass builds the runtime class for an array type name ("[I",
@@ -193,6 +248,7 @@ func (c *Class) MarkInitStarted() {
 // components goes through loader so each element type is cached exactly once.
 func NewArrayClass(name string, loader Loader) *Class {
 	c := &Class{name: name, isArray: true, methodTable: make(map[string]*Method)}
+	c.initCond = sync.NewCond(&c.initMu)
 	comp := name[1:] // drop leading '['
 	switch comp[0] {
 	case 'L':
