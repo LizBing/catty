@@ -1,10 +1,10 @@
 # Project status
 
 **As of:** 2026-07-16
-**Stable baseline:** R2 Thread/monitor/class-init foundation complete (Slices A/B/C/D)
-**Baseline commit:** `0d0e0f4` (Slice D candidate, evidence recorded)
+**Stable baseline:** R2 initialization and bounded UTF-16 String slices complete
+**Baseline commit:** `8171361` (integration; String candidate `00327d6`, evidence `9008b00`)
 **Active workstream:** Accepted [`r2-thread-monitor-foundation-slice`](./workstreams/r2-thread-monitor-foundation-slice.md)
-**Current phase:** R2 Slice A, B, C, and D accepted (Slice D concurrent class initialization complete on `0d0e0f4`)
+**Current phase:** R2 Slice A, B, and C accepted (Slice C complete on `eea253d`); Slice D implementation Ready (candidate `4798610`, evidence sealed at `d358cd7` per Amendment D-A1), awaiting Owner completion acceptance
 
 This is the single model-neutral current-state entry. Strategy lives in
 [`ROADMAP.md`](./ROADMAP.md); decisions live in [`adr/`](./adr/); scoped work
@@ -84,6 +84,10 @@ deferred.
 
 ## Next action
 
-The R2 Thread/monitor foundation workstream (Slices A/B/C/D) is complete.
-Await Owner acceptance of Slice D evidence. No further Active Agent dispatch
-pending for this workstream.
+Slice D implementation is Ready (candidate `4798610`, evidence sealed at
+`d358cd7` on branch `r2-slice-d-concurrent-init`): 19/19 fixture Interpreter +
+IR Match, 19/19 AOT NO-BUILD, race-built 100× stress Pass, 5/5 race kernel
+unit tests Pass, core regression Pass. Awaiting Owner completion acceptance.
+On accept: update the workstream Plan's Slice D row to Complete, mark the R2
+Thread/monitor foundation milestone complete, then proceed to Slice E (final
+integration, docs, AOT matrix confirmation) or close the workstream.
