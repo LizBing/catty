@@ -561,3 +561,194 @@ Status: **Complete — accepted by Owner on 2026-07-15.** Slice C is marked
 Complete in the Plan table. The next action is to draft the Slice D workstream
 contract for concurrent ADR-0025 initialization and the full Interpreter/IR
 fixture matrix.
+
+---
+
+## Slice D working contract
+
+**Status:** Proposed
+**Type:** implementation within this Accepted parent workstream
+**Review:** owner
+**Planned base:** `ff691b5` (current `main`; accepted Slice C governance integration)
+**Parent acceptance anchor:** `a0288be`
+**Governing decisions:** the parent contract and ADR-0017, ADR-0018, ADR-0020,
+ADR-0022, ADR-0025, and ADR-0028 through ADR-0030
+
+This checkpoint refines the existing plan without amending the parent's frozen
+Outcome, Scope, Non-scope, Semantic constraints, engine matrix, or Acceptance
+gates. Its evidence does not replace the fixed 19-fixture denominator or any
+final workstream gate. On Owner acceptance this authorizes an Active Agent to
+record the implementation preflight, change Slice D from `Pending` to
+`In progress`, and implement only the accepted Slice D contract. Production work
+remains limited by the parent contract and the Owner's session authority.
+
+### Slice D outcome
+
+Catty's shared ADR-0025 class/interface initialization service becomes
+race-free across Java execution contexts: exactly one `<clinit>` runs per
+runtime Class identity, concurrent other-owner requests block on a per-Class
+condition until a terminal state is published, and publication establishes
+release/acquire visibility without changing interrupt status of waiters.
+Interpreter and IR pass the full fixed 19-fixture concurrency matrix against
+Temurin 25 (combined stdout, stderr, exit code), including
+`CrossThreadClassInitialization` under race. AOT build-rejects all 19 fixed
+concurrency fixtures as `Not implemented`/`NO-BUILD`. The runtime is now
+evidence-backed for the R2 producer-consumer milestone end-to-end in
+Interpreter and IR.
+
+### Slice D scope
+
+- Add one dedicated initialization lock/condition per runtime `Class` identity
+  behind the existing shared `InitializeClass` service, **distinct from the
+  Class mirror's Java monitor** (ADR-0029). Representation choice: a `sync.Mutex`
+  plus `sync.Cond` owned by each `Class` (constructor-allocated; no lazy map
+  lookup).
+- Extend `rtda.InitializeClass` with the JVMS §5.5 cross-context protocol:
+  - already `initialized` → return normally (acquire the initialized state);
+  - recursive same-owner (`initInProgress` and `initOwner == ecID`) → return
+    normally;
+  - `erroneous` → return `NoClassDefFoundError`;
+  - `initNotStarted` → claim ownership under the lock, release the lock for the
+    clinit body, run predecessor initialization and `<clinit>` via the existing
+    `ClinitRunner` callback, then under the lock publish the terminal state and
+    `notify-all`;
+  - `initInProgress` with a different owner → **wait** on the per-Class
+    condition without holding the Java monitor; on wake, re-read the state and
+    proceed (return if `initialized`, throw `NoClassDefFoundError` if
+    `erroneous`, loop if still `initInProgress`). **Interrupt status of the
+    waiter is unchanged by this wait** (ADR-0029); interrupt is not reported and
+    does not break the wait.
+  - Terminal publication (success and every erroneous transition) performs an
+    atomic state write under the per-Class lock and `notify-all`, establishing
+    release/acquire visibility for the initialized state and any clinit-written
+    static fields.
+- Add a bounded race-deterministic unit test suite for the kernel:
+  multiple execution contexts contending on one Class; `<clinit>` runs exactly
+  once; second and later waiters see the published value and no clinit re-run;
+  erroneous publication reaches all waiters as `NoClassDefFoundError`; a waiter
+  interrupted while waiting still completes the init wait with unchanged
+  interrupt status (the wait is not interruptible for init purposes).
+  predecessor-ordering with concurrent superinterface requests is exercised at
+  least once.
+- Create `docs/workstreams/r2-concurrency-fixtures/run-concurrency-candidate.sh`
+  — the parent's final 19-fixture candidate harness. It asserts exactly the
+  fixed 19 fixture rows (the list in `matrix.md`) for Interpreter and IR,
+  fail-closed on any missing row, timeout, or stdout/stderr/exit mismatch. It
+  additionally runs an AOT column asserting every one of the 19 fixtures is
+  build-rejected (`NO-BUILD`) with no built binary, panic, or fallback. It builds
+  catty with `-race` when `R2_CONCURRENCY_STRESS>1` (per Amendment 1's runner
+  convention) and records the candidate/base/toolchain in the evidence header.
+  Candidate evidence is isolated under
+  `docs/workstreams/r2-concurrency-candidate-evidence/<candidate>/` (no `slice-c`
+  suffix; this is the parent final matrix), and is never written to the research
+  baseline or shared/latest path.
+- Verify and, where needed, enforce that AOT build-rejects all 19 fixed
+  concurrency fixtures. If any fixture currently AOT-builds and later panics or
+  falls back, add an explicit AOT reachability rejection for the concurrency
+  execution-context boundary in this slice. **No AOT concurrency execution is
+  implemented**; AOT remains `Not implemented` for all 19 fixtures (ADR-0028).
+- Update `docs/PROJECT_STATUS.md` verified-capability and explicit-boundary text
+  if the concurrent initialization cross-thread capability becomes the new stated
+  boundary. `ARCHITECTURE.md` is already Slice-correct under Amendment 3; no
+  stale single-threaded/monitor/nop claims are re-introduced.
+
+### Slice D non-scope
+
+- Timed `Object.wait`/`Thread.join` enforcement (actual timeout behavior beyond
+  the argument validation added by Amendment 2); remains a future bounded slice.
+- `Unsafe`/`VarHandle`, JMM weak-memory optimization (the heap stays race-free
+  SC per ADR-0030), virtual threads, `ThreadGroup`/`ThreadLocal`, context class
+  loaders, `java.util.concurrent`, deadlock detection, lock fscheduling
+  fairness, priorities, monitor deflation, or biased locking.
+- AOT concurrency, an AOT execution-context ABI, or any AOT `Supported`/`Fallback`
+  claim for the 19 concurrency fixtures. All remain explicit `Not implemented`.
+- `invokedynamic`, broad reflection, JNI, broad `java.base` replacement, or any
+  change to the four ADR-0025 bytecode initialization trigger points (`new`,
+  `getstatic`, `putstatic`, `invokestatic`). Array creation (`newarray`,
+  `anewarray`, `multianewarray`) and `arraylength`/`aaload` are **not**
+  initialization triggers per JVMS §5.5 and Verified-by-investigation on
+  Temurin 25; Slice D does not add initialization calls there.
+- Re-running the 11-row Slice C runner as the final gate; the 19-row candidate
+  harness replaces it for parent acceptance. The sealed Slice C evidence is
+  immutable and is not overwritten.
+- Changes to the parent workstream's frozen Outcome/Scope/Non-scope/Semantic
+  constraints/engine matrix/Acceptance gates except as recorded in the parent's
+  Amendments section. Slice D refines the Plan only.
+
+### Slice D semantic constraints
+
+- Java Thread execution-context identity (`ecID` per ADR-0028) is the
+  initialization owner key; goroutine identity and Java Thread facade pointer
+  identity are not owner keys.
+- `<clinit>` executes **at most once** per runtime Class identity across all
+  execution contexts, and at least once unless initialization fails. The winner
+  is the unique claimant that publishes the terminal state.
+- A waiter on an other-owned initialization does not hold any Java monitor while
+  blocked, is not spuriously woken without a terminal publication, and observes
+  the initialized state under release/acquire on wake. `notify-all` is used on
+  every terminal transition so all waiters re-check.
+- The init wait is **not** interruptible: an interrupt received while waiting
+  for another context's initialization does not throw
+  `InterruptedException` from the init path and does not clear the interrupt
+  flag; the wait completes when the terminal state is published. (This is the
+  ADR-0029 "unchanged interrupt status while waiting" rule, distinct from the
+  interruptible `Object.wait`/`Thread.sleep`/`Thread.join` semantics already
+  implemented.)
+- The four ADR-0025 states and transitions, the superclass/required-
+  superinterface ordering, the JSON `Error`/`ExceptionInInitializerError`
+  wrapping, the constant-field exemption, and the recursive same-owner rule are
+  unchanged; only synchronization and wait/notify/visibility are added.
+- Interpreter and IR use the identical shared `InitializeClass` service and the
+  identical exception transport. Neither engine may busy-wait, silently drop
+  the other-owner wait, or approximate cross-thread publication with a single
+  racy read.
+- AOT reports all 19 fixtures as `Not implemented`/`NO-BUILD`; a built binary
+  that later panics, mismatches, or silently falls back is a Fail.
+
+### Slice D review evidence
+
+These are slice-review checks, not amendments to or substitutes for the parent's
+final Acceptance table. Results use only `Pass`, `Fail`, `Not run`, or
+`Not implemented`.
+
+| Check | Required evidence before Slice D can be proposed Complete |
+|---|---|
+| Init kernel race-free | `go test -race ./rtda` covers concurrent single-class contention, exactly-once clinit, other-owner wait → published value with no clinit re-run, erroneous publication → `NoClassDefFoundError` to all waiters, waiter interrupt-status unchanged across init wait, and a predecessor-ordering concurrency case |
+| Interpreter/IR fixtures | `bash docs/workstreams/r2-concurrency-fixtures/run-concurrency-candidate.sh <candidate>` asserts exactly 19 rows; all match Temurin 25 combined stdout+stderr+exit in Interpreter and IR; includes `CrossThreadClassInitialization` |
+| AOT rejection | The same runner asserts all 19 fixtures report `Not implemented` as `NO-BUILD`; any built binary, panic, mismatch, omitted row, or `Fallback` is Fail |
+| Bounded race repetition | `R2_CONCURRENCY_STRESS=100 bash .../run-concurrency-candidate.sh <candidate>` with a race-built catty Interpreter/IR; no Go race, timeout, deadlock, missing iteration, or semantic mismatch. This is the parent's final stress gate |
+| Core regression | `go vet ./...`, `go test ./...`, `go test -race ./...`, and `bash tests/run.sh` all Pass |
+| Evidence isolation | The runner requires an explicit immutable candidate ID, refuses overwrite, records toolchain/base/fixture list, writes only its candidate `docs/workstreams/r2-concurrency-candidate-evidence/<candidate>/` directory; all historical evidence (research baseline, Slice A/B/C, and the 11-row Slice C runner evidence under `<candidate>/slice-c/`) hashes remain unchanged |
+| Scope audit | Diff from `ff691b5` contains no timed-wait enforcement, AOT concurrency claim, fixture denominator change, array-creation initialization trigger, or stale single-threaded claim introduced by Slice D |
+
+The 19-row candidate harness may share code with the Slice C 11-row runner, but
+it hard-codes and reports all 19 rows; the 11-row Slice C runner remains as
+historical slice evidence and is not the final gate.
+
+### Slice D implementation order
+
+1. per-`Class` `initMu`/`initCond` and atomic state/owner accessors.
+2. `InitializeClass` cross-context wait/notify/visibility protocol.
+3. Race kernel unit tests (contention, exactly-once, erroneous publish, init-wait
+   interrupt-status, predecessor ordering).
+4. 19-row candidate harness with AOT build-rejection column.
+5. Run full 19-fixture matrix in Interpreter + IR (1× and race-built 100×), fix
+   any observed cross-thread gap, confirm AOT `NO-BUILD` for all 19.
+6. Owner review candidate; on accept, update Plan to Complete and proceed to
+   Slice E (final integration, docs, AOT matrix confirmation, push).
+
+### Slice D acceptance record
+
+Pending Owner acceptance. This Proposed contract refines the parent Plan's
+Slice D row. On Owner acceptance, the acceptance anchor and preflight must be
+recorded before any production implementation begins, per COLLABORATION.md §6.4.
+
+## (Roadmap note — non-binding, for Owner's future consideration)
+
+Owner-directed roadmap candidate, **not part of this workstream**: AOT
+concurrency should be planned under Phase R5 (AOT coverage expansion), gated by
+a future Proposed→Accepted ADR defining an explicit AOT execution-context ABI,
+and sequenced after R5's instance-method AOT and exception handling in emitted
+code. Until that ABI is Accepted, all 19 concurrency fixtures remain AOT
+build-rejected. This note does not authorize implementation; it records the
+investigation conclusion for ROADMAP editing at the Owner's discretion.
