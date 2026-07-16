@@ -520,6 +520,7 @@ func newMinimalClass(name string) *Class {
 		name:        name,
 		methodTable: make(map[string]*Method),
 	}
+	c.initCond = sync.NewCond(&c.initMu)
 	return c
 }
 
@@ -529,6 +530,7 @@ func newMinimalArrayClass(name string) *Class {
 		name:    name,
 		isArray: true,
 	}
+	c.initCond = sync.NewCond(&c.initMu)
 	return c
 }
 

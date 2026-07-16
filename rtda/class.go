@@ -1,6 +1,7 @@
 package rtda
 
 import (
+	"sync"
 	"sync/atomic"
 
 	"catty/classfile"
@@ -34,10 +35,13 @@ type Class struct {
 	componentKind  int // kindByte, kindChar, ...; 0 for object arrays
 	arrayClass     *Class // cached "[Lthis;" / "[Ithis" array class
 
-	// Class initialization bookkeeping (ADR-0025: Java 25 single-execution-context
-	// state machine).
-	initState int32  // one of the four init* constants
-	initOwner uint64 // identity of the execution context currently initializing this class (0 = none)
+	// Class initialization bookkeeping (ADR-0025: Java 25 state machine).
+	// Protected by initMu. The lock is distinct from the Class mirror's Java
+	// monitor (ADR-0029) and guards initState, initOwner, and initCond.
+	initMu   sync.Mutex
+	initCond *sync.Cond // lazy-init via initCondOnce; signals terminal state transitions
+	initState int32     // one of the four init* constants
+	initOwner uint64    // identity of the execution context currently initializing this class (0 = none)
 
 	// classObject is the canonical java.lang.Class mirror for this class, created
 	// lazily with a compare-and-swap so all goroutines see the same identity.

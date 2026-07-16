@@ -290,7 +290,7 @@ All preflight items complete. Slice C may proceed to `In progress`.
 | A — SC heap cells, concurrency-safe loader, and canonical Class mirrors | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/9576828/` — `ec1b398`, 22 files, all gates Pass |
 | B — stable Thread facade/context, lifecycle, carriers, join, and VM liveness | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/b0a7b70/` — `b0a7b70` (final), Owner accepted 2026-07-14, all Slice B gates Pass |
 | C — monitors, synchronized methods, wait sets, and interruption | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/eea253d/slice-c/` — `eea253d` (Amendment 1 race-built stress gate + Amendment 2 holdsLock/wait argument validation), 11/11 fixtures Interpreter + IR (1x + race-built 20x stress), all gates Pass; Owner accepted 2026-07-15 |
-| D — concurrent ADR-0025 initialization and full Interpreter/IR fixture matrix | Accepted | see "Slice D working contract" below; acceptance anchor is the 2026-07-16 governance commit |
+| D — concurrent ADR-0025 initialization and full Interpreter/IR fixture matrix | Complete | candidate `6f3ae96` (Amendment D-A2 applied); 19/19 Interpreter + IR Match; AOT 19/19 NO-BUILD; 5/5 race kernel tests; 10/10 regression; evidence at `4798610/` (1× + race-built 100× stress Pass) per Amendment D-A1; Owner accepted 2026-07-16 |
 | E — AOT fail-closed rejection, race stress, regression, evidence, and docs | Pending | — |
 
 Status uses `Pending`, `In progress`, or `Complete`.
@@ -726,6 +726,82 @@ The 19-row candidate harness may share code with the Slice C 11-row runner, but
 it hard-codes and reports all 19 rows; the 11-row Slice C runner remains as
 historical slice evidence and is not the final gate.
 
+### Slice D Amendments
+
+Accepted changes are appended here after Owner approval; the frozen Slice D
+sections are not rewritten to reduce gates.
+
+#### Amendment D-A1 — Re-anchor Slice D candidate to a single reproducible commit
+
+Accepted by Owner on 2026-07-16. Trivial governance amendment; no code or
+behavior change, no change to the frozen Slice D Outcome/Scope/Non-scope/Semantic
+constraints/review-evidence checks/Review=owner.
+
+**Problem.** The Active Agent first sealed implementation on `0d0e0f4` (the
+"AOT build-time rejection" commit), but `run-concurrency-candidate.sh` — the
+harness required to reproduce the 19-fixture matrix — was only committed in the
+follow-up docs commit `4798610`. Consequently `0d0e0f4` alone could not reproduce
+its own stress evidence: reproducing required an external/extra source for the
+harness. This violates the contract's "checkout this commit to reproduce" intent
+for candidate evidence binding (COLLABORATION.md §9.1).
+
+**Change.** The Slice D candidate is re-anchored to `4798610`, the single commit
+that contains the production code, the race kernel tests, the AOT rejection, the
+19-row harness, and the governance updates together. The previously produced
+`0d0e0f4/` evidence directory is removed (it was produced under an untracked
+harness and is not sealed). All Slice D evidence is sealed under
+`docs/workstreams/r2-concurrency-candidate-evidence/4798610/`:
+`results.txt` (1×, Interpreter + IR + AOT) and `results-stress-100x.txt`
+(race-built 100×), both reproducible by `git checkout 4798610 && bash
+docs/workstreams/r2-concurrency-fixtures/run-concurrency-candidate.sh 4798610`
+(plus `R2_CONCURRENCY_STRESS=100` for the stress file).
+
+**Non-scope.** No change to the four state transitions, the lock/cond protocol,
+the five race kernel tests, the AOT rejection rules, the 19 fixture rows, the
+parent workstream's acceptance gates, or any historical/Slice A/B/C evidence.
+
+#### Amendment D-A2 — Fix byte scanner stepping and add invokeinterface check
+
+Accepted by Owner on 2026-07-16. This amendment corrects the AOT build-time
+concurrency bytecode scanner's instruction-stepping logic and adds
+`invokeinterface` to the invoke-family target check, without changing the
+frozen Slice D Outcome, Scope, Non-scope, Semantic constraints, or Review=owner.
+
+**Problem.** The byte scanner in `transpile/concurrency_check.go` advances by
+only 1 byte (`i++`) for non-invoke-family opcodes. This causes operand bytes
+of multi-byte instructions (bipush, sipush, getstatic, invokeinterface, etc.)
+to be re-scanned as if they were opcodes. If a multi-byte instruction's
+operand byte coincidentally matches `monitorenter` (0xc2) or `monitorexit`
+(0xc3), the scanner produces a false-positive AOT build rejection — a legal,
+concurrency-free method would be incorrectly rejected. No known fixture
+triggers this bug today, but it is a latent correctness defect in a
+build-time gate.
+
+Additionally, `invokeinterface` (0xb9) is not included in the invoke-family
+constant-pool target check, creating a theoretical bypass channel for
+interface methods targeting concurrency-sensitive classes.
+
+**Change.**
+1. Replace the ad-hoc `i++`/`i+=3` stepping with a complete
+   instruction-length-lookup function (`instLength`) that returns the correct
+   byte length for every JVM opcode, including variable-length
+   `tableswitch`/`lookupswitch`/`wide`.
+2. Add `invokeinterface` (0xb9) to the opcode constants and include it in the
+   invoke-family constant-pool target check alongside the existing
+   `invokevirtual`/`invokespecial`/`invokestatic`. `cp.MemberRef()` correctly
+   resolves `ConstantInterfaceMethodref` entries (shared `ConstantMemberRefInfo`
+   encoding), so no classfile changes are needed.
+3. `invokedynamic` (0xba) receives correct stepping (length 5) from
+   `instLength` but is not target-checked — its `ConstantInvokeDynamicInfo`
+   indirection cannot be resolved from the bytecode alone, and it cannot reach
+   the AOT build stage (it panics in `lowering/lower.go:decodeInst`, unchanged).
+
+**Non-scope.** No change to the frozen Slice D Outcome/Scope/Non-scope/Semantic
+constraints/Acceptance gates/Review type. No change to `lowering/lower.go`
+(`invokedynamic` continues to panic there; that is an R3 concern). No new
+fixture or gate denominator. No AOT concurrency execution capability — the
+scanner remains a conservative build-time rejection gate only.
+
 ### Slice D implementation order
 
 1. per-`Class` `initMu`/`initCond` and atomic state/owner accessors.
@@ -754,13 +830,64 @@ the frozen sections without an accepted amendment.
 Before production implementation record (must be filled by the Active Agent
 before Slice D becomes `In progress`):
 
-- **Acceptance anchor / actual base:** `<this 2026-07-16 governance commit SHA> / worktree at <SHA>`
-- **Historical evidence check:** `git diff --name-only a0288be..<anchor> -- docs/workstreams/r2-concurrency-evidence docs/workstreams/r2-evidence docs/workstreams/r2-initialization-evidence docs/workstreams/r2-string-evidence` — must be empty (Pass)
-- **Slice A/B/C evidence intact:** `9576828/`, `505d3ee/`, `a0e336c/`, `b0a7b70/`, `0a96b59/`, `36a577c/`, `f0fc2ca/`, `eea253d/` — Pass
+- **Acceptance anchor / actual base:** `c4ddde4` (resolved `c4ddde425307ab595e1a097808002d99249f8a63`) / worktree at `4a91470`
+- **Historical evidence check:** `git diff --name-only a0288be..4a91470 -- docs/workstreams/r2-concurrency-evidence docs/workstreams/r2-evidence docs/workstreams/r2-initialization-evidence docs/workstreams/r2-string-evidence` — **Pass** (empty)
+- **Slice A/B/C evidence intact:** `9576828/`, `505d3ee/`, `a0e336c/`, `b0a7b70/`, `0a96b59/`, `36a577c/`, `f0fc2ca/`, `eea253d/` — **Pass**
 - **Candidate evidence destination:** `docs/workstreams/r2-concurrency-candidate-evidence/<candidate>/` (parent final 19-fixture matrix; no `slice-c` suffix here)
 - **Harness output policy:** explicit candidate required; never writes research baseline, shared/latest, or any `slice-c/` directory
 
 Any missing item keeps the workstream `Accepted`; it may not become `In progress`.
+
+## Slice D handoff (2026-07-16)
+
+**Candidate:** `6f3ae96` on branch `r2-slice-d-concurrent-init` (Amendment D-A1: re-anchored from `0d0e0f4` to `4798610`; Amendment D-A2: byte-scan stepping fix + invokeinterface check applied on top)
+**Status:** Complete — accepted by Owner on 2026-07-16
+
+### Implementation summary
+
+- **rtda:** Per-Class `initMu sync.Mutex` + `initCond *sync.Cond` (distinct from Java monitors, ADR-0029). `InitializeClass` rewritten with JVMS §5.5 four-state protocol: initialized→return, same-owner inProgress→return (recursive), erroneous→NCDFE, other-owner inProgress→wait on cond with unchanged interrupt status, terminal publication + Broadcast on every state transition. 9 lock-guarded accessors.
+- **transpile:** `concurrency_check.go` — conservative build-time scan for `monitorenter`/`monitorexit` bytecodes, `ACC_SYNCHRONIZED` flag, or invokes targeting `java/lang/Thread` (any method) or `Object.wait`/`notify`/`notifyAll`. Hooked into `BuildProgram` between init-trigger check and Pass 2.
+- **Tests:** 5 race kernel unit tests (`init_test.go`, all `-race` clean): exactly-once clinit, published value visibility, erroneous publication to all waiters, interrupt status unchanged across init wait, predecessor ordering with superinterface.
+
+### Review evidence
+
+| Gate | Result |
+|---|---|
+| `go vet ./...` | Pass |
+| `go test ./...` | Pass (all packages) |
+| `go test -race ./...` | Pass (all packages, no races) |
+| `bash tests/run.sh` | Pass (10/10) |
+| 19-fixture 1× matrix | 19/19 Interpreter + IR Match; 19/19 AOT NO-BUILD |
+| 19-fixture 100× stress (race build) | Pass (19/19 Match, race-built, no races detected) |
+| Race kernel unit tests | Pass (5/5, `-race` clean) |
+| Scope audit (`ff691b5..4798610`) | 9 prod/test files + 3 docs (PROJECT_STATUS, workstream, harness script); no timed-wait enforcement, AOT concurrency claim, fixture denominator change, array-creation init trigger, or stale single-threaded claim |
+| Evidence isolation | `docs/workstreams/r2-concurrency-candidate-evidence/4798610/` — results.txt (1×) and results-stress-100x.txt (race-built 100×, per Amendment D-A1); `0d0e0f4/` evidence removed |
+| Historical evidence intact | Pass (empty diff a0288be..4798610 for evidence dirs) |
+| Slice A/B/C evidence intact | Pass (8 directories unchanged) |
+
+### Commits
+
+```
+4798610 docs(r2-slice-d): complete Slice D — evidence harness, status update, handoff  (candidate; per Amendment D-A1)
+0d0e0f4 feat(r2-slice-d): add AOT build-time rejection for concurrency fixtures
+82c8103 test(r2-slice-d): add race kernel unit tests for concurrent class init
+9033d1f feat(r2-slice-d): add per-Class initMu/initCond, JVMS §5.5 cross-context init protocol
+b6ce1da docs(r2-slice-d): record implementation preflight, mark Slice D In progress
+```
+
+### Non-scope confirmed
+
+- Timed wait enforcement: not implemented
+- Unsafe/VarHandle: not implemented
+- JMM weak-memory: not implemented
+- Virtual threads: not implemented
+- AOT concurrency execution: Not implemented (all 19 fixtures build-rejected)
+- Array-creation init triggers: not implemented (Verified-by-investigation)
+- Slice C runner re-run: not performed (explicitly out of scope)
+
+### Pending
+
+- Slice E (final integration, docs, AOT matrix confirmation)
 
 ## (Roadmap note — non-binding, for Owner's future consideration)
 
