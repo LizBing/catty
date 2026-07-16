@@ -290,7 +290,7 @@ All preflight items complete. Slice C may proceed to `In progress`.
 | A — SC heap cells, concurrency-safe loader, and canonical Class mirrors | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/9576828/` — `ec1b398`, 22 files, all gates Pass |
 | B — stable Thread facade/context, lifecycle, carriers, join, and VM liveness | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/b0a7b70/` — `b0a7b70` (final), Owner accepted 2026-07-14, all Slice B gates Pass |
 | C — monitors, synchronized methods, wait sets, and interruption | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/eea253d/slice-c/` — `eea253d` (Amendment 1 race-built stress gate + Amendment 2 holdsLock/wait argument validation), 11/11 fixtures Interpreter + IR (1x + race-built 20x stress), all gates Pass; Owner accepted 2026-07-15 |
-| D — concurrent ADR-0025 initialization and full Interpreter/IR fixture matrix | Pending | — |
+| D — concurrent ADR-0025 initialization and full Interpreter/IR fixture matrix | Accepted | see "Slice D working contract" below; acceptance anchor is the 2026-07-16 governance commit |
 | E — AOT fail-closed rejection, race stress, regression, evidence, and docs | Pending | — |
 
 Status uses `Pending`, `In progress`, or `Complete`.
@@ -566,11 +566,12 @@ fixture matrix.
 
 ## Slice D working contract
 
-**Status:** Proposed
+**Status:** Accepted
 **Type:** implementation within this Accepted parent workstream
 **Review:** owner
 **Planned base:** `ff691b5` (current `main`; accepted Slice C governance integration)
 **Parent acceptance anchor:** `a0288be`
+**Acceptance anchor:** this 2026-07-16 governance commit (resolved SHA recorded in the implementation preflight below); the Active Agent's branch/worktree must descend from this anchor
 **Governing decisions:** the parent contract and ADR-0017, ADR-0018, ADR-0020,
 ADR-0022, ADR-0025, and ADR-0028 through ADR-0030
 
@@ -739,9 +740,27 @@ historical slice evidence and is not the final gate.
 
 ### Slice D acceptance record
 
-Pending Owner acceptance. This Proposed contract refines the parent Plan's
-Slice D row. On Owner acceptance, the acceptance anchor and preflight must be
-recorded before any production implementation begins, per COLLABORATION.md §6.4.
+Accepted by Owner on 2026-07-16. This acceptance authorizes production work
+only within this frozen Slice D contract after a new Active Agent starts from
+this acceptance-anchor commit, records the required implementation preflight,
+and changes the Plan's Slice D row to `In progress`. It does not authorize
+scope expansion, integration beyond the Owner's stated authority, or changes to
+the frozen sections without an accepted amendment.
+
+---
+
+## Implementation preflight (Slice D)
+
+Before production implementation record (must be filled by the Active Agent
+before Slice D becomes `In progress`):
+
+- **Acceptance anchor / actual base:** `<this 2026-07-16 governance commit SHA> / worktree at <SHA>`
+- **Historical evidence check:** `git diff --name-only a0288be..<anchor> -- docs/workstreams/r2-concurrency-evidence docs/workstreams/r2-evidence docs/workstreams/r2-initialization-evidence docs/workstreams/r2-string-evidence` — must be empty (Pass)
+- **Slice A/B/C evidence intact:** `9576828/`, `505d3ee/`, `a0e336c/`, `b0a7b70/`, `0a96b59/`, `36a577c/`, `f0fc2ca/`, `eea253d/` — Pass
+- **Candidate evidence destination:** `docs/workstreams/r2-concurrency-candidate-evidence/<candidate>/` (parent final 19-fixture matrix; no `slice-c` suffix here)
+- **Harness output policy:** explicit candidate required; never writes research baseline, shared/latest, or any `slice-c/` directory
+
+Any missing item keeps the workstream `Accepted`; it may not become `In progress`.
 
 ## (Roadmap note — non-binding, for Owner's future consideration)
 
