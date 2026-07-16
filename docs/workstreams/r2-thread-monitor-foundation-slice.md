@@ -571,7 +571,7 @@ fixture matrix.
 **Review:** owner
 **Planned base:** `ff691b5` (current `main`; accepted Slice C governance integration)
 **Parent acceptance anchor:** `a0288be`
-**Acceptance anchor:** this 2026-07-16 governance commit (resolved SHA recorded in the implementation preflight below); the Active Agent's branch/worktree must descend from this anchor
+**Acceptance anchor:** `fee3a2d` (2026-07-16 governance tip: the Slice D acceptance commit `c4ddde4` followed by the PROJECT_STATUS anchor-update commit `fee3a2d`); the Active Agent's branch/worktree must descend from `fee3a2d`
 **Governing decisions:** the parent contract and ADR-0017, ADR-0018, ADR-0020,
 ADR-0022, ADR-0025, and ADR-0028 through ADR-0030
 
