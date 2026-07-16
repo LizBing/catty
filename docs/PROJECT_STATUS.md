@@ -4,7 +4,7 @@
 **Stable baseline:** R2 initialization and bounded UTF-16 String slices complete
 **Baseline commit:** `8171361` (integration; String candidate `00327d6`, evidence `9008b00`)
 **Active workstream:** Accepted [`r2-thread-monitor-foundation-slice`](./workstreams/r2-thread-monitor-foundation-slice.md)
-**Current phase:** R2 Slice A, B, and C accepted (Slice C monitors/wait sets/interruption complete on `eea253d`); Slice D working contract Accepted on 2026-07-16 (acceptance anchor `c383afe`), awaiting preflight + `In progress`
+**Current phase:** R2 Slice A, B, and C accepted (Slice C monitors/wait sets/interruption complete on `eea253d`); Slice D working contract Accepted on 2026-07-16 (frozen contract anchor `c4ddde4`), awaiting preflight + `In progress`
 
 This is the single model-neutral current-state entry. Strategy lives in
 [`ROADMAP.md`](./ROADMAP.md); decisions live in [`adr/`](./adr/); scoped work
@@ -81,7 +81,7 @@ begins.
 
 ## Next action
 
-Start the next Active Agent for Slice D from the acceptance anchor `c383afe`
+Start the next Active Agent for Slice D from the current `main` tip (the frozen contract anchor is `c4ddde4`)
 (descendant of `ff691b5` / Slice C integration). The Agent must record the
 implementation preflight (resolved SHA, historical-evidence check, candidate
 evidence destination, harness output policy), change the Plan's Slice D row to

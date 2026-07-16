@@ -571,7 +571,7 @@ fixture matrix.
 **Review:** owner
 **Planned base:** `ff691b5` (current `main`; accepted Slice C governance integration)
 **Parent acceptance anchor:** `a0288be`
-**Acceptance anchor:** `c383afe` (2026-07-16 governance tip; this commit self-references the anchor and includes the contract acceptance, PROJECT_STATUS update, and anchor fix); the Active Agent's branch/worktree must descend from `c383afe`
+**Acceptance anchor:** `c4ddde4` (`docs(r2-slice-d): accept Slice D working contract, set acceptance anchor`, 2026-07-16). This is the commit that froze the Slice D contract as Accepted. The Active Agent must branch from the current `main` tip (which `c4ddde4` and its governance follow-ups are already part of), record the resolved SHA of `c4ddde4` in the preflight, and treat `c4ddde4` as the frozen contract anchor.
 **Governing decisions:** the parent contract and ADR-0017, ADR-0018, ADR-0020,
 ADR-0022, ADR-0025, and ADR-0028 through ADR-0030
 
