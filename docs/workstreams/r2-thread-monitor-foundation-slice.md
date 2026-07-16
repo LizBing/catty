@@ -760,6 +760,48 @@ docs/workstreams/r2-concurrency-fixtures/run-concurrency-candidate.sh 4798610`
 the five race kernel tests, the AOT rejection rules, the 19 fixture rows, the
 parent workstream's acceptance gates, or any historical/Slice A/B/C evidence.
 
+#### Amendment D-A2 — Fix byte scanner stepping and add invokeinterface check
+
+Accepted by Owner on 2026-07-16. This amendment corrects the AOT build-time
+concurrency bytecode scanner's instruction-stepping logic and adds
+`invokeinterface` to the invoke-family target check, without changing the
+frozen Slice D Outcome, Scope, Non-scope, Semantic constraints, or Review=owner.
+
+**Problem.** The byte scanner in `transpile/concurrency_check.go` advances by
+only 1 byte (`i++`) for non-invoke-family opcodes. This causes operand bytes
+of multi-byte instructions (bipush, sipush, getstatic, invokeinterface, etc.)
+to be re-scanned as if they were opcodes. If a multi-byte instruction's
+operand byte coincidentally matches `monitorenter` (0xc2) or `monitorexit`
+(0xc3), the scanner produces a false-positive AOT build rejection — a legal,
+concurrency-free method would be incorrectly rejected. No known fixture
+triggers this bug today, but it is a latent correctness defect in a
+build-time gate.
+
+Additionally, `invokeinterface` (0xb9) is not included in the invoke-family
+constant-pool target check, creating a theoretical bypass channel for
+interface methods targeting concurrency-sensitive classes.
+
+**Change.**
+1. Replace the ad-hoc `i++`/`i+=3` stepping with a complete
+   instruction-length-lookup function (`instLength`) that returns the correct
+   byte length for every JVM opcode, including variable-length
+   `tableswitch`/`lookupswitch`/`wide`.
+2. Add `invokeinterface` (0xb9) to the opcode constants and include it in the
+   invoke-family constant-pool target check alongside the existing
+   `invokevirtual`/`invokespecial`/`invokestatic`. `cp.MemberRef()` correctly
+   resolves `ConstantInterfaceMethodref` entries (shared `ConstantMemberRefInfo`
+   encoding), so no classfile changes are needed.
+3. `invokedynamic` (0xba) receives correct stepping (length 5) from
+   `instLength` but is not target-checked — its `ConstantInvokeDynamicInfo`
+   indirection cannot be resolved from the bytecode alone, and it cannot reach
+   the AOT build stage (it panics in `lowering/lower.go:decodeInst`, unchanged).
+
+**Non-scope.** No change to the frozen Slice D Outcome/Scope/Non-scope/Semantic
+constraints/Acceptance gates/Review type. No change to `lowering/lower.go`
+(`invokedynamic` continues to panic there; that is an R3 concern). No new
+fixture or gate denominator. No AOT concurrency execution capability — the
+scanner remains a conservative build-time rejection gate only.
+
 ### Slice D implementation order
 
 1. per-`Class` `initMu`/`initCond` and atomic state/owner accessors.
