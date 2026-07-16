@@ -4,7 +4,7 @@
 **Stable baseline:** R2 initialization and bounded UTF-16 String slices complete
 **Baseline commit:** `8171361` (integration; String candidate `00327d6`, evidence `9008b00`)
 **Active workstream:** Accepted [`r2-thread-monitor-foundation-slice`](./workstreams/r2-thread-monitor-foundation-slice.md)
-**Current phase:** R2 Slice A, B, and C accepted (Slice C monitors/wait sets/interruption complete on `eea253d`); Slice D (concurrent ADR-0025 initialization and full 19-fixture Interpreter/IR matrix) is the next bounded implementation slice
+**Current phase:** R2 Slice A, B, and C accepted (Slice C monitors/wait sets/interruption complete on `eea253d`); Slice D working contract Accepted on 2026-07-16 (acceptance anchor `c4ddde4`), awaiting preflight + `In progress`
 
 This is the single model-neutral current-state entry. Strategy lives in
 [`ROADMAP.md`](./ROADMAP.md); decisions live in [`adr/`](./adr/); scoped work
@@ -81,11 +81,14 @@ begins.
 
 ## Next action
 
-Start the next Active Agent for Slice D from the accepted Slice C candidate
-lineage (`eea253d`). Slice C added Java object monitors, synchronized methods,
-wait sets, and interruption with `holdsLock`/`wait` argument validation; the
-runtime now supports the bounded 11-fixture Slice C matrix in Interpreter and
-IR (race-built stress verified) and AOT remains `Not implemented` for those
-fixtures. Slice D must preserve the accepted Slice A/B/C evidence and draft a
-bounded contract for concurrent ADR-0025 initialization and the full 19-fixture
-Interpreter/IR matrix before production implementation begins.
+Start the next Active Agent for Slice D from the acceptance anchor `c4ddde4`
+(descendant of `ff691b5` / Slice C integration). The Agent must record the
+implementation preflight (resolved SHA, historical-evidence check, candidate
+evidence destination, harness output policy), change the Plan's Slice D row to
+`In progress`, then implement only the accepted Slice D contract: concurrent
+ADR-0025 initialization (per-Class `initMu`/`initCond`, JVMS §5.5 other-owner
+wait/notify/visibility, unchanged interrupt status of init waiters), the new
+19-fixture `run-concurrency-candidate.sh` with an AOT build-rejection subgate
+for all 19 fixtures, and race-built 100× stress. Slice A/B/C evidence must
+remain intact and immutable. No AOT concurrency execution is implemented; AOT
+stays `Not implemented` for all 19 fixtures.
