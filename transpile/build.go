@@ -73,6 +73,19 @@ func BuildProgram(mainClass, classpathStr string) (string, error) {
 		}
 	}
 
+	// Conservative build-time rejection: AOT concurrency execution is not
+	// implemented (ADR-0028, ADR-0029). Reject the build if any method uses
+	// monitor bytecodes or synchronized flag, or if the program touches
+	// java/lang/Thread (the execution-context ABI is not wired).
+	for _, cls := range cl.Classes() {
+		for _, m := range cls.Methods() {
+			if reason := concurrencyReason(m); reason != "" {
+				return "", fmt.Errorf("transpile: %s.%s%s — %s; AOT concurrency not supported",
+					cls.Name(), m.Name(), m.Descriptor(), reason)
+			}
+		}
+	}
+
 	// Pass 2: re-emit with the emittable set (invokestatic dispatch).
 	var src strings.Builder
 	for _, p := range emittable {
