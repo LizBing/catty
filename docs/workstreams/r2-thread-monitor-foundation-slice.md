@@ -290,7 +290,7 @@ All preflight items complete. Slice C may proceed to `In progress`.
 | A — SC heap cells, concurrency-safe loader, and canonical Class mirrors | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/9576828/` — `ec1b398`, 22 files, all gates Pass |
 | B — stable Thread facade/context, lifecycle, carriers, join, and VM liveness | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/b0a7b70/` — `b0a7b70` (final), Owner accepted 2026-07-14, all Slice B gates Pass |
 | C — monitors, synchronized methods, wait sets, and interruption | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/eea253d/slice-c/` — `eea253d` (Amendment 1 race-built stress gate + Amendment 2 holdsLock/wait argument validation), 11/11 fixtures Interpreter + IR (1x + race-built 20x stress), all gates Pass; Owner accepted 2026-07-15 |
-| D — concurrent ADR-0025 initialization and full Interpreter/IR fixture matrix | Ready | candidate `0d0e0f4`; 19/19 Interpreter + IR Match; AOT 19/19 NO-BUILD; 5/5 race kernel tests; 10/10 regression; evidence `0d0e0f4/` (1× + race-built 100× stress all Pass) |
+| D — concurrent ADR-0025 initialization and full Interpreter/IR fixture matrix | Ready | candidate `4798610`; 19/19 Interpreter + IR Match; AOT 19/19 NO-BUILD; 5/5 race kernel tests; 10/10 regression; evidence at `4798610/` (1× + race-built 100× stress Pass) per Amendment D-A1 |
 | E — AOT fail-closed rejection, race stress, regression, evidence, and docs | Pending | — |
 
 Status uses `Pending`, `In progress`, or `Complete`.
@@ -726,6 +726,40 @@ The 19-row candidate harness may share code with the Slice C 11-row runner, but
 it hard-codes and reports all 19 rows; the 11-row Slice C runner remains as
 historical slice evidence and is not the final gate.
 
+### Slice D Amendments
+
+Accepted changes are appended here after Owner approval; the frozen Slice D
+sections are not rewritten to reduce gates.
+
+#### Amendment D-A1 — Re-anchor Slice D candidate to a single reproducible commit
+
+Accepted by Owner on 2026-07-16. Trivial governance amendment; no code or
+behavior change, no change to the frozen Slice D Outcome/Scope/Non-scope/Semantic
+constraints/review-evidence checks/Review=owner.
+
+**Problem.** The Active Agent first sealed implementation on `0d0e0f4` (the
+"AOT build-time rejection" commit), but `run-concurrency-candidate.sh` — the
+harness required to reproduce the 19-fixture matrix — was only committed in the
+follow-up docs commit `4798610`. Consequently `0d0e0f4` alone could not reproduce
+its own stress evidence: reproducing required an external/extra source for the
+harness. This violates the contract's "checkout this commit to reproduce" intent
+for candidate evidence binding (COLLABORATION.md §9.1).
+
+**Change.** The Slice D candidate is re-anchored to `4798610`, the single commit
+that contains the production code, the race kernel tests, the AOT rejection, the
+19-row harness, and the governance updates together. The previously produced
+`0d0e0f4/` evidence directory is removed (it was produced under an untracked
+harness and is not sealed). All Slice D evidence is sealed under
+`docs/workstreams/r2-concurrency-candidate-evidence/4798610/`:
+`results.txt` (1×, Interpreter + IR + AOT) and `results-stress-100x.txt`
+(race-built 100×), both reproducible by `git checkout 4798610 && bash
+docs/workstreams/r2-concurrency-fixtures/run-concurrency-candidate.sh 4798610`
+(plus `R2_CONCURRENCY_STRESS=100` for the stress file).
+
+**Non-scope.** No change to the four state transitions, the lock/cond protocol,
+the five race kernel tests, the AOT rejection rules, the 19 fixture rows, the
+parent workstream's acceptance gates, or any historical/Slice A/B/C evidence.
+
 ### Slice D implementation order
 
 1. per-`Class` `initMu`/`initCond` and atomic state/owner accessors.
@@ -764,7 +798,7 @@ Any missing item keeps the workstream `Accepted`; it may not become `In progress
 
 ## Slice D handoff (2026-07-16)
 
-**Candidate:** `0d0e0f4` on branch `r2-slice-d-concurrent-init`
+**Candidate:** `4798610` on branch `r2-slice-d-concurrent-init` (per Amendment D-A1; the prior `0d0e0f4` candidate's harness was untracked, so `0d0e0f4` alone could not reproduce the stress evidence)
 **Status:** Ready for Owner acceptance
 
 ### Implementation summary
@@ -784,14 +818,15 @@ Any missing item keeps the workstream `Accepted`; it may not become `In progress
 | 19-fixture 1× matrix | 19/19 Interpreter + IR Match; 19/19 AOT NO-BUILD |
 | 19-fixture 100× stress (race build) | Pass (19/19 Match, race-built, no races detected) |
 | Race kernel unit tests | Pass (5/5, `-race` clean) |
-| Scope audit (`ff691b5..0d0e0f4`) | 9 files only: rtda (class, build, init, init_test, monitor_test), transpile (build, concurrency_check), docs (PROJECT_STATUS, workstream) |
-| Evidence isolation | `docs/workstreams/r2-concurrency-candidate-evidence/0d0e0f4/` — results.txt (1×) and results-stress-100x.txt (running) |
-| Historical evidence intact | Pass (empty diff a0288be..4a91470 for evidence dirs) |
+| Scope audit (`ff691b5..4798610`) | 9 prod/test files + 3 docs (PROJECT_STATUS, workstream, harness script); no timed-wait enforcement, AOT concurrency claim, fixture denominator change, array-creation init trigger, or stale single-threaded claim |
+| Evidence isolation | `docs/workstreams/r2-concurrency-candidate-evidence/4798610/` — results.txt (1×) and results-stress-100x.txt (race-built 100×, per Amendment D-A1); `0d0e0f4/` evidence removed |
+| Historical evidence intact | Pass (empty diff a0288be..4798610 for evidence dirs) |
 | Slice A/B/C evidence intact | Pass (8 directories unchanged) |
 
 ### Commits
 
 ```
+4798610 docs(r2-slice-d): complete Slice D — evidence harness, status update, handoff  (candidate; per Amendment D-A1)
 0d0e0f4 feat(r2-slice-d): add AOT build-time rejection for concurrency fixtures
 82c8103 test(r2-slice-d): add race kernel unit tests for concurrent class init
 9033d1f feat(r2-slice-d): add per-Class initMu/initCond, JVMS §5.5 cross-context init protocol
