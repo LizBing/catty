@@ -290,7 +290,7 @@ All preflight items complete. Slice C may proceed to `In progress`.
 | A — SC heap cells, concurrency-safe loader, and canonical Class mirrors | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/9576828/` — `ec1b398`, 22 files, all gates Pass |
 | B — stable Thread facade/context, lifecycle, carriers, join, and VM liveness | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/b0a7b70/` — `b0a7b70` (final), Owner accepted 2026-07-14, all Slice B gates Pass |
 | C — monitors, synchronized methods, wait sets, and interruption | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/eea253d/slice-c/` — `eea253d` (Amendment 1 race-built stress gate + Amendment 2 holdsLock/wait argument validation), 11/11 fixtures Interpreter + IR (1x + race-built 20x stress), all gates Pass; Owner accepted 2026-07-15 |
-| D — concurrent ADR-0025 initialization and full Interpreter/IR fixture matrix | Ready | candidate `4798610`; 19/19 Interpreter + IR Match; AOT 19/19 NO-BUILD; 5/5 race kernel tests; 10/10 regression; evidence at `4798610/` (1× + race-built 100× stress Pass) per Amendment D-A1 |
+| D — concurrent ADR-0025 initialization and full Interpreter/IR fixture matrix | Complete | candidate `6f3ae96` (Amendment D-A2 applied); 19/19 Interpreter + IR Match; AOT 19/19 NO-BUILD; 5/5 race kernel tests; 10/10 regression; evidence at `4798610/` (1× + race-built 100× stress Pass) per Amendment D-A1; Owner accepted 2026-07-16 |
 | E — AOT fail-closed rejection, race stress, regression, evidence, and docs | Pending | — |
 
 Status uses `Pending`, `In progress`, or `Complete`.
@@ -840,8 +840,8 @@ Any missing item keeps the workstream `Accepted`; it may not become `In progress
 
 ## Slice D handoff (2026-07-16)
 
-**Candidate:** `4798610` on branch `r2-slice-d-concurrent-init` (per Amendment D-A1; the prior `0d0e0f4` candidate's harness was untracked, so `0d0e0f4` alone could not reproduce the stress evidence)
-**Status:** Ready for Owner acceptance
+**Candidate:** `6f3ae96` on branch `r2-slice-d-concurrent-init` (Amendment D-A1: re-anchored from `0d0e0f4` to `4798610`; Amendment D-A2: byte-scan stepping fix + invokeinterface check applied on top)
+**Status:** Complete — accepted by Owner on 2026-07-16
 
 ### Implementation summary
 
@@ -887,7 +887,7 @@ b6ce1da docs(r2-slice-d): record implementation preflight, mark Slice D In progr
 
 ### Pending
 
-- Owner acceptance
+- Slice E (final integration, docs, AOT matrix confirmation)
 
 ## (Roadmap note — non-binding, for Owner's future consideration)
 
