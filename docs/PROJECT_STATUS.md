@@ -1,10 +1,10 @@
 # Project status
 
-**As of:** 2026-07-15
-**Stable baseline:** R2 initialization and bounded UTF-16 String slices complete
-**Baseline commit:** `8171361` (integration; String candidate `00327d6`, evidence `9008b00`)
+**As of:** 2026-07-16
+**Stable baseline:** R2 Thread/monitor/class-init foundation complete (Slices A/B/C/D)
+**Baseline commit:** `0d0e0f4` (Slice D candidate, evidence recorded)
 **Active workstream:** Accepted [`r2-thread-monitor-foundation-slice`](./workstreams/r2-thread-monitor-foundation-slice.md)
-**Current phase:** R2 Slice A, B, and C accepted (Slice C monitors/wait sets/interruption complete on `eea253d`); Slice D working contract Accepted on 2026-07-16 (frozen contract anchor `c4ddde4`), awaiting preflight + `In progress`
+**Current phase:** R2 Slice A, B, C, and D accepted (Slice D concurrent class initialization complete on `0d0e0f4`)
 
 This is the single model-neutral current-state entry. Strategy lives in
 [`ROADMAP.md`](./ROADMAP.md); decisions live in [`adr/`](./adr/); scoped work
@@ -31,38 +31,43 @@ lives in [`workstreams/`](./workstreams/).
 - R2 String: immutable UTF-16 code-unit backing for the bounded synthetic/native
   String surface. All eight differential fixtures match Temurin 25 in Interpreter
   and IR; AOT supports five fixtures and explicitly reports three as Not implemented.
-- R2 concurrency (Slices A/B/C): race-free SC heap cells (ADR-0030),
+- R2 concurrency (Slices A/B/C/D): race-free SC heap cells (ADR-0030),
   concurrency-safe class loading with canonical Class mirrors, stable Java
   Thread identity/lifecycle with one goroutine carrier per started platform
   Thread, VM daemon liveness, interruptible wait/join/sleep, Java object
-  monitors and wait sets with notify/interrupt ordering (ADR-0029), and
-  `holdsLock`/`wait` argument validation. The bounded 11-fixture Slice C matrix
-  matches Temurin 25 in Interpreter and IR (1× and race-built 20× stress);
-  AOT reports all concurrency fixtures as `Not implemented`/build rejection.
-  Cross-thread class initialization, timed `wait`/`join`, `Unsafe`, virtual
-  threads, `ThreadGroup`/`ThreadLocal`, and `java.util.concurrent` remain out
-  of scope and are governed by later slices.
+  monitors and wait sets with notify/interrupt ordering (ADR-0029),
+  `holdsLock`/`wait` argument validation, and per-Class `initMu`/`initCond`
+  with JVMS §5.5 cross-context initialization protocol (other-owner wait,
+  terminal publication + notify-all, unchanged interrupt status of init
+  waiters). The bounded 11-fixture Slice C matrix and 19-fixture Slice D
+  parent matrix match Temurin 25 in Interpreter and IR (1× and race-built
+  stress); AOT reports all concurrency fixtures as `Not implemented`/build
+  rejection. Timed `wait`/`join`, `Unsafe`, virtual threads,
+  `ThreadGroup`/`ThreadLocal`, and `java.util.concurrent` remain out of scope
+  and are governed by later slices.
 
 ## Governance-reset validation
 
-Revalidated locally on 2026-07-13:
+Revalidated locally on 2026-07-16 (Slice D candidate `0d0e0f4`):
 
 - `go vet ./...` — Pass
 - `go test ./...` — Pass
 - `go test -race ./...` — Pass
 - `bash tests/run.sh` — Pass, 10/10 fixtures
+- 19-fixture concurrency matrix (1×) — Pass, 19/19 Interpreter + IR Match, 19/19 AOT NO-BUILD
+- 19-fixture concurrency matrix (`R2_CONCURRENCY_STRESS=100`, race-built) — Pass, 19/19 Match, no races
 
 ## Explicit boundary
 
 catty does not claim timed `wait`/`join`, `Unsafe`/`VarHandle`, broad
 reflection, `invokedynamic`, broad I/O/networking, arbitrary `java.base`
-application compatibility, cross-thread class initialization behavior,
-cross-engine AOT exception propagation, AOT concurrency, virtual threads,
-`ThreadGroup`/`ThreadLocal`, `java.util.concurrent`, or a complete Java String
-API. The bounded Java 25 concurrency surface (Slices A/B/C) is implemented in
-Interpreter and IR only; AOT reports all concurrency fixtures as `Not
-implemented`. `Integer/Long.toString`, `Double.parseDouble`, and representative
-`HashMap` behavior remain blocked by unresolved runtime/library dependencies.
+application compatibility, cross-engine AOT exception propagation, AOT
+concurrency, virtual threads, `ThreadGroup`/`ThreadLocal`,
+`java.util.concurrent`, or a complete Java String API. The bounded Java 25
+concurrency surface (Slices A/B/C/D) is implemented in Interpreter and IR only;
+AOT reports all concurrency fixtures as `Not implemented`.
+`Integer/Long.toString`, `Double.parseDouble`, and representative `HashMap`
+behavior remain blocked by unresolved runtime/library dependencies.
 
 ## Decision state
 
@@ -73,22 +78,12 @@ permanent interpreter fallback. ADR-0025 is implemented by the completed,
 bounded class/interface-initialization workstream; ADR-0027 is implemented by the
 completed bounded UTF-16 String workstream. ADR-0028 through ADR-0030 now
 govern the bounded Thread/monitor/class-init/heap direction. ADR-0028 through
-ADR-0030 are implemented by the completed, bounded Thread/monitor SC-heap
-Slices A/B/C. Bootstrap capability mapping, Unsafe, and allocation remain
-deferred. The Proposed Thread/monitor implementation contract is accepted. Its
-acceptance-anchor commit is the required base before production implementation
-begins.
+ADR-0030 are implemented by the completed, bounded Thread/monitor/init
+Slices A/B/C/D. Bootstrap capability mapping, Unsafe, and allocation remain
+deferred.
 
 ## Next action
 
-Start the next Active Agent for Slice D from the current `main` tip (the frozen contract anchor is `c4ddde4`)
-(descendant of `ff691b5` / Slice C integration). The Agent must record the
-implementation preflight (resolved SHA, historical-evidence check, candidate
-evidence destination, harness output policy), change the Plan's Slice D row to
-`In progress`, then implement only the accepted Slice D contract: concurrent
-ADR-0025 initialization (per-Class `initMu`/`initCond`, JVMS §5.5 other-owner
-wait/notify/visibility, unchanged interrupt status of init waiters), the new
-19-fixture `run-concurrency-candidate.sh` with an AOT build-rejection subgate
-for all 19 fixtures, and race-built 100× stress. Slice A/B/C evidence must
-remain intact and immutable. No AOT concurrency execution is implemented; AOT
-stays `Not implemented` for all 19 fixtures.
+The R2 Thread/monitor foundation workstream (Slices A/B/C/D) is complete.
+Await Owner acceptance of Slice D evidence. No further Active Agent dispatch
+pending for this workstream.

@@ -290,7 +290,7 @@ All preflight items complete. Slice C may proceed to `In progress`.
 | A — SC heap cells, concurrency-safe loader, and canonical Class mirrors | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/9576828/` — `ec1b398`, 22 files, all gates Pass |
 | B — stable Thread facade/context, lifecycle, carriers, join, and VM liveness | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/b0a7b70/` — `b0a7b70` (final), Owner accepted 2026-07-14, all Slice B gates Pass |
 | C — monitors, synchronized methods, wait sets, and interruption | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/eea253d/slice-c/` — `eea253d` (Amendment 1 race-built stress gate + Amendment 2 holdsLock/wait argument validation), 11/11 fixtures Interpreter + IR (1x + race-built 20x stress), all gates Pass; Owner accepted 2026-07-15 |
-| D — concurrent ADR-0025 initialization and full Interpreter/IR fixture matrix | In progress | preflight Pass; branch `r2-slice-d-concurrent-init` at `4a91470`; acceptance anchor `c4ddde4` |
+| D — concurrent ADR-0025 initialization and full Interpreter/IR fixture matrix | Ready | candidate `0d0e0f4`; 19/19 Interpreter + IR Match; AOT 19/19 NO-BUILD; 5/5 race kernel tests; 10/10 regression; evidence `0d0e0f4/` (1× + race-built 100× stress all Pass) |
 | E — AOT fail-closed rejection, race stress, regression, evidence, and docs | Pending | — |
 
 Status uses `Pending`, `In progress`, or `Complete`.
@@ -761,6 +761,56 @@ before Slice D becomes `In progress`):
 - **Harness output policy:** explicit candidate required; never writes research baseline, shared/latest, or any `slice-c/` directory
 
 Any missing item keeps the workstream `Accepted`; it may not become `In progress`.
+
+## Slice D handoff (2026-07-16)
+
+**Candidate:** `0d0e0f4` on branch `r2-slice-d-concurrent-init`
+**Status:** Ready for Owner acceptance
+
+### Implementation summary
+
+- **rtda:** Per-Class `initMu sync.Mutex` + `initCond *sync.Cond` (distinct from Java monitors, ADR-0029). `InitializeClass` rewritten with JVMS §5.5 four-state protocol: initialized→return, same-owner inProgress→return (recursive), erroneous→NCDFE, other-owner inProgress→wait on cond with unchanged interrupt status, terminal publication + Broadcast on every state transition. 9 lock-guarded accessors.
+- **transpile:** `concurrency_check.go` — conservative build-time scan for `monitorenter`/`monitorexit` bytecodes, `ACC_SYNCHRONIZED` flag, or invokes targeting `java/lang/Thread` (any method) or `Object.wait`/`notify`/`notifyAll`. Hooked into `BuildProgram` between init-trigger check and Pass 2.
+- **Tests:** 5 race kernel unit tests (`init_test.go`, all `-race` clean): exactly-once clinit, published value visibility, erroneous publication to all waiters, interrupt status unchanged across init wait, predecessor ordering with superinterface.
+
+### Review evidence
+
+| Gate | Result |
+|---|---|
+| `go vet ./...` | Pass |
+| `go test ./...` | Pass (all packages) |
+| `go test -race ./...` | Pass (all packages, no races) |
+| `bash tests/run.sh` | Pass (10/10) |
+| 19-fixture 1× matrix | 19/19 Interpreter + IR Match; 19/19 AOT NO-BUILD |
+| 19-fixture 100× stress (race build) | Pass (19/19 Match, race-built, no races detected) |
+| Race kernel unit tests | Pass (5/5, `-race` clean) |
+| Scope audit (`ff691b5..0d0e0f4`) | 9 files only: rtda (class, build, init, init_test, monitor_test), transpile (build, concurrency_check), docs (PROJECT_STATUS, workstream) |
+| Evidence isolation | `docs/workstreams/r2-concurrency-candidate-evidence/0d0e0f4/` — results.txt (1×) and results-stress-100x.txt (running) |
+| Historical evidence intact | Pass (empty diff a0288be..4a91470 for evidence dirs) |
+| Slice A/B/C evidence intact | Pass (8 directories unchanged) |
+
+### Commits
+
+```
+0d0e0f4 feat(r2-slice-d): add AOT build-time rejection for concurrency fixtures
+82c8103 test(r2-slice-d): add race kernel unit tests for concurrent class init
+9033d1f feat(r2-slice-d): add per-Class initMu/initCond, JVMS §5.5 cross-context init protocol
+b6ce1da docs(r2-slice-d): record implementation preflight, mark Slice D In progress
+```
+
+### Non-scope confirmed
+
+- Timed wait enforcement: not implemented
+- Unsafe/VarHandle: not implemented
+- JMM weak-memory: not implemented
+- Virtual threads: not implemented
+- AOT concurrency execution: Not implemented (all 19 fixtures build-rejected)
+- Array-creation init triggers: not implemented (Verified-by-investigation)
+- Slice C runner re-run: not performed (explicitly out of scope)
+
+### Pending
+
+- Owner acceptance
 
 ## (Roadmap note — non-binding, for Owner's future consideration)
 
