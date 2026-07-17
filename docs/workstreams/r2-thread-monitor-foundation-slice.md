@@ -291,7 +291,7 @@ All preflight items complete. Slice C may proceed to `In progress`.
 | B — stable Thread facade/context, lifecycle, carriers, join, and VM liveness | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/b0a7b70/` — `b0a7b70` (final), Owner accepted 2026-07-14, all Slice B gates Pass |
 | C — monitors, synchronized methods, wait sets, and interruption | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/eea253d/slice-c/` — `eea253d` (Amendment 1 race-built stress gate + Amendment 2 holdsLock/wait argument validation), 11/11 fixtures Interpreter + IR (1x + race-built 20x stress), all gates Pass; Owner accepted 2026-07-15 |
 | D — concurrent ADR-0025 initialization and full Interpreter/IR fixture matrix | Complete | candidate `6f3ae96` (Amendment D-A2 applied); 19/19 Interpreter + IR Match; AOT 19/19 NO-BUILD; 5/5 race kernel tests; 10/10 regression; evidence at `4798610/` (1× + race-built 100× stress Pass) per Amendment D-A1; Owner accepted 2026-07-16 |
-| E — AOT fail-closed rejection, race stress, regression, evidence, and docs | Proposed | — |
+| E — AOT fail-closed rejection, race stress, regression, evidence, and docs | In progress | — |
 
 Status uses `Pending`, `In progress`, or `Complete`.
 
@@ -892,7 +892,7 @@ b6ce1da docs(r2-slice-d): record implementation preflight, mark Slice D In progr
 **Review:** owner
 **Planned base:** `7e1a1ec` (current `main` tip; Slice D merged)
 **Parent acceptance anchor:** `a0288be`
-**Acceptance anchor:** to be fixed on Owner acceptance (must be `7e1a1ec` or a descendant governance commit)
+**Acceptance anchor:** `c4a2de3` (Slice E governance commit, 2026-07-17)
 **Governing decisions:** the parent contract and ADR-0016 through ADR-0025, ADR-0027, and ADR-0028 through ADR-0030
 
 This is the final integration slice. No new production functionality is
@@ -1041,6 +1041,18 @@ scope expansion, integration beyond the Owner's stated authority, or changes to
 the frozen sections without an accepted amendment. The parent's frozen Outcome,
 Scope, Non-scope, Semantic constraints, engine matrix, and Acceptance gates
 remain unchanged.
+
+## Implementation preflight (Slice E)
+
+Before production implementation record:
+
+- **Acceptance anchor / actual base:** `c4a2de3` (Slice E governance commit) / worktree at `c4a2de3`
+- **Historical evidence check:** to be verified during implementation (git diff for all evidence dirs)
+- **Slice A/B/C/D evidence intact:** to be verified (`9576828/`, `505d3ee/`, `a0e336c/`, `b0a7b70/`, `0a96b59/`, `36a577c/`, `f0fc2ca/`, `eea253d/`, `4798610/`, `6f3ae96/`)
+- **Candidate evidence destination:** `docs/workstreams/r2-concurrency-candidate-evidence/<candidate>/` (parent final 19-fixture matrix)
+- **Harness output policy:** explicit candidate required; never writes research baseline, shared/latest, or any slice-c/ directory
+
+Any missing item keeps the workstream `Accepted`; it may not become `In progress`.
 
 ---
 
