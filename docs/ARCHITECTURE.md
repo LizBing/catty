@@ -14,11 +14,12 @@ subsystems are deliberately *not* implemented:
 | JVM subsystem | catty's approach |
 |---|---|
 | Garbage collector | Java objects are Go heap allocations; Go's GC traces them natively. No write barriers, no mark/sweep code. |
-| Thread scheduler | Bounded Java 25 concurrency is implemented in Interpreter and IR: one goroutine carrier per started platform Thread, race-free SC heap (ADR-0030), Java object monitors and wait sets (ADR-0029), interruptible wait/join/sleep, VM daemon liveness, and synchronized cross-thread class initialization is the next bounded slice. Timed `wait`/`join`, `Unsafe`, JMM optimizations, virtual threads, fairness, deadlock detection, and AOT concurrency remain `Not implemented`. |
+| Thread scheduler | Bounded Java 25 concurrency is implemented in Interpreter and IR: one goroutine carrier per started platform Thread, race-free SC heap (ADR-0030), Java object monitors and wait sets (ADR-0029), interruptible wait/join/sleep, VM daemon liveness, and synchronized cross-thread class initialization. Timed `wait`/`join`, `Unsafe`, JMM optimizations, virtual threads, fairness, deadlock detection, and AOT concurrency remain `Not implemented`. |
 | JIT compiler | None directly. Instead, a bytecode→Go-source AOT transpiler (`catty build`) hands optimization to the Go compiler — `go build` IS the optimizing backend. |
 
 This trade is the whole point of the project: by not writing a GC, scheduler, or
-JIT, the implementation is small (~7500 LOC) and the MVP floor is bounded — the
+JIT, the implementation is small (~11 000 LOC production, ~30 000 with tests)
+and the MVP floor is bounded — the
 work collapses to "a bytecode interpreter plus a class loader" (Phase 1) and "a
 lowering pass + Go-source emitter" (A0–A4). The AOT path reaches native speed
 (`fib(35)` in ~44 ms, on par with HotSpot JIT); the interpreter is the fallback
@@ -362,6 +363,18 @@ missing-return check.
 interpreter and on par with HotSpot's JIT (see the A1 changelog entry). A1 is
 scoped to int-only static methods and the `fib` opcode subset; non-int types,
 the object model, and runtime integration are A1.5/A2/A4.
+
+**Build-time concurrency rejection** (`transpile/concurrency_check.go`): since
+AOT does not yet support the concurrency execution-context ABI (ADR-0028),
+`BuildProgram` scans every reachable method before emission. Methods carrying
+`ACC_SYNCHRONIZED`, `monitorenter`/`monitorexit` bytecodes, or invoke-family
+targets on `java/lang/Thread` (any method) or `Object.wait`/`notify`/`notifyAll`
+are rejected at build time with a diagnostic — the whole program fails to
+build rather than silently falling back or panicking at run time. The byte
+scanner uses a complete instruction-length lookup (`instLength`) for correct
+stepping across all JVM opcodes including variable-length `tableswitch`,
+`lookupswitch`, and `wide`. This is a conservative build-time gate, not a
+runtime capability claim.
 
 ## 10. What catty does *not* model (yet)
 
