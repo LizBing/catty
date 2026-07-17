@@ -291,7 +291,7 @@ All preflight items complete. Slice C may proceed to `In progress`.
 | B — stable Thread facade/context, lifecycle, carriers, join, and VM liveness | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/b0a7b70/` — `b0a7b70` (final), Owner accepted 2026-07-14, all Slice B gates Pass |
 | C — monitors, synchronized methods, wait sets, and interruption | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/eea253d/slice-c/` — `eea253d` (Amendment 1 race-built stress gate + Amendment 2 holdsLock/wait argument validation), 11/11 fixtures Interpreter + IR (1x + race-built 20x stress), all gates Pass; Owner accepted 2026-07-15 |
 | D — concurrent ADR-0025 initialization and full Interpreter/IR fixture matrix | Complete | candidate `6f3ae96` (Amendment D-A2 applied); 19/19 Interpreter + IR Match; AOT 19/19 NO-BUILD; 5/5 race kernel tests; 10/10 regression; evidence at `4798610/` (1× + race-built 100× stress Pass) per Amendment D-A1; Owner accepted 2026-07-16 |
-| E — AOT fail-closed rejection, race stress, regression, evidence, and docs | Pending | — |
+| E — AOT fail-closed rejection, race stress, regression, evidence, and docs | Proposed | — |
 
 Status uses `Pending`, `In progress`, or `Complete`.
 
@@ -885,9 +885,164 @@ b6ce1da docs(r2-slice-d): record implementation preflight, mark Slice D In progr
 - Array-creation init triggers: not implemented (Verified-by-investigation)
 - Slice C runner re-run: not performed (explicitly out of scope)
 
-### Pending
+## Slice E working contract
 
-- Slice E (final integration, docs, AOT matrix confirmation)
+**Status:** Accepted
+**Type:** implementation within this Accepted parent workstream
+**Review:** owner
+**Planned base:** `7e1a1ec` (current `main` tip; Slice D merged)
+**Parent acceptance anchor:** `a0288be`
+**Acceptance anchor:** to be fixed on Owner acceptance (must be `7e1a1ec` or a descendant governance commit)
+**Governing decisions:** the parent contract and ADR-0016 through ADR-0025, ADR-0027, and ADR-0028 through ADR-0030
+
+This is the final integration slice. No new production functionality is
+implemented. Slice E proves that the integrated Slices A–D codebase on `main`
+satisfies every parent acceptance gate, seals reproducible evidence on a single
+candidate commit, updates project documentation to reflect the completed R2
+concurrency milestone, and closes the workstream. On Owner acceptance this
+authorizes an Active Agent to record the implementation preflight and change
+Slice E from `Pending` to `In progress`.
+
+### Slice E outcome
+
+All eight parent acceptance gates Pass on one integrated Slice E candidate
+commit. Evidence is sealed and reproducible from that single commit (1× and
+race-built 100× stress). Project documentation — `ROADMAP.md`,
+`ARCHITECTURE.md`, and `PROJECT_STATUS.md` — accurately reflects the completed
+R2 concurrency milestone and the current per-engine support boundary. The
+workstream is marked Done after Owner review and integration.
+
+### Slice E scope
+
+- Branch from `main` at `7e1a1ec` or its descendant. Record the implementation
+  preflight: acceptance anchor resolved SHA, actual base commit, historical
+  evidence hash check, candidate evidence destination, and harness output policy.
+- Run core regression: `go vet ./...`, `go test ./...`, `go test -race ./...`,
+  and `bash tests/run.sh`. All must Pass.
+- Run the 19-row candidate harness
+  (`docs/workstreams/r2-concurrency-fixtures/run-concurrency-candidate.sh
+  <candidate>`) producing the 1× matrix: Interpreter and IR Match for all 19
+  fixtures, AOT `NO-BUILD` for all 19 fixtures. Evidence written to
+  `docs/workstreams/r2-concurrency-candidate-evidence/<candidate>/results.txt`.
+- Run the 19-row candidate harness with `R2_CONCURRENCY_STRESS=100` and a
+  race-built catty binary: no Go race, timeout, deadlock, missing iteration, or
+  semantic mismatch. Evidence written to
+  `docs/workstreams/r2-concurrency-candidate-evidence/<candidate>/results-stress-100x.txt`.
+- Modify `run-concurrency-candidate.sh` to support concurrent stress execution.
+  When `R2_CONCURRENCY_STRESS>1`, multiple fixtures are processed concurrently:
+  each fixture runs as a background subshell that executes its full stress loop
+  (all `R2_CONCURRENCY_STRESS` Interpreter iterations and all IR iterations)
+  independently. The maximum number of concurrent fixtures defaults to 4 and is
+  configurable via `R2_STRESS_CONCURRENCY`. Each subshell writes its per-fixture
+  result row and detail block to an independent temporary file; after all
+  background jobs complete, outputs are merged into the results file in
+  fixture-list order (preserving the deterministic table layout). A mismatch or
+  failure in any fixture or iteration causes the harness to exit with a non-zero
+  status (fail-closed preserved — background job failures are detected via exit
+  status, not swallowed). The 1× mode (`R2_CONCURRENCY_STRESS=1` or unset) and
+  the AOT column are unchanged (AOT remains sequential). The concurrency level
+  must be recorded in the evidence header.
+- Verify evidence isolation: all historical evidence directories unchanged —
+  research baseline (`docs/workstreams/r2-evidence/`,
+  `docs/workstreams/r2-concurrency-evidence/`), initialization evidence
+  (`docs/workstreams/r2-initialization-evidence/`), String evidence
+  (`docs/workstreams/r2-string-evidence/`), and Slice A/B/C/D candidate
+  evidence (`9576828/`, `505d3ee/`, `a0e336c/`, `b0a7b70/`, `0a96b59/`,
+  `36a577c/`, `f0fc2ca/`, `eea253d/`, `4798610/`, `6f3ae96/`).
+- Run `git diff --check <acceptance-anchor>..<candidate>` on the full diff
+  range from the parent acceptance anchor (`a0288be`). This is the parent's
+  final governance gate; the Slice C Amendment 1 scoped check does not apply
+  here. Must be clean.
+- Update `ROADMAP.md` Phase R2 status text to reflect Slices A–D complete
+  (currently states "Slice D is the next bounded slice" which is stale).
+- Audit `ARCHITECTURE.md` for any remaining stale claims introduced or left
+  unresolved after the Slices A–D integration. Document the AOT build-time
+  concurrency rejection gate (`transpile/concurrency_check.go`) if it is not
+  already described. Fix any factual inaccuracy.
+- Update `PROJECT_STATUS.md`:
+  - Set active workstream to None (or to the next Owner-directed workstream).
+  - Update stable baseline and baseline commit to the Slice E integration
+    commit.
+  - Update verified capability to include the completed R2 concurrency surface
+    (bounded Java 25 Thread/monitor/init Slices A–D).
+  - Update explicit boundary as needed.
+- Update the Plan table in this workstream: mark Slice E as Complete.
+- Update the Handoff section with the final candidate commit, evidence
+  location, gate results, and workstream closure.
+- Seal the final candidate commit containing the evidence, governance updates,
+  and any documentation changes.
+
+### Slice E non-scope
+
+- Any new production code implementation. If a Slice A–D regression defect is
+  discovered during gate execution, it must be reported to the Owner and the
+  workstream paused for direction; Slice E does not independently fix
+  production defects.
+- Changes to the parent's frozen Outcome, Scope, Non-scope, Semantic
+  constraints, engine matrix, or Acceptance gates.
+- Modification of any historical evidence directory. Sealed candidate evidence
+  from Slices A–D is immutable per COLLABORATION.md §9.1.
+- Changes to the 19 fixed fixture sources, the fixture denominator, the
+  harness's engine comparison logic (reference-vs-candidate output equality,
+  exit-code matching, fail-closed mismatch handling), the AOT `NO-BUILD`
+  assertion, or the `run-concurrency-slice-c.sh` historical Slice C runner.
+  Harness concurrent execution of stress iterations (execution structure only) is
+  in scope per the scope section above.
+- New ADR proposals, withdrawal, or supersession.
+- AOT concurrency execution or any AOT `Supported`/`Fallback` claim.
+- Timed `wait`/`join` enforcement, `Unsafe`/`VarHandle`, virtual threads,
+  `ThreadGroup`/`ThreadLocal`, `java.util.concurrent`, deadlock detection,
+  fairness, monitor deflation, biased locking, or any other capability beyond
+  the completed Slices A–D surface.
+- Integration actions (commit, merge, push, publish, rewrite remote state)
+  unless the Owner explicitly authorizes them under COLLABORATION.md §2.
+
+### Slice E semantic constraints
+
+Slice E inherits all parent semantic constraints without modification: Java 25
+as the semantic baseline and Temurin 25.0.3 as the differential reference; Java
+Thread execution-context identity (`ecID` per ADR-0028) as owner key; all Java
+heap access Go-race-free and SC per ADR-0030; monitor owner/ recursion keyed
+by execution-context identity; cross-thread initialization preserving ADR-0025
+four states; Interpreter and IR report `Supported`, AOT reports `Not
+implemented`. No new semantic constraints are introduced by Slice E.
+
+### Slice E review evidence
+
+Slice E has no separate slice-review evidence table. The parent's eight
+Acceptance gates (Fixed candidate differential matrix, Interpreter / IR, AOT
+rejection matrix, Race-enabled concurrency stress, Kernel/unit invariants, Core
+regression, Evidence isolation, Governance) are the only gates that must Pass
+before the workstream can be proposed Done. Results use only `Pass`, `Fail`,
+`Not run`, or `Not implemented`.
+
+### Slice E implementation order
+
+1. Branch from `main`; record implementation preflight.
+2. Core regression (`go vet`, `go test`, `go test -race`, `tests/run.sh`).
+3. Modify `run-concurrency-candidate.sh` for concurrent fixture execution;
+   verify 1× mode unchanged and stress output format identical to serial.
+4. 19-fixture candidate harness 1× (Interpreter + IR + AOT columns).
+5. 19-fixture candidate harness 100× race-built stress (concurrent fixtures).
+6. Evidence isolation verification (historical hashes).
+7. Governance `git diff --check` from parent acceptance anchor.
+8. Documentation audit and updates (`ROADMAP.md`, `ARCHITECTURE.md`).
+9. `PROJECT_STATUS.md` and workstream Plan/Handoff updates.
+10. Fix final candidate commit; seal evidence.
+11. Owner review; on accept, mark workstream Done.
+
+### Slice E acceptance record
+
+Accepted by Owner on 2026-07-17. This acceptance authorizes production work
+only within this frozen Slice E contract after a new Active Agent starts from
+this acceptance-anchor commit, records the required implementation preflight,
+and changes the Plan's Slice E row to `In progress`. It does not authorize
+scope expansion, integration beyond the Owner's stated authority, or changes to
+the frozen sections without an accepted amendment. The parent's frozen Outcome,
+Scope, Non-scope, Semantic constraints, engine matrix, and Acceptance gates
+remain unchanged.
+
+---
 
 ## (Roadmap note — non-binding, for Owner's future consideration)
 
