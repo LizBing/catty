@@ -291,6 +291,15 @@ if [ "$STRESS" -eq 1 ]; then
   for name in "${FIXTURES[@]}"; do
     process_fixture "$name" "$RESULTS" || die "fixture $name failed"
   done
+  # Count passes from per-fixture status files (written by process_fixture).
+  for name in "${FIXTURES[@]}"; do
+    is="$(cat "$STAGE/$name.interp_status" 2>/dev/null)"
+    irs="$(cat "$STAGE/$name.ir_status" 2>/dev/null)"
+    as="$(cat "$STAGE/$name.aot_status" 2>/dev/null)"
+    [ "$is" = "Match" ] && passed_i=$((passed_i + 1))
+    [ "$irs" = "Match" ] && passed_ir=$((passed_ir + 1))
+    [ "$as" = "NO-BUILD" ] && passed_aot=$((passed_aot + 1))
+  done
 else
   # === Concurrent mode (stress>1): FIFO-based job server ===
   CONC_OUT="$(mktemp -d -t candidate-conc.XXXXXX)"
