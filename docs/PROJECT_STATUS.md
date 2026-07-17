@@ -2,7 +2,7 @@
 
 **As of:** 2026-07-17
 **Stable baseline:** R2 concurrency milestone complete — initialization, UTF-16 String, and bounded Thread/monitor foundation Slices A–E
-**Baseline commit:** TBD (Slice E final integration)
+**Baseline commit:** `ca42a61` (Slice E final integration)
 **Active workstream:** None (next: Owner-directed R3 reflection or R4 I/O)
 **Current phase:** R2 complete. All five slices (A–E) of the Thread/monitor foundation delivered. 19-fixture concurrency matrix matches Temurin 25 in Interpreter and IR (1× and race-built 100× stress); AOT build-rejects all 19 fixtures. Multi-threaded producer-consumer milestone achieved. Timed `wait`/`join`, `Unsafe`, virtual threads, `ThreadGroup`/`ThreadLocal`, and `java.util.concurrent` remain out of scope.
 
@@ -48,7 +48,8 @@ lives in [`workstreams/`](./workstreams/).
 
 ## Governance-reset validation
 
-Revalidated locally on 2026-07-17 (Slice E final integration candidate TBD):
+Revalidated locally on 2026-07-17 (Slice E final candidate `ea1f67a`, integrated
+as `ca42a61`):
 
 - `go vet ./...` — Pass
 - `go test ./...` — Pass
@@ -88,5 +89,5 @@ R2 concurrency milestone complete. The `r2-thread-monitor-foundation-slice`
 workstream is Done: all five slices (A–E) delivered, 19-fixture matrix verifies
 the bounded Thread/monitor/init surface in Interpreter and IR, AOT build-rejects
 all concurrency fixtures. The sealed Slice E evidence is at
-`docs/workstreams/r2-concurrency-candidate-evidence/<candidate>/`. Next phase:
+`docs/workstreams/r2-concurrency-candidate-evidence/ea1f67a/`. Next phase:
 Owner-directed R3 (reflection & dynamic features) or R4 (I/O & network).

@@ -1,6 +1,6 @@
 # R2 Thread and monitor foundation slice
 
-**Status:** Accepted
+**Status:** Done
 **Type:** implementation
 **Review:** owner
 **Base commit:** `63d5658`
