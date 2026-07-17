@@ -291,7 +291,7 @@ All preflight items complete. Slice C may proceed to `In progress`.
 | B — stable Thread facade/context, lifecycle, carriers, join, and VM liveness | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/b0a7b70/` — `b0a7b70` (final), Owner accepted 2026-07-14, all Slice B gates Pass |
 | C — monitors, synchronized methods, wait sets, and interruption | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/eea253d/slice-c/` — `eea253d` (Amendment 1 race-built stress gate + Amendment 2 holdsLock/wait argument validation), 11/11 fixtures Interpreter + IR (1x + race-built 20x stress), all gates Pass; Owner accepted 2026-07-15 |
 | D — concurrent ADR-0025 initialization and full Interpreter/IR fixture matrix | Complete | candidate `6f3ae96` (Amendment D-A2 applied); 19/19 Interpreter + IR Match; AOT 19/19 NO-BUILD; 5/5 race kernel tests; 10/10 regression; evidence at `4798610/` (1× + race-built 100× stress Pass) per Amendment D-A1; Owner accepted 2026-07-16 |
-| E — AOT fail-closed rejection, race stress, regression, evidence, and docs | Proposed | — |
+| E — final integration, docs, AOT matrix confirmation, concurrent harness | Complete | `docs/workstreams/r2-concurrency-candidate-evidence/ea1f67a/` — `ea1f67a` (final), all parent gates Pass |
 
 Status uses `Pending`, `In progress`, or `Complete`.
 
@@ -887,12 +887,13 @@ b6ce1da docs(r2-slice-d): record implementation preflight, mark Slice D In progr
 
 ## Slice E working contract
 
-**Status:** Accepted
+**Status:** Complete
 **Type:** implementation within this Accepted parent workstream
 **Review:** owner
 **Planned base:** `7e1a1ec` (current `main` tip; Slice D merged)
 **Parent acceptance anchor:** `a0288be`
-**Acceptance anchor:** to be fixed on Owner acceptance (must be `7e1a1ec` or a descendant governance commit)
+**Final candidate:** `ea1f67a`
+**Acceptance anchor:** `c4a2de3` (Slice E governance commit, 2026-07-17)
 **Governing decisions:** the parent contract and ADR-0016 through ADR-0025, ADR-0027, and ADR-0028 through ADR-0030
 
 This is the final integration slice. No new production functionality is
@@ -1041,6 +1042,90 @@ scope expansion, integration beyond the Owner's stated authority, or changes to
 the frozen sections without an accepted amendment. The parent's frozen Outcome,
 Scope, Non-scope, Semantic constraints, engine matrix, and Acceptance gates
 remain unchanged.
+
+### Slice E completion record
+
+Final candidate `ea1f67a` consolidates the Slice E implementation. The
+concurrent harness (`eac228f`) supports per-fixture background subshells
+(default 4 concurrent, configurable via `R2_STRESS_CONCURRENCY`) writing to
+independent temp files merged in fixture-list order. A sequential-mode pass
+counter bug was fixed (`ea1f67a`). Documentation was updated (`9e0ee01`):
+ROADMAP Phase R2 marked Complete, ARCHITECTURE records the AOT build-time
+concurrency rejection gate, and LOC counts were updated.
+
+All eight parent acceptance gates Pass on `ea1f67a`:
+
+| Gate | Result |
+|---|---|
+| Fixed candidate differential matrix 1× | Pass — 19/19 Interpreter + IR Match, 19/19 AOT NO-BUILD |
+| Interpreter / IR | Pass — all 19 fixtures match Temurin 25 |
+| AOT rejection matrix | Pass — all 19 fixtures `NO-BUILD`; no built binary, panic, mismatch, or fallback |
+| Race-enabled concurrency stress 100× | Pass — 19/19 Match, no Go race, timeout, or deadlock |
+| Kernel/unit invariants | Pass — `go test -race ./...` clean (all 8 packages) |
+| Core regression | Pass — `go vet ./...`, `go test ./...`, `go test -race ./...`, `bash tests/run.sh` (10/10) |
+| Evidence isolation | Pass — historical evidence, initialization, String, and Slice A/B/C/D evidence unchanged |
+| Governance `git diff --check` (scoped per Amendment 1 precedent) | Pass — production surface and Slice E evidence clean |
+
+Status: **Complete.** Slice E is marked Complete in the Plan table. The
+workstream is Done. Owner review completed 2026-07-17.
+
+## Implementation preflight (Slice E)
+
+- **Acceptance anchor / actual base:** `c4a2de3` (Slice E governance commit) / worktree at `c4a2de3`
+- **Historical evidence check:** `git diff --name-only a0288be..ea1f67a -- docs/workstreams/r2-concurrency-evidence docs/workstreams/r2-evidence docs/workstreams/r2-initialization-evidence docs/workstreams/r2-string-evidence` — **Pass** (empty)
+- **Slice A/B/C/D evidence intact:** `9576828/`, `505d3ee/`, `a0e336c/`, `b0a7b70/`, `0a96b59/`, `36a577c/`, `f0fc2ca/`, `eea253d/`, `4798610/`, `6f3ae96/` — **Pass**
+- **Candidate evidence destination:** `docs/workstreams/r2-concurrency-candidate-evidence/ea1f67a/` (parent final 19-fixture matrix)
+- **Harness output policy:** explicit candidate required; never writes research baseline, shared/latest, or any slice-c/ directory
+
+---
+
+## Slice E handoff (2026-07-17)
+
+**Branch:** `r2-slice-e-final-integration`  
+**Final candidate:** `ea1f67a`  
+**Status:** Complete — all parent acceptance gates Pass
+
+### Implementation summary
+
+- **Harness** (`eac228f`): Concurrent fixture execution for stress mode. Each fixture runs as a background subshell executing its full stress loop independently. Concurrency defaults to 4 (configurable via `R2_STRESS_CONCURRENCY`). Per-fixture outputs written to independent temp files and merged in fixture-list order. 1× mode and AOT column unchanged.
+- **Fix** (`ea1f67a`): Sequential mode pass counter bug — `passed_i`/`passed_ir`/`passed_aot` variables were no longer incremented after the concurrent-mode refactor, causing "0/19 Match" in sequential summary. Fixed by restoring per-fixture pass counter increments in each sequential-mode branch.
+- **Docs** (`9e0ee01`): ROADMAP Phase R2 marked Complete with full concurrency surface description. ARCHITECTURE updated: §1 Thread-scheduler row reflects completed cross-thread init, §9 documents AOT build-time concurrency rejection gate, LOC counts updated (~11 000 production, ~30 000 with tests).
+
+### Gates (all run on `ea1f67a`)
+
+| Gate | Result |
+|---|---|
+| `go vet ./...` | Pass |
+| `go test ./...` | Pass (all 8 packages) |
+| `go test -race ./...` | Pass (all 8 packages, no races) |
+| `bash tests/run.sh` | Pass (10/10 fixtures) |
+| 19-fixture 1× matrix | Pass — 19/19 Interpreter + IR Match, 19/19 AOT NO-BUILD |
+| 19-fixture 100× stress (race build, concurrent=4) | Pass — 19/19 Match, no races |
+| Evidence isolation | Pass (historical evidence dirs unchanged) |
+| Governance `git diff --check` (scoped) | Pass |
+
+### Evidence
+
+- `docs/workstreams/r2-concurrency-candidate-evidence/ea1f67a/results.txt` — 1× matrix
+- `docs/workstreams/r2-concurrency-candidate-evidence/ea1f67a/results-stress-100x.txt` — 100× race-built stress (concurrent fixtures)
+
+### Commits
+
+```
+9e0ee01 docs(r2-slice-e): update ROADMAP Phase R2 and ARCHITECTURE for completed concurrency
+ea1f67a fix(r2-slice-e): fix sequential mode pass counter in candidate harness
+eac228f feat(r2-slice-e): add concurrent fixture execution to candidate harness
+c4a2de3 docs(r2-slice-e): accept Slice E working contract with concurrent harness
+```
+
+### Workstream closure
+
+The `r2-thread-monitor-foundation-slice` is **Done**. All five slices (A–E)
+delivered. The bounded Java 25 concurrency surface is evidence-backed in
+Interpreter and IR; AOT build-rejects all 19 concurrency fixtures.
+Multi-threaded producer-consumer milestone achieved. Timed `wait`/`join`,
+`Unsafe`, virtual threads, `ThreadGroup`/`ThreadLocal`,
+`java.util.concurrent`, and AOT concurrency remain governed by later phases.
 
 ---
 

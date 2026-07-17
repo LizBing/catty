@@ -61,13 +61,22 @@ Proposed ADRs.
 auto-detected. `RealBaseSmoke` (18 assertions) byte-identical to `java`.
 
 ### Phase R2 — Runtime semantics and concurrency planning
-**Status:** Initialization and bounded UTF-16 String slices complete; Thread/monitor foundation Slices A/B/C complete (monitors, wait sets, interruption, race-free heap); Slice D (concurrent ADR-0025 initialization and full 19-fixture matrix) is the next bounded slice
+**Status:** ✅ Complete (bounded concurrency surface)
 
-JDK 25's `Integer.toString`/`Double.parseDouble`/`HashMap` paths reach
-`jdk.internal.misc.Unsafe`; concurrency additionally requires explicit Thread,
-monitor, class-initialization, volatile/final, interrupt, liveness, and memory
-ordering contracts. The first post-R1 work should establish evidence and
-Accepted decisions before selecting implementation mechanisms.
+Initialization and bounded UTF-16 String slices complete. Bounded Java 25
+concurrency (Thread/monitor foundation Slices A–E) complete: race-free SC heap
+(ADR-0030), concurrency-safe class loading with canonical Class mirrors, stable
+Java Thread identity/lifecycle with one goroutine carrier per started platform
+Thread, VM daemon liveness, interruptible wait/join/sleep, Java object monitors
+and wait sets with notify/interrupt ordering (ADR-0029), `holdsLock`/`wait`
+argument validation, and per-Class `initMu`/`initCond` with JVMS §5.5
+cross-context initialization protocol. The 19-fixture concurrency matrix
+matches Temurin 25 in Interpreter and IR (1× and race-built 100× stress); AOT
+reports all concurrency fixtures as `Not implemented`/build rejection. The
+multi-threaded producer-consumer milestone is achieved. Timed `wait`/`join`,
+`Unsafe`, virtual threads, `ThreadGroup`/`ThreadLocal`,
+`java.util.concurrent`, and AOT concurrency remain out of scope and are
+governed by later phases.
 
 The completed
 [`r2-runtime-semantics-research`](./workstreams/r2-runtime-semantics-research.md)
@@ -75,12 +84,12 @@ produced the accepted initialization and UTF-16 String decisions and their two
 completed implementation slices. The completed
 [`r2-concurrency-semantics-research`](./workstreams/r2-concurrency-semantics-research.md)
 established Java-visible Thread, monitor, wait-set, interruption, cross-thread
-initialization, and minimum memory-ordering decisions. The accepted
+initialization, and minimum memory-ordering decisions. The completed
 [`r2-thread-monitor-foundation-slice`](./workstreams/r2-thread-monitor-foundation-slice.md)
-is the next bounded implementation contract. Unsafe-backed class-library
+delivered all five implementation slices (A–E). Unsafe-backed class-library
 compatibility remains a separate future workstream.
 
-**Milestone**: multi-threaded producer-consumer program.
+**Milestone** ✅: multi-threaded producer-consumer program.
 
 ### Phase R3 — Reflection & dynamic features
 **Status:** After R2
