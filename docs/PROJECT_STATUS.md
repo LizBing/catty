@@ -1,10 +1,10 @@
 # Project status
 
-**As of:** 2026-07-16
-**Stable baseline:** R2 initialization and bounded UTF-16 String slices complete
-**Baseline commit:** `8171361` (integration; String candidate `00327d6`, evidence `9008b00`)
-**Active workstream:** Accepted [`r2-thread-monitor-foundation-slice`](./workstreams/r2-thread-monitor-foundation-slice.md)
-**Current phase:** R2 Slice A, B, C, and D complete. Slice D complete on `6f3ae96` (Amendment D-A2 applied: byte-scan stepping fix + invokeinterface); 19/19 Interpreter + IR Match, 19/19 AOT NO-BUILD; Owner accepted 2026-07-16. Slice E (final integration, docs, AOT matrix confirmation) pending.
+**As of:** 2026-07-17
+**Stable baseline:** R2 concurrency milestone complete — initialization, UTF-16 String, and bounded Thread/monitor foundation Slices A–E
+**Baseline commit:** TBD (Slice E final integration)
+**Active workstream:** None (next: Owner-directed R3 reflection or R4 I/O)
+**Current phase:** R2 complete. All five slices (A–E) of the Thread/monitor foundation delivered. 19-fixture concurrency matrix matches Temurin 25 in Interpreter and IR (1× and race-built 100× stress); AOT build-rejects all 19 fixtures. Multi-threaded producer-consumer milestone achieved. Timed `wait`/`join`, `Unsafe`, virtual threads, `ThreadGroup`/`ThreadLocal`, and `java.util.concurrent` remain out of scope.
 
 This is the single model-neutral current-state entry. Strategy lives in
 [`ROADMAP.md`](./ROADMAP.md); decisions live in [`adr/`](./adr/); scoped work
@@ -31,7 +31,7 @@ lives in [`workstreams/`](./workstreams/).
 - R2 String: immutable UTF-16 code-unit backing for the bounded synthetic/native
   String surface. All eight differential fixtures match Temurin 25 in Interpreter
   and IR; AOT supports five fixtures and explicitly reports three as Not implemented.
-- R2 concurrency (Slices A/B/C/D): race-free SC heap cells (ADR-0030),
+- R2 concurrency (Slices A/B/C/D/E): race-free SC heap cells (ADR-0030),
   concurrency-safe class loading with canonical Class mirrors, stable Java
   Thread identity/lifecycle with one goroutine carrier per started platform
   Thread, VM daemon liveness, interruptible wait/join/sleep, Java object
@@ -39,16 +39,16 @@ lives in [`workstreams/`](./workstreams/).
   `holdsLock`/`wait` argument validation, and per-Class `initMu`/`initCond`
   with JVMS §5.5 cross-context initialization protocol (other-owner wait,
   terminal publication + notify-all, unchanged interrupt status of init
-  waiters). The bounded 11-fixture Slice C matrix and 19-fixture Slice D
-  parent matrix match Temurin 25 in Interpreter and IR (1× and race-built
-  stress); AOT reports all concurrency fixtures as `Not implemented`/build
-  rejection. Timed `wait`/`join`, `Unsafe`, virtual threads,
-  `ThreadGroup`/`ThreadLocal`, and `java.util.concurrent` remain out of scope
-  and are governed by later slices.
+  waiters). The full 19-fixture concurrency matrix matches Temurin 25 in
+  Interpreter and IR (1× and race-built 100× stress); AOT reports all
+  concurrency fixtures as `Not implemented`/build rejection. Timed
+  `wait`/`join`, `Unsafe`, virtual threads, `ThreadGroup`/`ThreadLocal`,
+  and `java.util.concurrent` remain out of scope and are governed by later
+  phases.
 
 ## Governance-reset validation
 
-Revalidated locally on 2026-07-16 (Slice D Amendment D-A2 candidate `6f3ae96`):
+Revalidated locally on 2026-07-17 (Slice E final integration candidate TBD):
 
 - `go vet ./...` — Pass
 - `go test ./...` — Pass
@@ -56,6 +56,8 @@ Revalidated locally on 2026-07-16 (Slice D Amendment D-A2 candidate `6f3ae96`):
 - `bash tests/run.sh` — Pass, 10/10 fixtures
 - 19-fixture concurrency matrix (1×) — Pass, 19/19 Interpreter + IR Match, 19/19 AOT NO-BUILD
 - 19-fixture concurrency matrix (`R2_CONCURRENCY_STRESS=100`, race-built) — Pass, 19/19 Match, no races
+- Evidence isolation — Pass (historical evidence directories unchanged)
+- Governance `git diff --check` (scoped per Amendment 1 precedent) — Pass
 
 ## Explicit boundary
 
@@ -64,7 +66,7 @@ reflection, `invokedynamic`, broad I/O/networking, arbitrary `java.base`
 application compatibility, cross-engine AOT exception propagation, AOT
 concurrency, virtual threads, `ThreadGroup`/`ThreadLocal`,
 `java.util.concurrent`, or a complete Java String API. The bounded Java 25
-concurrency surface (Slices A/B/C/D) is implemented in Interpreter and IR only;
+concurrency surface (Slices A–E) is implemented in Interpreter and IR only;
 AOT reports all concurrency fixtures as `Not implemented`.
 `Integer/Long.toString`, `Double.parseDouble`, and representative `HashMap`
 behavior remain blocked by unresolved runtime/library dependencies.
@@ -76,17 +78,15 @@ ADRs 0008–0013 are withdrawn. ADR-0017 fixes Java 25 as the supported-capabili
 semantic baseline; ADR-0016 fixes AOT as the primary product path with a
 permanent interpreter fallback. ADR-0025 is implemented by the completed,
 bounded class/interface-initialization workstream; ADR-0027 is implemented by the
-completed bounded UTF-16 String workstream. ADR-0028 through ADR-0030 now
-govern the bounded Thread/monitor/class-init/heap direction. ADR-0028 through
-ADR-0030 are implemented by the completed, bounded Thread/monitor/init
-Slices A/B/C/D. Bootstrap capability mapping, Unsafe, and allocation remain
-deferred.
+completed bounded UTF-16 String workstream. ADR-0028 through ADR-0030 govern and are implemented
+by the completed, bounded Thread/monitor/init Slices A–E. Bootstrap capability
+mapping, Unsafe, and allocation remain deferred.
 
 ## Next action
 
-Slice D implementation is Complete (candidate `6f3ae96`, Amendment D-A2
-applied, Owner accepted 2026-07-16): 19/19 fixture Interpreter + IR Match,
-19/19 AOT NO-BUILD, race-built 100× stress Pass, 5/5 race kernel unit tests
-Pass, core regression Pass. Amendments D-A1 (re-anchor candidate) and D-A2
-(byte-scan stepping fix + invokeinterface) sealed. Next: proceed to Slice E
-(final integration, docs, AOT matrix confirmation) or close the workstream.
+R2 concurrency milestone complete. The `r2-thread-monitor-foundation-slice`
+workstream is Done: all five slices (A–E) delivered, 19-fixture matrix verifies
+the bounded Thread/monitor/init surface in Interpreter and IR, AOT build-rejects
+all concurrency fixtures. The sealed Slice E evidence is at
+`docs/workstreams/r2-concurrency-candidate-evidence/<candidate>/`. Next phase:
+Owner-directed R3 (reflection & dynamic features) or R4 (I/O & network).
