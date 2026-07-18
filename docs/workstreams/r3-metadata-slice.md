@@ -1,6 +1,6 @@
 # R3 dynamic metadata kernel slice
 
-**Status:** Accepted
+**Status:** In Progress
 **Type:** implementation
 **Review:** owner
 **Profile:** Catty JVMS Core shared kernel; no public profile API
@@ -9,6 +9,8 @@
 ADR-0032, and ADR-0034
 **Prerequisites:** `r3-reflection-dynamic-research` Done; acceptance anchor
 fixed before implementation
+**Acceptance anchor / actual base:** `f685526` / `f685526`
+**Branch:** `codex/r3-metadata-slice`
 
 ## Outcome
 
@@ -63,12 +65,32 @@ known accepted structures cannot be silently discarded.
 
 ## Plan
 
-Accepted; waiting for prerequisites and acceptance anchor. No implementation
-is in progress.
+| Step | State |
+|---|---|
+| Owner accepts frozen contract | Complete |
+| Fix acceptance anchor and implementation preflight | Complete |
+| Implement typed dynamic metadata parser/accessors | In progress |
+| Attach immutable runtime metadata and narrow diagnostics | Pending |
+| Run contract gates and fix candidate | Pending |
+| Owner reviews K1 candidate | Pending |
 
 ## Acceptance record
 
 Accepted by Owner on 2026-07-18. Outcome, Scope, Non-scope, Semantic
 constraints, Acceptance gates, profile classification, and owner review are
-frozen. Implementation remains unauthorized until prerequisites are Done and
-this contract is fixed in an acceptance-anchor commit.
+frozen. Implementation authorization takes effect only after prerequisites are
+Done and this contract is fixed in an acceptance-anchor commit; the preflight
+below records those conditions as satisfied.
+
+## Implementation preflight
+
+- **Acceptance anchor / actual base:** `f685526` / `f685526`
+- **Branch:** `codex/r3-metadata-slice`
+- **Selected by Owner:** 2026-07-18 as the only active implementation
+  workstream
+- **R3 predecessor:** `r3-reflection-dynamic-research` Done at candidate
+  `f685526`
+- **Capability boundary:** parser/runtime metadata kernel only; no
+  Java-visible R3 row becomes Supported
+- **Historical evidence:** existing R2 and fixed R3 baseline evidence remains
+  immutable; K1 candidate evidence uses a new isolated destination

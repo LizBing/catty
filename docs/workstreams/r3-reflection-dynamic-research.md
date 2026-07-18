@@ -1,6 +1,6 @@
 # R3 reflection and dynamic-features research
 
-**Status:** In Progress
+**Status:** Done
 **Type:** research
 **Review:** owner
 **Proposed base:** `ccc6046`
@@ -219,8 +219,8 @@ unbounded process is a failed research gate.
 | Produce metadata and runtime-boundary reports | Complete |
 | Draft Proposed ADRs and ordered implementation slices | Complete |
 | Reconcile outputs with ADR-0034 profile boundaries | Complete — ADR-0031 through ADR-0033 and ten profile-separated implementation contracts Accepted |
-| Owner reviews research conclusions | Pending |
-| Mark research Done and select first R3 implementation contract | Pending |
+| Owner reviews research conclusions | Complete |
+| Mark research Done and select first R3 implementation contract | Complete — K1 `r3-metadata-slice` selected |
 
 ## Acceptance record
 
@@ -249,14 +249,13 @@ implementation or integration beyond the accepted research scope.
   packages, existing tests, harnesses, evidence, CI, and Roadmap capability
   claims remain unchanged.
 
-## Research reconciliation state
+## Research completion
 
 The original research content and eight gates were complete before ADR-0034
-changed the governing profile boundary. Reconciliation is now complete:
-Decision coverage and Slice plan are Pass, with five shared-kernel and five
-optional Java SE Compatibility Profile contracts Accepted. The workstream remains **In
-Progress**, not Ready or Done, until the Owner authorizes a fixed candidate
-commit. A later candidate Owner review will cover:
+changed the governing profile boundary. Reconciliation is complete: Decision
+coverage and Slice plan are Pass, with five shared-kernel and five optional
+Java SE Compatibility Profile contracts Accepted. The Owner reviewed and
+accepted the research as Done on 2026-07-18. Candidate commit `f685526` fixes:
 
 - the fixed 24-fixture baseline and its 0/24 current catty capability result;
 - the five reports in `r3-reflection-dynamic-reports/`;
@@ -271,7 +270,6 @@ reflection, annotation, lambda, and Proxy facades as optional compatibility
 work. The implementation contracts now preserve that split and no optional
 compatibility slice is an automatic R3 closure gate.
 
-Accepted ADRs and contracts do not make this research Done and do not start a
-production workstream. Production implementation remains unauthorized until
-the current research is fixed/reviewed Done and the selected first contract has
-an acceptance anchor.
+K1 `r3-metadata-slice` is the selected successor. Its accepted contract and the
+completed R3 research are both fixed by `f685526`; production implementation is
+authorized only within that K1 contract on its dedicated branch.

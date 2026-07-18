@@ -3,8 +3,9 @@
 **As of:** 2026-07-18
 **Stable baseline:** R2 concurrency milestone complete — initialization, UTF-16 String, and bounded Thread/monitor foundation Slices A–E
 **Baseline commit:** `ca42a61` (Slice E final integration)
-**Active workstream:** `r3-reflection-dynamic-research` — ADR-0034 reconciliation complete; candidate fixation and Owner review pending
-**Current phase:** R2 complete. All five slices (A–E) of the Thread/monitor foundation delivered. 19-fixture concurrency matrix matches Temurin 25 in Interpreter and IR (1× and race-built 100× stress); AOT build-rejects all 19 fixtures. Multi-threaded producer-consumer milestone achieved. Timed `wait`/`join`, `Unsafe`, virtual threads, `ThreadGroup`/`ThreadLocal`, and `java.util.concurrent` remain out of scope.
+**Governance/research anchor:** `f685526` (R3 research Done; K1 acceptance anchor)
+**Active workstream:** `r3-metadata-slice` — In Progress on `codex/r3-metadata-slice`; the only active implementation workstream
+**Current phase:** R2 remains the stable production baseline. R3 research is Done and K1 dynamic-metadata kernel implementation is active from `f685526`. K1 adds no Java-visible reflection or InvokeDynamic capability by contract. Timed `wait`/`join`, `Unsafe`, virtual threads, `ThreadGroup`/`ThreadLocal`, and `java.util.concurrent` remain out of scope.
 
 This is the single model-neutral current-state entry. Strategy lives in
 [`ROADMAP.md`](./ROADMAP.md); decisions live in [`adr/`](./adr/); scoped work
@@ -89,17 +90,9 @@ mapping, Unsafe, and allocation remain deferred.
 
 ## Next action
 
-R2 concurrency milestone complete. The `r2-thread-monitor-foundation-slice`
-workstream is Done: all five slices (A–E) delivered, 19-fixture matrix verifies
-the bounded Thread/monitor/init surface in Interpreter and IR, AOT build-rejects
-all concurrency fixtures. The sealed Slice E evidence is at
-`docs/workstreams/r2-concurrency-candidate-evidence/ea1f67a/`. Next action:
-Reconcile and review the completed research candidate for the Accepted
-[`r3-reflection-dynamic-research`](./workstreams/r3-reflection-dynamic-research.md)
-contract against Accepted ADR-0034, separating JVMS core mechanisms from Catty
-Runtime and optional Java SE Compatibility Profile obligations. The baseline
-is 0/24 Match in both Interpreter and IR, with 24/24 AOT NO-BUILD. ADR-0031
-through ADR-0033 have been reconciled with ADR-0034 and Accepted. Ten Accepted
-implementation contracts now separate five shared-kernel slices from five
-optional Java SE Compatibility Profile slices. They await fixed-candidate Owner
-review; no R3 production implementation is authorized.
+R3 research is Done at candidate `f685526`; its fixed baseline remains 0/24
+Match in Interpreter and IR with 24/24 AOT NO-BUILD. Implement the Accepted
+[`r3-metadata-slice`](./workstreams/r3-metadata-slice.md) K1 contract from
+anchor `f685526`: typed BootstrapMethods and dynamic constant-pool metadata,
+immutable runtime attachment, typed malformed-input failure, and explicit
+capability honesty. No Java-visible R3 row may be newly claimed Supported.
