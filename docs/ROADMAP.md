@@ -1,11 +1,19 @@
 # Roadmap
 
-## Vision: catty as an experimental JRE
+## Vision: catty as an experimental JVMS runtime platform
 
-catty is not just "a JVM written in Go" — it explores a platform that compiles
-Java programs into Go programs while reusing appropriate Go runtime services.
-The exact Thread, memory-model, class-library, I/O, and AOT production boundaries
-remain subject to Accepted ADRs and measured workstreams.
+catty is not a replacement Java SE JRE. It explores a platform that executes
+the JVMS-defined core of Java classfiles and compiles supported programs into
+Go programs while reusing appropriate Go runtime services. Its default product
+is a small Catty Runtime Profile, with an explicit host-interoperation boundary;
+Java SE APIs and an OpenJDK `java.base` image are optional compatibility
+profiles, not the definition of the core platform.
+
+The exact JVMS coverage, Thread and memory semantics, Catty runtime APIs, host
+services, Java SE compatibility profiles, I/O, and AOT production boundaries
+remain subject to Accepted ADRs and measured workstreams. ADR-0034 governs the
+profile and host-interoperation boundary; it does not by itself authorize
+implementation or change verified capability claims.
 
 Withdrawn ADRs 0008–0013 preserve early hypotheses but do not define the
 current architecture.
@@ -27,7 +35,10 @@ speed (~44 ms, on par with HotSpot JIT).
 | ADR | Status | Decision / question | Impact |
 |---|---|---|---|
 | 0016 | Accepted | AOT is the primary product path; the interpreter remains a permanent semantic fallback | Multi-engine execution boundary |
-| 0017–0024 | Accepted | Java 25 semantics, Go-runtime boundary, dissolution, representation, bootstrap, String, and interpreter policy | R2 governing constraints |
+| 0017 | Superseded | Earlier universal Java 25 supported-capability semantic baseline | Superseded by ADR-0034's profile-scoped contract |
+| 0018–0024 | Accepted | Go-runtime boundary, dissolution, representation, bootstrap, String, and interpreter policy | R2 governing constraints |
+| 0031–0033 | Accepted | Metadata/typed invocation, InvokeDynamic linkage, and defining-loader/generated-class kernels | R3 shared-kernel constraints; Java SE facades remain optional profile work |
+| 0034 | Accepted | Define a JVMS core, parallel Catty/Java SE runtime profiles, and a typed Host ABI | Product and native-boundary direction |
 | 0008 | Withdrawn | Earlier AOT-first proposal | Replaced by ADR-0016's multi-engine model |
 | 0009 | Withdrawn | Evaluate a hybrid class library | Bootstrap control and compatibility |
 | 0010 | Withdrawn | Evaluate Java Thread mapping onto Go runtime mechanisms | Thread identity and lifecycle |
@@ -41,7 +52,7 @@ Proposed ADRs.
 
 ## Implementation phases
 
-### Phase R1 — Run real Java programs (exceptions + opcodes + bootstrap)
+### Phase R1 — Classfile execution and optional `java.base` compatibility (exceptions + opcodes + bootstrap)
 **Status:** ✅ Complete
 
 - **Exceptions** (`try/catch/athrow`): full mechanism — athrow, runtime
@@ -49,16 +60,19 @@ Proposed ADRs.
   Native Throwable/Exception hierarchy (~13 classes).
 - **Remaining opcodes**: `invokeinterface`, `multianewarray`, `wide` (~145/201
   opcodes). `invokedynamic` deferred to R3.
-- **Bootstrap classpath**: `catty` auto-detects `$CATTY_BOOT` / `$JAVA_HOME` /
-  `java_home`, prepends java.base to the user classpath. Uses the JDK's own
-  `jimage extract` tool (no runtime jimage parser — keeps catty lean). The R1
-  implementation currently serves six bootstrap classes synthetically; ADR-0022
-  makes that a revisable capability boundary rather than a permanent class list.
+- **Bootstrap classpath**: the current launcher auto-detects `$CATTY_BOOT` /
+  `$JAVA_HOME` / `java_home` and prepends `java.base` to the user classpath.
+  This is an R1 compatibility mechanism and differential-test reference, not a
+  permanent core-runtime requirement. It uses the JDK's own `jimage extract`
+  tool (no runtime jimage parser — keeps catty lean). The R1 implementation
+  currently serves six bootstrap classes synthetically; ADR-0022 makes that a
+  revisable capability boundary rather than a permanent class list.
 - **Native layer expansion**: ~18 synthetic classes + ~40 native
   method registrations. `NoSuchMethodError` (not a crash) on gaps.
 
-**Milestone** ✅: `catty -cp . HelloWorld` with real java.base — one command,
-auto-detected. `RealBaseSmoke` (18 assertions) byte-identical to `java`.
+**Milestone** ✅: `catty -cp . HelloWorld` with an auto-detected real `java.base`
+compatibility image. `RealBaseSmoke` (18 assertions) is byte-identical to
+`java`; this does not claim complete Java SE or JRE compatibility.
 
 ### Phase R2 — Runtime semantics and concurrency planning
 **Status:** ✅ Complete (bounded concurrency surface)
@@ -94,16 +108,30 @@ compatibility remains a separate future workstream.
 ### Phase R3 — Reflection & dynamic features
 **Status:** After R2
 
-- `java.lang.reflect` on retained runtime metadata, subject to a dedicated
-  reflection design under ADR-0016's multi-engine boundary.
-- `invokedynamic` full support (LambdaMetafactory, dynamic proxies).
-- Annotation parsing (`RuntimeVisibleAnnotations`). ~3–4 weeks.
+- JVMS dynamic-linkage core: retained `BootstrapMethods` metadata,
+  MethodHandle/MethodType/CallSite state, and bounded `invokedynamic` linkage.
+- Catty Runtime Profile dynamic services: runtime metadata, generated-class
+  identity, and host-independent invocation facilities.
+- Optional Java SE compatibility facades: `java.lang.reflect`, annotations,
+  LambdaMetafactory, and dynamic proxies, each only where an Accepted
+  workstream explicitly claims their Java SE behavior.
 
-### Phase R4 — I/O & network (future API-family decisions required)
+R3's current research remains a Java 25 compatibility investigation.
+ADR-0031 through ADR-0033 have been reconciled with ADR-0034 and Accepted; the
+ten Accepted implementation contracts now separate five shared-kernel slices
+from five optional Java SE compatibility slices. No production contract is
+active until its prerequisites and acceptance anchor are fixed, and no complete
+Java reflection or dynamic-feature surface is implied. The previous 3–4 week
+estimate is superseded by the profile-separated research estimate; capability
+branches are selected independently.
+
+### Phase R4 — Host services, I/O & network (future API-family decisions required)
 **Status:** After R3
 
-- Define supported file, socket, selector, and native-integration semantics.
-- Evaluate direct Go runtime adapters against compatibility and maintenance cost.
+- Define Catty Host ABI providers for file, socket, selector, graphics, and
+  other host services, with typed arguments/results and explicit failures.
+- Decide whether individual Java SE APIs are compatibility facades over those
+  providers; JNI is not a required platform boundary.
 
 ### Phase R5 — AOT coverage expansion (governed by ADR-0016)
 **Status:** After R3/R4
@@ -119,7 +147,8 @@ compatibility remains a separate future workstream.
 - Escape-analysis and allocation-strategy validation.
 - Object layout optimization (field reordering).
 - Value-type identification. Core class optimization.
-- JCK testing. ~8+ weeks.
+- JVMS/core differential and conformance testing; JCK is relevant only to a
+  separately declared Java SE compatibility profile. ~8+ weeks.
 
 ## Performance targets
 
@@ -130,9 +159,15 @@ compatibility remains a separate future workstream.
 | R5 (real-program AOT) | near hand-written Go | whole-program native |
 | R6 (optimized) | ≤ hand-written Go | escape analysis + layout opt |
 
-## What can't catty run yet?
+## Current boundary and future compatibility
 
-Minecraft? No. Real Java applications need: exceptions (R1), concurrency (R2),
-reflection (R3), I/O (R4), and much broader class-library compatibility. Each
-is a documented phase. The AOT path proves the performance thesis; runtime
-semantics and class-library scope remain the primary research work.
+catty currently has a bounded, evidence-backed Java 25-compatible execution
+surface, including an optional real-`java.base` smoke path. It does not claim
+to run arbitrary Java applications, Minecraft, arbitrary Java SE libraries, or
+JNI-dependent software. Such software may require optional Java SE
+compatibility profiles plus host-service providers; those are not automatic
+milestones of the Catty Runtime Profile.
+
+The AOT path proves the performance thesis. JVMS semantics, the small runtime
+profile, host interoperation, and any opted-in library compatibility remain
+separate research and implementation tracks.

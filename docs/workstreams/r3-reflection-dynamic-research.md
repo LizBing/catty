@@ -1,6 +1,6 @@
 # R3 reflection and dynamic-features research
 
-**Status:** Accepted
+**Status:** In Progress
 **Type:** research
 **Review:** owner
 **Proposed base:** `ccc6046`
@@ -195,14 +195,14 @@ The final report must validate or revise this initial dependency order:
 
 | Gate | Required evidence | Result |
 |---|---|---|
-| Fixture freeze | Exactly 24 reviewed Java sources with a manifest and hashes | Not run |
-| Temurin baseline | All 24 fixtures compile/run on Temurin 25.0.3 with bounded time and captured stdout/stderr/exit | Not run |
-| Catty baseline | Interpreter, IR, and AOT build/run attempted for all 24; panic, parse failure, mismatch, fallback, and no-build are distinguished | Not run |
-| Metadata gap | Every required classfile attribute/CP entry maps to retained, discarded, or unsupported with consumers | Not run |
-| Runtime boundary | Loading, initialization, invocation, heap, exception, identity, concurrency, and engine transitions are mapped to concrete packages | Not run |
-| Decision coverage | Proposed ADRs cover all durable decisions listed in Scope §3 without contradicting Accepted ADRs | Not run |
-| Slice plan | Independently acceptable implementation slices have prerequisites, per-engine completion states, non-scope, and exact candidate gates | Not run |
-| Governance | Historical evidence unchanged; `git diff --check` passes; PROJECT_STATUS remains honest about active capability | Not run |
+| Fixture freeze | Pass — exactly 24 reviewed Java sources; `manifest.sha256` verifies all hashes |
+| Temurin baseline | Pass — 24/24 compile/run on Temurin 25.0.3, exit 0, bounded time, captured stdout/stderr/exit |
+| Catty baseline | Pass — all 24 attempted: Interpreter 0 Match/24 Exit(1), IR 0 Match/24 Exit(1), AOT 24 NO-BUILD; 24/24 rows, no timeout/omission |
+| Metadata gap | Pass — required attributes/CP entries mapped to retained, discarded, structural-only, or Not implemented with consumers |
+| Runtime boundary | Pass — loading, initialization, invocation, heap, exception, identity, concurrency, and engine transitions mapped to concrete packages |
+| Decision coverage | Pass — Accepted ADR-0031 through ADR-0033, revised under ADR-0034, separate metadata/typed invocation, per-site dynamic linkage, and defining-loader/generated-class kernels from optional Java SE facades |
+| Slice plan | Pass — ten Accepted contracts separate five shared-kernel slices from five optional Java SE Compatibility Profile slices, with independent prerequisites, engine states, non-scope, and gates |
+| Governance | Pass — historical evidence unchanged; R3 files only under `docs/`; `git diff --check` passes; PROJECT_STATUS remains honest |
 
 Results use only `Pass`, `Fail`, `Not run`, or `Not implemented`. Baseline
 failures are research data, but a missing row, silently skipped engine, or
@@ -214,10 +214,11 @@ unbounded process is a failed research gate.
 |---|---|
 | Pre-contract repository survey and Proposed contract | Complete |
 | Owner reviews/fixes and accepts research contract | Complete |
-| Fix acceptance anchor and record research preflight | In progress |
-| Freeze fixtures and harness; capture Temurin/catty baselines | Pending |
-| Produce metadata and runtime-boundary reports | Pending |
-| Draft Proposed ADRs and ordered implementation slices | Pending |
+| Fix acceptance anchor and record research preflight | Complete |
+| Freeze fixtures and harness; capture Temurin/catty baselines | Complete |
+| Produce metadata and runtime-boundary reports | Complete |
+| Draft Proposed ADRs and ordered implementation slices | Complete |
+| Reconcile outputs with ADR-0034 profile boundaries | Complete — ADR-0031 through ADR-0033 and ten profile-separated implementation contracts Accepted |
 | Owner reviews research conclusions | Pending |
 | Mark research Done and select first R3 implementation contract | Pending |
 
@@ -228,3 +229,49 @@ Non-scope, Semantic constraints, the 24-fixture denominator, Acceptance gates,
 and owner review. It authorizes research deliverables after this record is
 fixed in a Git acceptance anchor; it does not authorize production
 implementation or integration beyond the accepted research scope.
+
+## Research preflight
+
+- **Acceptance anchor / actual base:** `6cf3636` / `6cf3636`
+- **Branch:** `codex/r3-reflection-dynamic-research`
+- **Toolchain:** Temurin/JDK 25.0.3; Go 1.26.5 darwin/arm64
+- **Historical evidence diff:** `git diff --name-only ca42a61..6cf3636 --
+  docs/workstreams/r2-evidence docs/workstreams/r2-initialization-evidence
+  docs/workstreams/r2-string-evidence docs/workstreams/r2-concurrency-evidence
+  docs/workstreams/r2-concurrency-candidate-evidence` — Pass (empty)
+- **Historical evidence tree IDs:** R2 research `b4acb756eb8687ffcee2d5ad4231bce448673fe3`;
+  initialization `54fdeaa0c7691cf2cd11a45e907c36752079fe8c`;
+  String `5f38e9b1083680b881fd58b0cb1ef8bbc37a4106`;
+  concurrency baseline `1661c111326adc69291ded3393e7bc161569fcfe`;
+  concurrency candidates `c6b691f95841976f24b74ac1fcbbc1ab511ecbab`.
+- **Evidence destination:** `docs/workstreams/r3-reflection-dynamic-evidence/baseline-6cf3636/`
+- **Production boundary:** research changes are restricted to `docs/`; production
+  packages, existing tests, harnesses, evidence, CI, and Roadmap capability
+  claims remain unchanged.
+
+## Research reconciliation state
+
+The original research content and eight gates were complete before ADR-0034
+changed the governing profile boundary. Reconciliation is now complete:
+Decision coverage and Slice plan are Pass, with five shared-kernel and five
+optional Java SE Compatibility Profile contracts Accepted. The workstream remains **In
+Progress**, not Ready or Done, until the Owner authorizes a fixed candidate
+commit. A later candidate Owner review will cover:
+
+- the fixed 24-fixture baseline and its 0/24 current catty capability result;
+- the five reports in `r3-reflection-dynamic-reports/`;
+- Accepted ADR-0031 through ADR-0033;
+- the ten Accepted implementation contracts across the shared-kernel and
+  optional Java SE compatibility tracks.
+
+ADR-0031 through ADR-0033 were revised and Accepted by the Owner on 2026-07-18
+under ADR-0034. They now govern shared metadata/invocation, InvokeDynamic
+linkage, and defining-loader/generated-class kernels while classifying Java SE
+reflection, annotation, lambda, and Proxy facades as optional compatibility
+work. The implementation contracts now preserve that split and no optional
+compatibility slice is an automatic R3 closure gate.
+
+Accepted ADRs and contracts do not make this research Done and do not start a
+production workstream. Production implementation remains unauthorized until
+the current research is fixed/reviewed Done and the selected first contract has
+an acceptance anchor.

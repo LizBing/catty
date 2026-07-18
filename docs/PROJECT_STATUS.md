@@ -1,9 +1,9 @@
 # Project status
 
-**As of:** 2026-07-17
+**As of:** 2026-07-18
 **Stable baseline:** R2 concurrency milestone complete — initialization, UTF-16 String, and bounded Thread/monitor foundation Slices A–E
 **Baseline commit:** `ca42a61` (Slice E final integration)
-**Active workstream:** `r3-reflection-dynamic-research` — Accepted; acceptance anchor pending
+**Active workstream:** `r3-reflection-dynamic-research` — ADR-0034 reconciliation complete; candidate fixation and Owner review pending
 **Current phase:** R2 complete. All five slices (A–E) of the Thread/monitor foundation delivered. 19-fixture concurrency matrix matches Temurin 25 in Interpreter and IR (1× and race-built 100× stress); AOT build-rejects all 19 fixtures. Multi-threaded producer-consumer milestone achieved. Timed `wait`/`join`, `Unsafe`, virtual threads, `ThreadGroup`/`ThreadLocal`, and `java.util.concurrent` remain out of scope.
 
 This is the single model-neutral current-state entry. Strategy lives in
@@ -74,9 +74,13 @@ behavior remain blocked by unresolved runtime/library dependencies.
 
 ## Decision state
 
-ADRs 0016–0030 (excluding unused 0026) are Accepted. ADRs 0001–0007 and 0014–0015 are superseded;
-ADRs 0008–0013 are withdrawn. ADR-0017 fixes Java 25 as the supported-capability
-semantic baseline; ADR-0016 fixes AOT as the primary product path with a
+ADRs 0016 and 0018–0034 (excluding unused 0026) are Accepted.
+ADRs 0001–0007, 0014–0015, and 0017 are superseded;
+ADRs 0008–0013 are withdrawn. ADR-0017 established the earlier Java 25
+supported-capability semantic baseline; ADR-0034 supersedes it with a JVMS Core
+plus parallel Catty Runtime and optional Java SE Compatibility Profiles over a
+typed Host ABI.
+ADR-0016 fixes AOT as the primary product path with a
 permanent interpreter fallback. ADR-0025 is implemented by the completed,
 bounded class/interface-initialization workstream; ADR-0027 is implemented by the
 completed bounded UTF-16 String workstream. ADR-0028 through ADR-0030 govern and are implemented
@@ -90,6 +94,12 @@ workstream is Done: all five slices (A–E) delivered, 19-fixture matrix verifie
 the bounded Thread/monitor/init surface in Interpreter and IR, AOT build-rejects
 all concurrency fixtures. The sealed Slice E evidence is at
 `docs/workstreams/r2-concurrency-candidate-evidence/ea1f67a/`. Next action:
-Fix the acceptance anchor for the Accepted
+Reconcile and review the completed research candidate for the Accepted
 [`r3-reflection-dynamic-research`](./workstreams/r3-reflection-dynamic-research.md)
-contract, then begin its fixed 24-fixture baseline, reports, and Proposed ADRs.
+contract against Accepted ADR-0034, separating JVMS core mechanisms from Catty
+Runtime and optional Java SE Compatibility Profile obligations. The baseline
+is 0/24 Match in both Interpreter and IR, with 24/24 AOT NO-BUILD. ADR-0031
+through ADR-0033 have been reconciled with ADR-0034 and Accepted. Ten Accepted
+implementation contracts now separate five shared-kernel slices from five
+optional Java SE Compatibility Profile slices. They await fixed-candidate Owner
+review; no R3 production implementation is authorized.
