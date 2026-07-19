@@ -1,0 +1,67 @@
+=== gofmt (this round's changed Go files) ===
+Command: gofmt -l classfile/constant_pool.go classfile/classfile_test.go classfile/attribute.go classfile/classfile.go classfile/classreader.go classfile/member.go classfile/stackmap.go rtda/build.go rtda/class.go rtda/bootstrap_test.go
+Result: (no output = clean)
+
+=== go vet ./... ===
+Result: Pass (no output)
+
+=== go test ./... ===
+ok  	catty/classfile	3.852s
+ok  	catty/classloader	(cached)
+?   	catty/classpath	[no test files]
+?   	catty/cmd/jvm	[no test files]
+ok  	catty/docs/workstreams/r2-concurrency-evidence/prototypes	(cached)
+?   	catty/interpreter	[no test files]
+?   	catty/launch	[no test files]
+ok  	catty/lowering	3.213s
+ok  	catty/native	(cached)
+?   	catty/opcode	[no test files]
+ok  	catty/rtda	(cached)
+?   	catty/runtime	[no test files]
+ok  	catty/transpile	14.378s
+
+=== go test -race ./... ===
+ok  	catty/classfile	4.491s
+ok  	catty/classloader	(cached)
+?   	catty/classpath	[no test files]
+?   	catty/cmd/jvm	[no test files]
+ok  	catty/docs/workstreams/r2-concurrency-evidence/prototypes	(cached)
+?   	catty/interpreter	[no test files]
+?   	catty/launch	[no test files]
+ok  	catty/lowering	3.828s
+ok  	catty/native	(cached)
+?   	catty/opcode	[no test files]
+ok  	catty/rtda	(cached)
+?   	catty/runtime	[no test files]
+ok  	catty/transpile	16.042s
+
+=== bash tests/run.sh ===
+==> building catty
+==> compiling fixtures
+PASS  HelloWorld
+PASS  Fibonacci
+PASS  Factorial
+PASS  ArraySum
+PASS  OOPDemo
+PASS  StaticFields
+PASS  SwitchDemo
+PASS  EmptyMain
+PASS  ExceptionTest
+PASS  InterfaceTest
+
+==> 10 passed, 0 failed
+
+=== git diff --check ===
+Result: Pass (no output)
+
+=== Evidence statistics correction — 2026-07-20 ===
+Command: awk '/ REF / && $3 == "MATCH" { n++ } END { print n+0 }' r3-baseline.txt
+Result: 0 (Interpreter Match rows)
+Command: awk '/ REF / && $4 == "MATCH" { n++ } END { print n+0 }' r3-baseline.txt
+Result: 0 (IR Match rows)
+Command: go test ./classfile -run 'TestMHNestedIndexErrors|TestMHFieldAcceptsInitClinit|TestMHMethodRejectsAngleBracketNames|TestInvokeDynamicRejectsAngleBracketNames|TestConstantDynamicAcceptsAngleBracketFieldName' -count=1
+Result: Pass — ok catty/classfile
+Command: git diff --check
+Result: Pass (no output)
+Command: git diff --exit-code d5ca31f -- classfile rtda tests/fixtures
+Result: Pass (no output; tested implementation paths are byte-identical to candidate)
