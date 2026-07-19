@@ -9,7 +9,7 @@
 ADR-0028 through ADR-0031, ADR-0033, and ADR-0034
 **Prerequisites:** `r3-reflection-dynamic-research` Done;
 `r3-metadata-slice` Done; acceptance anchor fixed at `0fcf316`
-**Acceptance anchor / actual base:** `0fcf316` / `0fcf316`
+**Acceptance anchor / actual base:** `0fcf316` / `397b407`
 **Branch:** `codex/r3-runtime-identity-definition-slice`
 
 ## Outcome
