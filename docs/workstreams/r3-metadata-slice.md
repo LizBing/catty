@@ -1,6 +1,6 @@
 # R3 dynamic metadata kernel slice
 
-**Status:** Ready
+**Status:** Done
 **Type:** implementation
 **Review:** owner
 **Profile:** Catty JVMS Core shared kernel; no public profile API
@@ -75,7 +75,7 @@ known accepted structures cannot be silently discarded.
 | Attach immutable metadata to runtime classes | Complete |
 | Evaluate a narrowly scoped AOT diagnostic improvement | Omitted — no coupling to K4 linkage; generic failure unchanged |
 | Run contract gates and fix candidate | Complete |
-| Owner reviews K1 candidate | Pending |
+| Owner reviews K1 candidate | Complete — accepted and integrated at `0fcf316` |
 
 ## Acceptance record
 
@@ -418,9 +418,8 @@ A tests/fixtures/DynStringConcat.java
 - **K2/K4 coupling:** No classloader propagation or bootstrap execution code.
   Tests verify no-eager-loading but don't exercise actual bootstrap invocation.
 
-### Owner decision required
+### Owner decision
 
-Candidate `d5ca31f` is **Ready for review**, not accepted. The Owner must:
-1. Review the name-semantics fixes and test coverage.
-2. Decide whether to accept K1 and authorize integration.
-3. If accepted, update K1 to Done and integrate it under the project protocol.
+Owner accepted the K1 candidate and integrated it into `main` at `0fcf316`
+on 2026-07-20. The sealed candidate evidence remains the acceptance evidence;
+K1 adds no Java-visible R3 capability claim.

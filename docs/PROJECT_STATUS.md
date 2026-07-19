@@ -1,11 +1,11 @@
 # Project status
 
-**As of:** 2026-07-18
-**Stable baseline:** R2 concurrency milestone complete — initialization, UTF-16 String, and bounded Thread/monitor foundation Slices A–E
-**Baseline commit:** `ca42a61` (Slice E final integration)
-**Governance/research anchor:** `f685526` (R3 research Done; K1 acceptance anchor)
-**Active workstream:** `r3-metadata-slice` — In Progress on `codex/r3-metadata-slice`; the only active implementation workstream
-**Current phase:** R2 remains the stable production baseline. R3 research is Done and K1 dynamic-metadata kernel implementation is active from `f685526`. K1 adds no Java-visible reflection or InvokeDynamic capability by contract. Timed `wait`/`join`, `Unsafe`, virtual threads, `ThreadGroup`/`ThreadLocal`, and `java.util.concurrent` remain out of scope.
+**As of:** 2026-07-20
+**Stable baseline:** R3 K1 dynamic metadata kernel complete; R2 concurrency milestone remains complete
+**Baseline commit:** `0fcf316` (K1 dynamic metadata kernel integration)
+**Governance/research anchor:** `f685526` (R3 research Done); K2 acceptance anchor: `0fcf316`
+**Active workstream:** `r3-runtime-identity-definition-slice` — Active on the next implementation branch from anchor `0fcf316`; the only active implementation workstream
+**Current phase:** R3 research is Done and K1 dynamic-metadata kernel is integrated. K1 adds no Java-visible reflection or InvokeDynamic capability by contract. K2 is now the active shared-kernel workstream. Timed `wait`/`join`, `Unsafe`, virtual threads, `ThreadGroup`/`ThreadLocal`, and `java.util.concurrent` remain out of scope.
 
 This is the single model-neutral current-state entry. Strategy lives in
 [`ROADMAP.md`](./ROADMAP.md); decisions live in [`adr/`](./adr/); scoped work
@@ -90,9 +90,9 @@ mapping, Unsafe, and allocation remain deferred.
 
 ## Next action
 
-R3 research is Done at candidate `f685526`; its fixed baseline remains 0/24
-Match in Interpreter and IR with 24/24 AOT NO-BUILD. Implement the Accepted
-[`r3-metadata-slice`](./workstreams/r3-metadata-slice.md) K1 contract from
-anchor `f685526`: typed BootstrapMethods and dynamic constant-pool metadata,
-immutable runtime attachment, typed malformed-input failure, and explicit
-capability honesty. No Java-visible R3 row may be newly claimed Supported.
+Implement the Accepted
+[`r3-runtime-identity-definition-slice`](./workstreams/r3-runtime-identity-definition-slice.md)
+K2 contract from anchor `0fcf316`: defining-loader-aware canonical Class
+identity, typed lookup/definition results, atomic publication, and mirror
+continuity. K1 evidence remains fixed at 0/24 Match in Interpreter and IR with
+24/24 AOT NO-BUILD; no Java-visible R3 row may be newly claimed Supported.

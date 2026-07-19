@@ -1,6 +1,6 @@
 # R3 runtime identity and typed class-definition slice
 
-**Status:** Accepted
+**Status:** In Progress
 **Type:** implementation
 **Review:** owner
 **Profile:** Catty JVMS Core shared kernel; no public ClassLoader API
@@ -8,7 +8,9 @@
 **Governing ADRs:** ADR-0016, ADR-0018 through ADR-0022, ADR-0025,
 ADR-0028 through ADR-0031, ADR-0033, and ADR-0034
 **Prerequisites:** `r3-reflection-dynamic-research` Done;
-`r3-metadata-slice` Done; acceptance anchor fixed
+`r3-metadata-slice` Done; acceptance anchor fixed at `0fcf316`
+**Acceptance anchor / actual base:** `0fcf316` / `0fcf316`
+**Branch:** `codex/r3-runtime-identity-definition-slice`
 
 ## Outcome
 
@@ -63,12 +65,18 @@ type world.
 
 ## Plan
 
-Accepted; waiting for prerequisites and acceptance anchor. No implementation
-is in progress.
+| Step | State |
+|---|---|
+| Owner accepts frozen contract | Complete |
+| K1 prerequisite and acceptance anchor | Complete — `0fcf316` |
+| Implementation preflight | Complete — selected as the sole active K2 workstream |
+| Runtime identity and typed lookup/definition implementation | Pending |
+| Owner review and integration | Pending |
 
 ## Acceptance record
 
 Accepted by Owner on 2026-07-18. Outcome, Scope, Non-scope, Semantic
 constraints, Acceptance gates, profile classification, and owner review are
-frozen. Implementation remains unauthorized until prerequisites are Done and
-this contract is fixed in an acceptance-anchor commit.
+frozen. The prerequisite is now satisfied by K1 integration at `0fcf316`; K2
+is the selected active workstream, with implementation to begin from that
+anchor.
