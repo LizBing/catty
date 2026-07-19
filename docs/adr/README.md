@@ -30,7 +30,7 @@ decision requires a superseding ADR.
 | [0014](./0014-synthetic-string-extra-payload.md) | Synthetic String with a Go-string Extra() payload | Superseded by ADR-0023 |
 | [0015](./0015-bootstrap-class-boundary.md) | The bootstrap-class boundary (6 irreducible synthetic classes) | Superseded by ADR-0022 |
 | [0016](./0016-multi-engine-execution.md) | Multi-engine execution with AOT as the primary product path | Accepted |
-| [0017](./0017-java-25-semantic-baseline.md) | Java 25 semantic baseline for supported capabilities | Accepted |
+| [0017](./0017-java-25-semantic-baseline.md) | Java 25 semantic baseline for supported capabilities | Superseded by ADR-0034 |
 | [0018](./0018-go-runtime-infrastructure-boundary.md) | Reuse Go runtime infrastructure without substituting Java semantics | Accepted |
 | [0019](./0019-go-native-dissolution-policy.md) | Go-native dissolution and representation policy | Accepted |
 | [0020](./0020-representation-domains-and-engine-boundaries.md) | Representation domains and typed engine boundaries | Accepted |
@@ -43,3 +43,7 @@ decision requires a superseding ADR.
 | [0028](./0028-java-thread-identity-and-carriers.md) | Java Thread identity, lifecycle, and execution carriers | Accepted |
 | [0029](./0029-java-object-monitors-and-concurrent-initialization.md) | Java object monitors, wait sets, and concurrent class initialization | Accepted |
 | [0030](./0030-race-free-sc-heap-cells.md) | Race-free sequentially consistent heap cells for R2 concurrency | Accepted |
+| [0031](./0031-reflection-metadata-and-typed-invocation.md) | Runtime metadata, canonical type identity, and typed dynamic invocation | Accepted |
+| [0032](./0032-invokedynamic-linkage-and-call-sites.md) | InvokeDynamic linkage kernel and typed call-site state | Accepted |
+| [0033](./0033-defining-loaders-and-generated-classes.md) | Defining-loader identity and generated-class kernel | Accepted |
+| [0034](./0034-jvms-runtime-profile-and-host-abi.md) | JVMS core, runtime profiles, and typed host interoperability | Accepted |

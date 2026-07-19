@@ -1,10 +1,11 @@
 # Project status
 
-**As of:** 2026-07-17
+**As of:** 2026-07-18
 **Stable baseline:** R2 concurrency milestone complete — initialization, UTF-16 String, and bounded Thread/monitor foundation Slices A–E
 **Baseline commit:** `ca42a61` (Slice E final integration)
-**Active workstream:** `r3-reflection-dynamic-research` — Accepted; acceptance anchor pending
-**Current phase:** R2 complete. All five slices (A–E) of the Thread/monitor foundation delivered. 19-fixture concurrency matrix matches Temurin 25 in Interpreter and IR (1× and race-built 100× stress); AOT build-rejects all 19 fixtures. Multi-threaded producer-consumer milestone achieved. Timed `wait`/`join`, `Unsafe`, virtual threads, `ThreadGroup`/`ThreadLocal`, and `java.util.concurrent` remain out of scope.
+**Governance/research anchor:** `f685526` (R3 research Done; K1 acceptance anchor)
+**Active workstream:** `r3-metadata-slice` — In Progress on `codex/r3-metadata-slice`; the only active implementation workstream
+**Current phase:** R2 remains the stable production baseline. R3 research is Done and K1 dynamic-metadata kernel implementation is active from `f685526`. K1 adds no Java-visible reflection or InvokeDynamic capability by contract. Timed `wait`/`join`, `Unsafe`, virtual threads, `ThreadGroup`/`ThreadLocal`, and `java.util.concurrent` remain out of scope.
 
 This is the single model-neutral current-state entry. Strategy lives in
 [`ROADMAP.md`](./ROADMAP.md); decisions live in [`adr/`](./adr/); scoped work
@@ -74,9 +75,13 @@ behavior remain blocked by unresolved runtime/library dependencies.
 
 ## Decision state
 
-ADRs 0016–0030 (excluding unused 0026) are Accepted. ADRs 0001–0007 and 0014–0015 are superseded;
-ADRs 0008–0013 are withdrawn. ADR-0017 fixes Java 25 as the supported-capability
-semantic baseline; ADR-0016 fixes AOT as the primary product path with a
+ADRs 0016 and 0018–0034 (excluding unused 0026) are Accepted.
+ADRs 0001–0007, 0014–0015, and 0017 are superseded;
+ADRs 0008–0013 are withdrawn. ADR-0017 established the earlier Java 25
+supported-capability semantic baseline; ADR-0034 supersedes it with a JVMS Core
+plus parallel Catty Runtime and optional Java SE Compatibility Profiles over a
+typed Host ABI.
+ADR-0016 fixes AOT as the primary product path with a
 permanent interpreter fallback. ADR-0025 is implemented by the completed,
 bounded class/interface-initialization workstream; ADR-0027 is implemented by the
 completed bounded UTF-16 String workstream. ADR-0028 through ADR-0030 govern and are implemented
@@ -85,11 +90,9 @@ mapping, Unsafe, and allocation remain deferred.
 
 ## Next action
 
-R2 concurrency milestone complete. The `r2-thread-monitor-foundation-slice`
-workstream is Done: all five slices (A–E) delivered, 19-fixture matrix verifies
-the bounded Thread/monitor/init surface in Interpreter and IR, AOT build-rejects
-all concurrency fixtures. The sealed Slice E evidence is at
-`docs/workstreams/r2-concurrency-candidate-evidence/ea1f67a/`. Next action:
-Fix the acceptance anchor for the Accepted
-[`r3-reflection-dynamic-research`](./workstreams/r3-reflection-dynamic-research.md)
-contract, then begin its fixed 24-fixture baseline, reports, and Proposed ADRs.
+R3 research is Done at candidate `f685526`; its fixed baseline remains 0/24
+Match in Interpreter and IR with 24/24 AOT NO-BUILD. Implement the Accepted
+[`r3-metadata-slice`](./workstreams/r3-metadata-slice.md) K1 contract from
+anchor `f685526`: typed BootstrapMethods and dynamic constant-pool metadata,
+immutable runtime attachment, typed malformed-input failure, and explicit
+capability honesty. No Java-visible R3 row may be newly claimed Supported.

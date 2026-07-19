@@ -1,0 +1,30 @@
+=== K1 candidate metadata ===
+
+Acceptance anchor: f685526 (docs: complete R3 dynamic research candidate)
+Candidate commit:   d5ca31f (feat(classfile): retain dynamic bootstrap metadata)
+Branch:             codex/r3-metadata-slice
+Candidate base:     f685526 (acceptance anchor)
+Go version:         go1.26.5 darwin/arm64
+Java version:       openjdk version "25.0.3" 2026-04-21 LTS
+javac version:      javac 25.0.3
+
+Candidate files:
+  M classfile/attribute.go
+  M classfile/classfile.go
+  M classfile/classfile_test.go
+  M classfile/classreader.go
+  M classfile/constant_pool.go
+  M classfile/member.go
+  M classfile/stackmap.go
+  M rtda/build.go
+  M rtda/class.go
+  A rtda/bootstrap_test.go
+  A tests/fixtures/DynLambda.java
+  A tests/fixtures/DynStringConcat.java
+
+The gates and R3 harness were run against the pre-commit worktree whose
+implementation paths are byte-identical to candidate d5ca31f. The raw harness
+header therefore records the then-HEAD 6915ec4 plus worktree-dirty=yes; the
+fixed implementation candidate containing those tested paths is d5ca31f.
+Candidate evidence and the Ready handoff are recorded by the following
+governance commit, consistent with the repository's candidate/evidence pattern.

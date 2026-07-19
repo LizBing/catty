@@ -1,0 +1,419 @@
+=== R3 reflection/dynamic research baseline (24 fixtures) ===
+acceptance-anchor: 6cf3636
+worktree-head:     6cf3636afeb323d85f6b033eef4da006887e45a8
+branch:            codex/r3-reflection-dynamic-research
+worktree-dirty:    yes
+java:              openjdk version "25.0.3" 2026-04-21 LTS
+javac:             javac 25.0.3
+jimage:            25.0.3
+go:                go version go1.26.5 darwin/arm64
+boot:              extracted java.base (/var/folders/43/qdn_rh0j0b5btn_x7mj5_rl00000gn/T/r3-java-base.XXXXXX.opEuhG75mY/java.base)
+timeouts:          run=20s aot-build=120s
+compare:           combined stdout+stderr and exit status
+policy:            descriptive baseline; no catty state is counted as support
+
+fixture                          Temurin25   Interpreter      IR               AOT
+-------                          ---------   -----------      --               ---
+ClassIdentity                    REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- ClassIdentity -----
+[0] Temurin25
+true
+true
+java.lang.String
+[1] Interpreter (EXIT(1))
+Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Class.forName(Ljava/lang/String;)Ljava/lang/Class;
+[1] IR (EXIT(1))
+catty: catty: invokeMethod received nil method from frame ClassIdentity.main([Ljava/lang/String;)V
+[-; build=1] AOT (NO-BUILD)
+catty build: transpile: ClassIdentity.main cannot be AOT'd (unsupported opcodes?)
+ClassForNameInit                 REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- ClassForNameInit -----
+[0] Temurin25
+before
+ClassForNameInit$Target
+trigger
+initialized
+true
+42
+[1] Interpreter (EXIT(1))
+before
+Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Class.getClassLoader()Ljava/lang/ClassLoader;
+[1] IR (EXIT(1))
+before
+catty: runtime error: invalid memory address or nil pointer dereference
+[-; build=1] AOT (NO-BUILD)
+catty build: transpile: ClassForNameInit.main cannot be AOT'd (unsupported opcodes?)
+ClassQueries                     REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- ClassQueries -----
+[0] Temurin25
+true
+1
+true
+true
+true
+true
+[1] Interpreter (EXIT(1))
+false
+Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Class.getInterfaces()[Ljava/lang/Class;
+[1] IR (EXIT(1))
+false
+catty: runtime error: invalid memory address or nil pointer dereference
+[-; build=2] AOT (NO-BUILD)
+	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:79 +0x50
+main.buildCmd({0x78e0c0a22100, 0x5, 0x5})
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+main.main()
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+DeclaredMembers                  REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- DeclaredMembers -----
+[0] Temurin25
+2
+2
+2
+true
+true
+true
+0
+0
+true
+[1] Interpreter (EXIT(1))
+Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Class.getDeclaredField(Ljava/lang/String;)Ljava/lang/reflect/Field;
+[1] IR (EXIT(1))
+catty: runtime error: invalid memory address or nil pointer dereference
+[-; build=2] AOT (NO-BUILD)
+	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:79 +0x50
+main.buildCmd({0x6f05386c2020, 0x5, 0x5})
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+main.main()
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+PrimitiveAndArrayClass           REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- PrimitiveAndArrayClass -----
+[0] Temurin25
+true
+true
+true
+true
+true
+true
+true
+[1] Interpreter (EXIT(1))
+Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Class.isPrimitive()Z
+[1] IR (EXIT(1))
+catty: runtime error: invalid memory address or nil pointer dereference
+[-; build=2] AOT (NO-BUILD)
+	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:79 +0x50
+main.buildCmd({0x641c5cd42020, 0x5, 0x5})
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+main.main()
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+MissingClass                     REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- MissingClass -----
+[0] Temurin25
+java.lang.ClassNotFoundException
+[1] Interpreter (EXIT(1))
+Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Class.forName(Ljava/lang/String;)Ljava/lang/Class;
+[1] IR (EXIT(1))
+catty: catty: invokeMethod received nil method from frame MissingClass.main([Ljava/lang/String;)V
+[-; build=2] AOT (NO-BUILD)
+	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:79 +0x50
+main.buildCmd({0x27e3ab598100, 0x5, 0x5})
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+main.main()
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+MethodInvoke                     REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- MethodInvoke -----
+[0] Temurin25
+true
+37
+child
+[1] Interpreter (EXIT(1))
+Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Class.getMethod(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;
+[1] IR (EXIT(1))
+catty: runtime error: invalid memory address or nil pointer dereference
+[-; build=2] AOT (NO-BUILD)
+	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:79 +0x50
+main.buildCmd({0x535bcb62100, 0x5, 0x5})
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+main.main()
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+ConstructorInvoke                REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- ConstructorInvoke -----
+[0] Temurin25
+true
+catty
+25
+[1] Interpreter (EXIT(1))
+Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Class.getConstructor([Ljava/lang/Class;)Ljava/lang/reflect/Constructor;
+[1] IR (EXIT(1))
+catty: runtime error: invalid memory address or nil pointer dereference
+[-; build=2] AOT (NO-BUILD)
+	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:79 +0x50
+main.buildCmd({0x633ffa272100, 0x5, 0x5})
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+main.main()
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+FieldGetSet                      REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- FieldGetSet -----
+[0] Temurin25
+9
+value
+33
+[1] Interpreter (EXIT(1))
+Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Class.getField(Ljava/lang/String;)Ljava/lang/reflect/Field;
+[1] IR (EXIT(1))
+catty: runtime error: invalid memory address or nil pointer dereference
+[-; build=2] AOT (NO-BUILD)
+	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:79 +0x50
+main.buildCmd({0xa36d5d54100, 0x5, 0x5})
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+main.main()
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+StaticReflectiveInit             REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- StaticReflectiveInit -----
+[0] Temurin25
+metadata-ready
+field-init
+17
+method-init
+29
+[1] Interpreter (EXIT(1))
+Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Class.getDeclaredField(Ljava/lang/String;)Ljava/lang/reflect/Field;
+[1] IR (EXIT(1))
+catty: runtime error: invalid memory address or nil pointer dereference
+[-; build=2] AOT (NO-BUILD)
+	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:79 +0x50
+main.buildCmd({0x276a027c2020, 0x5, 0x5})
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+main.main()
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+ReflectiveConversions            REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- ReflectiveConversions -----
+[0] Temurin25
+7
+3
+true
+[1] Interpreter (EXIT(1))
+Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Class.getMethod(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;
+[1] IR (EXIT(1))
+catty: runtime error: invalid memory address or nil pointer dereference
+[-; build=2] AOT (NO-BUILD)
+	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:79 +0x50
+main.buildCmd({0x7ec2950a0020, 0x5, 0x5})
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+main.main()
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+ReflectiveFailures               REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- ReflectiveFailures -----
+[0] Temurin25
+receiver
+java.lang.IllegalStateException
+boom
+access
+[1] Interpreter (EXIT(1))
+Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Class.getMethod(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;
+[1] IR (EXIT(1))
+catty: runtime error: invalid memory address or nil pointer dereference
+[-; build=2] AOT (NO-BUILD)
+	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:79 +0x50
+main.buildCmd({0x32d2064d2100, 0x5, 0x5})
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+main.main()
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+ClassAnnotation                  REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- ClassAnnotation -----
+[0] Temurin25
+true
+catty
+3
+true
+[1] Interpreter (EXIT(1))
+Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Class.getAnnotation(Ljava/lang/Class;)Ljava/lang/annotation/Annotation;
+[1] IR (EXIT(1))
+catty: runtime error: invalid memory address or nil pointer dereference
+[-; build=1] AOT (NO-BUILD)
+catty build: transpile: ClassAnnotation.main cannot be AOT'd (unsupported opcodes?)
+MemberAnnotation                 REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- MemberAnnotation -----
+[0] Temurin25
+1
+2
+3
+[1] Interpreter (EXIT(1))
+Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Class.getField(Ljava/lang/String;)Ljava/lang/reflect/Field;
+[1] IR (EXIT(1))
+catty: runtime error: invalid memory address or nil pointer dereference
+[-; build=2] AOT (NO-BUILD)
+	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:79 +0x50
+main.buildCmd({0x2e31051ec100, 0x5, 0x5})
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+main.main()
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+AnnotationDefaults               REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- AnnotationDefaults -----
+[0] Temurin25
+7
+HIGH
+true
+nested
+2
+4
+6
+[1] Interpreter (EXIT(1))
+Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Class.getAnnotation(Ljava/lang/Class;)Ljava/lang/annotation/Annotation;
+[1] IR (EXIT(1))
+catty: runtime error: invalid memory address or nil pointer dereference
+[-; build=2] AOT (NO-BUILD)
+	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:79 +0x50
+main.buildCmd({0x76eb5a5d2100, 0x5, 0x5})
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+main.main()
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+InheritedRepeatableAnnotation    REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- InheritedRepeatableAnnotation -----
+[0] Temurin25
+2
+first
+second
+0
+[1] Interpreter (EXIT(1))
+Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Class.getAnnotationsByType(Ljava/lang/Class;)[Ljava/lang/annotation/Annotation;
+[1] IR (EXIT(1))
+catty: runtime error: invalid memory address or nil pointer dereference
+[-; build=1] AOT (NO-BUILD)
+catty build: transpile: InheritedRepeatableAnnotation.main cannot be AOT'd (unsupported opcodes?)
+StringConcatIndy                 REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- StringConcatIndy -----
+[0] Temurin25
+catty:25:3000000000:null
+😺:-1:0:done
+[1] Interpreter (EXIT(1))
+Exception in thread "main" java.lang.NoSuchMethodError: java/lang/String.valueOf(Ljava/lang/Object;)Ljava/lang/String;
+[1] IR (EXIT(1))
+catty: catty/lowering: invokedynamic not yet supported
+[-; build=2] AOT (NO-BUILD)
+	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:79 +0x50
+main.buildCmd({0x27d3ad2ec100, 0x5, 0x5})
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+main.main()
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+StatelessLambda                  REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- StatelessLambda -----
+[0] Temurin25
+49
+9
+true
+[1] Interpreter (EXIT(1))
+catty: catty: opcode 0xba (invokedynamic) not implemented
+[1] IR (EXIT(1))
+catty: catty/lowering: invokedynamic not yet supported
+[-; build=2] AOT (NO-BUILD)
+	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:79 +0x50
+main.buildCmd({0x6b70189ae100, 0x5, 0x5})
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+main.main()
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+CapturingLambda                  REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- CapturingLambda -----
+[0] Temurin25
+17
+2
+true
+true
+[1] Interpreter (EXIT(1))
+catty: catty: opcode 0xba (invokedynamic) not implemented
+[1] IR (EXIT(1))
+catty: catty/lowering: invokedynamic not yet supported
+[-; build=2] AOT (NO-BUILD)
+	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:79 +0x50
+main.buildCmd({0x638ccefc2020, 0x5, 0x5})
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+main.main()
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+MethodReference                  REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- MethodReference -----
+[0] Temurin25
+10
+catty-dynamic
+[1] Interpreter (EXIT(1))
+catty: catty: opcode 0xba (invokedynamic) not implemented
+[1] IR (EXIT(1))
+catty: catty/lowering: invokedynamic not yet supported
+[-; build=2] AOT (NO-BUILD)
+	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:79 +0x50
+main.buildCmd({0x7424a26ae100, 0x5, 0x5})
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+main.main()
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+BootstrapFailureOnce             REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- BootstrapFailureOnce -----
+[0] Temurin25
+java.lang.NoClassDefFoundError
+java.lang.NoClassDefFoundError
+true
+true
+false
+[1] Interpreter (EXIT(1))
+catty: catty: opcode 0xba (invokedynamic) not implemented
+[1] IR (EXIT(1))
+catty: catty/lowering: invokedynamic not yet supported
+[-; build=2] AOT (NO-BUILD)
+	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:79 +0x50
+main.buildCmd({0x2a1fb7ac2020, 0x5, 0x5})
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+main.main()
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+ProxyDispatch                    REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- ProxyDispatch -----
+[0] Temurin25
+9
+catty
+2
+true
+true
+[1] Interpreter (EXIT(1))
+Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Class.getClassLoader()Ljava/lang/ClassLoader;
+[1] IR (EXIT(1))
+catty: runtime error: invalid memory address or nil pointer dereference
+[-; build=2] AOT (NO-BUILD)
+	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:79 +0x50
+main.buildCmd({0x3ddd373c2020, 0x5, 0x5})
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+main.main()
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+ProxyObjectMethods               REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- ProxyObjectMethods -----
+[0] Temurin25
+proxy-text
+12345
+true
+false
+true
+[1] Interpreter (EXIT(1))
+Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Class.getClassLoader()Ljava/lang/ClassLoader;
+[1] IR (EXIT(1))
+catty: runtime error: invalid memory address or nil pointer dereference
+[-; build=2] AOT (NO-BUILD)
+	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:79 +0x50
+main.buildCmd({0x5594bcdc2020, 0x5, 0x5})
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+main.main()
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+ProxyFailureAndDefault           REF         EXIT(1)          EXIT(1)          NO-BUILD
+----- ProxyFailureAndDefault -----
+[0] Temurin25
+default
+unchecked
+java.io.IOException
+checked
+[1] Interpreter (EXIT(1))
+Exception in thread "main" java.lang.NoSuchMethodError: java/lang/Class.getClassLoader()Ljava/lang/ClassLoader;
+[1] IR (EXIT(1))
+catty: runtime error: invalid memory address or nil pointer dereference
+[-; build=2] AOT (NO-BUILD)
+	/Users/lizbing/Workspace/Projects/catty/launch/launch.go:79 +0x50
+main.buildCmd({0x3654a6e30100, 0x5, 0x5})
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:134 +0x244
+main.main()
+	/Users/lizbing/Workspace/Projects/catty/cmd/jvm/main.go:21 +0x98
+
+rows: 24/24 complete
