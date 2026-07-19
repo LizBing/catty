@@ -135,9 +135,12 @@ func readStackMapTable(info []byte) *StackMapTableAttribute {
 			rf.locals = readVerifTypes(r, int(r.ReadUint16()))
 			rf.stack = readVerifTypes(r, int(r.ReadUint16()))
 		default:
-			panic("catty: reserved stack_map_frame type")
+			panicf("StackMapTable", "reserved stack_map_frame type %d", ft)
 		}
 		a.raw = append(a.raw, rf)
+	}
+	if r.Len() > 0 {
+		panicf("StackMapTable", "trailing bytes after StackMapTable attribute body (%d remaining)", r.Len())
 	}
 	return a
 }

@@ -15,12 +15,13 @@ import (
 //   - long/double occupy two slots everywhere.
 func NewClass(cf *classfile.ClassFile, loader Loader) *Class {
 	c := &Class{
-		name:           cf.ClassName(),
-		superName:      cf.SuperClassName(),
-		accessFlags:    cf.AccessFlags(),
-		cp:             cf.ConstantPool(),
-		interfaceNames: cf.InterfaceNames(),
-		methodTable:    make(map[string]*Method),
+		name:             cf.ClassName(),
+		superName:        cf.SuperClassName(),
+		accessFlags:      cf.AccessFlags(),
+		cp:               cf.ConstantPool(),
+		bootstrapMethods: cf.BootstrapMethods(),
+		interfaceNames:   cf.InterfaceNames(),
+		methodTable:      make(map[string]*Method),
 	}
 	c.initCond = sync.NewCond(&c.initMu)
 

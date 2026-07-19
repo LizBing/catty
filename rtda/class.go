@@ -12,13 +12,14 @@ import (
 // classes with no on-disk class file (java.lang.Object, System, ...) are
 // synthesized directly as Class values by the native package.
 type Class struct {
-	name           string
-	superName      string
-	superClass     *Class
-	interfaceNames []string
-	interfaces     []*Class
-	accessFlags    uint16
-	cp             *classfile.ConstantPool
+	name             string
+	superName        string
+	superClass       *Class
+	interfaceNames   []string
+	interfaces       []*Class
+	accessFlags      uint16
+	cp               *classfile.ConstantPool
+	bootstrapMethods *classfile.BootstrapMethodsAttr
 
 	instanceFields []*Field
 	instCellCount  uint // total instance cell count (own + inherited), 1 per field per ADR-0030
@@ -32,16 +33,16 @@ type Class struct {
 	// element class (for object arrays) and componentKind tags primitive arrays.
 	isArray        bool
 	componentClass *Class
-	componentKind  int // kindByte, kindChar, ...; 0 for object arrays
+	componentKind  int    // kindByte, kindChar, ...; 0 for object arrays
 	arrayClass     *Class // cached "[Lthis;" / "[Ithis" array class
 
 	// Class initialization bookkeeping (ADR-0025: Java 25 state machine).
 	// Protected by initMu. The lock is distinct from the Class mirror's Java
 	// monitor (ADR-0029) and guards initState, initOwner, and initCond.
-	initMu   sync.Mutex
-	initCond *sync.Cond // lazy-init via initCondOnce; signals terminal state transitions
-	initState int32     // one of the four init* constants
-	initOwner uint64    // identity of the execution context currently initializing this class (0 = none)
+	initMu    sync.Mutex
+	initCond  *sync.Cond // lazy-init via initCondOnce; signals terminal state transitions
+	initState int32      // one of the four init* constants
+	initOwner uint64     // identity of the execution context currently initializing this class (0 = none)
 
 	// classObject is the canonical java.lang.Class mirror for this class, created
 	// lazily with a compare-and-swap so all goroutines see the same identity.
@@ -51,10 +52,10 @@ type Class struct {
 
 // Class initialization states (JVMS §5.5 via ADR-0025).
 const (
-	initNotStarted int32 = iota // not-initialized
-	initInProgress              // initializing — initOwner names the owning execution context
-	initInitialized             // successfully initialized
-	initErroneous               // initialization failed — class is erroneous
+	initNotStarted  int32 = iota // not-initialized
+	initInProgress               // initializing — initOwner names the owning execution context
+	initInitialized              // successfully initialized
+	initErroneous                // initialization failed — class is erroneous
 )
 
 const (
@@ -71,12 +72,13 @@ const (
 
 // --- Accessors used by the loader and interpreter ---
 
-func (c *Class) Name() string         { return c.name }
-func (c *Class) SuperClass() *Class   { return c.superClass }
-func (c *Class) AccessFlags() uint16  { return c.accessFlags }
-func (c *Class) ConstantPool() *classfile.ConstantPool { return c.cp }
-func (c *Class) InstCellCount() uint    { return c.instCellCount }
-func (c *Class) IsArray() bool          { return c.isArray }
+func (c *Class) Name() string                                      { return c.name }
+func (c *Class) SuperClass() *Class                                { return c.superClass }
+func (c *Class) AccessFlags() uint16                               { return c.accessFlags }
+func (c *Class) ConstantPool() *classfile.ConstantPool             { return c.cp }
+func (c *Class) BootstrapMethods() *classfile.BootstrapMethodsAttr { return c.bootstrapMethods }
+func (c *Class) InstCellCount() uint                               { return c.instCellCount }
+func (c *Class) IsArray() bool                                     { return c.isArray }
 
 // --- Typed static cell accessors (ADR-0030) ---
 // staticCells is unexported; all external access goes through these methods.
