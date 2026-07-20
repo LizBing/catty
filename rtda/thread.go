@@ -11,7 +11,19 @@ import (
 // Declaring it here as an interface keeps rtda free of any import cycle with the
 // classloader package, which implements Loader concretely.
 type Loader interface {
+	// LoadClass is the must-load convenience method. It returns a fully linked
+	// Class or panics. Only bootstrap invariants and legacy callers proven
+	// unreachable from supported classfiles may use this method.
 	LoadClass(name string) *Class
+
+	// LoadClassResult returns a typed result: either a fully linked Class or a
+	// terminal ClassLoadFailure. Java-reachable resolution paths MUST use this
+	// method so failures propagate as Java throwables rather than Go panics.
+	LoadClassResult(name string) ClassLoadResult
+
+	// LoaderIdentity returns the opaque identity of this loader.
+	// Primitive and void types use VMIdentity.
+	LoaderIdentity() *LoaderIdentity
 }
 
 // thread states (atomic int32).

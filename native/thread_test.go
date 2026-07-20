@@ -12,10 +12,26 @@ import (
 // with catty/classloader (which imports catty/native).
 type simpleLoader struct {
 	classes map[string]*rtda.Class
+	id      *rtda.LoaderIdentity
 }
 
 func (l *simpleLoader) LoadClass(name string) *rtda.Class {
 	return l.classes[name]
+}
+
+func (l *simpleLoader) LoadClassResult(name string) rtda.ClassLoadResult {
+	c := l.LoadClass(name)
+	if c != nil {
+		return rtda.NewClassResult(c)
+	}
+	return rtda.NewFailureResult(&rtda.ClassLoadFailure{Kind: rtda.FailureNotFound, Name: name})
+}
+
+func (l *simpleLoader) LoaderIdentity() *rtda.LoaderIdentity {
+	if l.id == nil {
+		l.id = rtda.NewLoaderIdentity()
+	}
+	return l.id
 }
 
 // buildTestHierarchy constructs a minimal class hierarchy for Thread tests:

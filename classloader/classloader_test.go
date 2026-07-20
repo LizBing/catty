@@ -7,40 +7,34 @@ import (
 	"catty/rtda"
 )
 
-// slowProvider returns a class only after an explicit sync signal, so
-// concurrent LoadClass calls are forced to race on the slow path.
-type slowProvider struct {
-	name   string
-	class  *rtda.Class
-	ready  chan struct{}
-	give   chan struct{}
+// countProvider is a ClassProvider that counts invocations.
+type countProvider struct {
+	class *rtda.Class
+	mu    sync.Mutex
+	count int
 }
 
-func (p *slowProvider) Provide(name string, loader rtda.Loader) *rtda.Class {
-	if name != p.name {
-		return nil
+func (p *countProvider) Provide(name string, loader rtda.Loader) ProviderResult {
+	if name != "test/Dup" {
+		return ProviderMiss()
 	}
-	// Signal that we are inside Provide (past the cache check).
-	p.ready <- struct{}{}
-	// Wait for the test to release us.
-	<-p.give
-	return p.class
+	p.mu.Lock()
+	p.count++
+	p.mu.Unlock()
+	return ProviderClass(p.class)
 }
 
 // TestConcurrentLoadSingleIdentity verifies that loading the same class from N
 // concurrent goroutines returns the SAME *Class pointer (exactly one cache entry,
-// no duplicates), and that the provider is only called once.
+// no duplicates). The K2 definition protocol ensures only one goroutine executes
+// the provider chain; the rest wait on the defRecord and receive the published
+// result.
 func TestConcurrentLoadSingleIdentity(t *testing.T) {
 	cls := &rtda.Class{}
-	sp := &slowProvider{
-		name:  "test/Dup",
-		class: cls,
-		ready: make(chan struct{}, 16),
-		give:  make(chan struct{}),
-	}
-	cl := NewCustom(sp)
+	cp := &countProvider{class: cls}
+	cl := NewCustom(cp)
 
-	const N = 16
+	const N = 32
 	var wg sync.WaitGroup
 	results := make([]*rtda.Class, N)
 
@@ -52,14 +46,6 @@ func TestConcurrentLoadSingleIdentity(t *testing.T) {
 		}(i)
 	}
 
-	// Wait for ALL goroutines to reach the slow path inside Provide.
-	for i := 0; i < N; i++ {
-		<-sp.ready
-	}
-	// Release the provider — one wins the cache CAS, the rest hit the
-	// double-check inside LoadClass.
-	close(sp.give)
-
 	wg.Wait()
 
 	// Every goroutine must see the same pointer.
@@ -69,9 +55,14 @@ func TestConcurrentLoadSingleIdentity(t *testing.T) {
 		}
 	}
 
+	// Provider must have been called exactly once.
+	if cp.count != 1 {
+		t.Errorf("provider called %d times, want 1", cp.count)
+	}
+
 	// Cache must contain exactly one entry for the name.
 	cl.mu.RLock()
-	cached := cl.cache["test/Dup"]
+	cached := cl.initiatingCache["test/Dup"]
 	cl.mu.RUnlock()
 	if cached != cls {
 		t.Errorf("cache entry = %p, want %p", cached, cls)
@@ -149,9 +140,9 @@ type singleProvider struct {
 	class *rtda.Class
 }
 
-func (p *singleProvider) Provide(name string, loader rtda.Loader) *rtda.Class {
+func (p *singleProvider) Provide(name string, loader rtda.Loader) ProviderResult {
 	if name == p.name {
-		return p.class
+		return ProviderClass(p.class)
 	}
-	return nil
+	return ProviderMiss()
 }

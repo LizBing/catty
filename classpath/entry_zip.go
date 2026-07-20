@@ -19,17 +19,20 @@ func newZipEntry(path string) *zipEntry {
 func (e *zipEntry) ReadClass(name string) ([]byte, Entry, error) {
 	r, err := zip.OpenReader(e.path)
 	if err != nil {
+		// Cannot open the archive at all — real error, propagate immediately.
 		return nil, nil, err
 	}
 	defer r.Close()
 
 	f, err := r.Open(name + ".class")
 	if err != nil {
-		return nil, nil, errNotFound(name)
+		// File not present in this archive — typed miss.
+		return nil, nil, &ErrNotFound{Name: name}
 	}
 	defer f.Close()
 	data, err := io.ReadAll(f)
 	if err != nil {
+		// Archive is open but we can't read the entry — real error.
 		return nil, nil, err
 	}
 	return data, e, nil

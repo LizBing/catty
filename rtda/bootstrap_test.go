@@ -36,6 +36,7 @@ type recordingMockLoader struct {
 	mu      sync.Mutex
 	classes map[string]*Class
 	calls   []string // ordered list of every name passed to LoadClass
+	id      *LoaderIdentity
 }
 
 func (l *recordingMockLoader) LoadClass(name string) *Class {
@@ -43,6 +44,21 @@ func (l *recordingMockLoader) LoadClass(name string) *Class {
 	l.calls = append(l.calls, name)
 	l.mu.Unlock()
 	return l.classes[name]
+}
+
+func (l *recordingMockLoader) LoadClassResult(name string) ClassLoadResult {
+	c := l.LoadClass(name)
+	if c != nil {
+		return NewClassResult(c)
+	}
+	return NewFailureResult(&ClassLoadFailure{Kind: FailureNotFound, Name: name})
+}
+
+func (l *recordingMockLoader) LoaderIdentity() *LoaderIdentity {
+	if l.id == nil {
+		l.id = NewLoaderIdentity()
+	}
+	return l.id
 }
 
 func (l *recordingMockLoader) Calls() []string {

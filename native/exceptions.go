@@ -33,6 +33,12 @@ func init() {
 	registerSynthetic("java/lang/NoClassDefFoundError", func(loader rtda.Loader) *rtda.Class {
 		return buildExceptionSubclass("java/lang/NoClassDefFoundError", "java/lang/LinkageError", loader)
 	})
+	registerSynthetic("java/lang/ClassFormatError", func(loader rtda.Loader) *rtda.Class {
+		return buildExceptionSubclass("java/lang/ClassFormatError", "java/lang/LinkageError", loader)
+	})
+	registerSynthetic("java/lang/ClassCircularityError", func(loader rtda.Loader) *rtda.Class {
+		return buildExceptionSubclass("java/lang/ClassCircularityError", "java/lang/LinkageError", loader)
+	})
 }
 
 func buildComparable(loader rtda.Loader) *rtda.Class {

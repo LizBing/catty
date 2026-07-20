@@ -228,9 +228,11 @@ func classGetSuperclass(f *rtda.Frame) {
 		f.PushRef(nil)
 		return
 	}
-	classClass := f.Thread().Loader().LoadClass("java/lang/Class")
-	superObj := rtda.NewObject(classClass)
-	superObj.SetExtra(super)
+	// Use canonical Class mirror (ADR-0033, K2 mirror continuity).
+	superObj := super.ClassObject(func() *rtda.Object {
+		classClass := f.Thread().Loader().LoadClass("java/lang/Class")
+		return rtda.NewObject(classClass)
+	})
 	f.PushRef(superObj)
 }
 
@@ -290,32 +292,19 @@ func classGetPrimitiveClass(f *rtda.Frame) {
 	// Extract the primitive class name from the StringValue.
 	sv := stringValueSV(name)
 	primName := sv.GoString()
-	// Map JVM internal primitive names
-	switch primName {
-	case "int":
-		primName = "[I"
-	case "long":
-		primName = "[J"
-	case "float":
-		primName = "[F"
-	case "double":
-		primName = "[D"
-	case "boolean":
-		primName = "[Z"
-	case "byte":
-		primName = "[B"
-	case "char":
-		primName = "[C"
-	case "short":
-		primName = "[S"
-	case "void":
-		primName = "V"
+
+	// Look up the canonical VM primitive Class (ADR-0033, K2).
+	cls := rtda.VMPrimitiveForName(primName)
+	if cls == nil {
+		f.PushRef(nil)
+		return
 	}
-	cls := f.Thread().Loader().LoadClass(primName)
-	classClass := f.Thread().Loader().LoadClass("java/lang/Class")
-	obj := rtda.NewObject(classClass)
-	obj.SetExtra(cls)
-	f.PushRef(obj)
+	// Return the canonical Class mirror for this VM type.
+	mirror := cls.ClassObject(func() *rtda.Object {
+		classClass := f.Thread().Loader().LoadClass("java/lang/Class")
+		return rtda.NewObject(classClass)
+	})
+	f.PushRef(mirror)
 }
 
 func nopBool0(f *rtda.Frame) { f.PushInt(0) }

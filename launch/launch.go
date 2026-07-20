@@ -20,6 +20,7 @@ import (
 // Interpret loads the main class and runs it through the bytecode interpreter
 // (or the IR executor if useIR is set). This is the `catty -cp . Main` path.
 func Interpret(cpOpt, mainClass string, useIR bool) {
+	rtda.InitVMTypes()
 	loader := classloader.New(classpath.Parse(cpOpt))
 	class := loader.LoadClass(mainClass)
 	mainMethod := class.GetMethod("main", "([Ljava/lang/String;)V")

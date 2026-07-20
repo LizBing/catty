@@ -27,6 +27,7 @@ var (
 // core classes) and runs its <clinit>, so the bridge can resolve targets. Called
 // by the emitted program's main before the transpiled main method runs.
 func Bootstrap(classpathStr, mainClass string) {
+	rtda.InitVMTypes()
 	cl := classloader.New(classpath.Parse(classpathStr))
 	loader = cl
 	thread = rtda.NewThread(cl)

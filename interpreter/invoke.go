@@ -169,7 +169,10 @@ func InitClass(thread *rtda.Thread, class *rtda.Class) {
 
 // pushConstant handles ldc / ldc_w: pushes an int, float, String, or Class
 // constant onto the operand stack per the constant pool tag at index.
-func pushConstant(thread *rtda.Thread, frame *rtda.Frame, cp *classfile.ConstantPool, index uint16) {
+// pc is the bytecode/IR offset for exception backtraces.
+// Returns false if class resolution failed (exception already set on thread);
+// the caller must return immediately.
+func pushConstant(thread *rtda.Thread, frame *rtda.Frame, cp *classfile.ConstantPool, index uint16, pc int) bool {
 	switch cp.Tag(index) {
 	case classfile.ConstantInteger:
 		frame.PushInt(cp.Integer(index))
@@ -179,9 +182,13 @@ func pushConstant(thread *rtda.Thread, frame *rtda.Frame, cp *classfile.Constant
 		frame.PushRef(newString(thread, cp.UTF16(index)))
 	case classfile.ConstantClass:
 		className := cp.ClassName(index)
-		cls := thread.Loader().LoadClass(className)
+		cls := resolveClass(thread, pc, className)
+		if cls == nil {
+			return false
+		}
 		frame.PushRef(getClassObject(thread, cls))
 	}
+	return true
 }
 
 // newString creates a java.lang.String object from lossless UTF-16 code units

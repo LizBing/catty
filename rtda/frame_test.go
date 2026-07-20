@@ -7,10 +7,26 @@ import (
 // testLoader is a minimal Loader used in rtda-internal tests.
 type testLoader struct {
 	classes map[string]*Class
+	id      *LoaderIdentity
 }
 
 func (l *testLoader) LoadClass(name string) *Class {
 	return l.classes[name]
+}
+
+func (l *testLoader) LoadClassResult(name string) ClassLoadResult {
+	c := l.LoadClass(name)
+	if c != nil {
+		return NewClassResult(c)
+	}
+	return NewFailureResult(&ClassLoadFailure{Kind: FailureNotFound, Name: name})
+}
+
+func (l *testLoader) LoaderIdentity() *LoaderIdentity {
+	if l.id == nil {
+		l.id = NewLoaderIdentity()
+	}
+	return l.id
 }
 
 // TestFrameLongRoundTrip guards the two-slot long encoding: the interpreter's

@@ -20,6 +20,7 @@ import (
 // Methods the emitter can't handle (unsupported opcodes, instance methods) are
 // skipped; at runtime they're served by the interpreter via the bridge.
 func BuildProgram(mainClass, classpathStr string) (string, error) {
+	rtda.InitVMTypes()
 	cl := classloader.New(classpath.Parse(classpathStr))
 	loadReachable(cl, mainClass)
 

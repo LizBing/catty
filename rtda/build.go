@@ -13,6 +13,10 @@ import (
 //     slots (so subclasses reuse inherited offsets);
 //   - static fields get their own slots in staticVars;
 //   - long/double occupy two slots everywhere.
+//
+// Returns nil when superclass or interface resolution fails (the typed loader
+// path returns nil instead of panicking). Callers must check for nil and
+// propagate the appropriate typed failure.
 func NewClass(cf *classfile.ClassFile, loader Loader) *Class {
 	c := &Class{
 		name:             cf.ClassName(),
@@ -27,11 +31,17 @@ func NewClass(cf *classfile.ClassFile, loader Loader) *Class {
 
 	if c.superName != "" {
 		c.superClass = loader.LoadClass(c.superName)
+		if c.superClass == nil {
+			return nil // superclass resolution failed
+		}
 		c.instCellCount = c.superClass.instCellCount
 	}
 	c.interfaces = make([]*Class, len(c.interfaceNames))
 	for i, n := range c.interfaceNames {
 		c.interfaces[i] = loader.LoadClass(n)
+		if c.interfaces[i] == nil {
+			return nil // interface resolution failed
+		}
 	}
 
 	for _, f := range cf.Fields() {
@@ -247,33 +257,57 @@ func (c *Class) MarkInitStarted() {
 // NewArrayClass builds the runtime class for an array type name ("[I",
 // "[Ljava/lang/Object;", "[[C", ...). Component resolution for object and array
 // components goes through loader so each element type is cached exactly once.
+//
+// The resulting array Class derives its defining-loader identity from its
+// component type (ADR-0033): reference arrays inherit the component's loader;
+// primitive arrays use VMIdentity.
+//
+// Returns nil when component class resolution fails.
 func NewArrayClass(name string, loader Loader) *Class {
-	c := &Class{name: name, isArray: true, methodTable: make(map[string]*Method)}
-	c.initCond = sync.NewCond(&c.initMu)
 	comp := name[1:] // drop leading '['
+
+	// Resolve component class.
+	var component *Class
 	switch comp[0] {
 	case 'L':
-		c.componentClass = loader.LoadClass(comp[1 : len(comp)-1])
+		component = loader.LoadClass(comp[1 : len(comp)-1])
 	case '[':
-		c.componentClass = loader.LoadClass(comp)
-	case 'I':
-		c.componentKind = kindInt
-	case 'J':
-		c.componentKind = kindLong
-	case 'F':
-		c.componentKind = kindFloat
-	case 'D':
-		c.componentKind = kindDouble
-	case 'B':
-		c.componentKind = kindByte
-	case 'C':
-		c.componentKind = kindChar
-	case 'S':
-		c.componentKind = kindShort
-	case 'Z':
-		c.componentKind = kindBoolean
+		component = loader.LoadClass(comp)
+	default:
+		// Primitive component — use VM canonical identity.
+		component = vmPrimitiveForDescriptor(comp[0])
 	}
-	return c
+	if component == nil {
+		return nil
+	}
+
+	// Delegate to component-owned array creation so the array Class
+	// identity is canonical and derived from the component.
+	return component.GetArrayClass()
+}
+
+// vmPrimitiveForDescriptor returns the canonical VM Class for a single
+// primitive array component descriptor character.
+func vmPrimitiveForDescriptor(ch byte) *Class {
+	switch ch {
+	case 'I':
+		return VMPrimitiveInt
+	case 'J':
+		return VMPrimitiveLong
+	case 'F':
+		return VMPrimitiveFloat
+	case 'D':
+		return VMPrimitiveDouble
+	case 'B':
+		return VMPrimitiveByte
+	case 'C':
+		return VMPrimitiveChar
+	case 'S':
+		return VMPrimitiveShort
+	case 'Z':
+		return VMPrimitiveBool
+	}
+	return nil
 }
 
 // ComponentKind returns the primitive element kind (0 for object arrays).

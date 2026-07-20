@@ -11,8 +11,13 @@ import (
 // metadata). It is built by the classloader from a classfile.ClassFile. Core
 // classes with no on-disk class file (java.lang.Object, System, ...) are
 // synthesized directly as Class values by the native package.
+//
+// Class identity is (definingLoader, name). The definingLoader is set exactly
+// once during construction and is immutable thereafter. Primitive and void
+// Classes use VMIdentity.
 type Class struct {
 	name             string
+	definingLoader   *LoaderIdentity // immutable after construction; nil until bound
 	superName        string
 	superClass       *Class
 	interfaceNames   []string
@@ -34,7 +39,7 @@ type Class struct {
 	isArray        bool
 	componentClass *Class
 	componentKind  int    // kindByte, kindChar, ...; 0 for object arrays
-	arrayClass     *Class // cached "[Lthis;" / "[Ithis" array class
+	arrayClass     atomic.Pointer[Class] // cached "[Lthis;" / "[Ithis" array class
 
 	// Class initialization bookkeeping (ADR-0025: Java 25 state machine).
 	// Protected by initMu. The lock is distinct from the Class mirror's Java
@@ -73,12 +78,26 @@ const (
 // --- Accessors used by the loader and interpreter ---
 
 func (c *Class) Name() string                                      { return c.name }
+func (c *Class) DefiningLoader() *LoaderIdentity                   { return c.definingLoader }
 func (c *Class) SuperClass() *Class                                { return c.superClass }
 func (c *Class) AccessFlags() uint16                               { return c.accessFlags }
 func (c *Class) ConstantPool() *classfile.ConstantPool             { return c.cp }
 func (c *Class) BootstrapMethods() *classfile.BootstrapMethodsAttr { return c.bootstrapMethods }
 func (c *Class) InstCellCount() uint                               { return c.instCellCount }
 func (c *Class) IsArray() bool                                     { return c.isArray }
+
+// BindLoader sets the defining loader identity exactly once.
+// Subsequent calls with the same identity are idempotent; a call with a
+// different identity panics (invariant violation).
+func (c *Class) BindLoader(id *LoaderIdentity) {
+	if c.definingLoader == nil {
+		c.definingLoader = id
+		return
+	}
+	if c.definingLoader != id {
+		panic("catty: Class.BindLoader: loader identity already bound to a different value")
+	}
+}
 
 // --- Typed static cell accessors (ADR-0030) ---
 // staticCells is unexported; all external access goes through these methods.

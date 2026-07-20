@@ -226,9 +226,13 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 	case opcode.Sipush:
 		frame.PushInt(int32(frame.ReadInt16()))
 	case opcode.Ldc:
-		pushConstant(thread, frame, frame.Method().Owner().ConstantPool(), uint16(frame.ReadUint8()))
+		if !pushConstant(thread, frame, frame.Method().Owner().ConstantPool(), uint16(frame.ReadUint8()), opcodePc) {
+			return
+		}
 	case opcode.LdcW:
-		pushConstant(thread, frame, frame.Method().Owner().ConstantPool(), frame.ReadUint16())
+		if !pushConstant(thread, frame, frame.Method().Owner().ConstantPool(), frame.ReadUint16(), opcodePc) {
+			return
+		}
 	case opcode.Ldc2W:
 		cp := frame.Method().Owner().ConstantPool()
 		idx := frame.ReadUint16()
@@ -717,21 +721,30 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 	case opcode.Getstatic:
 		idx := frame.ReadUint16()
 		cls, name, desc := frame.Method().Owner().ConstantPool().MemberRef(idx)
-		referencedClass := thread.Loader().LoadClass(cls)
+		referencedClass := resolveClass(thread, opcodePc, cls)
+		if referencedClass == nil {
+			return
+		}
 		field := referencedClass.LookupField(name, desc)
 		ensureInitialized(thread, field.Owner())
 		loadStaticField(frame, field.Owner(), field.SlotID(), desc)
 	case opcode.Putstatic:
 		idx := frame.ReadUint16()
 		cls, name, desc := frame.Method().Owner().ConstantPool().MemberRef(idx)
-		referencedClass := thread.Loader().LoadClass(cls)
+		referencedClass := resolveClass(thread, opcodePc, cls)
+		if referencedClass == nil {
+			return
+		}
 		field := referencedClass.LookupField(name, desc)
 		ensureInitialized(thread, field.Owner())
 		storeStaticField(frame, field.Owner(), field.SlotID(), desc)
 	case opcode.Getfield:
 		idx := frame.ReadUint16()
 		cls, name, desc := frame.Method().Owner().ConstantPool().MemberRef(idx)
-		referencedClass := thread.Loader().LoadClass(cls)
+		referencedClass := resolveClass(thread, opcodePc, cls)
+		if referencedClass == nil {
+			return
+		}
 		field := referencedClass.LookupField(name, desc)
 		obj := frame.PopRef()
 		loadInstanceField(frame, obj, field.SlotID(), desc)
@@ -740,7 +753,11 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		// be popped before the object reference.
 		idx := frame.ReadUint16()
 		cls, name, desc := frame.Method().Owner().ConstantPool().MemberRef(idx)
-		field := thread.Loader().LoadClass(cls).LookupField(name, desc)
+		referencedClass := resolveClass(thread, opcodePc, cls)
+		if referencedClass == nil {
+			return
+		}
+		field := referencedClass.LookupField(name, desc)
 		slotID := field.SlotID()
 		switch desc[0] {
 		case 'J':
@@ -769,7 +786,10 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 	case opcode.Invokevirtual:
 		idx := frame.ReadUint16()
 		cls, name, desc := frame.Method().Owner().ConstantPool().MemberRef(idx)
-		class := thread.Loader().LoadClass(cls)
+		class := resolveClass(thread, opcodePc, cls)
+		if class == nil {
+			return
+		}
 		spec := class.LookupMethod(name, desc)
 		if spec == nil {
 			throwRuntime(thread, opcodePc, "java/lang/NoSuchMethodError", cls+"."+name+desc)
@@ -784,12 +804,18 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 	case opcode.Invokespecial:
 		idx := frame.ReadUint16()
 		cls, name, desc := frame.Method().Owner().ConstantPool().MemberRef(idx)
-		class := thread.Loader().LoadClass(cls)
+		class := resolveClass(thread, opcodePc, cls)
+		if class == nil {
+			return
+		}
 		invokeMethod(thread, class.LookupMethod(name, desc))
 	case opcode.Invokestatic:
 		idx := frame.ReadUint16()
 		cls, name, desc := frame.Method().Owner().ConstantPool().MemberRef(idx)
-		class := thread.Loader().LoadClass(cls)
+		class := resolveClass(thread, opcodePc, cls)
+		if class == nil {
+			return
+		}
 		ensureInitialized(thread, class)
 		m := class.LookupMethod(name, desc)
 		if m == nil {
@@ -802,7 +828,11 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		frame.ReadUint8() // count — historical, ignored
 		frame.ReadUint8() // 0   — historical, ignored
 		cls, name, desc := frame.Method().Owner().ConstantPool().MemberRef(idx)
-		spec := thread.Loader().LoadClass(cls).LookupMethod(name, desc)
+		referencedClass := resolveClass(thread, opcodePc, cls)
+		if referencedClass == nil {
+			return
+		}
+		spec := referencedClass.LookupMethod(name, desc)
 		if spec == nil {
 			throwRuntime(thread, opcodePc, "java/lang/NoSuchMethodError", cls+"."+name+desc)
 			return
@@ -817,7 +847,10 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 	// ---------- object / array creation ----------
 	case opcode.New:
 		idx := frame.ReadUint16()
-		class := thread.Loader().LoadClass(frame.Method().Owner().ConstantPool().ClassName(idx))
+		class := resolveClass(thread, opcodePc, frame.Method().Owner().ConstantPool().ClassName(idx))
+		if class == nil {
+			return
+		}
 		ensureInitialized(thread, class)
 		frame.PushRef(rtda.NewObject(class))
 	case opcode.Newarray:
@@ -828,12 +861,19 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		idx := frame.ReadUint16()
 		length := int(frame.PopInt())
 		elemName := frame.Method().Owner().ConstantPool().ClassName(idx)
-		frame.PushRef(newRefArray(thread, elemName, length))
+		arr := newRefArray(thread, elemName, length, opcodePc)
+		if arr == nil {
+			return
+		}
+		frame.PushRef(arr)
 	case opcode.Multianewarray:
 		idx := frame.ReadUint16()
 		dims := int(frame.ReadUint8())
 		className := frame.Method().Owner().ConstantPool().ClassName(idx)
-		class := thread.Loader().LoadClass(className)
+		class := resolveClass(thread, opcodePc, className)
+		if class == nil {
+			return
+		}
 		// Pop `dims` dimension sizes from the stack (top = last dimension).
 		sizes := make([]int, dims)
 		for i := dims - 1; i >= 0; i-- {
@@ -845,7 +885,10 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		frame.PushInt(int32(arr.ArrayLength()))
 	case opcode.Checkcast:
 		idx := frame.ReadUint16()
-		target := thread.Loader().LoadClass(frame.Method().Owner().ConstantPool().ClassName(idx))
+		target := resolveClass(thread, opcodePc, frame.Method().Owner().ConstantPool().ClassName(idx))
+		if target == nil {
+			return
+		}
 		obj := frame.PeekRef(0)
 		if obj != nil && !obj.IsInstanceOf(target) {
 			throwRuntime(thread, opcodePc, "java/lang/ClassCastException", "")
@@ -853,7 +896,10 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 		}
 	case opcode.Instanceof:
 		idx := frame.ReadUint16()
-		target := thread.Loader().LoadClass(frame.Method().Owner().ConstantPool().ClassName(idx))
+		target := resolveClass(thread, opcodePc, frame.Method().Owner().ConstantPool().ClassName(idx))
+		if target == nil {
+			return
+		}
 		obj := frame.PopRef()
 		if obj != nil && obj.IsInstanceOf(target) {
 			frame.PushInt(1)
@@ -861,22 +907,22 @@ func exec(thread *rtda.Thread, frame *rtda.Frame, op opcode.Opcode, opcodePc int
 			frame.PushInt(0)
 		}
 	case opcode.Monitorenter:
-			obj := frame.PopRef()
-			if obj == nil {
-				throwRuntime(thread, opcodePc, "java/lang/NullPointerException", "")
-				return
-			}
-			obj.Monitor().Enter(thread.EC())
-		case opcode.Monitorexit:
-			obj := frame.PopRef()
-			if obj == nil {
-				throwRuntime(thread, opcodePc, "java/lang/NullPointerException", "")
-				return
-			}
-			if !obj.Monitor().Exit(thread.EC()) {
-				throwRuntime(thread, opcodePc, "java/lang/IllegalMonitorStateException", "")
-				return
-			}
+		obj := frame.PopRef()
+		if obj == nil {
+			throwRuntime(thread, opcodePc, "java/lang/NullPointerException", "")
+			return
+		}
+		obj.Monitor().Enter(thread.EC())
+	case opcode.Monitorexit:
+		obj := frame.PopRef()
+		if obj == nil {
+			throwRuntime(thread, opcodePc, "java/lang/NullPointerException", "")
+			return
+		}
+		if !obj.Monitor().Exit(thread.EC()) {
+			throwRuntime(thread, opcodePc, "java/lang/IllegalMonitorStateException", "")
+			return
+		}
 
 	case opcode.Athrow:
 		excObj := frame.PopRef()

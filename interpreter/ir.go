@@ -84,7 +84,9 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 	case opcode.Sipush:
 		frame.SetStackSlotNum(int(inst.Defs[0]), int32(inst.Const16))
 	case opcode.Ldc, opcode.LdcW:
-		pushConstant(thread, frame, cp, inst.Index)
+		if !pushConstant(thread, frame, cp, inst.Index, pc) {
+			return
+		}
 	case opcode.Ldc2W:
 		switch cp.Tag(inst.Index) {
 		case 5: // CONSTANT_Long
@@ -316,11 +318,11 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 	case opcode.Fcmpl, opcode.Fcmpg:
 		b := math.Float32frombits(uint32(frame.StackSlotNum(int(inst.Uses[1]))))
 		a := math.Float32frombits(uint32(frame.StackSlotNum(int(inst.Uses[0]))))
-		frame.SetStackSlotNum(int(inst.Defs[0]), cmpFloat(a, b, inst.Op==opcode.Fcmpg))
+		frame.SetStackSlotNum(int(inst.Defs[0]), cmpFloat(a, b, inst.Op == opcode.Fcmpg))
 	case opcode.Dcmpl, opcode.Dcmpg:
 		b := math.Float64frombits(uint64(slotLong(frame, int(inst.Uses[2]), int(inst.Uses[3]))))
 		a := math.Float64frombits(uint64(slotLong(frame, int(inst.Uses[0]), int(inst.Uses[1]))))
-		frame.SetStackSlotNum(int(inst.Defs[0]), cmpDouble(a, b, inst.Op==opcode.Dcmpg))
+		frame.SetStackSlotNum(int(inst.Defs[0]), cmpDouble(a, b, inst.Op == opcode.Dcmpg))
 
 	// ---------- branches (slot-index for operands, predecoded target) ----------
 	case opcode.Ifeq:
@@ -427,26 +429,39 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 	// ---------- fields (shared helpers, seeded stackTop) ----------
 	case opcode.Getstatic:
 		cls, name, desc := cp.MemberRef(inst.Index)
-		referencedClass := thread.Loader().LoadClass(cls)
+		referencedClass := resolveClass(thread, pc, cls)
+		if referencedClass == nil {
+			return
+		}
 		field := referencedClass.LookupField(name, desc)
 		ensureInitialized(thread, field.Owner())
 		loadStaticField(frame, field.Owner(), field.SlotID(), desc)
 	case opcode.Putstatic:
 		cls, name, desc := cp.MemberRef(inst.Index)
-		referencedClass := thread.Loader().LoadClass(cls)
+		referencedClass := resolveClass(thread, pc, cls)
+		if referencedClass == nil {
+			return
+		}
 		field := referencedClass.LookupField(name, desc)
 		ensureInitialized(thread, field.Owner())
 		storeStaticField(frame, field.Owner(), field.SlotID(), desc)
 	case opcode.Getfield:
 		cls, name, desc := cp.MemberRef(inst.Index)
-		referencedClass := thread.Loader().LoadClass(cls)
+		referencedClass := resolveClass(thread, pc, cls)
+		if referencedClass == nil {
+			return
+		}
 		field := referencedClass.LookupField(name, desc)
 		obj := frame.PopRef()
 		loadInstanceField(frame, obj, field.SlotID(), desc)
 	case opcode.Putfield:
 		// Stack: [..., objref, value], value on top — pop value first, then objref.
 		cls, name, desc := cp.MemberRef(inst.Index)
-		field := thread.Loader().LoadClass(cls).LookupField(name, desc)
+		referencedClass := resolveClass(thread, pc, cls)
+		if referencedClass == nil {
+			return
+		}
+		field := referencedClass.LookupField(name, desc)
 		slotID := field.SlotID()
 		switch desc[0] {
 		case 'J':
@@ -474,7 +489,10 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 	// ---------- invocations (shared helpers) ----------
 	case opcode.Invokevirtual:
 		cls, name, desc := cp.MemberRef(inst.Index)
-		class := thread.Loader().LoadClass(cls)
+		class := resolveClass(thread, pc, cls)
+		if class == nil {
+			return
+		}
 		spec := class.LookupMethod(name, desc)
 		receiver := frame.PeekRef(int(spec.ArgSlotCount()))
 		if receiver == nil {
@@ -484,16 +502,26 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 		invokeMethod(thread, receiver.Class().LookupMethod(name, desc))
 	case opcode.Invokespecial:
 		cls, name, desc := cp.MemberRef(inst.Index)
-		class := thread.Loader().LoadClass(cls)
+		class := resolveClass(thread, pc, cls)
+		if class == nil {
+			return
+		}
 		invokeMethod(thread, class.LookupMethod(name, desc))
 	case opcode.Invokestatic:
 		cls, name, desc := cp.MemberRef(inst.Index)
-		class := thread.Loader().LoadClass(cls)
+		class := resolveClass(thread, pc, cls)
+		if class == nil {
+			return
+		}
 		ensureInitialized(thread, class)
 		invokeMethod(thread, class.LookupMethod(name, desc))
 	case opcode.Invokeinterface:
 		cls, name, desc := cp.MemberRef(inst.Index)
-		spec := thread.Loader().LoadClass(cls).LookupMethod(name, desc)
+		referencedClass := resolveClass(thread, pc, cls)
+		if referencedClass == nil {
+			return
+		}
+		spec := referencedClass.LookupMethod(name, desc)
 		receiver := frame.PeekRef(int(spec.ArgSlotCount()))
 		if receiver == nil {
 			throwRuntime(thread, pc, "java/lang/NullPointerException", "")
@@ -503,17 +531,27 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 
 	// ---------- object / array / misc (shared helpers) ----------
 	case opcode.New:
-		class := thread.Loader().LoadClass(cp.ClassName(inst.Index))
+		class := resolveClass(thread, pc, cp.ClassName(inst.Index))
+		if class == nil {
+			return
+		}
 		ensureInitialized(thread, class)
 		frame.PushRef(rtda.NewObject(class))
 	case opcode.Newarray:
 		frame.PushRef(newPrimitiveArray(thread, inst.Atype, int(frame.PopInt())))
 	case opcode.Anewarray:
 		elemName := cp.ClassName(inst.Index)
-		frame.PushRef(newRefArray(thread, elemName, int(frame.PopInt())))
+		arr := newRefArray(thread, elemName, int(frame.PopInt()), pc)
+		if arr == nil {
+			return
+		}
+		frame.PushRef(arr)
 	case opcode.Multianewarray:
 		className := cp.ClassName(inst.Index)
-		class := thread.Loader().LoadClass(className)
+		class := resolveClass(thread, pc, className)
+		if class == nil {
+			return
+		}
 		dims := int(inst.Count)
 		sizes := make([]int, dims)
 		for i := dims - 1; i >= 0; i-- {
@@ -524,14 +562,20 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 		arr := frame.PopRef()
 		frame.PushInt(int32(arr.ArrayLength()))
 	case opcode.Checkcast:
-		target := thread.Loader().LoadClass(cp.ClassName(inst.Index))
+		target := resolveClass(thread, pc, cp.ClassName(inst.Index))
+		if target == nil {
+			return
+		}
 		obj := frame.PeekRef(0)
 		if obj != nil && !obj.IsInstanceOf(target) {
 			throwRuntime(thread, pc, "java/lang/ClassCastException", "")
 			return
 		}
 	case opcode.Instanceof:
-		target := thread.Loader().LoadClass(cp.ClassName(inst.Index))
+		target := resolveClass(thread, pc, cp.ClassName(inst.Index))
+		if target == nil {
+			return
+		}
 		obj := frame.PopRef()
 		if obj != nil && obj.IsInstanceOf(target) {
 			frame.PushInt(1)
@@ -539,22 +583,22 @@ func execIR(thread *rtda.Thread, frame *rtda.Frame, ir *lowering.IR) {
 			frame.PushInt(0)
 		}
 	case opcode.Monitorenter:
-			obj := frame.PopRef()
-			if obj == nil {
-				throwRuntime(thread, pc, "java/lang/NullPointerException", "")
-				return
-			}
-			obj.Monitor().Enter(thread.EC())
-		case opcode.Monitorexit:
-			obj := frame.PopRef()
-			if obj == nil {
-				throwRuntime(thread, pc, "java/lang/NullPointerException", "")
-				return
-			}
-			if !obj.Monitor().Exit(thread.EC()) {
-				throwRuntime(thread, pc, "java/lang/IllegalMonitorStateException", "")
-				return
-			}
+		obj := frame.PopRef()
+		if obj == nil {
+			throwRuntime(thread, pc, "java/lang/NullPointerException", "")
+			return
+		}
+		obj.Monitor().Enter(thread.EC())
+	case opcode.Monitorexit:
+		obj := frame.PopRef()
+		if obj == nil {
+			throwRuntime(thread, pc, "java/lang/NullPointerException", "")
+			return
+		}
+		if !obj.Monitor().Exit(thread.EC()) {
+			throwRuntime(thread, pc, "java/lang/IllegalMonitorStateException", "")
+			return
+		}
 
 	case opcode.Athrow:
 		excObj := frame.PopRef()

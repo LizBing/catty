@@ -1,7 +1,6 @@
 package classpath
 
 import (
-	"errors"
 	"os"
 	"path/filepath"
 )
@@ -24,15 +23,13 @@ func (e *dirEntry) ReadClass(name string) ([]byte, Entry, error) {
 	full := filepath.Join(e.absDir, filepath.FromSlash(name+".class"))
 	data, err := os.ReadFile(full)
 	if err != nil {
+		// Distinguish true miss from I/O errors (permission, disk, etc.).
+		if os.IsNotExist(err) {
+			return nil, nil, &ErrNotFound{Name: name}
+		}
 		return nil, nil, err
 	}
 	return data, e, nil
 }
 
 func (e *dirEntry) String() string { return e.absDir }
-
-// errNotFound is the canonical miss; callers (CompositeEntry) treat any error
-// as "try the next entry", so a distinct error just aids diagnostics.
-func errNotFound(name string) error {
-	return errors.New("catty: class not found: " + name)
-}
