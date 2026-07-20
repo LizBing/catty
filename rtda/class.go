@@ -38,7 +38,7 @@ type Class struct {
 	// element class (for object arrays) and componentKind tags primitive arrays.
 	isArray        bool
 	componentClass *Class
-	componentKind  int    // kindByte, kindChar, ...; 0 for object arrays
+	componentKind  int                   // kindByte, kindChar, ...; 0 for object arrays
 	arrayClass     atomic.Pointer[Class] // cached "[Lthis;" / "[Ithis" array class
 
 	// Class initialization bookkeeping (ADR-0025: Java 25 state machine).
@@ -50,9 +50,12 @@ type Class struct {
 	initOwner uint64     // identity of the execution context currently initializing this class (0 = none)
 
 	// classObject is the canonical java.lang.Class mirror for this class, created
-	// lazily with a compare-and-swap so all goroutines see the same identity.
+	// lazily with double-checked locking so all goroutines see the same identity.
 	// The field stores nil until the first request triggers lazy materialization.
-	classObject atomic.Pointer[Object]
+	// classObjectMu serialises factory invocation so at most one goroutine calls
+	// the factory (prevents wasted allocation and ensures loader-protected creation).
+	classObject   atomic.Pointer[Object]
+	classObjectMu sync.Mutex
 }
 
 // Class initialization states (JVMS §5.5 via ADR-0025).
@@ -74,6 +77,31 @@ const (
 	kindFloat
 	kindDouble
 )
+
+// primitiveInfo maps a primitive type name to its kind and JVM descriptor byte.
+var primitiveInfo = map[string]struct {
+	kind int
+	desc byte
+}{
+	"boolean": {kindBoolean, 'Z'},
+	"byte":    {kindByte, 'B'},
+	"char":    {kindChar, 'C'},
+	"short":   {kindShort, 'S'},
+	"int":     {kindInt, 'I'},
+	"long":    {kindLong, 'J'},
+	"float":   {kindFloat, 'F'},
+	"double":  {kindDouble, 'D'},
+	"void":    {0, 'V'},
+}
+
+// PrimitiveDescriptor returns the JVM descriptor byte for a primitive type
+// name, or 0 if name is not a primitive.
+func PrimitiveDescriptor(name string) byte {
+	if info, ok := primitiveInfo[name]; ok {
+		return info.desc
+	}
+	return 0
+}
 
 // --- Accessors used by the loader and interpreter ---
 
@@ -143,11 +171,16 @@ func (c *Class) IsAbstract() bool  { return c.accessFlags&accAbstract != 0 }
 func (c *Class) ComponentClass() *Class { return c.componentClass }
 
 // ClassObject returns the canonical java.lang.Class mirror for this class, creating
-// it lazily via CAS on first access. All callers see the same Object identity, so
-// obj.getClass() == obj.getClass() holds even across goroutines (ADR-0029).
-// The caller must provide a factory that allocates a java.lang.Class Object and
-// sets its Extra to this *Class.
+// it lazily with double-checked locking on first access. All callers see the same
+// Object identity, so obj.getClass() == obj.getClass() holds even across goroutines
+// (ADR-0029). The caller must provide a factory that allocates a java.lang.Class
+// Object; the factory is invoked at most once per Class under classObjectMu.
 func (c *Class) ClassObject(factory func() *Object) *Object {
+	if obj := c.classObject.Load(); obj != nil {
+		return obj
+	}
+	c.classObjectMu.Lock()
+	defer c.classObjectMu.Unlock()
 	if obj := c.classObject.Load(); obj != nil {
 		return obj
 	}
@@ -156,11 +189,8 @@ func (c *Class) ClassObject(factory func() *Object) *Object {
 		return nil
 	}
 	obj.SetExtra(c)
-	if c.classObject.CompareAndSwap(nil, obj) {
-		return obj
-	}
-	// Lost the race — return the winner.
-	return c.classObject.Load()
+	c.classObject.Store(obj)
+	return obj
 }
 
 // --- Method lookup ---

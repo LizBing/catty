@@ -130,12 +130,31 @@ func runClinit(thread *rtda.Thread, method *rtda.Method) rtda.InitResult {
 			thrown := thread.ClearException()
 			// Walk frames from the throwing frame down to (and including)
 			// the clinit frame, searching for a handler.
+		frameLoop:
 			for thread.FrameCount() >= clinitDepth {
 				f := thread.CurrentFrame()
 				caught := false
 				for _, entry := range f.Method().ExceptionTable() {
 					if opcodePc >= entry.StartPc() && opcodePc < entry.EndPc() {
-						if entry.CatchType() == "" || thrown.IsInstanceOf(thread.Loader().LoadClass(entry.CatchType())) {
+						// catchType "" = catch-all (finally).
+						if entry.CatchType() == "" {
+							f.ClearStack()
+							f.PushRef(thrown)
+							f.SetPC(entry.HandlerPc())
+							caught = true
+							break
+						}
+						// Typed catch-type resolution (K2).
+						catchClass := resolveClass(thread, opcodePc, entry.CatchType())
+						if catchClass == nil {
+							// Resolution failed — a new throwable is
+							// already set on the thread. Replace
+							// thrown and restart the handler search
+							// from the current frame.
+							thrown = thread.ClearException()
+							continue frameLoop
+						}
+						if thrown.IsInstanceOf(catchClass) {
 							f.ClearStack()
 							f.PushRef(thrown)
 							f.SetPC(entry.HandlerPc())

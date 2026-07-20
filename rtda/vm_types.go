@@ -37,9 +37,11 @@ func InitVMTypes() {
 }
 
 func makeVMPrimitive(name string) *Class {
+	info := primitiveInfo[name]
 	c := &Class{
 		name:           name,
 		definingLoader: VMIdentity,
+		componentKind:  info.kind,
 		methodTable:    make(map[string]*Method),
 	}
 	c.initCond = sync.NewCond(&c.initMu)
@@ -49,8 +51,9 @@ func makeVMPrimitive(name string) *Class {
 }
 
 // VMPrimitiveForKind returns the canonical VM Class for a primitive kind,
-// or nil for kindNone.
+// or nil for kindNone. Safe to call before InitVMTypes (self-initialising).
 func VMPrimitiveForKind(kind int) *Class {
+	InitVMTypes()
 	switch kind {
 	case kindBoolean:
 		return VMPrimitiveBool
@@ -75,7 +78,9 @@ func VMPrimitiveForKind(kind int) *Class {
 
 // VMPrimitiveForName returns the canonical VM Class for a primitive type
 // name ("int", "boolean", "void", etc.), or nil if name is not a primitive.
+// Safe to call before InitVMTypes (self-initialising).
 func VMPrimitiveForName(name string) *Class {
+	InitVMTypes()
 	switch name {
 	case "boolean":
 		return VMPrimitiveBool
@@ -114,6 +119,11 @@ func IsVMPrimitive(name string) bool {
 // For reference arrays, the component Class owns the array class identity.
 // For primitive arrays, the VM primitive Class owns it.
 //
+// The array class name is a valid JVM descriptor:
+//   - primitive component: "[" + descriptor byte (e.g. "[I" for int[])
+//   - reference component: "[L" + name + ";" (e.g. "[Ljava/lang/String;")
+//   - array component:     "[" + name        (e.g. "[[I" for int[][])
+//
 // Thread-safe via CAS on arrayClass.
 func (c *Class) GetArrayClass() *Class {
 	// Fast path: already cached.
@@ -121,16 +131,31 @@ func (c *Class) GetArrayClass() *Class {
 		return arr
 	}
 
-	// Build the array class.
-	name := "[" + c.name
-	if c.name[0] == '[' {
+	// Build the correct JVM descriptor for this array type.
+	var name string
+	if desc := PrimitiveDescriptor(c.name); desc != 0 {
+		// Primitive component: "[" + descriptor byte.
+		name = "[" + string(desc)
+	} else if c.isArray {
+		// Array component: "[" + existing descriptor.
 		name = "[" + c.name
+	} else {
+		// Reference (object) component: "[L" + binary name + ";".
+		name = "[L" + c.name + ";"
 	}
+
+	// Primitive arrays inherit the component's kind; reference and array
+	// arrays get kindNone (elements are references, not primitives).
+	kind := kindNone
+	if !c.isArray {
+		kind = c.componentKind
+	}
+
 	arr := &Class{
 		name:           name,
 		isArray:        true,
 		componentClass: c,
-		componentKind:  c.componentKind,
+		componentKind:  kind,
 		definingLoader: c.definingLoader,
 		methodTable:    make(map[string]*Method),
 	}

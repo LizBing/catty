@@ -23,7 +23,11 @@ func Loop(thread *rtda.Thread) {
 		op := opcode.Opcode(frame.Code()[opcodePc])
 		frame.SetPC(opcodePc + 1)
 		exec(thread, frame, op, opcodePc)
-		if thread.HasException() {
+		// Inner loop: handle cascading exceptions. If catch-type
+		// resolution fails and sets a new throwable, handleException
+		// returns with the exception still pending. Re-enter
+		// handleException for the new exception.
+		for thread.HasException() {
 			handleException(thread, opcodePc)
 		}
 	}
@@ -33,6 +37,11 @@ func Loop(thread *rtda.Thread) {
 // matching the throw PC and exception type. If found, it clears the operand
 // stack, pushes the exception object, and jumps to the handler. If no frame
 // catches it, the exception is uncaught — print a message and exit.
+//
+// Catch-type resolution uses LoadClassResult (typed). If resolution fails,
+// the failure is converted to a Java throwable (NoClassDefFoundError,
+// LinkageError) which replaces the current pending exception. The caller
+// (the interpreter loop) re-enters handleException for the new exception.
 func handleException(thread *rtda.Thread, throwPC int) {
 	excObj := thread.ClearException()
 
@@ -42,8 +51,24 @@ func handleException(thread *rtda.Thread, throwPC int) {
 
 		for _, entry := range method.ExceptionTable() {
 			if throwPC >= entry.StartPc() && throwPC < entry.EndPc() {
-				// catchType "" = catch-all (finally); otherwise check type.
-				if entry.CatchType() == "" || excObj.IsInstanceOf(thread.Loader().LoadClass(entry.CatchType())) {
+				// catchType "" = catch-all (finally).
+				if entry.CatchType() == "" {
+					frame.ClearStack()
+					frame.PushRef(excObj)
+					frame.SetPC(entry.HandlerPc())
+					return
+				}
+				// Typed catch-type resolution (K2).
+				// On failure resolveClass sets a new throwable
+				// (LinkageError/NoClassDefFoundError) on the thread and
+				// returns nil. Per JVMS the resolution error replaces the
+				// current exception. Return immediately — the interpreter
+				// loop re-enters handleException for the new exception.
+				catchClass := resolveClass(thread, throwPC, entry.CatchType())
+				if catchClass == nil {
+					return
+				}
+				if excObj.IsInstanceOf(catchClass) {
 					// Found a handler: clear operand stack, push exception, jump.
 					frame.ClearStack()
 					frame.PushRef(excObj)

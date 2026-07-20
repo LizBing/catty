@@ -1,10 +1,97 @@
 package rtda
 
 import (
+	"fmt"
 	"sync"
 
 	"catty/classfile"
 )
+
+// BuildResult is the typed return from BuildClass.
+type BuildResult struct {
+	Class   *Class
+	Failure *ClassLoadFailure
+}
+
+// BuildClass builds a runtime Class from a parsed class file using the typed
+// Loader interface. Superclass and interface resolution failures are propagated
+// as typed results rather than compressed into a generic nil.
+//
+// NewClass is retained as a legacy must-load wrapper for bootstrap callers
+// that cannot tolerate typed failures (synthetic class builders).
+func BuildClass(cf *classfile.ClassFile, loader Loader) BuildResult {
+	c := &Class{
+		name:             cf.ClassName(),
+		superName:        cf.SuperClassName(),
+		accessFlags:      cf.AccessFlags(),
+		cp:               cf.ConstantPool(),
+		bootstrapMethods: cf.BootstrapMethods(),
+		interfaceNames:   cf.InterfaceNames(),
+		methodTable:      make(map[string]*Method),
+	}
+	c.initCond = sync.NewCond(&c.initMu)
+
+	if c.superName != "" {
+		result := loader.LoadClassResult(c.superName)
+		if !result.IsSuccess() {
+			f := result.Failure()
+			return BuildResult{Failure: &ClassLoadFailure{
+				Kind:  f.Kind,
+				Name:  cf.ClassName(),
+				Cause: fmt.Errorf("superclass %s: %w", c.superName, f),
+			}}
+		}
+		c.superClass = result.Class()
+		c.instCellCount = c.superClass.instCellCount
+	}
+	c.interfaces = make([]*Class, len(c.interfaceNames))
+	for i, n := range c.interfaceNames {
+		result := loader.LoadClassResult(n)
+		if !result.IsSuccess() {
+			f := result.Failure()
+			return BuildResult{Failure: &ClassLoadFailure{
+				Kind:  f.Kind,
+				Name:  cf.ClassName(),
+				Cause: fmt.Errorf("interface %s: %w", n, f),
+			}}
+		}
+		c.interfaces[i] = result.Class()
+	}
+
+	for _, f := range cf.Fields() {
+		if f.AccessFlags()&accStatic != 0 {
+			cellID := uint(len(c.staticCells))
+			c.staticCells = append(c.staticCells, HeapCell{})
+			c.staticFields = append(c.staticFields,
+				NewField(c, f.Name(), f.Descriptor(), f.AccessFlags(), true, cellID))
+		} else {
+			cellID := c.instCellCount
+			c.instCellCount++
+			c.instanceFields = append(c.instanceFields,
+				NewField(c, f.Name(), f.Descriptor(), f.AccessFlags(), false, cellID))
+		}
+	}
+
+	for _, m := range cf.Methods() {
+		code := m.Code()
+		var exTable []exceptionEntry
+		var maxStack, maxLocals uint
+		var bytecode []byte
+		if code != nil {
+			maxStack = uint(code.MaxStack())
+			maxLocals = uint(code.MaxLocals())
+			bytecode = code.Code()
+			exTable = convertExceptionTable(code.ExceptionTable(), c.cp)
+		}
+		method := InterpretedMethod(c, m.Name(), m.Descriptor(),
+			m.AccessFlags(), maxStack, maxLocals, bytecode, exTable)
+		if code != nil {
+			method.SetStackMap(code.StackMapTable())
+		}
+		c.AddMethod(method)
+	}
+	return BuildResult{Class: c}
+}
 
 // NewClass builds a runtime Class from a parsed class file, resolving the
 // superclass and interfaces through loader (which avoids an import cycle with
@@ -14,9 +101,9 @@ import (
 //   - static fields get their own slots in staticVars;
 //   - long/double occupy two slots everywhere.
 //
-// Returns nil when superclass or interface resolution fails (the typed loader
-// path returns nil instead of panicking). Callers must check for nil and
-// propagate the appropriate typed failure.
+// Returns nil when superclass or interface resolution fails.
+// Prefer BuildClass for typed failure propagation; NewClass is kept for
+// legacy bootstrap callers that cannot tolerate typed failures.
 func NewClass(cf *classfile.ClassFile, loader Loader) *Class {
 	c := &Class{
 		name:             cf.ClassName(),

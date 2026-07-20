@@ -75,14 +75,11 @@ func (BootstrapProvider) Provide(name string, loader rtda.Loader) ProviderResult
 }
 
 // SyntheticProvider serves all synthetic classes EXCEPT the bootstrap set.
-// These are classes like StringBuilder, PrintStream, exception subclasses, and
-// Comparable — they work as synthetic implementations when no real JDK is on
-// the classpath, but can be replaced by real bytecode when java.base is available.
 type SyntheticProvider struct{}
 
 func (SyntheticProvider) Provide(name string, loader rtda.Loader) ProviderResult {
 	if native.IsBootstrap(name) {
-		return ProviderMiss() // BootstrapProvider handles these
+		return ProviderMiss()
 	}
 	classes := native.SyntheticClasses()
 	if fn := classes[name]; fn != nil {
@@ -102,7 +99,6 @@ func (p ClasspathProvider) Provide(name string, loader rtda.Loader) ProviderResu
 	}
 	data, _, err := p.CP.ReadClass(strings.ReplaceAll(name, ".", "/"))
 	if err != nil {
-		// Distinguish typed miss from real I/O errors.
 		if classpath.IsNotFound(err) {
 			return ProviderMiss()
 		}
@@ -120,14 +116,36 @@ func (p ClasspathProvider) Provide(name string, loader rtda.Loader) ProviderResu
 			Cause: err,
 		})
 	}
-	c := rtda.NewClass(cf, loader)
-	if c == nil {
+
+	// Validate: classfile's declared name must match the requested binary name.
+	if cf.ClassName() != name {
 		return ProviderFailure(&rtda.ClassLoadFailure{
-			Kind: rtda.FailureLinkage,
+			Kind: rtda.FailureFormat,
 			Name: name,
+			Cause: &classNameMismatchError{
+				requested: name,
+				declared:  cf.ClassName(),
+			},
 		})
 	}
-	return ProviderClass(c)
+
+	result := rtda.BuildClass(cf, loader)
+	if result.Class != nil {
+		return ProviderClass(result.Class)
+	}
+	// Propagate the typed dependency failure.
+	return ProviderFailure(result.Failure)
+}
+
+// classNameMismatchError records a mismatch between the requested binary name
+// and the classfile's declared this_class.
+type classNameMismatchError struct {
+	requested string
+	declared  string
+}
+
+func (e *classNameMismatchError) Error() string {
+	return "catty: classfile name mismatch: requested " + e.requested + ", declared " + e.declared
 }
 
 // --- Definition state machine ---
@@ -145,6 +163,10 @@ const (
 // defRecord is the atomic definition state for a single class name.
 // It publishes either one fully linked Class or one terminal failure
 // to all concurrent waiters.
+//
+// defRecord is owned by the defining loader. Delegated classes (from
+// a parent or synthetic provider) do NOT create defRecords — they
+// enter only the initiating cache.
 type defRecord struct {
 	mu      sync.Mutex
 	cond    *sync.Cond
@@ -176,7 +198,8 @@ func newLoadSession(cl *ClassLoader) *loadSession {
 }
 
 // sessionLoader adapts a loadSession into a rtda.Loader. Recursive calls
-// within the same session use this view.
+// within the same session use this view. It bypasses the top-level defMu
+// acquisition since defMu is already held by the top-level caller.
 type sessionLoader struct {
 	session *loadSession
 }
@@ -196,34 +219,30 @@ func (sl *sessionLoader) LoaderIdentity() *rtda.LoaderIdentity {
 // --- ClassLoader ---
 
 // ClassLoader loads, links, and caches classes through a chain of ClassProviders.
-// It implements rtda.Loader so the interpreter can resolve classes at run time
-// without an import cycle.
-//
-// Init (<clinit>) is NOT done here: it is triggered lazily by the interpreter
-// at JVMS §5.5 events (new / getstatic / putstatic / invokestatic).
+// It implements rtda.Loader so the interpreter can resolve classes at run time.
 //
 // K2 identity semantics:
 //   - initiatingCache maps (name) → Class for fast lookup; may return a Class
 //     defined by a different (delegated) loader without rebinding identity.
-//   - defRecords maps (name) → *defRecord, the defining-loader-owned definition
-//     state. Only classes defined by THIS loader appear here.
-//   - A delegated class (defined by parent/synthetic) enters only the initiating
-//     cache, not the definition records.
+//   - defRecords maps (name) → *defRecord for classes DEFINED by THIS loader.
+//     Delegated classes enter only the initiating cache, never defRecords.
+//   - defMu serialises ALL top-level definition. It is acquired once per
+//     LoadClassResult call and held across the entire provider chain including
+//     recursive dependency resolution. This prevents cross-session deadlock
+//     without depending on goroutine identity.
 type ClassLoader struct {
 	identity  *rtda.LoaderIdentity
 	providers []ClassProvider
 
 	mu              sync.RWMutex
 	initiatingCache map[string]*rtda.Class // fast lookup, may contain delegated Classes
-	defRecords      map[string]*defRecord  // definition state for THIS loader
-	defMu           sync.Mutex             // serializes first-time definition
+	defRecords      map[string]*defRecord  // definition state for THIS loader only
+	defMu           sync.Mutex             // serialises all top-level definition
 }
 
 // New builds a ClassLoader with the standard provider chain:
 //
 //	ArrayProvider → BootstrapProvider → SyntheticProvider → ClasspathProvider
-//
-// Callers that need a different order can construct the loader manually.
 func New(cp *classpath.Classpath) *ClassLoader {
 	return &ClassLoader{
 		identity: rtda.NewLoaderIdentity(),
@@ -238,8 +257,7 @@ func New(cp *classpath.Classpath) *ClassLoader {
 	}
 }
 
-// NewCustom builds a ClassLoader with explicit providers (for testing or
-// custom class-resolution strategies).
+// NewCustom builds a ClassLoader with explicit providers.
 func NewCustom(providers ...ClassProvider) *ClassLoader {
 	return &ClassLoader{
 		identity:        rtda.NewLoaderIdentity(),
@@ -254,9 +272,8 @@ func (cl *ClassLoader) LoaderIdentity() *rtda.LoaderIdentity {
 	return cl.identity
 }
 
-// LoadClass is the must-load convenience method. It returns a fully linked
-// Class or panics. Only bootstrap invariants and legacy callers proven
-// unreachable from supported classfiles may use this method.
+// LoadClass is the must-load convenience method. Panics on failure.
+// Only valid for bootstrap invariants; Java-reachable paths use LoadClassResult.
 func (cl *ClassLoader) LoadClass(name string) *rtda.Class {
 	result := cl.LoadClassResult(name)
 	if result.IsSuccess() {
@@ -265,27 +282,39 @@ func (cl *ClassLoader) LoadClass(name string) *rtda.Class {
 	panic("catty: " + result.Failure().Error())
 }
 
-// LoadClassResult is the typed lookup method. It returns either a fully linked
-// Class or a terminal ClassLoadFailure. Java-reachable resolution paths use
-// this method so failures propagate as Java throwables rather than Go panics.
+// LoadClassResult is the typed lookup method — the top-level entry point.
+//
+// Protocol:
+//  1. Acquire defMu (global definition serialisation).
+//  2. Create a loadSession and dispatch to loadClassResultInternal.
+//  3. Release defMu on return.
+//
+// defMu serialises ALL definitions so that no two sessions can be defining
+// simultaneously. Recursive resolution within the provider chain bypasses
+// defMu (the sessionLoader calls loadClassResultInternal directly).
 func (cl *ClassLoader) LoadClassResult(name string) rtda.ClassLoadResult {
+	cl.defMu.Lock()
+	defer cl.defMu.Unlock()
 	return cl.loadClassResultInternal(name, newLoadSession(cl))
 }
 
 // loadClassResultInternal drives the typed definition protocol.
 //
+// defMu MUST be held by the caller (acquired at the top-level LoadClassResult
+// or inherited from the enclosing top-level call via sessionLoader recursion).
+//
 // Protocol:
-//  1. Fast path: check initiatingCache (RLock).
-//  2. If miss, get or create a defRecord for this name.
-//  3. If defRecord is already Defined or Failed, return its published result.
-//  4. Otherwise, serialize under defMu and run the provider chain.
-//  5. Providers that return Miss delegate to the next provider.
-//  6. The first ProviderClass or ProviderFailure terminates the chain.
-//  7. Published Class enters both initiatingCache and defRecord.
-//  8. Published Failure enters only defRecord (no partial cache entry).
+//  1. Primitive/void types bypass the provider chain (canonical VM identities).
+//  2. Fast path: check initiatingCache (RLock). May return delegated Classes.
+//  3. If miss, get or create a defRecord for this name within THIS loader.
+//  4. If defRecord is Defined or Failed, return its published result.
+//  5. If defRecord is Defining (another goroutine within the same top-level
+//     session or a different goroutine that is the defMu holder):
+//     a. Check session.seen for THIS session's circularity.
+//     b. Wait on defRecord.cond for terminal publication.
+//  6. Otherwise (defUnresolved): define via the provider chain.
 func (cl *ClassLoader) loadClassResultInternal(name string, session *loadSession) rtda.ClassLoadResult {
-	// 0. Primitive and void types are canonical VM identities (ADR-0033).
-	// They bypass the provider chain and definition state entirely.
+	// 0. Primitive and void types are canonical VM identities.
 	if rtda.IsVMPrimitive(name) {
 		c := rtda.VMPrimitiveForName(name)
 		if c != nil {
@@ -301,7 +330,7 @@ func (cl *ClassLoader) loadClassResultInternal(name string, session *loadSession
 	}
 	cl.mu.RUnlock()
 
-	// 2. Get or create definition record.
+	// 2. Get or create definition record for THIS loader.
 	cl.mu.Lock()
 	dr := cl.defRecords[name]
 	if dr == nil {
@@ -322,8 +351,7 @@ func (cl *ClassLoader) loadClassResultInternal(name string, session *loadSession
 		dr.mu.Unlock()
 		return rtda.NewFailureResult(f)
 	case defDefining:
-		// Another goroutine is defining — wait for terminal publication.
-		// Check for circularity within this session.
+		// Another call is defining this name. Check session circularity.
 		if session.seen[name] {
 			dr.mu.Unlock()
 			return rtda.NewFailureResult(&rtda.ClassLoadFailure{
@@ -331,8 +359,8 @@ func (cl *ClassLoader) loadClassResultInternal(name string, session *loadSession
 				Name: name,
 			})
 		}
+		// Wait for terminal publication.
 		dr.cond.Wait()
-		// After wakeup, re-read the published state.
 		switch dr.state {
 		case defDefined:
 			c := dr.class
@@ -349,40 +377,43 @@ func (cl *ClassLoader) loadClassResultInternal(name string, session *loadSession
 				Name: name,
 			})
 		}
-	default:
-		// defUnresolved — we need to define.
 	}
 	dr.mu.Unlock()
 
-	// 4. Serialize first-time definition and run the provider chain.
+	// 4. defUnresolved — define this class.
 	return cl.defineClass(name, dr, session)
 }
 
-// defineClass runs the provider chain to define a class. It must be called
-// with the caller holding the right to define (i.e., dr is unresolved and
-// no one else is defining this name).
+// defineClass runs the provider chain to define a class.
+//
+// defMu is already held by the top-level caller. defineClass is called
+// from loadClassResultInternal under that lock, or recursively from a
+// provider via sessionLoader → loadClassResultInternal → defineClass.
+//
+// Only ONE goroutine can be inside defineClass at any time (serialised
+// by defMu), so cross-session deadlock is impossible.
 func (cl *ClassLoader) defineClass(name string, dr *defRecord, session *loadSession) rtda.ClassLoadResult {
-	// Serialize all first-time definitions under defMu. This avoids
-	// cross-name lock cycles without relying on goroutine identity.
-	cl.defMu.Lock()
-
-	// Double-check: another goroutine may have defined this while we waited
-	// for defMu.
+	// Double-check: another call (within the same defMu scope or a prior
+	// concurrent call) may have resolved this while we were setting up.
 	dr.mu.Lock()
 	switch dr.state {
 	case defDefined:
 		dr.mu.Unlock()
-		cl.defMu.Unlock()
 		return rtda.NewClassResult(dr.class)
 	case defFailed:
 		dr.mu.Unlock()
-		cl.defMu.Unlock()
 		return rtda.NewFailureResult(dr.failure)
 	case defDefining:
-		dr.mu.Unlock()
-		cl.defMu.Unlock()
-		// Someone else is defining — wait.
-		dr.mu.Lock()
+		// This should not happen under defMu serialisation unless
+		// there's intra-session reentrancy (circular dependency).
+		if session.seen[name] {
+			dr.mu.Unlock()
+			return rtda.NewFailureResult(&rtda.ClassLoadFailure{
+				Kind: rtda.FailureCircularity,
+				Name: name,
+			})
+		}
+		// Wait for terminal publication (same-session reentrancy).
 		for dr.state == defDefining {
 			dr.cond.Wait()
 		}
@@ -407,7 +438,6 @@ func (cl *ClassLoader) defineClass(name string, dr *defRecord, session *loadSess
 	// Check for circularity within this session.
 	if session.seen[name] {
 		dr.mu.Unlock()
-		cl.defMu.Unlock()
 		return rtda.NewFailureResult(&rtda.ClassLoadFailure{
 			Kind: rtda.FailureCircularity,
 			Name: name,
@@ -419,11 +449,6 @@ func (cl *ClassLoader) defineClass(name string, dr *defRecord, session *loadSess
 	session.seen[name] = true
 	dr.mu.Unlock()
 
-	// Release defMu so recursive LoadClassResult calls within the same
-	// top-level session can proceed for *different* names. Same-name
-	// circularity is caught by the session.seen check above.
-	cl.defMu.Unlock()
-
 	// Build a session-aware loader for recursive calls.
 	sl := &sessionLoader{session: session}
 
@@ -434,41 +459,58 @@ func (cl *ClassLoader) defineClass(name string, dr *defRecord, session *loadSess
 			continue
 		}
 		if result.Class != nil {
-			// Success: bind loader identity (if not already bound) and publish.
-			// Array classes created via GetArrayClass already have their
-			// defining loader set from the component type (VM identity for
-			// primitive arrays, component's loader for reference arrays).
-			if result.Class.DefiningLoader() == nil {
+			// Validate: provider must return a Class whose Name() matches
+			// the requested binary name.
+			if result.Class.Name() != name {
+				failure := &rtda.ClassLoadFailure{
+					Kind:  rtda.FailureFormat,
+					Name:  name,
+					Cause: &classNameMismatchError{requested: name, declared: result.Class.Name()},
+				}
+				dr.mu.Lock()
+				dr.state = defFailed
+				dr.failure = failure
+				dr.cond.Broadcast()
+				dr.mu.Unlock()
+				return rtda.NewFailureResult(failure)
+			}
+
+			// Bind loader identity (if not already bound). Array classes
+			// created via GetArrayClass already have their defining loader
+			// set from the component type.
+			isDelegated := result.Class.DefiningLoader() != nil
+			if !isDelegated {
 				result.Class.BindLoader(cl.identity)
 			}
+
 			resolveNativeMethods(result.Class)
 
+			// K2: add to initiatingCache FIRST so the FastPath catches
+			// subsequent calls within the same session.
+			cl.mu.Lock()
+			cl.initiatingCache[name] = result.Class
+			cl.mu.Unlock()
+
+			// Publish in defRecord to wake any waiters.
 			dr.mu.Lock()
 			dr.state = defDefined
 			dr.class = result.Class
 			dr.cond.Broadcast()
 			dr.mu.Unlock()
 
-			// Enter into initiating cache.
-			cl.mu.Lock()
-			if existing := cl.initiatingCache[name]; existing != nil {
-				// Another defined-elsewhere class was cached while we
-				// were defining. Keep the first winner (ours is newer
-				// but we respect the cache invariant).
+			// K2: delegated classes (from parent/synthetic providers that
+			// already have a defining loader) must NOT leave a defRecord
+			// — defRecords tracks only classes THIS loader defines.
+			if isDelegated {
+				cl.mu.Lock()
+				delete(cl.defRecords, name)
 				cl.mu.Unlock()
-				dr.mu.Lock()
-				dr.state = defDefined
-				dr.class = existing
-				dr.mu.Unlock()
-				return rtda.NewClassResult(existing)
 			}
-			cl.initiatingCache[name] = result.Class
-			cl.mu.Unlock()
 
 			return rtda.NewClassResult(result.Class)
 		}
 		if result.Failure != nil {
-			// Terminal failure: publish failure only (no partial cache).
+			// Terminal failure: publish only in defRecord (no partial cache).
 			dr.mu.Lock()
 			dr.state = defFailed
 			dr.failure = result.Failure
@@ -492,6 +534,8 @@ func (cl *ClassLoader) defineClass(name string, dr *defRecord, session *loadSess
 }
 
 // loadClassInternal is the session-aware must-load helper used by sessionLoader.
+// Returns nil on failure (typed failure is discarded — the caller within the
+// provider chain will observe the nil and propagate its own typed failure).
 func (cl *ClassLoader) loadClassInternal(name string, session *loadSession) *rtda.Class {
 	result := cl.loadClassResultInternal(name, session)
 	if result.IsSuccess() {
@@ -500,8 +544,7 @@ func (cl *ClassLoader) loadClassInternal(name string, session *loadSession) *rtd
 	return nil
 }
 
-// Classes returns every class the loader has cached so far (used by the AOT
-// build to iterate emittable methods across all loaded classes). Thread-safe.
+// Classes returns every class the loader has cached so far.
 func (cl *ClassLoader) Classes() []*rtda.Class {
 	cl.mu.RLock()
 	defer cl.mu.RUnlock()
@@ -514,9 +557,6 @@ func (cl *ClassLoader) Classes() []*rtda.Class {
 
 // --- Native method resolution ---
 
-// resolveNativeMethods checks each method on a freshly loaded class: if it's
-// native and a Go implementation is registered in the native registry, attach
-// it. Methods without a registered implementation keep the default stub.
 func resolveNativeMethods(class *rtda.Class) {
 	for _, m := range class.Methods() {
 		if !m.IsNative() {
