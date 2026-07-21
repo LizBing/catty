@@ -1,0 +1,80 @@
+=== RUN   TestConcurrentLoadSingleIdentity
+--- PASS: TestConcurrentLoadSingleIdentity (0.00s)
+=== RUN   TestLoadClassCachesSingleEntry
+--- PASS: TestLoadClassCachesSingleEntry (0.00s)
+=== RUN   TestLoadClassResultTypedFailure
+--- PASS: TestLoadClassResultTypedFailure (0.00s)
+=== RUN   TestLoadClassNameMismatch
+--- PASS: TestLoadClassNameMismatch (0.00s)
+=== RUN   TestLoadClassCircularDependency
+--- PASS: TestLoadClassCircularDependency (0.00s)
+=== RUN   TestLoadClassConcurrentDefMuSerialisation
+--- PASS: TestLoadClassConcurrentDefMuSerialisation (0.00s)
+=== RUN   TestLoadClassProviderAllMiss
+--- PASS: TestLoadClassProviderAllMiss (0.00s)
+=== RUN   TestLoadClassDelegatedIdentity
+--- PASS: TestLoadClassDelegatedIdentity (0.00s)
+=== RUN   TestDefineClassDuplicateSameLoader
+--- PASS: TestDefineClassDuplicateSameLoader (0.00s)
+=== RUN   TestDefineClassDuplicateAfterFailure
+--- PASS: TestDefineClassDuplicateAfterFailure (0.00s)
+=== RUN   TestTwoLoadersDefineSameName
+--- PASS: TestTwoLoadersDefineSameName (0.00s)
+=== RUN   TestDefineClassDirectConcurrentDefining
+--- PASS: TestDefineClassDirectConcurrentDefining (0.00s)
+PASS
+ok  	catty/classloader	0.253s
+=== RUN   TestBuildClassSuperclassFailure
+--- PASS: TestBuildClassSuperclassFailure (0.00s)
+=== RUN   TestBuildClassInterfaceFailure
+--- PASS: TestBuildClassInterfaceFailure (0.00s)
+=== RUN   TestBuildClassSuccess
+--- PASS: TestBuildClassSuccess (0.00s)
+=== RUN   TestNewArrayClassResultValidDescriptors
+=== RUN   TestNewArrayClassResultValidDescriptors/[I
+=== RUN   TestNewArrayClassResultValidDescriptors/[J
+=== RUN   TestNewArrayClassResultValidDescriptors/[F
+=== RUN   TestNewArrayClassResultValidDescriptors/[D
+=== RUN   TestNewArrayClassResultValidDescriptors/[B
+=== RUN   TestNewArrayClassResultValidDescriptors/[C
+=== RUN   TestNewArrayClassResultValidDescriptors/[S
+=== RUN   TestNewArrayClassResultValidDescriptors/[Z
+--- PASS: TestNewArrayClassResultValidDescriptors (0.00s)
+    --- PASS: TestNewArrayClassResultValidDescriptors/[I (0.00s)
+    --- PASS: TestNewArrayClassResultValidDescriptors/[J (0.00s)
+    --- PASS: TestNewArrayClassResultValidDescriptors/[F (0.00s)
+    --- PASS: TestNewArrayClassResultValidDescriptors/[D (0.00s)
+    --- PASS: TestNewArrayClassResultValidDescriptors/[B (0.00s)
+    --- PASS: TestNewArrayClassResultValidDescriptors/[C (0.00s)
+    --- PASS: TestNewArrayClassResultValidDescriptors/[S (0.00s)
+    --- PASS: TestNewArrayClassResultValidDescriptors/[Z (0.00s)
+=== RUN   TestNewArrayClassResultReferenceArray
+--- PASS: TestNewArrayClassResultReferenceArray (0.00s)
+=== RUN   TestNewArrayClassResultMultidimensional
+--- PASS: TestNewArrayClassResultMultidimensional (0.00s)
+=== RUN   TestNewArrayClassResultInvalidDescriptors
+=== RUN   TestNewArrayClassResultInvalidDescriptors/#00
+=== RUN   TestNewArrayClassResultInvalidDescriptors/I
+=== RUN   TestNewArrayClassResultInvalidDescriptors/[
+=== RUN   TestNewArrayClassResultInvalidDescriptors/[V
+=== RUN   TestNewArrayClassResultInvalidDescriptors/[Lfoo
+=== RUN   TestNewArrayClassResultInvalidDescriptors/[Ljava/lang/Object
+=== RUN   TestNewArrayClassResultInvalidDescriptors/[X
+=== RUN   TestNewArrayClassResultInvalidDescriptors/[L;
+=== RUN   TestNewArrayClassResultInvalidDescriptors/[Ljava/lang/Object;extra
+--- PASS: TestNewArrayClassResultInvalidDescriptors (0.00s)
+    --- PASS: TestNewArrayClassResultInvalidDescriptors/#00 (0.00s)
+    --- PASS: TestNewArrayClassResultInvalidDescriptors/I (0.00s)
+    --- PASS: TestNewArrayClassResultInvalidDescriptors/[ (0.00s)
+    --- PASS: TestNewArrayClassResultInvalidDescriptors/[V (0.00s)
+    --- PASS: TestNewArrayClassResultInvalidDescriptors/[Lfoo (0.00s)
+    --- PASS: TestNewArrayClassResultInvalidDescriptors/[Ljava/lang/Object (0.00s)
+    --- PASS: TestNewArrayClassResultInvalidDescriptors/[X (0.00s)
+    --- PASS: TestNewArrayClassResultInvalidDescriptors/[L; (0.00s)
+    --- PASS: TestNewArrayClassResultInvalidDescriptors/[Ljava/lang/Object;extra (0.00s)
+=== RUN   TestNewArrayClassResultComponentFailure
+--- PASS: TestNewArrayClassResultComponentFailure (0.00s)
+=== RUN   TestNewArrayClassLegacy
+--- PASS: TestNewArrayClassLegacy (0.00s)
+PASS
+ok  	catty/rtda	0.381s

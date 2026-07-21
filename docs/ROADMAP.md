@@ -106,7 +106,7 @@ compatibility remains a separate future workstream.
 **Milestone** ✅: multi-threaded producer-consumer program.
 
 ### Phase R3 — Reflection & dynamic features
-**Status:** K1 shared-kernel metadata slice ✅ Complete; K2 runtime identity and typed class-definition slice Active
+**Status:** K1 shared-kernel metadata slice ✅ Complete; K2 runtime identity and typed class-definition slice ✅ Complete; next shared-kernel successor not yet active
 
 - JVMS dynamic-linkage core: retained `BootstrapMethods` metadata,
   MethodHandle/MethodType/CallSite state, and bounded `invokedynamic` linkage.

@@ -1,0 +1,460 @@
+diff classfile/mutf8_test.go.orig classfile/mutf8_test.go
+--- classfile/mutf8_test.go.orig
++++ classfile/mutf8_test.go
+@@ -122,7 +122,7 @@
+ 	// Supplementary characters are recombined in decodeMUTF8 but kept as pairs
+ 	// in decodeMUTF8ToUTF16.
+ 	b := []byte{0xED, 0xA0, 0x81, 0xED, 0xB0, 0x80}
+-	s := decodeMUTF8(b) // should be a single rune U+10400
++	s := decodeMUTF8(b)        // should be a single rune U+10400
+ 	u := decodeMUTF8ToUTF16(b) // should be two units 0xD801 0xDC00
+ 	if len([]rune(s)) != 1 {
+ 		t.Fatalf("decodeMUTF8 supplementary: expected 1 rune, got %d", len([]rune(s)))
+diff lowering/ir.go.orig lowering/ir.go
+--- lowering/ir.go.orig
++++ lowering/ir.go
+@@ -25,12 +25,12 @@
+ 
+ // IRInst is one decoded, stack-eliminated instruction.
+ type IRInst struct {
+-	Op     opcode.Opcode
++	Op      opcode.Opcode
+ 	Present bool
+-	Length int    // bytes consumed in the original code (for fallthrough / decode walk)
+-	Depth  int    // operand-stack depth (in slots) on entry, from the depth dataflow
+-	Uses   []uint8 // slot indices this instruction reads
+-	Defs   []uint8 // slot indices this instruction writes
++	Length  int        // bytes consumed in the original code (for fallthrough / decode walk)
++	Depth   int        // operand-stack depth (in slots) on entry, from the depth dataflow
++	Uses    []uint8    // slot indices this instruction reads
++	Defs    []uint8    // slot indices this instruction writes
+ 	InTypes []SlotType // operand-stack slot types at entry (A1.5); nil if the method had no StackMapTable
+ 
+ 	// Predecoded immediate operands (only the relevant field is set per op).
+@@ -46,11 +46,11 @@
+ 
+ // SwitchTable is the decoded, pc-resolved form of tableswitch / lookupswitch.
+ type SwitchTable struct {
+-	Default  int      // absolute pc of the default handler
+-	Low      int32    // tableswitch only: lowest key
+-	High     int32    // tableswitch only: highest key
+-	Keys     []int32  // lookupswitch only: match keys (parallel to Targets)
+-	Targets  []int    // absolute target pcs; tableswitch indexes by (key-Low)
++	Default int     // absolute pc of the default handler
++	Low     int32   // tableswitch only: lowest key
++	High    int32   // tableswitch only: highest key
++	Keys    []int32 // lookupswitch only: match keys (parallel to Targets)
++	Targets []int   // absolute target pcs; tableswitch indexes by (key-Low)
+ }
+ 
+ // slotEffect returns the (pop, push) operand-stack effect in *slots* for op.
+diff lowering/lower.go.orig lowering/lower.go
+--- lowering/lower.go.orig
++++ lowering/lower.go
+@@ -135,7 +135,7 @@
+ 		modifiedOp := opcode.Opcode(code[pc+1])
+ 		inst.Index = be16(code, pc+2)
+ 		if modifiedOp == opcode.Iinc {
+-			inst.IncIndex = uint8(inst.Index) // reuse IncIndex for the u2 index
++			inst.IncIndex = uint8(inst.Index)         // reuse IncIndex for the u2 index
+ 			inst.Const8 = int8(be16(code, pc+4) >> 8) // approximate; wide iinc needs special handling
+ 			inst.Length = 6
+ 		} else {
+diff lowering/types.go.orig lowering/types.go
+--- lowering/types.go.orig
++++ lowering/types.go
+@@ -13,11 +13,11 @@
+ 
+ const (
+ 	TypeTop    SlotType = iota // unused slot or the 2nd slot of a category-2 value
+-	TypeInt                   // byte/char/short/boolean/int → int32
+-	TypeLong                  // → int64 (followed by TypeTop)
+-	TypeFloat                 // → float32
+-	TypeDouble                // → float64 (followed by TypeTop)
+-	TypeRef                   // object/array/null → *rtda.Object
++	TypeInt                    // byte/char/short/boolean/int → int32
++	TypeLong                   // → int64 (followed by TypeTop)
++	TypeFloat                  // → float32
++	TypeDouble                 // → float64 (followed by TypeTop)
++	TypeRef                    // object/array/null → *rtda.Object
+ )
+ 
+ // typeDataflow fills IRInst.InTypes: the operand-stack slot types at each
+diff native/lang.go.orig native/lang.go
+--- native/lang.go.orig
++++ native/lang.go
+@@ -162,7 +162,7 @@
+ 		units := make([]uint16, n/2)
+ 		for i := 0; i < n; i += 2 {
+ 			hi := uint16(buf.GetIntCell(i))
+-			lo := uint16(buf.GetIntCell(i+1))
++			lo := uint16(buf.GetIntCell(i + 1))
+ 			units[i/2] = hi<<8 | lo
+ 		}
+ 		this.SetExtra(rtda.NewStringValue(units))
+@@ -517,21 +517,21 @@
+ }
+ 
+ var knownProperties = map[string]string{
+-	"line.separator":  "\n",
+-	"file.separator":  "/",
+-	"path.separator":  ":",
+-	"file.encoding":   "UTF-8",
+-	"java.version":    "25",
+-	"java.vm.version": "25",
+-	"java.vm.name":    "catty",
+-	"java.home":       ".",
+-	"user.dir":        ".",
+-	"user.home":       ".",
+-	"java.class.path": ".",
+-	"java.io.tmpdir":  "/tmp",
+-	"os.name":         "unknown",
+-	"os.arch":         "unknown",
+-	"os.version":      "unknown",
++	"line.separator":     "\n",
++	"file.separator":     "/",
++	"path.separator":     ":",
++	"file.encoding":      "UTF-8",
++	"java.version":       "25",
++	"java.vm.version":    "25",
++	"java.vm.name":       "catty",
++	"java.home":          ".",
++	"user.dir":           ".",
++	"user.home":          ".",
++	"java.class.path":    ".",
++	"java.io.tmpdir":     "/tmp",
++	"os.name":            "unknown",
++	"os.arch":            "unknown",
++	"os.version":         "unknown",
+ 	"java.class.version": "65.0",
+ }
+ 
+diff native/object_test.go.orig native/object_test.go
+--- native/object_test.go.orig
++++ native/object_test.go
+@@ -8,9 +8,10 @@
+ 
+ // buildObjectMonitorHierarchy creates a minimal class hierarchy for testing
+ // Object.wait()/notify() and Thread.holdsLock(). It includes:
+-//   Object (with wait/notify methods) → Throwable → Exception → RuntimeException → IMSE
+-//   Thread (with holdsLock)
+-//   String and Class (required by throwException for IMSE construction)
++//
++//	Object (with wait/notify methods) → Throwable → Exception → RuntimeException → IMSE
++//	Thread (with holdsLock)
++//	String and Class (required by throwException for IMSE construction)
+ func buildObjectMonitorHierarchy() *simpleLoader {
+ 	l := &simpleLoader{classes: make(map[string]*rtda.Class)}
+ 
+diff native/system.go.orig native/system.go
+--- native/system.go.orig
++++ native/system.go
+@@ -369,8 +369,9 @@
+ // objectWaitJI implements Object.wait(long timeoutMillis, int nanos).
+ // The nanos are ignored for now (indefinite wait); timed wait is Slice D,
+ // but the argument range is validated per java.lang.Object.wait(long,int):
+-//   IllegalArgumentException - if timeoutMillis is negative,
+-//                              or if the value of nanos is out of range
++//
++//	IllegalArgumentException - if timeoutMillis is negative,
++//	                           or if the value of nanos is out of range
+ func objectWaitJI(f *rtda.Frame) {
+ 	this := f.GetRef(0)
+ 	if this == nil {
+diff rtda/field.go.orig rtda/field.go
+--- rtda/field.go.orig
++++ rtda/field.go
+@@ -24,11 +24,11 @@
+ 	}
+ }
+ 
+-func (f *Field) Owner() *Class    { return f.owner }
+-func (f *Field) Name() string     { return f.name }
++func (f *Field) Owner() *Class      { return f.owner }
++func (f *Field) Name() string       { return f.name }
+ func (f *Field) Descriptor() string { return f.descriptor }
+-func (f *Field) SlotID() uint     { return f.slotID }
+-func (f *Field) IsStatic() bool   { return f.isStatic }
++func (f *Field) SlotID() uint       { return f.slotID }
++func (f *Field) IsStatic() bool     { return f.isStatic }
+ func (f *Field) IsLongOrDouble() bool {
+ 	return f.descriptor == "J" || f.descriptor == "D"
+ }
+diff rtda/frame.go.orig rtda/frame.go
+--- rtda/frame.go.orig
++++ rtda/frame.go
+@@ -15,8 +15,8 @@
+ 	code     []byte // cached method.code for the dispatch loop (nil if native)
+ 	locals   []Slot
+ 	stack    []Slot
+-	stackTop int  // index of the next free slot = current operand-stack size
+-	pc       int  // index into code of the next instruction
++	stackTop int // index of the next free slot = current operand-stack size
++	pc       int // index into code of the next instruction
+ 
+ 	// syncObject is non-nil when this frame is for an ACC_SYNCHRONIZED method.
+ 	// The monitor was implicitly entered at frame entry and will be exited when
+@@ -67,9 +67,9 @@
+ 	f.syncObject = lockObj
+ }
+ 
+-func (f *Frame) PC() int       { return f.pc }
+-func (f *Frame) SetPC(pc int)  { f.pc = pc }
+-func (f *Frame) NextPC() int   { return f.pc } // pc already advanced past the opcode
++func (f *Frame) PC() int      { return f.pc }
++func (f *Frame) SetPC(pc int) { f.pc = pc }
++func (f *Frame) NextPC() int  { return f.pc } // pc already advanced past the opcode
+ 
+ // Operand decoders. The dispatch loop reads opcodes and their inline operands
+ // straight from code via these; they advance pc past the bytes consumed.
+@@ -183,12 +183,12 @@
+ 
+ // --- Local variables ---
+ 
+-func (f *Frame) SetInt(index int, val int32)    { f.locals[index].num = val }
+-func (f *Frame) GetInt(index int) int32         { return f.locals[index].num }
++func (f *Frame) SetInt(index int, val int32)     { f.locals[index].num = val }
++func (f *Frame) GetInt(index int) int32          { return f.locals[index].num }
+ func (f *Frame) SetFloat(index int, val float32) { f.locals[index].num = int32(math.Float32bits(val)) }
+-func (f *Frame) GetFloat(index int) float32     { return math.Float32frombits(uint32(f.locals[index].num)) }
+-func (f *Frame) SetRef(index int, ref *Object)  { f.locals[index].ref = ref }
+-func (f *Frame) GetRef(index int) *Object       { return f.locals[index].ref }
++func (f *Frame) GetFloat(index int) float32      { return math.Float32frombits(uint32(f.locals[index].num)) }
++func (f *Frame) SetRef(index int, ref *Object)   { f.locals[index].ref = ref }
++func (f *Frame) GetRef(index int) *Object        { return f.locals[index].ref }
+ 
+ func (f *Frame) SetLong(index int, val int64) {
+ 	f.locals[index].num = int32(uint64(val) >> 32)
+@@ -230,8 +230,8 @@
+ 
+ func (f *Frame) SetStackTop(n int) { f.stackTop = n }
+ 
+-func (f *Frame) StackSlotNum(i int) int32    { return f.stack[i].num }
+-func (f *Frame) StackSlotRef(i int) *Object  { return f.stack[i].ref }
++func (f *Frame) StackSlotNum(i int) int32         { return f.stack[i].num }
++func (f *Frame) StackSlotRef(i int) *Object       { return f.stack[i].ref }
+ func (f *Frame) SetStackSlotNum(i int, v int32)   { f.stack[i].num = v }
+ func (f *Frame) SetStackSlotRef(i int, r *Object) { f.stack[i].ref = r }
+ 
+diff rtda/frame_test.go.orig rtda/frame_test.go
+--- rtda/frame_test.go.orig
++++ rtda/frame_test.go
+@@ -36,7 +36,7 @@
+ 	m := &Method{maxStack: 4, maxLocals: 4}
+ 	f := NewFrame(nil, m)
+ 
+-	for _, v := range []int64{0, 1, -1, 1<<40, -(1 << 40), 0x123456789ABCDEF0} {
++	for _, v := range []int64{0, 1, -1, 1 << 40, -(1 << 40), 0x123456789ABCDEF0} {
+ 		f.PushLong(v)
+ 		if got := f.PopLong(); got != v {
+ 			t.Errorf("PopLong = %#x, want %#x", got, v)
+diff rtda/func_loader.go.orig rtda/func_loader.go
+--- rtda/func_loader.go.orig
++++ rtda/func_loader.go
+@@ -4,8 +4,8 @@
+ // It is intended for tests and simple scenarios. Each call to LoadClass
+ // delegates to the provided function.
+ type FuncLoader struct {
+-	ID       *LoaderIdentity
+-	LoadFn   func(name string) *Class
++	ID        *LoaderIdentity
++	LoadFn    func(name string) *Class
+ 	LoadResFn func(name string) ClassLoadResult
+ }
+ 
+diff rtda/method.go.orig rtda/method.go
+--- rtda/method.go.orig
++++ rtda/method.go
+@@ -30,9 +30,9 @@
+ // ExceptionEntry is the exported form for the interpreter's exception handler.
+ type ExceptionEntry = exceptionEntry
+ 
+-func (e *exceptionEntry) StartPc() int    { return e.startPc }
+-func (e *exceptionEntry) EndPc() int      { return e.endPc }
+-func (e *exceptionEntry) HandlerPc() int  { return e.handlerPc }
++func (e *exceptionEntry) StartPc() int      { return e.startPc }
++func (e *exceptionEntry) EndPc() int        { return e.endPc }
++func (e *exceptionEntry) HandlerPc() int    { return e.handlerPc }
+ func (e *exceptionEntry) CatchType() string { return e.catchType }
+ 
+ // NativeMethod builds a Method backed by a Go function. Used for the synthetic
+@@ -67,15 +67,15 @@
+ 	maxStack, maxLocals uint, code []byte, exTable []exceptionEntry) *Method {
+ 	md := ParseMethodDescriptor(descriptor)
+ 	m := &Method{
+-		owner:         owner,
+-		name:          name,
+-		descriptor:    descriptor,
+-		accessFlags:   access,
+-		maxStack:      maxStack,
+-		maxLocals:     maxLocals,
+-		code:          code,
++		owner:          owner,
++		name:           name,
++		descriptor:     descriptor,
++		accessFlags:    access,
++		maxStack:       maxStack,
++		maxLocals:      maxLocals,
++		code:           code,
+ 		exceptionTable: exTable,
+-		argSlotCount:  uint(md.ArgSlots()),
++		argSlotCount:   uint(md.ArgSlots()),
+ 	}
+ 	if access&accNative != 0 {
+ 		m.native = true
+@@ -118,15 +118,15 @@
+ 	}
+ }
+ 
+-func (m *Method) Owner() *Class      { return m.owner }
+-func (m *Method) Name() string       { return m.name }
+-func (m *Method) Descriptor() string { return m.descriptor }
+-func (m *Method) AccessFlags() uint16 { return m.accessFlags }
+-func (m *Method) IsStatic() bool       { return m.accessFlags&accStatic != 0 }
+-func (m *Method) IsSynchronized() bool { return m.accessFlags&accSynchronized != 0 }
+-func (m *Method) IsNative() bool            { return m.native }
+-func (m *Method) NativeFunc() func(*Frame)  { return m.nativeFunc }
+-func (m *Method) ArgSlotCount() uint        { return m.argSlotCount }
++func (m *Method) Owner() *Class            { return m.owner }
++func (m *Method) Name() string             { return m.name }
++func (m *Method) Descriptor() string       { return m.descriptor }
++func (m *Method) AccessFlags() uint16      { return m.accessFlags }
++func (m *Method) IsStatic() bool           { return m.accessFlags&accStatic != 0 }
++func (m *Method) IsSynchronized() bool     { return m.accessFlags&accSynchronized != 0 }
++func (m *Method) IsNative() bool           { return m.native }
++func (m *Method) NativeFunc() func(*Frame) { return m.nativeFunc }
++func (m *Method) ArgSlotCount() uint       { return m.argSlotCount }
+ 
+ // ReturnType returns the descriptor of the return type (the part after ')').
+ func (m *Method) ReturnType() string {
+@@ -140,9 +140,9 @@
+ 
+ // ExceptionTable exposes parsed handlers for try/catch (used post-MVP).
+ func (m *Method) ExceptionTable() []exceptionEntry { return m.exceptionTable }
+-func (m *Method) MaxStack() uint   { return m.maxStack }
+-func (m *Method) MaxLocals() uint  { return m.maxLocals }
+-func (m *Method) Code() []byte     { return m.code }
++func (m *Method) MaxStack() uint                   { return m.maxStack }
++func (m *Method) MaxLocals() uint                  { return m.maxLocals }
++func (m *Method) Code() []byte                     { return m.code }
+ 
+ // StackMap returns the parsed StackMapTable (for type tracking) or nil.
+ func (m *Method) StackMap() *classfile.StackMapTableAttribute { return m.stackMap }
+diff rtda/monitor.go.orig rtda/monitor.go
+--- rtda/monitor.go.orig
++++ rtda/monitor.go
+@@ -14,8 +14,8 @@
+ // private wake signal so notify, notifyAll, and waiter interruption can
+ // be totally ordered under the monitor state lock.
+ type Monitor struct {
+-	mu    sync.Mutex
+-	cond  sync.Cond // signaled on ownership release (depth → 0)
++	mu   sync.Mutex
++	cond sync.Cond // signaled on ownership release (depth → 0)
+ 
+ 	owner uint64 // execution-context ID, 0 = no owner
+ 	depth int    // recursion count
+@@ -25,9 +25,9 @@
+ 
+ // waiter states (atomic int32).
+ const (
+-	waitWaiting    int32 = iota // enrolled, not yet notified or interrupted
+-	waitNotified                // notify won the race
+-	waitInterrupted             // interrupt won the race
++	waitWaiting     int32 = iota // enrolled, not yet notified or interrupted
++	waitNotified                 // notify won the race
++	waitInterrupted              // interrupt won the race
+ )
+ 
+ // waiterEntry represents a Java thread blocked in Object.wait() on this monitor.
+@@ -34,8 +34,8 @@
+ // State transitions are single-shot: waiting → notified or waiting → interrupted.
+ // Wake signals are exactly-once via a buffered (cap 1) channel.
+ type waiterEntry struct {
+-	state int32        // atomic; one of waitWaiting, waitNotified, waitInterrupted
+-	ecID  uint64       // the waiting execution context
++	state int32         // atomic; one of waitWaiting, waitNotified, waitInterrupted
++	ecID  uint64        // the waiting execution context
+ 	wake  chan struct{} // buffered 1 — private wake signal
+ }
+ 
+diff rtda/monitor_test.go.orig rtda/monitor_test.go
+--- rtda/monitor_test.go.orig
++++ rtda/monitor_test.go
+@@ -120,7 +120,7 @@
+ 
+ 	// EC 1 reentrant entry from another goroutine (same EC, different goroutine).
+ 	go func() {
+-		m.Enter(1) // reentrant — should not block (main still holds lock)
++		m.Enter(1)      // reentrant — should not block (main still holds lock)
+ 		entered1.Done() // signal AFTER entering so depth ≥ 2 is stable
+ 		if d := m.RecursionDepth(); d < 2 {
+ 			t.Errorf("reentrant depth = %d, want >= 2", d)
+diff rtda/slot.go.orig rtda/slot.go
+--- rtda/slot.go.orig
++++ rtda/slot.go
+@@ -20,9 +20,9 @@
+ 
+ // Num/Ref read the slot's value; the interpreter uses these for field and array
+ // access. Same-package code (Frame) touches num/ref directly.
+-func (s Slot) Num() int32     { return s.num }
+-func (s Slot) Ref() *Object   { return s.ref }
+-func (s *Slot) SetNum(v int32) { s.num = v }
++func (s Slot) Num() int32        { return s.num }
++func (s Slot) Ref() *Object      { return s.ref }
++func (s *Slot) SetNum(v int32)   { s.num = v }
+ func (s *Slot) SetRef(r *Object) { s.ref = r }
+ 
+ // RefSlot / IntSlot construct a Slot from a typed value. Cross-package code (the
+diff rtda/thread.go.orig rtda/thread.go
+--- rtda/thread.go.orig
++++ rtda/thread.go
+@@ -150,8 +150,8 @@
+ // Bridge-mode accessors: used by the AOT bridge (interpreter.RunMethod) to capture
+ // a method's return when there is no caller frame to push it onto.
+ func (t *Thread) SetBridgeReturn(s *Slot) { t.bridgeReturn = s }
+-func (t *Thread) HasBridgeReturn() bool    { return t.bridgeReturn != nil }
+-func (t *Thread) BridgeReturn(s Slot)      { *t.bridgeReturn = s }
++func (t *Thread) HasBridgeReturn() bool   { return t.bridgeReturn != nil }
++func (t *Thread) BridgeReturn(s Slot)     { *t.bridgeReturn = s }
+ 
+ // --- Exception handling ---
+ 
+diff transpile/emit.go.orig transpile/emit.go
+--- transpile/emit.go.orig
++++ transpile/emit.go
+@@ -34,7 +34,7 @@
+ 		slotTemp: map[int]string{}, slotType: map[int]string{}, loader: loader,
+ 		merges: map[int]bool{}, fallThrough: map[int]bool{},
+ 		mergeTemps: map[int][]string{}, mergeTempTypes: map[int][]string{},
+-		localMap: buildLocalMap(method),
++		localMap:  buildLocalMap(method),
+ 		emittable: emittable,
+ 	}
+ 	e.merges, e.fallThrough = cfgAnalysis(ir)
+@@ -79,17 +79,17 @@
+ // emitter carries the fresh-per-def state: the current temp name per operand-stack
+ // slot, and the list of all temps (for top-of-function declarations + the sink).
+ type emitter struct {
+-	slotTemp       map[int]string   // slot index → temp name of its most recent def
+-	slotType       map[int]string   // slot index → that temp's Go type (for dup)
++	slotTemp       map[int]string // slot index → temp name of its most recent def
++	slotType       map[int]string // slot index → that temp's Go type (for dup)
+ 	loader         rtda.Loader
+ 	temps          []tempDecl
+ 	counter        int
+-	merges         map[int]bool      // pcs with >1 predecessor (control-flow merges)
+-	fallThrough    map[int]bool      // pcs reached by fall-through from a predecessor
+-	mergeTemps     map[int][]string  // merge pc → temp name per stack slot (the phi)
+-	mergeTempTypes map[int][]string  // merge pc → Go type per stack slot
+-	localMap       map[int]string    // JVM local slot → Go param name (cat-2 aware)
+-	emittable      map[string]bool   // AOT'd methods in this build (invokestatic dispatch)
++	merges         map[int]bool     // pcs with >1 predecessor (control-flow merges)
++	fallThrough    map[int]bool     // pcs reached by fall-through from a predecessor
++	mergeTemps     map[int][]string // merge pc → temp name per stack slot (the phi)
++	mergeTempTypes map[int][]string // merge pc → Go type per stack slot
++	localMap       map[int]string   // JVM local slot → Go param name (cat-2 aware)
++	emittable      map[string]bool  // AOT'd methods in this build (invokestatic dispatch)
+ }
+ 
+ type tempDecl struct{ name, gotype string }

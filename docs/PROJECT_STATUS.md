@@ -1,11 +1,16 @@
 # Project status
 
-**As of:** 2026-07-20
-**Stable baseline:** R3 K1 dynamic metadata kernel complete; R2 concurrency milestone remains complete
-**Baseline commit:** `0fcf316` (K1 dynamic metadata kernel integration)
+**As of:** 2026-07-21
+**Stable baseline:** R3 K2 runtime identity and typed class-definition slice complete; R2 concurrency milestone remains complete
+**Baseline commit:** `100e29a` (K2 runtime identity/typed definition local closure; not merged or pushed by governance)
 **Governance/research anchor:** `f685526` (R3 research Done); K2 acceptance anchor: `0fcf316`
-**Active workstream:** `r3-runtime-identity-definition-slice` — Active on the next implementation branch from anchor `0fcf316`; the only active implementation workstream
-**Current phase:** R3 research is Done and K1 dynamic-metadata kernel is integrated. K1 adds no Java-visible reflection or InvokeDynamic capability by contract. K2 is now the active shared-kernel workstream. Timed `wait`/`join`, `Unsafe`, virtual threads, `ThreadGroup`/`ThreadLocal`, and `java.util.concurrent` remain out of scope.
+**Active workstream:** None. The next R3 implementation successor must fix its own acceptance anchor before production work begins.
+**Current phase:** R3 research is Done. K1 dynamic metadata and K2 runtime
+identity/typed class-definition shared-kernel slices are complete. No
+Java-visible reflection, InvokeDynamic, generated-class, or arbitrary
+ClassLoader capability is claimed by K1/K2. Timed `wait`/`join`, `Unsafe`,
+virtual threads, `ThreadGroup`/`ThreadLocal`, and `java.util.concurrent`
+remain out of scope.
 
 This is the single model-neutral current-state entry. Strategy lives in
 [`ROADMAP.md`](./ROADMAP.md); decisions live in [`adr/`](./adr/); scoped work
@@ -46,27 +51,42 @@ lives in [`workstreams/`](./workstreams/).
   `wait`/`join`, `Unsafe`, virtual threads, `ThreadGroup`/`ThreadLocal`,
   and `java.util.concurrent` remain out of scope and are governed by later
   phases.
+- R3 K1 metadata kernel: classfile dynamic metadata required by later R3
+  kernels is retained without adding Java-visible reflection or InvokeDynamic
+  support.
+- R3 K2 runtime identity and typed class-definition kernel: every runtime
+  Class has defining-loader-aware identity; lookup/initiation/definition use
+  typed results; concurrent definition publishes one fully linked Class or one
+  terminal failure; primitive/void and array runtime identities are canonical;
+  existing Class mirror paths in Interpreter and IR converge on canonical
+  runtime identities. K2 adds no `Class.forName`, reflection facade,
+  annotation API, arbitrary `ClassLoader.defineClass`, generated class,
+  InvokeDynamic, or AOT dynamic fallback capability.
 
-## Governance-reset validation
+## Governance validation
 
-Revalidated locally on 2026-07-17 (Slice E final candidate `ea1f67a`, integrated
-as `ca42a61`):
+K2 closure validated locally on 2026-07-21 at candidate `100e29a`:
 
 - `go vet ./...` — Pass
 - `go test ./...` — Pass
 - `go test -race ./...` — Pass
 - `bash tests/run.sh` — Pass, 10/10 fixtures
-- 19-fixture concurrency matrix (1×) — Pass, 19/19 Interpreter + IR Match, 19/19 AOT NO-BUILD
-- 19-fixture concurrency matrix (`R2_CONCURRENCY_STRESS=100`, race-built) — Pass, 19/19 Match, no races
+- R3 24-row baseline — Pass, 24/24 rows complete; Interpreter 0/24 Match,
+  IR 0/24 Match, AOT 24/24 NO-BUILD
+- 19-fixture R2 concurrency matrix (1×) — Pass, 19/19 Interpreter + IR Match,
+  19/19 AOT NO-BUILD
+- 19-fixture R2 concurrency matrix (`R2_CONCURRENCY_STRESS=100`, race-built)
+  — Pass, 19/19 Match, no races
 - Evidence isolation — Pass (historical evidence directories unchanged)
-- Governance `git diff --check` (scoped per Amendment 1 precedent) — Pass
+- Governance `git diff --check` — Pass
 
 ## Explicit boundary
 
 catty does not claim timed `wait`/`join`, `Unsafe`/`VarHandle`, broad
-reflection, `invokedynamic`, broad I/O/networking, arbitrary `java.base`
-application compatibility, cross-engine AOT exception propagation, AOT
-concurrency, virtual threads, `ThreadGroup`/`ThreadLocal`,
+reflection, Java-visible reflection facades, `invokedynamic`, generated
+classes, arbitrary `ClassLoader.defineClass`, broad I/O/networking, arbitrary
+`java.base` application compatibility, cross-engine AOT exception propagation,
+AOT concurrency, virtual threads, `ThreadGroup`/`ThreadLocal`,
 `java.util.concurrent`, or a complete Java String API. The bounded Java 25
 concurrency surface (Slices A–E) is implemented in Interpreter and IR only;
 AOT reports all concurrency fixtures as `Not implemented`.
@@ -85,14 +105,17 @@ ADR-0016 fixes AOT as the primary product path with a
 permanent interpreter fallback. ADR-0025 is implemented by the completed,
 bounded class/interface-initialization workstream; ADR-0027 is implemented by the
 completed bounded UTF-16 String workstream. ADR-0028 through ADR-0030 govern and are implemented
-by the completed, bounded Thread/monitor/init Slices A–E. Bootstrap capability
-mapping, Unsafe, and allocation remain deferred.
+by the completed, bounded Thread/monitor/init Slices A–E. ADR-0031 through
+ADR-0033 govern the R3 shared-kernel sequence; K1 and K2 implement the
+metadata-retention and runtime-identity/typed-definition prerequisites, while
+typed invocation, InvokeDynamic linkage, and generated classes remain future
+workstreams. Bootstrap capability mapping, Unsafe, and allocation remain
+deferred.
 
 ## Next action
 
-Implement the Accepted
-[`r3-runtime-identity-definition-slice`](./workstreams/r3-runtime-identity-definition-slice.md)
-K2 contract from anchor `0fcf316`: defining-loader-aware canonical Class
-identity, typed lookup/definition results, atomic publication, and mirror
-continuity. K1 evidence remains fixed at 0/24 Match in Interpreter and IR with
-24/24 AOT NO-BUILD; no Java-visible R3 row may be newly claimed Supported.
+Select the next R3 shared-kernel successor. The accepted
+[`r3-typed-invocation-kernel-slice`](./workstreams/r3-typed-invocation-kernel-slice.md)
+now has its K2 prerequisite satisfied, but implementation remains unauthorized
+until its acceptance anchor is fixed in a commit. No Java-visible R3 row may be
+newly claimed Supported without a later accepted workstream and evidence.

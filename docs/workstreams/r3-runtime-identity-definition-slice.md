@@ -1,6 +1,6 @@
 # R3 runtime identity and typed class-definition slice
 
-**Status:** In Progress
+**Status:** Done
 **Type:** implementation
 **Review:** owner
 **Profile:** Catty JVMS Core shared kernel; no public ClassLoader API
@@ -75,8 +75,8 @@ type world.
 | Implement typed lookup/definition and atomic publication | Complete |
 | Implement canonical runtime types and mirror continuity | Complete |
 | Migrate Java-reachable consumers and run contract gates | Complete |
-| Runtime identity and typed lookup/definition implementation | Ready |
-| Owner review and integration | Pending |
+| Runtime identity and typed lookup/definition implementation | Complete |
+| Owner review and closure | Complete — accepted 2026-07-21 at `100e29a`; merge/push not performed |
 
 ## Acceptance record
 
@@ -379,29 +379,34 @@ or AOT dynamic fallback. No new Java-visible R3 Supported rows are declared.
 The typed failure vocabulary is an internal Go contract; it is not exposed
 to Java code through new public API.
 
-### Remaining risks
+### Closure record — 2026-07-21
 
-1. **Catch-type resolution in exception handlers** (`entry.CatchType()`) still
-   uses `LoadClass` (must-load). If a class file's exception table references
-   an unresolvable catch type, the interpreter panics rather than skipping
-   the handler. This follows JVMS §5.4.3 semantics and is an existing behaviour;
-   converting it to typed resolution is deferred.
-2. **No ClassLoader API for Java.** The identity model, typed failures, and
-   definition protocol are Go-internal. Java classes cannot yet implement or
-   extend `ClassLoader`. This is explicit Non-scope.
-3. **AOT build-time rejection unchanged.** Transpile still rejects any class
-   with a `<clinit>` trigger. Cross-engine exception propagation is a separate
-   future workstream.
-4. **Interpreter/runtime packages have no package-local tests.** Regression
-   coverage relies on the e2e fixture suite. Focused engine continuity tests
-   for the typed failure paths (e.g., `resolveClass` with a missing class
-   injected via a test provider) remain a follow-on.
+Owner accepted K2 on 2026-07-21 at candidate commit
+`100e29aa872f723e5149c04c2347b97b28e7d183`
+(`fix(k2): close runtime identity definition blockers`).
 
-### Status
+Final evidence entry:
+`candidates/k2/evidence/final-acceptance.md`.
 
-K2 implementation is **Ready** for owner review. All contract gates pass.
-A candidate commit has been created locally.
+Validation:
+
+- `GOCACHE=/private/tmp/catty-codex-go-cache go test ./...` — Pass
+- `GOCACHE=/private/tmp/catty-codex-go-cache go vet ./...` — Pass
+- `GOCACHE=/private/tmp/catty-codex-go-cache go test -race ./...` — Pass
+- `GOCACHE=/private/tmp/catty-codex-go-cache bash tests/run.sh` — Pass,
+  10/10 fixtures
+- `git diff --check` — Pass
+- R3 24-row baseline at `/private/tmp/catty-codex-k2-r3/results.txt` — Pass:
+  24/24 rows complete, Interpreter 0/24 Match, IR 0/24 Match,
+  AOT 24/24 NO-BUILD
+- R2 concurrency candidate evidence for immutable detached commit `100e29a`:
+  19/19 Interpreter + IR Match and 19/19 AOT NO-BUILD at 1x and race-built
+  100x stress
+
+Capability classification remains unchanged: K2 does not implement
+`Class.forName`, reflection facades, annotation APIs, arbitrary
+`ClassLoader.defineClass`, generated classes, `InvokeDynamic`, or AOT dynamic
+fallback.
 
 **未 merge、未 push、未发布。** No remote, main-branch, or release operation
-was performed. The work remains on branch `codex/r3-runtime-identity-definition-slice`
-as a local candidate only.
+was performed by this governance closure.

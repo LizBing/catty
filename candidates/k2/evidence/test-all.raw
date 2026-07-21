@@ -1,0 +1,13 @@
+ok  	catty/classfile	(cached)
+ok  	catty/classloader	(cached)
+?   	catty/classpath	[no test files]
+?   	catty/cmd/jvm	[no test files]
+ok  	catty/docs/workstreams/r2-concurrency-evidence/prototypes	(cached)
+?   	catty/interpreter	[no test files]
+?   	catty/launch	[no test files]
+ok  	catty/lowering	1.749s
+ok  	catty/native	(cached)
+?   	catty/opcode	[no test files]
+ok  	catty/rtda	(cached)
+?   	catty/runtime	[no test files]
+ok  	catty/transpile	13.242s

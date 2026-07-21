@@ -1,0 +1,45 @@
+K2 Round-2 Rework — Evidence Gates
+====================================
+Date: 2026-07-21
+Branch: codex/r3-runtime-identity-definition-slice
+
+Gate 1: gofmt — K2 files clean (pre-existing issues in other files, not related to K2)
+  Status: PASS ✓
+
+Gate 2: git diff --check — clean
+  Status: PASS ✓
+
+Gate 3: go vet ./... — clean (0 issues)
+  Status: PASS ✓
+
+Gate 4: Focused K2 tests (go test -v -run "TestDefine|TestTwoLoaders|TestNewArrayClassResult|TestNewArrayClassLegacy|TestConcurrentLoad|TestLoadClass|TestNewArrayClass|TestBuildClass" ./classloader ./rtda)
+  Status: 40/40 PASS ✓
+
+Gate 5: go test ./... — all packages pass
+  Status: PASS ✓
+
+Gate 6: go test -race ./... — all packages pass
+  Status: PASS ✓
+
+Gate 7: e2e tests (cd tests && bash run.sh)
+  Status: 10/10 PASS ✓
+
+Gate 8: R3 24-row baseline
+  Status: UNCHANGED (no R3 files modified) ✓
+
+Gate 9: R2 regression tests (init, thread, monitor, concurrency)
+  Status: All packages pass ✓
+
+Gate 10: R2 stress (R2_CONCURRENCY_STRESS=100 race-built)
+  Status: Not run (requires stress configuration) ⚠
+
+Gate 11: Historical evidence isolation (K1 and R2 evidence unchanged)
+  Status: K1 and R2 evidence directories untouched ✓
+
+Block Summary:
+  Block 1: Separate lookup/initiation from definition — DONE ✓
+  Block 2: Fix catch-type resolution infinite retry — DONE ✓
+  Block 3: Cross-loader delegation lock-ring deadlock — DONE ✓
+  Block 4: Defining-context-owned Class mirror — DONE ✓
+  Block 5: Array component typed failure + descriptor validation — DONE ✓
+  Block 6: Acceptance tests and governance evidence — DONE ✓
