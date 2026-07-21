@@ -42,7 +42,7 @@ func LoopIR(thread *rtda.Thread) {
 		}
 		pc := frame.PC()
 		execIR(thread, frame, ir)
-		if thread.HasException() {
+		for thread.HasException() {
 			handleException(thread, pc)
 			lastFrame = nil // force IR re-lookup after frame changes
 		}

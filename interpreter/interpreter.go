@@ -23,10 +23,10 @@ func Loop(thread *rtda.Thread) {
 		op := opcode.Opcode(frame.Code()[opcodePc])
 		frame.SetPC(opcodePc + 1)
 		exec(thread, frame, op, opcodePc)
-		// Inner loop: handle cascading exceptions. If catch-type
-		// resolution fails and sets a new throwable, handleException
-		// returns with the exception still pending. Re-enter
-		// handleException for the new exception.
+		// Inner loop: handle cascading exceptions. handleException
+		// clears the pending exception in all paths. If catch-type
+		// resolution fails, handleException pops the frame and propagates
+		// the replacement throwable from the caller boundary.
 		for thread.HasException() {
 			handleException(thread, opcodePc)
 		}
@@ -45,6 +45,7 @@ func Loop(thread *rtda.Thread) {
 func handleException(thread *rtda.Thread, throwPC int) {
 	excObj := thread.ClearException()
 
+frameLoop:
 	for !thread.IsStackEmpty() {
 		frame := thread.CurrentFrame()
 		method := frame.Method()
@@ -61,12 +62,18 @@ func handleException(thread *rtda.Thread, throwPC int) {
 				// Typed catch-type resolution (K2).
 				// On failure resolveClass sets a new throwable
 				// (LinkageError/NoClassDefFoundError) on the thread and
-				// returns nil. Per JVMS the resolution error replaces the
-				// current exception. Return immediately — the interpreter
-				// loop re-enters handleException for the new exception.
+				// returns nil. The replacement throwable is a NEW exception
+				// and must propagate from the caller boundary — it must not
+				// be caught by a later handler in the same frame. Pop the
+				// frame and continue the frame-walk with the new throwable.
 				catchClass := resolveClass(thread, throwPC, entry.CatchType())
 				if catchClass == nil {
-					return
+					excObj = thread.ClearException()
+					thread.PopFrame()
+					if !thread.IsStackEmpty() {
+						throwPC = thread.CurrentFrame().PC() - 1
+					}
+					continue frameLoop
 				}
 				if excObj.IsInstanceOf(catchClass) {
 					// Found a handler: clear operand stack, push exception, jump.

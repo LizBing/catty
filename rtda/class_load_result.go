@@ -45,10 +45,14 @@ func (k FailureKind) String() string {
 // failure. The Name field always holds the symbolic class name that was being
 // resolved when the failure occurred. Cause is the underlying Go error (may
 // be nil when the failure is purely structural).
+//
+// DefinedClass is set for FailureDuplicateDefinition to preserve the
+// original class that was already defined.
 type ClassLoadFailure struct {
-	Kind  FailureKind
-	Name  string
-	Cause error
+	Kind         FailureKind
+	Name         string
+	Cause        error
+	DefinedClass *Class // non-nil for FailureDuplicateDefinition
 }
 
 func (f *ClassLoadFailure) Error() string {

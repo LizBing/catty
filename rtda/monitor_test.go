@@ -120,7 +120,7 @@ func TestMonitorExclusion(t *testing.T) {
 
 	// EC 1 reentrant entry from another goroutine (same EC, different goroutine).
 	go func() {
-		m.Enter(1) // reentrant — should not block (main still holds lock)
+		m.Enter(1)      // reentrant — should not block (main still holds lock)
 		entered1.Done() // signal AFTER entering so depth ≥ 2 is stable
 		if d := m.RecursionDepth(); d < 2 {
 			t.Errorf("reentrant depth = %d, want >= 2", d)
@@ -411,7 +411,7 @@ func TestMonitorOnArray(t *testing.T) {
 
 func TestMonitorOnClassMirror(t *testing.T) {
 	cls := newMinimalClass("Test")
-	mirror := cls.ClassObject(func() *Object { return NewObject(newMinimalClass("java/lang/Class")) })
+	mirror := cls.classObjectWithFactory(func() *Object { return NewObject(newMinimalClass("java/lang/Class")) })
 	m := mirror.Monitor()
 
 	m.Enter(77)

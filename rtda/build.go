@@ -2,6 +2,7 @@ package rtda
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 
 	"catty/classfile"
@@ -350,32 +351,169 @@ func (c *Class) MarkInitStarted() {
 // primitive arrays use VMIdentity.
 //
 // Returns nil when component class resolution fails.
+// Prefer NewArrayClassResult for typed failure propagation.
 func NewArrayClass(name string, loader Loader) *Class {
+	result := NewArrayClassResult(name, loader)
+	return result.Class
+}
+
+// NewArrayClassResult builds the runtime class for an array type name with
+// typed failure propagation. It validates the descriptor format and uses
+// LoadClassResult for component resolution so the failure kind, component
+// name, and cause are preserved.
+//
+// Valid descriptors:
+//   - "[I", "[J", "[F", "[D", "[B", "[C", "[S", "[Z" (primitive arrays)
+//   - "[Ljava/lang/String;" (reference arrays)
+//   - "[[I", "[[Ljava/lang/String;" (multidimensional arrays)
+//
+// Invalid descriptors return typed failures:
+//   - empty string, "[", "[V", "[Lfoo" (missing ';'), "[X" (illegal primitive),
+//     trailing content, empty component name in "[L;"
+func NewArrayClassResult(name string, loader Loader) BuildResult {
+	// Validate: must start with '['.
+	if len(name) < 2 || name[0] != '[' {
+		return BuildResult{Failure: &ClassLoadFailure{
+			Kind:  FailureFormat,
+			Name:  name,
+			Cause: fmt.Errorf("catty: invalid array descriptor %q", name),
+		}}
+	}
 	comp := name[1:] // drop leading '['
+
+	// Reject "[V" — void arrays do not exist in the JVM.
+	if len(comp) == 1 && comp[0] == 'V' {
+		return BuildResult{Failure: &ClassLoadFailure{
+			Kind:  FailureFormat,
+			Name:  name,
+			Cause: fmt.Errorf("catty: void array %q is not a valid type", name),
+		}}
+	}
 
 	// Resolve component class.
 	var component *Class
 	switch comp[0] {
 	case 'L':
-		component = loader.LoadClass(comp[1 : len(comp)-1])
+		// Reference array: "[L<binary-name>;"
+		semi := strings.IndexByte(comp, ';')
+		if semi < 0 {
+			return BuildResult{Failure: &ClassLoadFailure{
+				Kind:  FailureFormat,
+				Name:  name,
+				Cause: fmt.Errorf("catty: invalid object array descriptor %q: missing ';'", name),
+			}}
+		}
+		// Validate no trailing content after ';'.
+		if semi < len(comp)-1 {
+			return BuildResult{Failure: &ClassLoadFailure{
+				Kind:  FailureFormat,
+				Name:  name,
+				Cause: fmt.Errorf("catty: trailing content in array descriptor %q", name),
+			}}
+		}
+		componentName := comp[1:semi]
+		if len(componentName) == 0 {
+			return BuildResult{Failure: &ClassLoadFailure{
+				Kind:  FailureFormat,
+				Name:  name,
+				Cause: fmt.Errorf("catty: empty component name in object array descriptor %q", name),
+			}}
+		}
+		result := loader.LoadClassResult(componentName)
+		if !result.IsSuccess() {
+			f := result.Failure()
+			return BuildResult{Failure: &ClassLoadFailure{
+				Kind:  FailureLinkage,
+				Name:  name,
+				Cause: fmt.Errorf("component %s: %w", componentName, f),
+			}}
+		}
+		component = result.Class()
 	case '[':
-		component = loader.LoadClass(comp)
+		// Array-of-array: "[[<component-descriptor>"
+		if len(comp) < 2 {
+			return BuildResult{Failure: &ClassLoadFailure{
+				Kind:  FailureFormat,
+				Name:  name,
+				Cause: fmt.Errorf("catty: empty array component in descriptor %q", name),
+			}}
+		}
+		if err := validateArrayDescriptorSyntax(comp); err != nil {
+			return BuildResult{Failure: &ClassLoadFailure{
+				Kind:  FailureFormat,
+				Name:  name,
+				Cause: fmt.Errorf("catty: invalid nested array descriptor %q: %w", name, err),
+			}}
+		}
+		result := loader.LoadClassResult(comp)
+		if !result.IsSuccess() {
+			f := result.Failure()
+			return BuildResult{Failure: &ClassLoadFailure{
+				Kind:  FailureLinkage,
+				Name:  name,
+				Cause: fmt.Errorf("component %s: %w", comp, f),
+			}}
+		}
+		component = result.Class()
 	default:
-		// Primitive component — use VM canonical identity.
+		// Primitive component — must be exactly one character.
+		if len(comp) != 1 {
+			return BuildResult{Failure: &ClassLoadFailure{
+				Kind:  FailureFormat,
+				Name:  name,
+				Cause: fmt.Errorf("catty: invalid primitive array descriptor %q: extra characters after %q", name, comp),
+			}}
+		}
 		component = vmPrimitiveForDescriptor(comp[0])
-	}
-	if component == nil {
-		return nil
+		if component == nil {
+			return BuildResult{Failure: &ClassLoadFailure{
+				Kind:  FailureFormat,
+				Name:  name,
+				Cause: fmt.Errorf("catty: unknown primitive descriptor %q in array %q", string(comp[0]), name),
+			}}
+		}
 	}
 
-	// Delegate to component-owned array creation so the array Class
-	// identity is canonical and derived from the component.
-	return component.GetArrayClass()
+	return BuildResult{Class: component.GetArrayClass()}
+}
+
+func validateArrayDescriptorSyntax(name string) error {
+	if len(name) < 2 || name[0] != '[' {
+		return fmt.Errorf("invalid array descriptor %q", name)
+	}
+	component := name[1:]
+	switch component[0] {
+	case '[':
+		return validateArrayDescriptorSyntax(component)
+	case 'L':
+		semi := strings.IndexByte(component, ';')
+		if semi < 0 {
+			return fmt.Errorf("missing ';'")
+		}
+		if semi != len(component)-1 {
+			return fmt.Errorf("trailing content")
+		}
+		if semi == 1 {
+			return fmt.Errorf("empty component name")
+		}
+		return nil
+	case 'V':
+		return fmt.Errorf("void array")
+	default:
+		if len(component) != 1 {
+			return fmt.Errorf("extra characters")
+		}
+		if vmPrimitiveForDescriptor(component[0]) == nil {
+			return fmt.Errorf("unknown primitive descriptor %q", component)
+		}
+		return nil
+	}
 }
 
 // vmPrimitiveForDescriptor returns the canonical VM Class for a single
 // primitive array component descriptor character.
 func vmPrimitiveForDescriptor(ch byte) *Class {
+	InitVMTypes()
 	switch ch {
 	case 'I':
 		return VMPrimitiveInt

@@ -36,7 +36,7 @@ func TestFrameLongRoundTrip(t *testing.T) {
 	m := &Method{maxStack: 4, maxLocals: 4}
 	f := NewFrame(nil, m)
 
-	for _, v := range []int64{0, 1, -1, 1<<40, -(1 << 40), 0x123456789ABCDEF0} {
+	for _, v := range []int64{0, 1, -1, 1 << 40, -(1 << 40), 0x123456789ABCDEF0} {
 		f.PushLong(v)
 		if got := f.PopLong(); got != v {
 			t.Errorf("PopLong = %#x, want %#x", got, v)
@@ -143,6 +143,7 @@ func TestFrameEnterSyncMonitorStatic(t *testing.T) {
 	}}
 
 	cls := newMinimalClass("TestStaticSync")
+	cls.BindLoaderRef(loader)
 	method := newSyncMethod(cls, "staticSync", "()V", true)
 	thr := NewThread(loader)
 	frame := NewFrame(thr, method)
@@ -150,7 +151,7 @@ func TestFrameEnterSyncMonitorStatic(t *testing.T) {
 	frame.EnterSyncMonitor()
 
 	// The Class mirror should have been created lazily and its monitor entered.
-	mirror := cls.ClassObject(nil)
+	mirror := cls.ClassObject()
 	if mirror == nil {
 		t.Fatal("ClassObject returned nil — Class mirror was not created")
 	}

@@ -2,6 +2,7 @@ package rtda
 
 import (
 	"encoding/binary"
+	"strings"
 	"testing"
 
 	"catty/classfile"
@@ -236,5 +237,176 @@ func TestNewClassReturnsNilOnFailure(t *testing.T) {
 	c := NewClass(cf, loader)
 	if c != nil {
 		t.Error("NewClass should return nil on superclass resolution failure")
+	}
+}
+
+// --- K2 Block 5: NewArrayClassResult typed failure propagation ---
+
+func TestNewArrayClassResultValidDescriptors(t *testing.T) {
+	loader := &failingLoader{
+		classes:     make(map[string]*Class),
+		failureName: "",
+	}
+
+	tests := []string{
+		"[I", // primitive int array
+		"[J", // primitive long array
+		"[F", // primitive float array
+		"[D", // primitive double array
+		"[B", // primitive byte array
+		"[C", // primitive char array
+		"[S", // primitive short array
+		"[Z", // primitive boolean array
+	}
+
+	for _, name := range tests {
+		t.Run(name, func(t *testing.T) {
+			result := NewArrayClassResult(name, loader)
+			if result.Class == nil {
+				t.Errorf("expected success for %q, got failure: %v", name, result.Failure)
+			}
+		})
+	}
+}
+
+func TestNewArrayClassResultReferenceArray(t *testing.T) {
+	// Provide "java/lang/Object" so [Ljava/lang/Object; resolves.
+	obj := NewSyntheticClass("java/lang/Object", nil)
+	loader := &failingLoader{
+		classes:     map[string]*Class{"java/lang/Object": obj},
+		failureName: "",
+	}
+
+	result := NewArrayClassResult("[Ljava/lang/Object;", loader)
+	if result.Class == nil {
+		t.Fatalf("expected success for [Ljava/lang/Object;, got: %v", result.Failure)
+	}
+	if !result.Class.IsArray() {
+		t.Error("result class is not marked as array")
+	}
+}
+
+func TestNewArrayClassResultMultidimensional(t *testing.T) {
+	// Pre-create the inner array type [I for the loader.
+	InitVMTypes()
+	inner := NewArrayClass("[I", &failingLoader{
+		classes:     make(map[string]*Class),
+		failureName: "",
+	})
+	loader := &failingLoader{
+		classes:     map[string]*Class{"[I": inner},
+		failureName: "",
+	}
+
+	result := NewArrayClassResult("[[I", loader)
+	if result.Class == nil {
+		t.Fatalf("expected success for [[I, got: %v", result.Failure)
+	}
+	if !result.Class.IsArray() {
+		t.Error("result class is not marked as array")
+	}
+}
+
+func TestNewArrayClassResultInvalidDescriptors(t *testing.T) {
+	loader := &failingLoader{
+		classes:     make(map[string]*Class),
+		failureName: "",
+	}
+
+	tests := []struct {
+		name       string
+		wantSubstr string
+	}{
+		{"", "invalid array descriptor"},
+		{"I", "invalid array descriptor"},
+		{"[", "invalid array descriptor"},
+		{"[V", "void array"},
+		{"[Lfoo", "missing ';'"},
+		{"[Ljava/lang/Object", "missing ';'"}, // typical user mistake
+		{"[X", "unknown primitive descriptor"},
+		{"[II", "extra characters"},
+		{"[IZ", "extra characters"},
+		{"[Iextra", "extra characters"},
+		{"[VV", "extra characters"},
+		{"[[V", "void array"},
+		{"[[X", "unknown primitive descriptor"},
+		{"[[II", "extra characters"},
+		{"[[Lfoo", "missing ';'"},
+		{"[L;", "empty component name"},
+		{"[Ljava/lang/Object;extra", "trailing content"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := NewArrayClassResult(tt.name, loader)
+			if result.Class != nil {
+				t.Errorf("expected failure for %q, got success", tt.name)
+				return
+			}
+			if result.Failure == nil {
+				t.Errorf("expected non-nil failure for %q", tt.name)
+				return
+			}
+			if result.Failure.Kind != FailureFormat {
+				t.Errorf("failure kind = %v, want FailureFormat", result.Failure.Kind)
+			}
+			if result.Failure.Cause == nil {
+				t.Errorf("failure Cause is nil for %q", tt.name)
+			} else if tt.wantSubstr != "" {
+				errStr := result.Failure.Cause.Error()
+				if !strings.Contains(errStr, tt.wantSubstr) {
+					t.Errorf("failure Cause = %q, want containing %q", errStr, tt.wantSubstr)
+				}
+			}
+		})
+	}
+}
+
+func TestNewArrayClassResultComponentFailure(t *testing.T) {
+	loader := &failingLoader{
+		classes:     make(map[string]*Class),
+		failureName: "com/example/Missing",
+		failureKind: FailureNotFound,
+	}
+
+	result := NewArrayClassResult("[Lcom/example/Missing;", loader)
+	if result.Class != nil {
+		t.Fatal("expected failure for missing component class, got success")
+	}
+	if result.Failure == nil {
+		t.Fatal("expected non-nil failure")
+	}
+	if result.Failure.Kind != FailureLinkage {
+		t.Errorf("failure kind = %v, want FailureLinkage", result.Failure.Kind)
+	}
+	if result.Failure.Cause == nil {
+		t.Error("failure Cause is nil — component failure info lost")
+	} else {
+		errStr := result.Failure.Cause.Error()
+		if !strings.Contains(errStr, "com/example/Missing") {
+			t.Errorf("Cause = %q, want containing component name", errStr)
+		}
+		if !strings.Contains(errStr, "not found") {
+			t.Errorf("Cause = %q, want containing failure kind", errStr)
+		}
+	}
+}
+
+func TestNewArrayClassLegacy(t *testing.T) {
+	loader := &failingLoader{
+		classes:     make(map[string]*Class),
+		failureName: "",
+	}
+
+	// Valid: returns non-nil.
+	c := NewArrayClass("[I", loader)
+	if c == nil {
+		t.Error("NewArrayClass([I) returned nil")
+	}
+
+	// Invalid: returns nil.
+	c = NewArrayClass("[V", loader)
+	if c != nil {
+		t.Error("NewArrayClass([V) returned non-nil, want nil")
 	}
 }

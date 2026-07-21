@@ -22,6 +22,7 @@ import (
 func Interpret(cpOpt, mainClass string, useIR bool) {
 	rtda.InitVMTypes()
 	loader := classloader.New(classpath.Parse(cpOpt))
+	rtda.SetBootstrapLoader(loader)
 	class := loader.LoadClass(mainClass)
 	mainMethod := class.GetMethod("main", "([Ljava/lang/String;)V")
 	if mainMethod == nil {

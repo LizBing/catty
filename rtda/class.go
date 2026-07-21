@@ -16,15 +16,16 @@ import (
 // once during construction and is immutable thereafter. Primitive and void
 // Classes use VMIdentity.
 type Class struct {
-	name             string
-	definingLoader   *LoaderIdentity // immutable after construction; nil until bound
-	superName        string
-	superClass       *Class
-	interfaceNames   []string
-	interfaces       []*Class
-	accessFlags      uint16
-	cp               *classfile.ConstantPool
-	bootstrapMethods *classfile.BootstrapMethodsAttr
+	name              string
+	definingLoader    *LoaderIdentity // immutable after construction; nil until bound
+	definingLoaderRef Loader          // the defining Loader interface; nil for VM primitives
+	superName         string
+	superClass        *Class
+	interfaceNames    []string
+	interfaces        []*Class
+	accessFlags       uint16
+	cp                *classfile.ConstantPool
+	bootstrapMethods  *classfile.BootstrapMethodsAttr
 
 	instanceFields []*Field
 	instCellCount  uint // total instance cell count (own + inherited), 1 per field per ADR-0030
@@ -65,6 +66,62 @@ const (
 	initInitialized              // successfully initialized
 	initErroneous                // initialization failed — class is erroneous
 )
+
+// BootstrapLoader provides the java/lang/Class class for VM primitive and
+// void type mirrors which have no defining loader of their own. It is set
+// exactly once by the launcher before any Class mirror is created.
+// Use SetBootstrapLoader to set it; direct access is not allowed.
+var (
+	bootstrapLoader    Loader
+	bootstrapLoaderMu  sync.Mutex
+	bootstrapLoaderSet bool
+)
+
+// SetBootstrapLoader sets the bootstrap loader exactly once. Subsequent calls
+// with the same loader are idempotent. A call with a different loader panics
+// (invariant violation — the bootstrap loader is a VM-wide singleton).
+func SetBootstrapLoader(l Loader) {
+	bootstrapLoaderMu.Lock()
+	defer bootstrapLoaderMu.Unlock()
+	if bootstrapLoaderSet {
+		if bootstrapLoader != l {
+			panic("catty: SetBootstrapLoader: already set to a different loader")
+		}
+		return
+	}
+	bootstrapLoader = l
+	bootstrapLoaderSet = true
+}
+
+// getBootstrapLoader returns the current bootstrap loader.
+func getBootstrapLoader() Loader {
+	bootstrapLoaderMu.Lock()
+	defer bootstrapLoaderMu.Unlock()
+	return bootstrapLoader
+}
+
+// resetBootstrapLoaderForTesting resets the bootstrap loader so tests may
+// install a fresh loader for each sub-test. NOT for production use.
+func resetBootstrapLoaderForTesting() {
+	bootstrapLoaderMu.Lock()
+	defer bootstrapLoaderMu.Unlock()
+	bootstrapLoader = nil
+	bootstrapLoaderSet = false
+	// VM types are process singletons, so reset their already-materialized
+	// mirrors as part of test isolation. Production never calls this helper.
+	for _, class := range []*Class{
+		VMPrimitiveBool, VMPrimitiveByte, VMPrimitiveChar, VMPrimitiveShort,
+		VMPrimitiveInt, VMPrimitiveLong, VMPrimitiveFloat, VMPrimitiveDouble, VMVoid,
+	} {
+		if class == nil {
+			continue
+		}
+		class.classObject.Store(nil)
+		if arrayClass := class.arrayClass.Load(); arrayClass != nil {
+			arrayClass.classObject.Store(nil)
+		}
+	}
+}
 
 const (
 	kindNone int = iota
@@ -127,6 +184,19 @@ func (c *Class) BindLoader(id *LoaderIdentity) {
 	}
 }
 
+// BindLoaderRef sets the defining Loader interface reference exactly once.
+// For VM primitives the ref stays nil; mirror creation falls back to BootstrapLoader.
+// Subsequent calls with a different loader panic (invariant violation).
+func (c *Class) BindLoaderRef(loader Loader) {
+	if c.definingLoaderRef == nil {
+		c.definingLoaderRef = loader
+		return
+	}
+	if c.definingLoaderRef != loader {
+		panic("catty: Class.BindLoaderRef: loader ref already bound to a different value")
+	}
+}
+
 // --- Typed static cell accessors (ADR-0030) ---
 // staticCells is unexported; all external access goes through these methods.
 
@@ -170,12 +240,46 @@ func (c *Class) IsAbstract() bool  { return c.accessFlags&accAbstract != 0 }
 
 func (c *Class) ComponentClass() *Class { return c.componentClass }
 
-// ClassObject returns the canonical java.lang.Class mirror for this class, creating
-// it lazily with double-checked locking on first access. All callers see the same
-// Object identity, so obj.getClass() == obj.getClass() holds even across goroutines
-// (ADR-0029). The caller must provide a factory that allocates a java.lang.Class
-// Object; the factory is invoked at most once per Class under classObjectMu.
-func (c *Class) ClassObject(factory func() *Object) *Object {
+// ClassObject returns the canonical java.lang.Class mirror for this class,
+// creating it lazily with double-checked locking on first access. All callers
+// see the same Object identity (ADR-0029).
+//
+// The mirror's java/lang/Class is resolved through the class's defining loader.
+// For VM primitives and void (which have no defining loader), BootstrapLoader
+// is used as a fallback.
+func (c *Class) ClassObject() *Object {
+	if obj := c.classObject.Load(); obj != nil {
+		return obj
+	}
+	c.classObjectMu.Lock()
+	defer c.classObjectMu.Unlock()
+	if obj := c.classObject.Load(); obj != nil {
+		return obj
+	}
+
+	// Resolve java/lang/Class through the defining loader.
+	loader := c.definingLoaderRef
+	if loader == nil {
+		loader = getBootstrapLoader()
+	}
+	if loader == nil {
+		return nil // BootstrapLoader not yet set
+	}
+	result := loader.LoadClassResult("java/lang/Class")
+	if !result.IsSuccess() {
+		return nil
+	}
+	classClass := result.Class()
+
+	obj := NewObject(classClass)
+	obj.SetExtra(c)
+	c.classObject.Store(obj)
+	return obj
+}
+
+// classObjectWithFactory is test-only support for low-level rtda tests that do
+// not construct a Loader. Production mirror creation must use ClassObject.
+func (c *Class) classObjectWithFactory(factory func() *Object) *Object {
 	if obj := c.classObject.Load(); obj != nil {
 		return obj
 	}

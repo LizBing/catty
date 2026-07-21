@@ -229,10 +229,7 @@ func classGetSuperclass(f *rtda.Frame) {
 		return
 	}
 	// Use canonical Class mirror (ADR-0033, K2 mirror continuity).
-	superObj := super.ClassObject(func() *rtda.Object {
-		classClass := f.Thread().Loader().LoadClass("java/lang/Class")
-		return rtda.NewObject(classClass)
-	})
+	superObj := super.ClassObject()
 	f.PushRef(superObj)
 }
 
@@ -300,10 +297,7 @@ func classGetPrimitiveClass(f *rtda.Frame) {
 		return
 	}
 	// Return the canonical Class mirror for this VM type.
-	mirror := cls.ClassObject(func() *rtda.Object {
-		classClass := f.Thread().Loader().LoadClass("java/lang/Class")
-		return rtda.NewObject(classClass)
-	})
+	mirror := cls.ClassObject()
 	f.PushRef(mirror)
 }
 
@@ -375,8 +369,9 @@ func objectWait(f *rtda.Frame) {
 // objectWaitJI implements Object.wait(long timeoutMillis, int nanos).
 // The nanos are ignored for now (indefinite wait); timed wait is Slice D,
 // but the argument range is validated per java.lang.Object.wait(long,int):
-//   IllegalArgumentException - if timeoutMillis is negative,
-//                              or if the value of nanos is out of range
+//
+//	IllegalArgumentException - if timeoutMillis is negative,
+//	                           or if the value of nanos is out of range
 func objectWaitJI(f *rtda.Frame) {
 	this := f.GetRef(0)
 	if this == nil {

@@ -29,6 +29,7 @@ var (
 func Bootstrap(classpathStr, mainClass string) {
 	rtda.InitVMTypes()
 	cl := classloader.New(classpath.Parse(classpathStr))
+	rtda.SetBootstrapLoader(cl)
 	loader = cl
 	thread = rtda.NewThread(cl)
 	interpreter.InitClass(thread, cl.LoadClass(mainClass))

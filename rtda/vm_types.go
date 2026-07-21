@@ -152,12 +152,13 @@ func (c *Class) GetArrayClass() *Class {
 	}
 
 	arr := &Class{
-		name:           name,
-		isArray:        true,
-		componentClass: c,
-		componentKind:  kind,
-		definingLoader: c.definingLoader,
-		methodTable:    make(map[string]*Method),
+		name:              name,
+		isArray:           true,
+		componentClass:    c,
+		componentKind:     kind,
+		definingLoader:    c.definingLoader,
+		definingLoaderRef: c.definingLoaderRef,
+		methodTable:       make(map[string]*Method),
 	}
 	arr.initCond = sync.NewCond(&arr.initMu)
 

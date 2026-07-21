@@ -222,3 +222,213 @@ func TestSyntheticClassBootstrapMethodsNil(t *testing.T) {
 		t.Errorf("Name = %q, want test/Synth", synth.Name())
 	}
 }
+
+// --- K2 Item 4: BootstrapLoader set-once and BindLoaderRef validation ---
+
+func TestSetBootstrapLoaderOnce(t *testing.T) {
+	resetBootstrapLoaderForTesting()
+
+	l1 := &recordingMockLoader{classes: make(map[string]*Class)}
+
+	// First set should succeed.
+	SetBootstrapLoader(l1)
+	if getBootstrapLoader() != l1 {
+		t.Error("getBootstrapLoader() != l1 after first SetBootstrapLoader")
+	}
+
+	// Second set with same loader should be idempotent.
+	SetBootstrapLoader(l1)
+	if getBootstrapLoader() != l1 {
+		t.Error("idempotent SetBootstrapLoader changed the loader")
+	}
+
+	// Second set with different loader should panic.
+	l2 := &recordingMockLoader{classes: make(map[string]*Class)}
+	defer func() {
+		if r := recover(); r == nil {
+			t.Error("SetBootstrapLoader with different loader did not panic")
+		}
+	}()
+	SetBootstrapLoader(l2)
+}
+
+func TestBindLoaderRefSetOnce(t *testing.T) {
+	l1 := &recordingMockLoader{classes: make(map[string]*Class)}
+	l2 := &recordingMockLoader{classes: make(map[string]*Class)}
+	cls := NewSyntheticClass("test/BindRef", nil)
+
+	// First bind should succeed.
+	cls.BindLoaderRef(l1)
+	if cls.definingLoaderRef != l1 {
+		t.Error("definingLoaderRef != l1 after BindLoaderRef")
+	}
+
+	// Same loader should be idempotent.
+	cls.BindLoaderRef(l1)
+	if cls.definingLoaderRef != l1 {
+		t.Error("definingLoaderRef changed after idempotent BindLoaderRef")
+	}
+
+	// Different loader should panic.
+	defer func() {
+		if r := recover(); r == nil {
+			t.Error("BindLoaderRef with different loader did not panic")
+		}
+	}()
+	cls.BindLoaderRef(l2)
+}
+
+func TestClassObjectViaDefiningLoader(t *testing.T) {
+	resetBootstrapLoaderForTesting()
+
+	// Create a class for java/lang/Class.
+	classClass := NewSyntheticClass("java/lang/Class", nil)
+	loader := &recordingMockLoader{classes: map[string]*Class{
+		"java/lang/Class": classClass,
+	}}
+
+	SetBootstrapLoader(loader)
+
+	// Create a test class with definingLoaderRef set.
+	testClass := NewSyntheticClass("test/MyClass", nil)
+	testClass.BindLoaderRef(loader)
+
+	obj := testClass.ClassObject()
+	if obj == nil {
+		t.Fatal("ClassObject() returned nil")
+	}
+	if obj.Class() != classClass {
+		t.Error("mirror Class is not java/lang/Class")
+	}
+	if obj.Extra() != testClass {
+		t.Error("mirror Extra is not the original Class")
+	}
+
+	// Second call must return same object.
+	obj2 := testClass.ClassObject()
+	if obj2 != obj {
+		t.Error("ClassObject() is not idempotent")
+	}
+}
+
+func TestClassObjectConcurrentIdentity(t *testing.T) {
+	resetBootstrapLoaderForTesting()
+
+	classClass := NewSyntheticClass("java/lang/Class", nil)
+	loader := &recordingMockLoader{classes: map[string]*Class{
+		"java/lang/Class": classClass,
+	}}
+	SetBootstrapLoader(loader)
+
+	testClass := NewSyntheticClass("test/ConcurrentMirror", nil)
+	testClass.BindLoaderRef(loader)
+
+	const N = 32
+	var wg sync.WaitGroup
+	results := make([]*Object, N)
+
+	for i := 0; i < N; i++ {
+		wg.Add(1)
+		go func(idx int) {
+			defer wg.Done()
+			results[idx] = testClass.ClassObject()
+		}(i)
+	}
+	wg.Wait()
+
+	first := results[0]
+	if first == nil {
+		t.Fatal("first mirror is nil")
+	}
+	for i, obj := range results {
+		if obj != first {
+			t.Errorf("goroutine %d got mirror %p, want %p", i, obj, first)
+		}
+	}
+}
+
+func TestClassObjectPrimitive(t *testing.T) {
+	resetBootstrapLoaderForTesting()
+
+	classClass := NewSyntheticClass("java/lang/Class", nil)
+	loader := &recordingMockLoader{classes: map[string]*Class{
+		"java/lang/Class": classClass,
+	}}
+	SetBootstrapLoader(loader)
+
+	// VM primitive class (definingLoaderRef is nil, falls back to BootstrapLoader).
+	InitVMTypes()
+	obj := VMPrimitiveInt.ClassObject()
+	if obj == nil {
+		t.Fatal("ClassObject() for VMPrimitiveInt returned nil")
+	}
+	if obj.Extra() != VMPrimitiveInt {
+		t.Error("mirror Extra is not VMPrimitiveInt")
+	}
+}
+
+func TestClassObjectArray(t *testing.T) {
+	resetBootstrapLoaderForTesting()
+
+	classClass := NewSyntheticClass("java/lang/Class", nil)
+	loader := &recordingMockLoader{classes: map[string]*Class{
+		"java/lang/Class": classClass,
+	}}
+	SetBootstrapLoader(loader)
+
+	// Create [I via VMPrimitiveInt.GetArrayClass().
+	InitVMTypes()
+	intArray := VMPrimitiveInt.GetArrayClass()
+
+	// Array class inherits definingLoaderRef from component (nil for primitive).
+	obj := intArray.ClassObject()
+	if obj == nil {
+		t.Fatal("ClassObject() for [I returned nil")
+	}
+	if obj.Extra() != intArray {
+		t.Error("mirror Extra is not the array Class")
+	}
+}
+
+func TestClassMirrorsUseDistinctDefiningLoaders(t *testing.T) {
+	classClass1 := NewSyntheticClass("java/lang/Class", nil)
+	classClass2 := NewSyntheticClass("java/lang/Class", nil)
+	loader1 := &recordingMockLoader{classes: map[string]*Class{"java/lang/Class": classClass1}}
+	loader2 := &recordingMockLoader{classes: map[string]*Class{"java/lang/Class": classClass2}}
+
+	class1 := NewSyntheticClass("test/Same", nil)
+	class1.BindLoader(loader1.LoaderIdentity())
+	class1.BindLoaderRef(loader1)
+	class2 := NewSyntheticClass("test/Same", nil)
+	class2.BindLoader(loader2.LoaderIdentity())
+	class2.BindLoaderRef(loader2)
+
+	mirror1 := class1.ClassObject()
+	mirror2 := class2.ClassObject()
+	if mirror1 == nil || mirror2 == nil {
+		t.Fatal("mirror materialization returned nil")
+	}
+	if mirror1 == mirror2 {
+		t.Fatal("different defining loaders produced the same mirror")
+	}
+	if mirror1.Class() != classClass1 || mirror2.Class() != classClass2 {
+		t.Fatal("mirror java/lang/Class did not come from its defining loader")
+	}
+}
+
+func TestDelegatedAndReferenceArrayMirrorsUseParentLoader(t *testing.T) {
+	parentClassClass := NewSyntheticClass("java/lang/Class", nil)
+	parent := &recordingMockLoader{classes: map[string]*Class{"java/lang/Class": parentClassClass}}
+	delegated := NewSyntheticClass("test/DelegatedMirror", nil)
+	delegated.BindLoader(parent.LoaderIdentity())
+	delegated.BindLoaderRef(parent)
+
+	classMirror := delegated.ClassObject()
+	arrayMirror := delegated.GetArrayClass().ClassObject()
+	if classMirror == nil || arrayMirror == nil {
+		t.Fatal("delegated mirror materialization returned nil")
+	}
+	if classMirror.Class() != parentClassClass || arrayMirror.Class() != parentClassClass {
+		t.Fatal("delegated class or array mirror used an initiating loader")
+	}
+}

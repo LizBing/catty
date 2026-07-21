@@ -30,10 +30,15 @@ type exceptionEntry struct {
 // ExceptionEntry is the exported form for the interpreter's exception handler.
 type ExceptionEntry = exceptionEntry
 
-func (e *exceptionEntry) StartPc() int    { return e.startPc }
-func (e *exceptionEntry) EndPc() int      { return e.endPc }
-func (e *exceptionEntry) HandlerPc() int  { return e.handlerPc }
+func (e *exceptionEntry) StartPc() int      { return e.startPc }
+func (e *exceptionEntry) EndPc() int        { return e.endPc }
+func (e *exceptionEntry) HandlerPc() int    { return e.handlerPc }
 func (e *exceptionEntry) CatchType() string { return e.catchType }
+
+// NewExceptionEntry creates an exception table entry for tests.
+func NewExceptionEntry(startPc, endPc, handlerPc int, catchType string) ExceptionEntry {
+	return exceptionEntry{startPc: startPc, endPc: endPc, handlerPc: handlerPc, catchType: catchType}
+}
 
 // NativeMethod builds a Method backed by a Go function. Used for the synthetic
 // core classes (java.lang.Object/System/...) that catty implements natively.
@@ -67,15 +72,15 @@ func InterpretedMethod(owner *Class, name, descriptor string, access uint16,
 	maxStack, maxLocals uint, code []byte, exTable []exceptionEntry) *Method {
 	md := ParseMethodDescriptor(descriptor)
 	m := &Method{
-		owner:         owner,
-		name:          name,
-		descriptor:    descriptor,
-		accessFlags:   access,
-		maxStack:      maxStack,
-		maxLocals:     maxLocals,
-		code:          code,
+		owner:          owner,
+		name:           name,
+		descriptor:     descriptor,
+		accessFlags:    access,
+		maxStack:       maxStack,
+		maxLocals:      maxLocals,
+		code:           code,
 		exceptionTable: exTable,
-		argSlotCount:  uint(md.ArgSlots()),
+		argSlotCount:   uint(md.ArgSlots()),
 	}
 	if access&accNative != 0 {
 		m.native = true
@@ -118,15 +123,15 @@ func nativeStub(retType string) func(*Frame) {
 	}
 }
 
-func (m *Method) Owner() *Class      { return m.owner }
-func (m *Method) Name() string       { return m.name }
-func (m *Method) Descriptor() string { return m.descriptor }
-func (m *Method) AccessFlags() uint16 { return m.accessFlags }
-func (m *Method) IsStatic() bool       { return m.accessFlags&accStatic != 0 }
-func (m *Method) IsSynchronized() bool { return m.accessFlags&accSynchronized != 0 }
-func (m *Method) IsNative() bool            { return m.native }
-func (m *Method) NativeFunc() func(*Frame)  { return m.nativeFunc }
-func (m *Method) ArgSlotCount() uint        { return m.argSlotCount }
+func (m *Method) Owner() *Class            { return m.owner }
+func (m *Method) Name() string             { return m.name }
+func (m *Method) Descriptor() string       { return m.descriptor }
+func (m *Method) AccessFlags() uint16      { return m.accessFlags }
+func (m *Method) IsStatic() bool           { return m.accessFlags&accStatic != 0 }
+func (m *Method) IsSynchronized() bool     { return m.accessFlags&accSynchronized != 0 }
+func (m *Method) IsNative() bool           { return m.native }
+func (m *Method) NativeFunc() func(*Frame) { return m.nativeFunc }
+func (m *Method) ArgSlotCount() uint       { return m.argSlotCount }
 
 // ReturnType returns the descriptor of the return type (the part after ')').
 func (m *Method) ReturnType() string {
@@ -140,9 +145,9 @@ func (m *Method) ReturnType() string {
 
 // ExceptionTable exposes parsed handlers for try/catch (used post-MVP).
 func (m *Method) ExceptionTable() []exceptionEntry { return m.exceptionTable }
-func (m *Method) MaxStack() uint   { return m.maxStack }
-func (m *Method) MaxLocals() uint  { return m.maxLocals }
-func (m *Method) Code() []byte     { return m.code }
+func (m *Method) MaxStack() uint                   { return m.maxStack }
+func (m *Method) MaxLocals() uint                  { return m.maxLocals }
+func (m *Method) Code() []byte                     { return m.code }
 
 // StackMap returns the parsed StackMapTable (for type tracking) or nil.
 func (m *Method) StackMap() *classfile.StackMapTableAttribute { return m.stackMap }

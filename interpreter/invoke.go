@@ -130,10 +130,10 @@ func runClinit(thread *rtda.Thread, method *rtda.Method) rtda.InitResult {
 			thrown := thread.ClearException()
 			// Walk frames from the throwing frame down to (and including)
 			// the clinit frame, searching for a handler.
-		frameLoop:
 			for thread.FrameCount() >= clinitDepth {
 				f := thread.CurrentFrame()
 				caught := false
+				framePopped := false
 				for _, entry := range f.Method().ExceptionTable() {
 					if opcodePc >= entry.StartPc() && opcodePc < entry.EndPc() {
 						// catchType "" = catch-all (finally).
@@ -145,14 +145,20 @@ func runClinit(thread *rtda.Thread, method *rtda.Method) rtda.InitResult {
 							break
 						}
 						// Typed catch-type resolution (K2).
+						// On failure, the replacement throwable is a
+						// NEW exception and must propagate from the
+						// caller boundary — it must not be caught by
+						// later handlers in the same frame.
 						catchClass := resolveClass(thread, opcodePc, entry.CatchType())
 						if catchClass == nil {
-							// Resolution failed — a new throwable is
-							// already set on the thread. Replace
-							// thrown and restart the handler search
-							// from the current frame.
 							thrown = thread.ClearException()
-							continue frameLoop
+							thread.PopFrame()
+							framePopped = true
+							if thread.FrameCount() < clinitDepth {
+								return rtda.InitResult{ErrObj: thrown}
+							}
+							opcodePc = thread.CurrentFrame().PC() - 1
+							break
 						}
 						if thrown.IsInstanceOf(catchClass) {
 							f.ClearStack()
@@ -165,6 +171,9 @@ func runClinit(thread *rtda.Thread, method *rtda.Method) rtda.InitResult {
 				}
 				if caught {
 					break // handler found, resume execution
+				}
+				if framePopped {
+					continue // already popped by catch-type failure
 				}
 				// Not caught in this frame — pop it.
 				thread.PopFrame()
@@ -222,9 +231,8 @@ func newString(thread *rtda.Thread, units []uint16) *rtda.Object {
 // getClassObject returns the canonical java.lang.Class object wrapping cls
 // (ADR-0029). The Class object stores the rtda.Class in its extra field.
 // All callers see the same Object identity for the same Class.
+// K2: mirror creation uses the class's defining loader, not the thread's
+// initiating loader.
 func getClassObject(thread *rtda.Thread, cls *rtda.Class) *rtda.Object {
-	return cls.ClassObject(func() *rtda.Object {
-		classClass := thread.Loader().LoadClass("java/lang/Class")
-		return rtda.NewObject(classClass)
-	})
+	return cls.ClassObject()
 }
