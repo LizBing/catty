@@ -114,7 +114,7 @@ func objectGetClass(f *rtda.Frame) {
 		f.PushRef(nil)
 		return
 	}
-	clsObj := getClassObject(f.Thread(), obj.Class())
+	clsObj := getClassObject(f.Context(), obj.Class())
 	f.PushRef(clsObj)
 }
 
@@ -135,7 +135,7 @@ func classGetName(f *rtda.Frame) {
 	this := f.GetRef(0)
 	cls := getClassFromExtra(this)
 	name := javaToDot(cls.Name())
-	f.PushRef(newStringFromGo(f.Thread(), name))
+	f.PushRef(newStringFromGo(f.Context(), name))
 }
 
 func classGetSimpleName(f *rtda.Frame) {
@@ -149,7 +149,7 @@ func classGetSimpleName(f *rtda.Frame) {
 			break
 		}
 	}
-	f.PushRef(newStringFromGo(f.Thread(), name))
+	f.PushRef(newStringFromGo(f.Context(), name))
 }
 
 func classDesiredAssertionStatus(f *rtda.Frame) {
@@ -315,8 +315,8 @@ func objectWait0(f *rtda.Frame) {
 		return
 	}
 	m := this.Monitor()
-	thread := f.Thread()
-	ec := thread.EC()
+	context := f.Context()
+	ec := context.EC()
 
 	if !m.HoldsLock(ec) {
 		throwIMSE(f)
@@ -324,7 +324,7 @@ func objectWait0(f *rtda.Frame) {
 	}
 
 	savedDepth := m.RecursionDepth()
-	_, interrupted := thread.MonitorWait(m, savedDepth)
+	_, interrupted := context.MonitorWait(m, savedDepth)
 	if interrupted {
 		throwInterruptedException(f)
 	}
@@ -332,8 +332,8 @@ func objectWait0(f *rtda.Frame) {
 
 // objectWait implements Object.wait(long timeoutMillis).
 // It releases the monitor, blocks until notified or interrupted, then reacquires
-// the monitor with the original recursion depth restored. If the thread was
-// interrupted before or during the wait, InterruptedException is thrown.
+// the monitor with the original recursion depth restored. If the execution
+// context was interrupted before or during the wait, InterruptedException is thrown.
 // The timeout is ignored for now (indefinite wait); timed wait is Slice D.
 func objectWait(f *rtda.Frame) {
 	this := f.GetRef(0)
@@ -349,8 +349,8 @@ func objectWait(f *rtda.Frame) {
 		return
 	}
 	m := this.Monitor()
-	thread := f.Thread()
-	ec := thread.EC()
+	context := f.Context()
+	ec := context.EC()
 
 	if !m.HoldsLock(ec) {
 		throwIMSE(f)
@@ -358,11 +358,11 @@ func objectWait(f *rtda.Frame) {
 	}
 
 	savedDepth := m.RecursionDepth()
-	_, interrupted := thread.MonitorWait(m, savedDepth)
+	_, interrupted := context.MonitorWait(m, savedDepth)
 	if interrupted {
 		throwInterruptedException(f)
 	}
-	// Normal return: notify won, thread reacquired monitor with depth restored.
+	// Normal return: notify won, the context reacquired monitor with depth restored.
 	// No need to clear interrupt — if interrupted, the flag was already handled.
 }
 
@@ -389,8 +389,8 @@ func objectWaitJI(f *rtda.Frame) {
 		return
 	}
 	m := this.Monitor()
-	thread := f.Thread()
-	ec := thread.EC()
+	context := f.Context()
+	ec := context.EC()
 
 	if !m.HoldsLock(ec) {
 		throwIMSE(f)
@@ -398,20 +398,20 @@ func objectWaitJI(f *rtda.Frame) {
 	}
 
 	savedDepth := m.RecursionDepth()
-	_, interrupted := thread.MonitorWait(m, savedDepth)
+	_, interrupted := context.MonitorWait(m, savedDepth)
 	if interrupted {
 		throwInterruptedException(f)
 	}
 }
 
 // throwIllegalArgumentException throws an IllegalArgumentException with the
-// given detail message on the calling thread.
+// given detail message on the calling execution context.
 func throwIllegalArgumentException(f *rtda.Frame, message string) {
 	throwException(f, "java/lang/IllegalArgumentException", message)
 }
 
-// objectNotify implements Object.notify(). It wakes a single thread waiting on
-// this object's monitor. The caller must own the monitor, or
+// objectNotify implements Object.notify(). It wakes a single execution context
+// waiting on this object's monitor. The caller must own the monitor, or
 // IllegalMonitorStateException is thrown.
 func objectNotify(f *rtda.Frame) {
 	this := f.GetRef(0)
@@ -420,13 +420,13 @@ func objectNotify(f *rtda.Frame) {
 		return
 	}
 	m := this.Monitor()
-	if !m.Notify(f.Thread().EC()) {
+	if !m.Notify(f.Context().EC()) {
 		throwIMSE(f)
 	}
 }
 
-// objectNotifyAll implements Object.notifyAll(). It wakes all threads waiting on
-// this object's monitor. The caller must own the monitor, or
+// objectNotifyAll implements Object.notifyAll(). It wakes all execution contexts
+// waiting on this object's monitor. The caller must own the monitor, or
 // IllegalMonitorStateException is thrown.
 func objectNotifyAll(f *rtda.Frame) {
 	this := f.GetRef(0)
@@ -435,13 +435,13 @@ func objectNotifyAll(f *rtda.Frame) {
 		return
 	}
 	m := this.Monitor()
-	if !m.NotifyAll(f.Thread().EC()) {
+	if !m.NotifyAll(f.Context().EC()) {
 		throwIMSE(f)
 	}
 }
 
 // threadHoldsLock implements the static Thread.holdsLock(Object).
-// Returns true if the calling thread owns the monitor on the given object.
+// Returns true if the calling execution context owns the monitor on the given object.
 func threadHoldsLock(f *rtda.Frame) {
 	obj := f.GetRef(0) // static method: local 0 = first arg
 	if obj == nil {
@@ -450,14 +450,14 @@ func threadHoldsLock(f *rtda.Frame) {
 		throwNPE(f, "null")
 		return
 	}
-	if obj.Monitor().HoldsLock(f.Thread().EC()) {
+	if obj.Monitor().HoldsLock(f.Context().EC()) {
 		f.PushInt(1)
 	} else {
 		f.PushInt(0)
 	}
 }
 
-// throwIMSE throws an IllegalMonitorStateException on the calling thread.
+// throwIMSE throws an IllegalMonitorStateException on the calling execution context.
 func throwIMSE(f *rtda.Frame) {
 	throwException(f, "java/lang/IllegalMonitorStateException", "")
 }

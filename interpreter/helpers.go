@@ -160,55 +160,55 @@ func padTo4(base int) int { return (4 - base%4) % 4 }
 //
 // In bridge mode (the method was run via interpreter.RunMethod from the AOT
 // bridge), the outermost return has no caller frame — so it writes the value to
-// the thread's bridge-return slot instead of dropping it. Nested returns still
+// the context's bridge-return slot instead of dropping it. Nested returns still
 // push to their caller (the stack is non-empty).
 
-func returnInt(frame *rtda.Frame, thread *rtda.Thread) {
+func returnInt(frame *rtda.Frame, context *rtda.ExecutionContext) {
 	v := frame.PopInt()
-	thread.PopFrame()
-	if !thread.IsStackEmpty() {
-		thread.CurrentFrame().PushInt(v)
-	} else if thread.HasBridgeReturn() {
-		thread.BridgeReturn(rtda.IntSlot(v))
+	context.PopFrame()
+	if !context.IsStackEmpty() {
+		context.CurrentFrame().PushInt(v)
+	} else if context.HasBridgeReturn() {
+		context.BridgeReturn(rtda.IntSlot(v))
 	}
 }
 
-func returnRef(frame *rtda.Frame, thread *rtda.Thread) {
+func returnRef(frame *rtda.Frame, context *rtda.ExecutionContext) {
 	v := frame.PopRef()
-	thread.PopFrame()
-	if !thread.IsStackEmpty() {
-		thread.CurrentFrame().PushRef(v)
-	} else if thread.HasBridgeReturn() {
-		thread.BridgeReturn(rtda.RefSlot(v))
+	context.PopFrame()
+	if !context.IsStackEmpty() {
+		context.CurrentFrame().PushRef(v)
+	} else if context.HasBridgeReturn() {
+		context.BridgeReturn(rtda.RefSlot(v))
 	}
 }
 
-func returnLong(frame *rtda.Frame, thread *rtda.Thread) {
+func returnLong(frame *rtda.Frame, context *rtda.ExecutionContext) {
 	v := frame.PopLong()
-	thread.PopFrame()
-	if !thread.IsStackEmpty() {
-		thread.CurrentFrame().PushLong(v)
-	} else if thread.HasBridgeReturn() {
+	context.PopFrame()
+	if !context.IsStackEmpty() {
+		context.CurrentFrame().PushLong(v)
+	} else if context.HasBridgeReturn() {
 		panic("catty: long return through the AOT bridge not supported yet")
 	}
 }
 
-func returnFloat(frame *rtda.Frame, thread *rtda.Thread) {
+func returnFloat(frame *rtda.Frame, context *rtda.ExecutionContext) {
 	v := frame.PopFloat()
-	thread.PopFrame()
-	if !thread.IsStackEmpty() {
-		thread.CurrentFrame().PushFloat(v)
-	} else if thread.HasBridgeReturn() {
+	context.PopFrame()
+	if !context.IsStackEmpty() {
+		context.CurrentFrame().PushFloat(v)
+	} else if context.HasBridgeReturn() {
 		panic("catty: float return through the AOT bridge not supported yet")
 	}
 }
 
-func returnDouble(frame *rtda.Frame, thread *rtda.Thread) {
+func returnDouble(frame *rtda.Frame, context *rtda.ExecutionContext) {
 	v := frame.PopDouble()
-	thread.PopFrame()
-	if !thread.IsStackEmpty() {
-		thread.CurrentFrame().PushDouble(v)
-	} else if thread.HasBridgeReturn() {
+	context.PopFrame()
+	if !context.IsStackEmpty() {
+		context.CurrentFrame().PushDouble(v)
+	} else if context.HasBridgeReturn() {
 		panic("catty: double return through the AOT bridge not supported yet")
 	}
 }
@@ -217,8 +217,8 @@ func returnDouble(frame *rtda.Frame, thread *rtda.Thread) {
 
 // newPrimitiveArray builds an array of a primitive type (newarray). The atype
 // operand encodes the element type per JVMS §6.5.newarray.
-func newPrimitiveArray(thread *rtda.Thread, atype byte, length int) *rtda.Object {
-	class := thread.Loader().LoadClass(primitiveArrayName(atype))
+func newPrimitiveArray(context *rtda.ExecutionContext, atype byte, length int) *rtda.Object {
+	class := context.Loader().LoadClass(primitiveArrayName(atype))
 	return rtda.NewArray(class, length)
 }
 
@@ -248,15 +248,15 @@ func primitiveArrayName(atype byte) string {
 // arrays. elemName is the element's internal class name ("java/lang/String" or
 // an array descriptor like "[I"). pc is the bytecode/IR offset for exception
 // backtraces. Returns nil if class resolution failed (exception already set on
-// thread); the caller must return immediately.
-func newRefArray(thread *rtda.Thread, elemName string, length int, pc int) *rtda.Object {
+// context); the caller must return immediately.
+func newRefArray(context *rtda.ExecutionContext, elemName string, length int, pc int) *rtda.Object {
 	var arrName string
 	if strings.HasPrefix(elemName, "[") {
 		arrName = "[" + elemName
 	} else {
 		arrName = "[L" + elemName + ";"
 	}
-	class := resolveClass(thread, pc, arrName)
+	class := resolveClass(context, pc, arrName)
 	if class == nil {
 		return nil
 	}

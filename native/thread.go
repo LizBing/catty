@@ -19,20 +19,21 @@ func buildIE(loader rtda.Loader) *rtda.Class {
 // --- Thread native methods (ADR-0028) ---
 
 // threadInit implements Thread.<init>(). It creates a runtime execution context
-// (rtda.Thread) for the new Java Thread object and attaches it bidirectionally.
+// and stores the Java Thread runtime sidecar on the facade object.
 func threadInit(f *rtda.Frame) {
 	this := f.GetRef(0)
-	loader := f.Thread().Loader()
-	t := rtda.NewThread(loader)
-	t.SetJavaThread(this)
-	this.SetExtra(t)
+	loader := f.Context().Loader()
+	t := rtda.NewExecutionContext(loader)
+	state := t.JavaThreadState()
+	state.SetJavaThread(this)
+	this.SetExtra(state)
 }
 
 // threadCurrentThread implements the static Thread.currentThread() native.
 // Returns the canonical java.lang.Thread facade attached to the calling
 // execution context (ADR-0028: stable identity per Java Thread).
 func threadCurrentThread(f *rtda.Frame) {
-	f.PushRef(f.Thread().JavaThread())
+	f.PushRef(f.Context().JavaThread())
 }
 
 // threadStart implements Thread.start(). It atomically transitions the thread
@@ -51,10 +52,10 @@ func threadStart(f *rtda.Frame) {
 		throwIllegalThreadState(f)
 		return
 	}
-	t := extra.(*rtda.Thread)
+	state := extra.(*rtda.JavaThreadState)
 
 	// Atomic start-once: CAS NEW → RUNNABLE.
-	if !t.SetStarted() {
+	if !state.SetStarted() {
 		throwIllegalThreadState(f)
 		return
 	}
@@ -62,24 +63,25 @@ func threadStart(f *rtda.Frame) {
 	vm := rtda.GetVM()
 	// ConsumeDaemonForStart establishes a happens-before edge with any
 	// SetDaemon call that completed before the CAS in SetStarted.
-	vm.ThreadStarted(t.ConsumeDaemonForStart())
+	vm.ThreadStarted(state.ConsumeDaemonForStart())
 
 	// Find run() via virtual dispatch on the actual class of the Thread object
 	// (so subclass overrides like Worker.run() are found).
 	runMethod := this.Class().LookupMethod("run", "()V")
+	context := state.Context()
 
 	go func() {
 		defer func() {
-			t.Terminate()
-			vm.ThreadTerminated(t.IsDaemon())
+			state.Terminate()
+			vm.ThreadTerminated(state.IsDaemon())
 		}()
 
 		if runMethod != nil {
-			frame := t.NewFrame(runMethod)
+			frame := context.NewFrame(runMethod)
 			frame.SetRef(0, this) // 'this' = the Thread object
 			frame.EnterSyncMonitor()
-			t.PushFrame(frame)
-			rtda.DefaultRunLoop(t)
+			context.PushFrame(frame)
+			rtda.DefaultRunLoop(context)
 		}
 		// If runMethod is nil (shouldn't happen — buildThread adds a native
 		// run() and subclasses override it), the goroutine just terminates.
@@ -91,8 +93,8 @@ func threadStart(f *rtda.Frame) {
 func threadIsAlive(f *rtda.Frame) {
 	this := f.GetRef(0)
 	if extra := this.Extra(); extra != nil {
-		t := extra.(*rtda.Thread)
-		if t.IsAlive() {
+		state := extra.(*rtda.JavaThreadState)
+		if state.IsAlive() {
 			f.PushInt(1)
 			return
 		}
@@ -108,12 +110,12 @@ func threadJoin(f *rtda.Frame) {
 	if extra == nil {
 		return // not started — return immediately per Java spec
 	}
-	target := extra.(*rtda.Thread)
+	target := extra.(*rtda.JavaThreadState)
 	if !target.IsAlive() {
 		return // already terminated
 	}
 
-	joining := f.Thread()
+	joining := f.Context()
 	for {
 		select {
 		case <-target.Done():
@@ -133,8 +135,8 @@ func threadJoin(f *rtda.Frame) {
 func threadInterrupt(f *rtda.Frame) {
 	this := f.GetRef(0)
 	if extra := this.Extra(); extra != nil {
-		t := extra.(*rtda.Thread)
-		t.Interrupt()
+		state := extra.(*rtda.JavaThreadState)
+		state.Interrupt()
 	}
 }
 
@@ -143,8 +145,8 @@ func threadInterrupt(f *rtda.Frame) {
 func threadIsInterrupted(f *rtda.Frame) {
 	this := f.GetRef(0)
 	if extra := this.Extra(); extra != nil {
-		t := extra.(*rtda.Thread)
-		if t.IsInterrupted() {
+		state := extra.(*rtda.JavaThreadState)
+		if state.IsInterrupted() {
 			f.PushInt(1)
 			return
 		}
@@ -155,7 +157,7 @@ func threadIsInterrupted(f *rtda.Frame) {
 // threadInterrupted implements the static Thread.interrupted().
 // Reads and clears the interrupt flag of the calling thread.
 func threadInterrupted(f *rtda.Frame) {
-	if f.Thread().Interrupted() {
+	if f.Context().Interrupted() {
 		f.PushInt(1)
 	} else {
 		f.PushInt(0)
@@ -169,11 +171,11 @@ func threadSleep(f *rtda.Frame) {
 	millis := f.GetLong(0) // static method: local 0 = first arg
 	if millis < 0 {
 		// Negative sleep is an error in Java
-		f.Thread().Throw(newException(f.Thread(), "java/lang/IllegalArgumentException", "timeout value is negative"), 0)
+		f.Context().Throw(newException(f.Context(), "java/lang/IllegalArgumentException", "timeout value is negative"), 0)
 		return
 	}
-	t := f.Thread()
-	if !t.Sleep(millis) {
+	context := f.Context()
+	if !context.Sleep(millis) {
 		// Was interrupted — throw InterruptedException.
 		throwInterruptedException(f)
 	}
@@ -189,8 +191,8 @@ func threadSetDaemon(f *rtda.Frame) {
 	this := f.GetRef(0)
 	v := f.GetInt(1) != 0
 	if extra := this.Extra(); extra != nil {
-		t := extra.(*rtda.Thread)
-		if !t.SetDaemon(v) {
+		state := extra.(*rtda.JavaThreadState)
+		if !state.SetDaemon(v) {
 			throwIllegalThreadState(f)
 		}
 	}
@@ -200,8 +202,8 @@ func threadSetDaemon(f *rtda.Frame) {
 func threadIsDaemon(f *rtda.Frame) {
 	this := f.GetRef(0)
 	if extra := this.Extra(); extra != nil {
-		t := extra.(*rtda.Thread)
-		if t.IsDaemon() {
+		state := extra.(*rtda.JavaThreadState)
+		if state.IsDaemon() {
 			f.PushInt(1)
 			return
 		}
@@ -215,26 +217,26 @@ func threadIsDaemon(f *rtda.Frame) {
 // it on the calling thread. The interpreter's exception dispatch handles
 // propagation after the native method returns.
 func throwIllegalThreadState(f *rtda.Frame) {
-	obj := newException(f.Thread(), "java/lang/IllegalThreadStateException", "")
-	f.Thread().Throw(obj, 0)
+	obj := newException(f.Context(), "java/lang/IllegalThreadStateException", "")
+	f.Context().Throw(obj, 0)
 }
 
 // throwInterruptedException creates an InterruptedException and signals it on
 // the calling thread. The interrupt flag must be cleared before calling this
 // (which Sleep/Interrupted already do).
 func throwInterruptedException(f *rtda.Frame) {
-	obj := newException(f.Thread(), "java/lang/InterruptedException", "")
-	f.Thread().Throw(obj, 0)
+	obj := newException(f.Context(), "java/lang/InterruptedException", "")
+	f.Context().Throw(obj, 0)
 }
 
 // newException creates a new exception object of the given class with an
 // optional detail message. Returns the rtda.Object.
-func newException(thread *rtda.Thread, className, message string) *rtda.Object {
-	cls := thread.Loader().LoadClass(className)
+func newException(context *rtda.ExecutionContext, className, message string) *rtda.Object {
+	cls := context.Loader().LoadClass(className)
 	obj := rtda.NewObject(cls)
 	if message != "" {
 		slot := detailMessageSlot(obj)
-		msgObj := newStringFromGo(thread, message)
+		msgObj := newStringFromGo(context, message)
 		obj.SetRefCell(int(slot), msgObj)
 	}
 	return obj

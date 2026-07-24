@@ -3,9 +3,9 @@
 //
 // Transpiled methods can't, on their own, resolve classes/fields/methods or run
 // native/interpreted code — they call into this package, which holds the
-// classloader + thread and resolves targets by (class, name, descriptor) at run
-// time. A2.2 supports native targets (e.g. System.out.println); interpreted
-// targets need a catcher frame and come later.
+// classloader + execution context and resolves targets by (class, name,
+// descriptor) at run time. A2.2 supports native targets (e.g.
+// System.out.println); interpreted targets need a catcher frame and come later.
 package runtime
 
 import (
@@ -17,10 +17,10 @@ import (
 	"catty/rtda"
 )
 
-// loader and thread are set by Bootstrap and shared across bridge calls.
+// loader and context are set by Bootstrap and shared across bridge calls.
 var (
-	loader rtda.Loader
-	thread *rtda.Thread
+	loader  rtda.Loader
+	context *rtda.ExecutionContext
 )
 
 // Bootstrap loads the main class (and its dependencies, including the native
@@ -31,10 +31,10 @@ func Bootstrap(classpathStr, mainClass string) {
 	cl := classloader.New(classpath.Parse(classpathStr))
 	rtda.SetBootstrapLoader(cl)
 	loader = cl
-	thread = rtda.NewThread(cl)
-	interpreter.InitClass(thread, cl.LoadClass(mainClass))
-	if thread.HasException() {
-		ex := thread.ClearException()
+	context = rtda.NewExecutionContext(cl)
+	interpreter.InitClass(context, cl.LoadClass(mainClass))
+	if context.HasException() {
+		ex := context.ClearException()
 		panic("catty/runtime: Bootstrap: class initialization failed for " +
 			mainClass + " (" + ex.Class().Name() + ")")
 	}
@@ -47,9 +47,9 @@ func Bootstrap(classpathStr, mainClass string) {
 // a build-time check defect, not a runtime recoverable error.
 func EnsureInit(className string) {
 	c := loader.LoadClass(className)
-	interpreter.InitClass(thread, c)
-	if thread.HasException() {
-		ex := thread.ClearException()
+	interpreter.InitClass(context, c)
+	if context.HasException() {
+		ex := context.ClearException()
 		panic("catty/runtime: EnsureInit: class initialization failed for " +
 			className + " (" + ex.Class().Name() + ")")
 	}
@@ -64,9 +64,9 @@ func GetStatic(class, name, desc string) rtda.Slot {
 	if field == nil {
 		panic("catty/runtime: GetStatic field not found: " + class + "." + name + " " + desc)
 	}
-	interpreter.InitClass(thread, field.Owner())
-	if thread.HasException() {
-		ex := thread.ClearException()
+	interpreter.InitClass(context, field.Owner())
+	if context.HasException() {
+		ex := context.ClearException()
 		panic("catty/runtime: GetStatic: class initialization failed for " +
 			field.Owner().Name() + " (" + ex.Class().Name() + ")")
 	}
@@ -82,9 +82,9 @@ func GetStaticLong(class, name, desc string) int64 {
 	if field == nil {
 		panic("catty/runtime: GetStaticLong field not found: " + class + "." + name + " " + desc)
 	}
-	interpreter.InitClass(thread, field.Owner())
-	if thread.HasException() {
-		ex := thread.ClearException()
+	interpreter.InitClass(context, field.Owner())
+	if context.HasException() {
+		ex := context.ClearException()
 		panic("catty/runtime: GetStaticLong: class initialization failed for " +
 			field.Owner().Name() + " (" + ex.Class().Name() + ")")
 	}
@@ -100,9 +100,9 @@ func GetStaticDouble(class, name, desc string) float64 {
 	if field == nil {
 		panic("catty/runtime: GetStaticDouble field not found: " + class + "." + name + " " + desc)
 	}
-	interpreter.InitClass(thread, field.Owner())
-	if thread.HasException() {
-		ex := thread.ClearException()
+	interpreter.InitClass(context, field.Owner())
+	if context.HasException() {
+		ex := context.ClearException()
 		panic("catty/runtime: GetStaticDouble: class initialization failed for " +
 			field.Owner().Name() + " (" + ex.Class().Name() + ")")
 	}
@@ -134,9 +134,9 @@ func InvokeSpecial(class, name, desc string, args []rtda.Slot) rtda.Slot {
 // InvokeSpecial("<init>") to run the constructor.
 func NewObject(class string) *rtda.Object {
 	c := loader.LoadClass(class)
-	interpreter.InitClass(thread, c)
-	if thread.HasException() {
-		ex := thread.ClearException()
+	interpreter.InitClass(context, c)
+	if context.HasException() {
+		ex := context.ClearException()
 		panic("catty/runtime: NewObject: class initialization failed for " +
 			c.Name() + " (" + ex.Class().Name() + ")")
 	}
@@ -149,7 +149,7 @@ func runMethod(method *rtda.Method, args []rtda.Slot) rtda.Slot {
 	if method.IsNative() {
 		return runNative(method, args)
 	}
-	return interpreter.RunMethod(thread, method, args)
+	return interpreter.RunMethod(context, method, args)
 }
 
 // NewString creates a java.lang.String from UTF-16 code units decoded
@@ -222,14 +222,14 @@ func DoubleMod(a, b float64) float64 { return math.Mod(a, b) }
 
 // runNative sets up a frame with the given argument slots, runs the native
 // method, and returns its result slot (zero for void). If the native method
-// signals an exception on the thread, no return value is transferred.
+// signals an exception on the execution context, no return value is transferred.
 func runNative(method *rtda.Method, args []rtda.Slot) rtda.Slot {
-	frame := thread.NewFrame(method)
+	frame := context.NewFrame(method)
 	for i, a := range args {
 		frame.SetSlot(i, a)
 	}
 	method.NativeFunc()(frame)
-	if thread.HasException() {
+	if context.HasException() {
 		return rtda.Slot{}
 	}
 	return popReturn(frame, method.ReturnType())
@@ -261,17 +261,21 @@ func InvokeStatic(class, name, desc string, args []rtda.Slot) rtda.Slot {
 	// Init the method's actual declaring class — the constant-pool
 	// referenced class may be a subclass that inherits the method
 	// (ADR-0025 / JVMS §5.5 declarer-owner rule).
-	interpreter.InitClass(thread, method.Owner())
-	if thread.HasException() {
-		ex := thread.ClearException()
+	interpreter.InitClass(context, method.Owner())
+	if context.HasException() {
+		ex := context.ClearException()
 		panic("catty/runtime: InvokeStatic: class initialization failed for " +
 			method.Owner().Name() + " (" + ex.Class().Name() + ")")
 	}
 	return runMethod(method, args)
 }
 
-// Thread returns the runtime's thread (for the fallback interpreter path).
-func Thread() *rtda.Thread { return thread }
+// ExecutionContext returns the runtime's execution context.
+func ExecutionContext() *rtda.ExecutionContext { return context }
+
+// Thread returns the runtime's execution context for compatibility with older
+// bridge callers.
+func Thread() *rtda.ExecutionContext { return ExecutionContext() }
 
 // Loader returns the runtime's class loader.
 func Loader() rtda.Loader { return loader }

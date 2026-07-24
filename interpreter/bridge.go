@@ -9,16 +9,16 @@ import "catty/rtda"
 //
 // It sets a bridge-return slot so the method's return (which has no caller frame
 // in this context) is captured instead of dropped, then runs the dispatch loop.
-func RunMethod(thread *rtda.Thread, method *rtda.Method, args []rtda.Slot) rtda.Slot {
+func RunMethod(context *rtda.ExecutionContext, method *rtda.Method, args []rtda.Slot) rtda.Slot {
 	var ret rtda.Slot
-	thread.SetBridgeReturn(&ret)
-	frame := thread.NewFrame(method)
+	context.SetBridgeReturn(&ret)
+	frame := context.NewFrame(method)
 	for i, a := range args {
 		frame.SetSlot(i, a)
 	}
 	frame.EnterSyncMonitor()
-	thread.PushFrame(frame)
-	Loop(thread)
-	thread.SetBridgeReturn(nil)
+	context.PushFrame(frame)
+	Loop(context)
+	context.SetBridgeReturn(nil)
 	return ret
 }

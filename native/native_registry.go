@@ -41,7 +41,7 @@ func GetNative(className, methodName, descriptor string) func(*rtda.Frame) {
 // given rtda.Class (ADR-0029). The Class object stores the rtda.Class in its
 // extra field. All callers see the same Object identity for the same Class.
 // K2: mirror creation uses the class's defining loader.
-func getClassObject(thread *rtda.Thread, cls *rtda.Class) *rtda.Object {
+func getClassObject(_ *rtda.ExecutionContext, cls *rtda.Class) *rtda.Object {
 	return cls.ClassObject()
 }
 

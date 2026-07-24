@@ -46,7 +46,7 @@ func objectToString(f *rtda.Frame) {
 	name := javaToDot(this.Class().Name())
 	hash := int32(uintptr(0))
 	result := name + "@" + itoaHex(hash)
-	f.PushRef(newStringFromGo(f.Thread(), result))
+	f.PushRef(newStringFromGo(f.Context(), result))
 }
 
 func itoaHex(n int32) string {
@@ -162,7 +162,7 @@ func stringInitBytes(f *rtda.Frame) {
 		units := make([]uint16, n/2)
 		for i := 0; i < n; i += 2 {
 			hi := uint16(buf.GetIntCell(i))
-			lo := uint16(buf.GetIntCell(i+1))
+			lo := uint16(buf.GetIntCell(i + 1))
 			units[i/2] = hi<<8 | lo
 		}
 		this.SetExtra(rtda.NewStringValue(units))
@@ -182,7 +182,7 @@ func stringValueSV(obj *rtda.Object) *rtda.StringValue {
 }
 
 // throwStringBounds throws a StringIndexOutOfBoundsException with the given
-// message and signals it on the thread.
+// message and signals it on the execution context.
 func throwStringBounds(f *rtda.Frame, message string) {
 	throwException(f, "java/lang/StringIndexOutOfBoundsException", message)
 }
@@ -193,25 +193,25 @@ func throwNPE(f *rtda.Frame, message string) {
 }
 
 // throwException throws a named exception with the given detail message on the
-// thread's current frame.
+// execution context's current frame.
 func throwException(f *rtda.Frame, className, message string) {
-	thread := f.Thread()
+	context := f.Context()
 	pc := 0
-	if cf := thread.CurrentFrame(); cf != nil {
+	if cf := context.CurrentFrame(); cf != nil {
 		pc = cf.PC()
 	}
-	cls := thread.Loader().LoadClass(className)
+	cls := context.Loader().LoadClass(className)
 	obj := rtda.NewObject(cls)
 	if message != "" {
 		for c := cls; c != nil; c = c.SuperClass() {
 			if mf := c.LookupField("detailMessage", "Ljava/lang/String;"); mf != nil {
-				msgObj := newStringFromGo(thread, message)
+				msgObj := newStringFromGo(context, message)
 				obj.SetRefCell(int(mf.SlotID()), msgObj)
 				break
 			}
 		}
 	}
-	thread.Throw(obj, pc)
+	context.Throw(obj, pc)
 }
 
 func stringLength(f *rtda.Frame) {
@@ -265,7 +265,7 @@ func stringSubstring(f *rtda.Frame) {
 		throwStringBounds(f, "String index out of range: "+itoaInt(begin))
 		return
 	}
-	f.PushRef(newStringFromSV(f.Thread(), sv.Substring(begin, sv.Len())))
+	f.PushRef(newStringFromSV(f.Context(), sv.Substring(begin, sv.Len())))
 }
 
 func stringSubstringII(f *rtda.Frame) {
@@ -284,7 +284,7 @@ func stringSubstringII(f *rtda.Frame) {
 		throwStringBounds(f, "String index out of range: "+itoaInt(begin-end))
 		return
 	}
-	f.PushRef(newStringFromSV(f.Thread(), sv.Substring(begin, end)))
+	f.PushRef(newStringFromSV(f.Context(), sv.Substring(begin, end)))
 }
 
 func stringConcat(f *rtda.Frame) {
@@ -295,7 +295,7 @@ func stringConcat(f *rtda.Frame) {
 		return
 	}
 	b := stringValueSV(other)
-	f.PushRef(newStringFromSV(f.Thread(), a.Concat(b)))
+	f.PushRef(newStringFromSV(f.Context(), a.Concat(b)))
 }
 
 func stringIndexOf(f *rtda.Frame) {
@@ -348,7 +348,7 @@ func stringCompareTo(f *rtda.Frame) {
 func stringToCharArray(f *rtda.Frame) {
 	sv := stringValueSV(f.GetRef(0))
 	units := sv.ToCharArray()
-	charClass := f.Thread().Loader().LoadClass("[C")
+	charClass := f.Context().Loader().LoadClass("[C")
 	arr := rtda.NewArray(charClass, len(units))
 	for i, u := range units {
 		arr.SetIntCell(i, int32(u))
@@ -359,8 +359,8 @@ func stringToCharArray(f *rtda.Frame) {
 // --- String construction helpers ---
 
 // newStringFromSV creates a new java.lang.String backed by sv.
-func newStringFromSV(thread *rtda.Thread, sv *rtda.StringValue) *rtda.Object {
-	class := thread.Loader().LoadClass("java/lang/String")
+func newStringFromSV(context *rtda.ExecutionContext, sv *rtda.StringValue) *rtda.Object {
+	class := context.Loader().LoadClass("java/lang/String")
 	obj := rtda.NewObject(class)
 	obj.SetExtra(sv)
 	return obj
@@ -370,8 +370,8 @@ func newStringFromSV(thread *rtda.Thread, sv *rtda.StringValue) *rtda.Object {
 // converting each rune to UTF-16 code units (validating surrogates as-is).
 // Used for exception messages, property values, etc. where the source is
 // known-safe ASCII or BMP text.
-func newStringFromGo(thread *rtda.Thread, s string) *rtda.Object {
-	class := thread.Loader().LoadClass("java/lang/String")
+func newStringFromGo(context *rtda.ExecutionContext, s string) *rtda.Object {
+	class := context.Loader().LoadClass("java/lang/String")
 	obj := rtda.NewObject(class)
 	units := goStringToUTF16(s)
 	obj.SetExtra(rtda.NewStringValue(units))
@@ -491,7 +491,7 @@ func sbAppendChar(f *rtda.Frame) {
 
 func sbToString(f *rtda.Frame) {
 	this := f.GetRef(0)
-	f.PushRef(newStringFromSV(f.Thread(), this.Extra().(*utf16Builder).toSV()))
+	f.PushRef(newStringFromSV(f.Context(), this.Extra().(*utf16Builder).toSV()))
 }
 
 // --- System ---
@@ -517,21 +517,21 @@ func buildSystemClass(loader rtda.Loader) *rtda.Class {
 }
 
 var knownProperties = map[string]string{
-	"line.separator":  "\n",
-	"file.separator":  "/",
-	"path.separator":  ":",
-	"file.encoding":   "UTF-8",
-	"java.version":    "25",
-	"java.vm.version": "25",
-	"java.vm.name":    "catty",
-	"java.home":       ".",
-	"user.dir":        ".",
-	"user.home":       ".",
-	"java.class.path": ".",
-	"java.io.tmpdir":  "/tmp",
-	"os.name":         "unknown",
-	"os.arch":         "unknown",
-	"os.version":      "unknown",
+	"line.separator":     "\n",
+	"file.separator":     "/",
+	"path.separator":     ":",
+	"file.encoding":      "UTF-8",
+	"java.version":       "25",
+	"java.vm.version":    "25",
+	"java.vm.name":       "catty",
+	"java.home":          ".",
+	"user.dir":           ".",
+	"user.home":          ".",
+	"java.class.path":    ".",
+	"java.io.tmpdir":     "/tmp",
+	"os.name":            "unknown",
+	"os.arch":            "unknown",
+	"os.version":         "unknown",
 	"java.class.version": "65.0",
 }
 
@@ -544,7 +544,7 @@ func systemGetProperty(f *rtda.Frame) {
 	key := stringValueSV(keyObj)
 	keyStr := key.GoString()
 	if val, ok := knownProperties[keyStr]; ok {
-		f.PushRef(newStringFromGo(f.Thread(), val))
+		f.PushRef(newStringFromGo(f.Context(), val))
 		return
 	}
 	f.PushRef(nil)

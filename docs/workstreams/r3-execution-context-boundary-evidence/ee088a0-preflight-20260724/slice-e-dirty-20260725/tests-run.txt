@@ -1,0 +1,14 @@
+==> building catty
+==> compiling fixtures
+PASS  HelloWorld
+PASS  Fibonacci
+PASS  Factorial
+PASS  ArraySum
+PASS  OOPDemo
+PASS  StaticFields
+PASS  SwitchDemo
+PASS  EmptyMain
+PASS  ExceptionTest
+PASS  InterfaceTest
+
+==> 10 passed, 0 failed

@@ -120,12 +120,12 @@ func makeExceptionObject(cls *rtda.Class) *rtda.Object {
 }
 
 // newThreadWithLoader creates a thread with the given loader.
-func newThreadWithLoader(loader rtda.Loader) *rtda.Thread {
+func newThreadWithLoader(loader rtda.Loader) *rtda.ExecutionContext {
 	return rtda.NewThread(loader)
 }
 
 // pushFrame pushes a frame for the given method onto the thread.
-func pushFrame(thread *rtda.Thread, method *rtda.Method) {
+func pushFrame(thread *rtda.ExecutionContext, method *rtda.Method) {
 	frame := thread.NewFrame(method)
 	thread.PushFrame(frame)
 }
@@ -383,7 +383,7 @@ func TestRunClinitMissingCatchType(t *testing.T) {
 	}
 }
 
-func testCatchResolutionLoop(t *testing.T, loop func(*rtda.Thread)) {
+func testCatchResolutionLoop(t *testing.T, loop func(*rtda.ExecutionContext)) {
 	t.Helper()
 	loader := newTestLoader()
 	setupBaseClasses(loader)

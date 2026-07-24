@@ -82,7 +82,7 @@ func buildTestHierarchy() *simpleLoader {
 
 // testRunLoop is a minimal interpreter loop that executes native methods directly.
 // The goroutine carrier in threadStart calls this via rtda.DefaultRunLoop.
-func testRunLoop(t *rtda.Thread) {
+func testRunLoop(t *rtda.ExecutionContext) {
 	for !t.IsStackEmpty() {
 		f := t.CurrentFrame()
 		m := f.Method()
@@ -108,8 +108,8 @@ func newTestThreadObj() (*simpleLoader, *rtda.Class, *rtda.Object) {
 	return loader, threadClass, obj
 }
 
-// TestThreadInitAttachesRuntimeRecord verifies that <init> creates and
-// bidirectionally attaches the rtda.Thread execution context.
+// TestThreadInitAttachesRuntimeRecord verifies that <init> creates and attaches
+// the Java Thread sidecar record.
 func TestThreadInitAttachesRuntimeRecord(t *testing.T) {
 	_, _, obj := newTestThreadObj()
 
@@ -117,11 +117,14 @@ func TestThreadInitAttachesRuntimeRecord(t *testing.T) {
 	if extra == nil {
 		t.Fatal("threadInit did not set Extra on Thread object")
 	}
-	rt := extra.(*rtda.Thread)
-	if rt.JavaThread() != obj {
-		t.Error("rtda.Thread.JavaThread should point back to the facade object")
+	state := extra.(*rtda.JavaThreadState)
+	if state.JavaThread() != obj {
+		t.Error("JavaThreadState should point back to the facade object")
 	}
-	if rt.IsAlive() {
+	if state.Context() == nil {
+		t.Error("JavaThreadState should point to its execution context")
+	}
+	if state.IsAlive() {
 		t.Error("newly initialized thread should not be alive")
 	}
 }
@@ -146,7 +149,7 @@ func TestThreadCurrentThreadIdentity(t *testing.T) {
 // TestThreadIsAlive verifies isAlive returns correct values across lifecycle states.
 func TestThreadIsAlive(t *testing.T) {
 	_, threadClass, obj := newTestThreadObj()
-	rt := obj.Extra().(*rtda.Thread)
+	rt := obj.Extra().(*rtda.JavaThreadState)
 	caller := rtda.NewThread(nil)
 
 	// Not started → not alive.
@@ -184,7 +187,7 @@ func TestThreadStartAndJoinHappyPath(t *testing.T) {
 	rtda.DefaultRunLoop = testRunLoop
 
 	loader, threadClass, obj := newTestThreadObj()
-	rt := obj.Extra().(*rtda.Thread)
+	rt := obj.Extra().(*rtda.JavaThreadState)
 	caller := rtda.NewThread(loader)
 
 	// Start the thread.
@@ -251,7 +254,7 @@ func TestThreadStartTwiceThrowsITSE(t *testing.T) {
 	}
 
 	// Wait for the goroutine carrier to finish so Terminate is called.
-	rt := obj.Extra().(*rtda.Thread)
+	rt := obj.Extra().(*rtda.JavaThreadState)
 	select {
 	case <-rt.Done():
 	case <-time.After(time.Second):
@@ -273,7 +276,7 @@ func TestThreadStartTwiceThrowsITSE(t *testing.T) {
 // TestThreadInterruptFlag verifies interrupt/isInterrupted/interrupted semantics.
 func TestThreadInterruptFlag(t *testing.T) {
 	_, threadClass, obj := newTestThreadObj()
-	rt := obj.Extra().(*rtda.Thread)
+	rt := obj.Extra().(*rtda.JavaThreadState)
 	caller := rtda.NewThread(nil)
 
 	// Initially not interrupted.
@@ -406,7 +409,7 @@ func TestThreadSleepInterruptedDuring(t *testing.T) {
 // TestThreadSetDaemonIsDaemon verifies setDaemon/isDaemon native methods.
 func TestThreadSetDaemonIsDaemon(t *testing.T) {
 	_, threadClass, obj := newTestThreadObj()
-	rt := obj.Extra().(*rtda.Thread)
+	rt := obj.Extra().(*rtda.JavaThreadState)
 	caller := rtda.NewThread(nil)
 
 	// Default: not daemon.
@@ -465,7 +468,7 @@ func TestThreadSetDaemonAfterStartThrowsITSE(t *testing.T) {
 	}
 
 	// Cleanup: wait for the goroutine carrier.
-	rt := obj.Extra().(*rtda.Thread)
+	rt := obj.Extra().(*rtda.JavaThreadState)
 	select {
 	case <-rt.Done():
 	case <-time.After(time.Second):
@@ -481,7 +484,7 @@ func TestThreadSetDaemonAfterTerminateThrowsITSE(t *testing.T) {
 	rtda.DefaultRunLoop = testRunLoop
 
 	loader, threadClass, obj := newTestThreadObj()
-	rt := obj.Extra().(*rtda.Thread)
+	rt := obj.Extra().(*rtda.JavaThreadState)
 	caller := rtda.NewThread(loader)
 
 	// Start and wait for termination.
@@ -513,7 +516,7 @@ func TestThreadSetDaemonAfterTerminateThrowsITSE(t *testing.T) {
 // before start (state == NEW).
 func TestThreadSetDaemonBeforeStartSucceeds(t *testing.T) {
 	_, threadClass, obj := newTestThreadObj()
-	rt := obj.Extra().(*rtda.Thread)
+	rt := obj.Extra().(*rtda.JavaThreadState)
 	caller := rtda.NewThread(nil)
 
 	// Set daemon before start — should succeed.
@@ -605,7 +608,7 @@ func TestThreadStartDaemonLiveness(t *testing.T) {
 	rtda.DefaultRunLoop = testRunLoop
 
 	loader, threadClass, obj := newTestThreadObj()
-	rt := obj.Extra().(*rtda.Thread)
+	rt := obj.Extra().(*rtda.JavaThreadState)
 	rt.SetDaemon(true)
 
 	caller := rtda.NewThread(loader)

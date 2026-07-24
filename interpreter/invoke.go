@@ -12,27 +12,27 @@ import (
 // operand stack into a fresh callee frame. Interpreted methods get the frame
 // pushed for the dispatch loop to run; native methods run synchronously and
 // their return value is handed back to the caller immediately.
-func invokeMethod(thread *rtda.Thread, method *rtda.Method) {
+func invokeMethod(context *rtda.ExecutionContext, method *rtda.Method) {
 	if method == nil {
 		panic(fmt.Sprintf("catty: invokeMethod received nil method from frame %s.%s%s",
-			thread.CurrentFrame().Method().Owner().Name(),
-			thread.CurrentFrame().Method().Name(),
-			thread.CurrentFrame().Method().Descriptor()))
+			context.CurrentFrame().Method().Owner().Name(),
+			context.CurrentFrame().Method().Name(),
+			context.CurrentFrame().Method().Descriptor()))
 	}
 	if method.IsNative() {
-		invokeNative(thread, method)
+		invokeNative(context, method)
 		return
 	}
-	caller := thread.CurrentFrame()
-	frame := thread.NewFrame(method)
+	caller := context.CurrentFrame()
+	frame := context.NewFrame(method)
 	copyArgs(caller, frame, method)
 	frame.EnterSyncMonitor()
-	thread.PushFrame(frame)
+	context.PushFrame(frame)
 }
 
-func invokeNative(thread *rtda.Thread, method *rtda.Method) {
-	caller := thread.CurrentFrame()
-	frame := thread.NewFrame(method)
+func invokeNative(context *rtda.ExecutionContext, method *rtda.Method) {
+	caller := context.CurrentFrame()
+	frame := context.NewFrame(method)
 	copyArgs(caller, frame, method)
 
 	// Native throwaway frames are never pushed to the stack, so PopFrame won't
@@ -43,14 +43,14 @@ func invokeNative(thread *rtda.Thread, method *rtda.Method) {
 	method.NativeFunc()(frame)
 
 	if so := frame.SyncObject(); so != nil {
-		so.Monitor().Exit(thread.EC())
+		so.Monitor().Exit(context.EC())
 	}
 
 	// A native method that throws an exception (via Thread.Throw) must
 	// NOT transfer a return value — the callee frame's stack may be in
 	// an inconsistent state, and the interpreter will dispatch the
 	// pending exception instead.
-	if thread.HasException() {
+	if context.HasException() {
 		return
 	}
 	transferReturn(caller, frame, method.ReturnType())
@@ -90,48 +90,48 @@ func transferReturn(caller, callee *rtda.Frame, ret string) {
 // This is the interpreter's ClinitRunner callback passed to the shared
 // initialization service. The <clinit> runs synchronously via the existing
 // runClinit loop so the caller's frame and operand stack are undisturbed.
-func ensureInitialized(thread *rtda.Thread, class *rtda.Class) {
+func ensureInitialized(context *rtda.ExecutionContext, class *rtda.Class) {
 	if class.IsInitialized() {
 		return
 	}
-	loader := thread.Loader()
-	result := rtda.InitializeClass(loader, class, thread.EC(), func(c *rtda.Class, m *rtda.Method) rtda.InitResult {
-		return runClinit(thread, m)
+	loader := context.Loader()
+	result := rtda.InitializeClass(loader, class, context.EC(), func(c *rtda.Class, m *rtda.Method) rtda.InitResult {
+		return runClinit(context, m)
 	})
 	if result.ErrObj != nil {
 		pc := 0
-		if !thread.IsStackEmpty() {
-			pc = thread.CurrentFrame().PC()
+		if !context.IsStackEmpty() {
+			pc = context.CurrentFrame().PC()
 		}
-		thread.Throw(rtda.WrapInitFailure(loader, result.ErrObj), pc)
+		context.Throw(rtda.WrapInitFailure(loader, result.ErrObj), pc)
 	}
 }
 
 // runClinit runs a <clinit> method synchronously: push a frame, run only the
-// clinit frame (not the whole thread), and return when the clinit frame is
+// clinit frame (not the whole context), and return when the clinit frame is
 // popped. This prevents Loop from continuing into the caller's frame while
 // the caller's opcode handler (e.g. 'new') is still mid-execution.
 //
 // If <clinit> completes abruptly (uncaught exception anywhere in the clinit
 // call chain), runClinit pops every frame back to the caller and returns the
 // thrown object as InitResult.ErrObj.
-func runClinit(thread *rtda.Thread, method *rtda.Method) rtda.InitResult {
-	clinitDepth := thread.FrameCount() + 1 // target depth after push
-	frame := thread.NewFrame(method)
+func runClinit(context *rtda.ExecutionContext, method *rtda.Method) rtda.InitResult {
+	clinitDepth := context.FrameCount() + 1 // target depth after push
+	frame := context.NewFrame(method)
 	frame.EnterSyncMonitor()
-	thread.PushFrame(frame)
-	for thread.FrameCount() >= clinitDepth && !thread.IsStackEmpty() {
-		frame := thread.CurrentFrame()
+	context.PushFrame(frame)
+	for context.FrameCount() >= clinitDepth && !context.IsStackEmpty() {
+		frame := context.CurrentFrame()
 		opcodePc := frame.PC()
 		op := opcode.Opcode(frame.Code()[opcodePc])
 		frame.SetPC(opcodePc + 1)
-		exec(thread, frame, op, opcodePc)
-		if thread.HasException() {
-			thrown := thread.ClearException()
+		exec(context, frame, op, opcodePc)
+		if context.HasException() {
+			thrown := context.ClearException()
 			// Walk frames from the throwing frame down to (and including)
 			// the clinit frame, searching for a handler.
-			for thread.FrameCount() >= clinitDepth {
-				f := thread.CurrentFrame()
+			for context.FrameCount() >= clinitDepth {
+				f := context.CurrentFrame()
 				caught := false
 				framePopped := false
 				for _, entry := range f.Method().ExceptionTable() {
@@ -149,15 +149,15 @@ func runClinit(thread *rtda.Thread, method *rtda.Method) rtda.InitResult {
 						// NEW exception and must propagate from the
 						// caller boundary — it must not be caught by
 						// later handlers in the same frame.
-						catchClass := resolveClass(thread, opcodePc, entry.CatchType())
+						catchClass := resolveClass(context, opcodePc, entry.CatchType())
 						if catchClass == nil {
-							thrown = thread.ClearException()
-							thread.PopFrame()
+							thrown = context.ClearException()
+							context.PopFrame()
 							framePopped = true
-							if thread.FrameCount() < clinitDepth {
+							if context.FrameCount() < clinitDepth {
 								return rtda.InitResult{ErrObj: thrown}
 							}
-							opcodePc = thread.CurrentFrame().PC() - 1
+							opcodePc = context.CurrentFrame().PC() - 1
 							break
 						}
 						if thrown.IsInstanceOf(catchClass) {
@@ -176,13 +176,13 @@ func runClinit(thread *rtda.Thread, method *rtda.Method) rtda.InitResult {
 					continue // already popped by catch-type failure
 				}
 				// Not caught in this frame — pop it.
-				thread.PopFrame()
-				if thread.FrameCount() < clinitDepth {
+				context.PopFrame()
+				if context.FrameCount() < clinitDepth {
 					// Exception propagated past clinit boundary.
 					return rtda.InitResult{ErrObj: thrown}
 				}
 				// Set throwPC for the caller's exception-table search.
-				opcodePc = thread.CurrentFrame().PC() - 1
+				opcodePc = context.CurrentFrame().PC() - 1
 			}
 		}
 	}
@@ -191,38 +191,38 @@ func runClinit(thread *rtda.Thread, method *rtda.Method) rtda.InitResult {
 
 // InitClass is the exported form of ensureInitialized, for the launcher to
 // initialize the main class before entering main().
-func InitClass(thread *rtda.Thread, class *rtda.Class) {
-	ensureInitialized(thread, class)
+func InitClass(context *rtda.ExecutionContext, class *rtda.Class) {
+	ensureInitialized(context, class)
 }
 
 // pushConstant handles ldc / ldc_w: pushes an int, float, String, or Class
 // constant onto the operand stack per the constant pool tag at index.
 // pc is the bytecode/IR offset for exception backtraces.
-// Returns false if class resolution failed (exception already set on thread);
+// Returns false if class resolution failed (exception already set on context);
 // the caller must return immediately.
-func pushConstant(thread *rtda.Thread, frame *rtda.Frame, cp *classfile.ConstantPool, index uint16, pc int) bool {
+func pushConstant(context *rtda.ExecutionContext, frame *rtda.Frame, cp *classfile.ConstantPool, index uint16, pc int) bool {
 	switch cp.Tag(index) {
 	case classfile.ConstantInteger:
 		frame.PushInt(cp.Integer(index))
 	case classfile.ConstantFloat:
 		frame.PushFloat(cp.Float(index))
 	case classfile.ConstantString:
-		frame.PushRef(newString(thread, cp.UTF16(index)))
+		frame.PushRef(newString(context, cp.UTF16(index)))
 	case classfile.ConstantClass:
 		className := cp.ClassName(index)
-		cls := resolveClass(thread, pc, className)
+		cls := resolveClass(context, pc, className)
 		if cls == nil {
 			return false
 		}
-		frame.PushRef(getClassObject(thread, cls))
+		frame.PushRef(getClassObject(context, cls))
 	}
 	return true
 }
 
 // newString creates a java.lang.String object from lossless UTF-16 code units
 // (obtained from the classfile constant pool via decodeMUTF8ToUTF16).
-func newString(thread *rtda.Thread, units []uint16) *rtda.Object {
-	class := thread.Loader().LoadClass("java/lang/String")
+func newString(context *rtda.ExecutionContext, units []uint16) *rtda.Object {
+	class := context.Loader().LoadClass("java/lang/String")
 	obj := rtda.NewObject(class)
 	obj.SetExtra(rtda.NewStringValue(units))
 	return obj
@@ -231,8 +231,8 @@ func newString(thread *rtda.Thread, units []uint16) *rtda.Object {
 // getClassObject returns the canonical java.lang.Class object wrapping cls
 // (ADR-0029). The Class object stores the rtda.Class in its extra field.
 // All callers see the same Object identity for the same Class.
-// K2: mirror creation uses the class's defining loader, not the thread's
+// K2: mirror creation uses the class's defining loader, not the context's
 // initiating loader.
-func getClassObject(thread *rtda.Thread, cls *rtda.Class) *rtda.Object {
+func getClassObject(context *rtda.ExecutionContext, cls *rtda.Class) *rtda.Object {
 	return cls.ClassObject()
 }

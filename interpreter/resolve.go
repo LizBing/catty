@@ -1,7 +1,7 @@
 // Package interpreter — typed class-resolution adapter (K2).
 //
 // Java-reachable symbolic-resolution paths use resolveClass, which calls
-// LoadClassResult and maps typed failures to Java throwables on the thread.
+// LoadClassResult and maps typed failures to Java throwables on the context.
 // Internal bootstrap must-load helpers may still use LoadClass (which panics
 // on failure) — those paths are reachable only when a catty invariant is
 // broken, and a Go panic is the correct response.
@@ -15,18 +15,18 @@ import (
 //
 // On success it returns the fully linked *rtda.Class. On failure it maps the
 // typed failure to a Java throwable (NoClassDefFoundError, ClassFormatError,
-// ClassCircularityError, or LinkageError), signals it on the thread, and
+// ClassCircularityError, or LinkageError), signals it on the context, and
 // returns nil. The caller must check for nil and return immediately so the
 // interpreter loop picks up the pending exception.
-func resolveClass(thread *rtda.Thread, pc int, name string) *rtda.Class {
-	result := thread.Loader().LoadClassResult(name)
+func resolveClass(context *rtda.ExecutionContext, pc int, name string) *rtda.Class {
+	result := context.Loader().LoadClassResult(name)
 	if result.IsSuccess() {
 		return result.Class()
 	}
 	f := result.Failure()
 	exClass := mapFailureToExceptionClass(f.Kind)
 	message := f.Error()
-	throwRuntime(thread, pc, exClass, message)
+	throwRuntime(context, pc, exClass, message)
 	return nil
 }
 

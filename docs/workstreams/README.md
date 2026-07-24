@@ -4,8 +4,9 @@ Workstreams use the model-neutral protocol in
 [`../COLLABORATION.md`](../COLLABORATION.md) and the
 [`TEMPLATE.md`](./TEMPLATE.md).
 
-**Active workstream:** Accepted
-[`r2-thread-monitor-foundation-slice`](./r2-thread-monitor-foundation-slice.md).
+The current state of the project is defined exclusively by
+[`../PROJECT_STATUS.md`](../PROJECT_STATUS.md). This index does not maintain a
+separate active-workstream declaration.
 
 The R2 initialization slice is Done.
 

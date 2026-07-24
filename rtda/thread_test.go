@@ -250,6 +250,123 @@ func TestThreadJavaThread(t *testing.T) {
 	}
 }
 
+func TestJavaThreadStateSidecarOwnsFacadeAndLifecycle(t *testing.T) {
+	tr := NewExecutionContext(nil)
+	state := tr.JavaThreadState()
+	if state == nil {
+		t.Fatal("ExecutionContext should have JavaThreadState sidecar")
+	}
+	if state != tr.JavaThreadState() {
+		t.Fatal("JavaThreadState sidecar should be stable")
+	}
+
+	obj := &Object{}
+	state.SetJavaThread(obj)
+	if tr.JavaThread() != obj {
+		t.Fatal("ExecutionContext facade accessor did not read sidecar facade")
+	}
+
+	if !state.SetDaemon(true) {
+		t.Fatal("sidecar SetDaemon should succeed while NEW")
+	}
+	if !tr.IsDaemon() {
+		t.Fatal("ExecutionContext daemon accessor did not read sidecar daemon")
+	}
+	if !tr.SetStarted() {
+		t.Fatal("ExecutionContext SetStarted should delegate to sidecar")
+	}
+	if !state.IsAlive() {
+		t.Fatal("sidecar should observe context start")
+	}
+	if state.SetDaemon(false) {
+		t.Fatal("sidecar SetDaemon should fail after start")
+	}
+
+	tr.Interrupt()
+	if !state.IsInterrupted() {
+		t.Fatal("sidecar should observe context interrupt")
+	}
+	if !state.Interrupted() {
+		t.Fatal("sidecar Interrupted should clear context interrupt")
+	}
+	if tr.IsInterrupted() {
+		t.Fatal("ExecutionContext interrupt accessor should see sidecar clear")
+	}
+
+	state.SetMain(true)
+	if !tr.IsMain() {
+		t.Fatal("ExecutionContext main flag accessor did not read sidecar")
+	}
+
+	state.Terminate()
+	if tr.IsAlive() {
+		t.Fatal("ExecutionContext should observe sidecar termination")
+	}
+	select {
+	case <-tr.Done():
+		// expected
+	default:
+		t.Fatal("ExecutionContext Done should expose sidecar completion channel")
+	}
+}
+
+func TestExecutionContextConstructors(t *testing.T) {
+	ctx := NewExecutionContext(nil)
+	legacy := NewThread(nil)
+
+	if ctx == nil {
+		t.Fatal("NewExecutionContext returned nil")
+	}
+	if legacy == nil {
+		t.Fatal("NewThread returned nil")
+	}
+	if ctx.ID() == 0 || legacy.ID() == 0 {
+		t.Fatal("execution context ID must be non-zero")
+	}
+	if ctx.ID() != ctx.EC() {
+		t.Fatal("ID and legacy EC accessors diverged")
+	}
+	if ctx.ID() == legacy.ID() {
+		t.Fatal("execution contexts must receive distinct IDs")
+	}
+}
+
+func TestExecutionContextBridgeAndExceptionStateIsIsolated(t *testing.T) {
+	ctxA := NewExecutionContext(nil)
+	ctxB := NewExecutionContext(nil)
+
+	var ret Slot
+	ctxA.SetBridgeReturn(&ret)
+	ctxA.BridgeReturn(Slot{num: 42})
+	if !ctxA.HasBridgeReturn() {
+		t.Fatal("context A should have bridge return storage")
+	}
+	if ret.num != 42 {
+		t.Fatalf("bridge return = %d, want 42", ret.num)
+	}
+	if ctxB.HasBridgeReturn() {
+		t.Fatal("context B unexpectedly inherited bridge return storage")
+	}
+
+	obj := &Object{}
+	ctxA.Throw(obj, 7)
+	if !ctxA.HasException() {
+		t.Fatal("context A should have pending exception")
+	}
+	if ctxB.HasException() {
+		t.Fatal("context B unexpectedly inherited pending exception")
+	}
+	if got := ctxA.ThrowPC(); got != 7 {
+		t.Fatalf("ThrowPC = %d, want 7", got)
+	}
+	if got := ctxA.ClearException(); got != obj {
+		t.Fatal("ClearException returned wrong object")
+	}
+	if ctxA.HasException() {
+		t.Fatal("context A should be clear after ClearException")
+	}
+}
+
 // TestConcurrentThreadCreation verifies atomic ecID assignment under race.
 func TestConcurrentThreadCreation(t *testing.T) {
 	const N = 100

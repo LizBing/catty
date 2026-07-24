@@ -8,9 +8,10 @@ import (
 
 // buildObjectMonitorHierarchy creates a minimal class hierarchy for testing
 // Object.wait()/notify() and Thread.holdsLock(). It includes:
-//   Object (with wait/notify methods) → Throwable → Exception → RuntimeException → IMSE
-//   Thread (with holdsLock)
-//   String and Class (required by throwException for IMSE construction)
+//
+//	Object (with wait/notify methods) → Throwable → Exception → RuntimeException → IMSE
+//	Thread (with holdsLock)
+//	String and Class (required by throwException for IMSE construction)
 func buildObjectMonitorHierarchy() *simpleLoader {
 	l := &simpleLoader{classes: make(map[string]*rtda.Class)}
 
@@ -59,15 +60,15 @@ func buildObjectMonitorHierarchy() *simpleLoader {
 }
 
 // newTestThreadWithLoader creates a java.lang.Thread object whose attached
-// rtda.Thread uses the given loader. Returns the facade object and the
-// underlying rtda.Thread execution context.
-func newTestThreadWithLoader(loader *simpleLoader, threadClass *rtda.Class) (*rtda.Object, *rtda.Thread) {
+// JavaThreadState uses the given loader. Returns the facade object and the
+// underlying execution context.
+func newTestThreadWithLoader(loader *simpleLoader, threadClass *rtda.Class) (*rtda.Object, *rtda.ExecutionContext) {
 	obj := rtda.NewObject(threadClass)
 	caller := rtda.NewThread(loader)
 	frame := caller.NewFrame(threadClass.LookupMethod("<init>", "()V"))
 	frame.SetRef(0, obj)
 	threadInit(frame)
-	return obj, obj.Extra().(*rtda.Thread)
+	return obj, obj.Extra().(*rtda.JavaThreadState).Context()
 }
 
 // --- wait/notify ownership failure (contract-mandated unit evidence) ---

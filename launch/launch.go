@@ -46,31 +46,31 @@ func Interpret(cpOpt, mainClass string, useIR bool) {
 
 	// Create the main thread execution context and its canonical Java Thread
 	// facade. The main thread starts RUNNABLE (it's already executing).
-	thread := rtda.NewThread(loader)
-	thread.SetStarted() // CAS NEW → RUNNABLE
-	thread.SetMain(true)
+	context := rtda.NewExecutionContext(loader)
+	context.SetStarted() // CAS NEW -> RUNNABLE
+	context.SetMain(true)
 	threadClass := loader.LoadClass("java/lang/Thread")
 	mainThreadObj := rtda.NewObject(threadClass)
-	mainThreadObj.SetExtra(thread)
-	thread.SetJavaThread(mainThreadObj)
+	mainThreadObj.SetExtra(context.JavaThreadState())
+	context.SetJavaThread(mainThreadObj)
 
 	// Main thread is non-daemon and keeps the VM alive while it runs.
 	vm.ThreadStarted(false)
 
-	frame := thread.NewFrame(mainMethod)
+	frame := context.NewFrame(mainMethod)
 	frame.SetRef(0, nil) // args = null
-	thread.PushFrame(frame)
-	interpreter.InitClass(thread, class)
+	context.PushFrame(frame)
+	interpreter.InitClass(context, class)
 
 	if useIR {
-		interpreter.LoopIR(thread)
+		interpreter.LoopIR(context)
 	} else {
-		interpreter.Loop(thread)
+		interpreter.Loop(context)
 	}
 
 	// Main thread has completed. Wait for all remaining non-daemon threads
 	// before returning (ADR-0028: VM liveness).
-	thread.Terminate()
+	context.Terminate()
 	vm.ThreadTerminated(false)
 	vm.WaitForNonDaemonThreads()
 }

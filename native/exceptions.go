@@ -77,7 +77,7 @@ func eiieInitThrowable(f *rtda.Frame) {
 			}
 		}
 		if msgSV != nil && !msgSV.IsEmpty() {
-			msgObj := newStringFromSV(f.Thread(), msgSV)
+			msgObj := newStringFromSV(f.Context(), msgSV)
 			this.SetRefCell(int(slot), msgObj)
 		}
 	} else {
@@ -168,7 +168,7 @@ func throwableToString(f *rtda.Frame) {
 	if msg != "" {
 		result += ": " + msg
 	}
-	f.PushRef(newStringFromGo(f.Thread(), result))
+	f.PushRef(newStringFromGo(f.Context(), result))
 }
 
 // javaClassName converts an internal class name ("java/lang/NullPointerException")

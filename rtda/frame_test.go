@@ -85,6 +85,23 @@ func TestFrameRefGCNil(t *testing.T) {
 	}
 }
 
+func TestFrameExecutionContextAccessorsShareIdentity(t *testing.T) {
+	ctx := NewExecutionContext(nil)
+	method := &Method{maxStack: 1, maxLocals: 1}
+	frame := NewFrame(ctx, method)
+
+	if frame.Context() != ctx {
+		t.Fatal("Frame.Context() returned wrong execution context")
+	}
+	var legacy *Thread = frame.Thread()
+	if legacy != ctx {
+		t.Fatal("Frame.Thread() compatibility accessor diverged from Context()")
+	}
+	if frame.Context().ID() != frame.Thread().EC() {
+		t.Fatal("context ID and legacy EC identity diverged through frame accessors")
+	}
+}
+
 // --- ACC_SYNCHRONIZED frame-entry contract (Slice C, ADR-0029) ---
 
 // newSyncMethod creates a virtual method with ACC_SYNCHRONIZED set. The method

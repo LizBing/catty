@@ -10,7 +10,7 @@ import "math"
 // to inline in the dispatch loop.
 type Frame struct {
 	lower    *Frame // caller frame; threads keep frames as a linked stack
-	thread   *Thread
+	context  *ExecutionContext
 	method   *Method
 	code     []byte // cached method.code for the dispatch loop (nil if native)
 	locals   []Slot
@@ -27,19 +27,20 @@ type Frame struct {
 	syncObject *Object
 }
 
-func NewFrame(thread *Thread, method *Method) *Frame {
+func NewFrame(context *ExecutionContext, method *Method) *Frame {
 	return &Frame{
-		thread: thread,
-		method: method,
-		code:   method.code,
-		locals: make([]Slot, method.maxLocals),
-		stack:  make([]Slot, method.maxStack),
+		context: context,
+		method:  method,
+		code:    method.code,
+		locals:  make([]Slot, method.maxLocals),
+		stack:   make([]Slot, method.maxStack),
 	}
 }
 
-func (f *Frame) Thread() *Thread { return f.thread }
-func (f *Frame) Method() *Method { return f.method }
-func (f *Frame) Code() []byte    { return f.method.code }
+func (f *Frame) Context() *ExecutionContext { return f.context }
+func (f *Frame) Thread() *Thread            { return f.context }
+func (f *Frame) Method() *Method            { return f.method }
+func (f *Frame) Code() []byte               { return f.method.code }
 
 // SyncObject returns the object whose monitor was implicitly entered for an
 // ACC_SYNCHRONIZED method, or nil if the method is not synchronized.
@@ -63,7 +64,7 @@ func (f *Frame) EnterSyncMonitor() {
 	} else {
 		lockObj = f.GetRef(0)
 	}
-	lockObj.Monitor().Enter(f.thread.EC())
+	lockObj.Monitor().Enter(f.context.ID())
 	f.syncObject = lockObj
 }
 
