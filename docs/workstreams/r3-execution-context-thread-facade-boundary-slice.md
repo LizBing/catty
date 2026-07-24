@@ -1,6 +1,6 @@
 # R3 execution-context and Java Thread facade boundary slice
 
-**Status:** In Progress
+**Status:** Ready
 **Type:** implementation
 **Review:** owner
 **Profile:** Catty JVMS Core shared kernel; Java Thread facade remains bounded
@@ -83,10 +83,10 @@ changing the launcher default.
 | Boundary map | Documented map of execution-context state vs Java Thread facade state vs carrier-only state in this workstream | Pass for Slice A inventory; full closure pending |
 | API migration | `rg` audit shows generic runtime/engine APIs use execution-context naming; Java Thread facade APIs remain confined to facade/lifecycle/native Thread code or documented temporary aliases | Pass for Slice D: engine/native/launcher/runtime bridge use `ExecutionContext` terminology; remaining `Thread` names are documented temporary compatibility |
 | Identity/context | focused tests prove `currentThread`, facade attachment, EC owner ID, monitor ownership, synchronized static mirror, and throwable identity survive the boundary split | Partial: ExecutionContext constructor, ID/EC compatibility, frame identity, bridge return, exception isolation, sidecar facade/lifecycle ownership, currentThread, start/join/interrupt/daemon, existing monitor tests, and focused engine/native compile tests pass; full regression pending |
-| R2 concurrency regression | 19-fixture concurrency matrix 1x and race-built 100x: 19/19 Interpreter + IR Match, 19/19 AOT NO-BUILD | Blocked pending fixed candidate commit; runner requires a commit id and detached worktree |
+| R2 concurrency regression | 19-fixture concurrency matrix 1x and race-built 100x: 19/19 Interpreter + IR Match, 19/19 AOT NO-BUILD | Pass at candidate `6dc325c`: 1x 19/19 Interpreter + IR Match, 19/19 AOT NO-BUILD; 100x race-built stress 19/19 Interpreter + IR Match, 19/19 AOT NO-BUILD |
 | Core regression | `GOCACHE=/private/tmp/catty-go-cache go test ./...`; `GOCACHE=/private/tmp/catty-go-cache go test -race ./...`; `GOCACHE=/private/tmp/catty-go-cache bash tests/run.sh` | Dirty-tree Pass: `go test ./...`, `go test -race ./...`, `go vet ./...`, and `bash tests/run.sh` 10/10 |
 | Capability honesty | R3 24-row baseline remains Interpreter 0/24 Match, IR 0/24 Match, AOT 24/24 NO-BUILD; no new Java-visible R3 row claimed Supported | Dirty-tree Pass: 24/24 rows; Interpreter 0/24 MATCH; IR 0/24 MATCH; AOT 24/24 NO-BUILD |
-| Governance | isolated candidate evidence path, historical evidence unchanged, `git diff --check` Pass | Dirty-tree Pass; fixed-candidate evidence pending |
+| Governance | isolated candidate evidence path, historical evidence unchanged, `git diff --check` Pass | Pass: candidate fixed at `6dc325c`; R2 candidate evidence isolated under `docs/workstreams/r2-concurrency-candidate-evidence/6dc325c/`; historical evidence check and `git diff --check` pass |
 
 ## Amendments
 
@@ -121,31 +121,30 @@ Accepted 后只在此追加由 Owner 接受的需求变化，不回写降低原�
 | B. ExecutionContext kernel type/API | Complete | `docs/workstreams/r3-execution-context-boundary-evidence/ee088a0-preflight-20260724/execution-context-design.md`; `rtda.NewExecutionContext`, temporary `rtda.Thread` alias, `ExecutionContext.ID`, `Frame.Context`; focused tests in `rtda/thread_test.go` and `rtda/frame_test.go`; `GOCACHE=/private/tmp/catty-review-go-cache go test ./rtda` Pass; `GOCACHE=/private/tmp/catty-review-go-cache go test ./interpreter ./native ./launch ./runtime` Pass; `GOCACHE=/private/tmp/catty-review-go-cache go test ./...` Pass |
 | C. Java Thread facade sidecar/API | Complete | `docs/workstreams/r3-execution-context-boundary-evidence/ee088a0-preflight-20260724/java-thread-sidecar.md`; `rtda.JavaThreadState`; Thread facade `Object.Extra()` stores sidecar; launcher main Thread facade stores sidecar; native Thread facade extracts sidecar; focused tests in `rtda/thread_test.go`, `native/thread_test.go`, and `native/object_test.go`; `GOCACHE=/private/tmp/catty-review-go-cache go test ./rtda ./native ./interpreter ./launch ./runtime` Pass; `GOCACHE=/private/tmp/catty-review-go-cache go test ./...` Pass; `GOCACHE=/private/tmp/catty-review-go-cache go vet ./...` Pass |
 | D. Engine/native migration | Complete | `docs/workstreams/r3-execution-context-boundary-evidence/ee088a0-preflight-20260724/engine-native-migration.md`; interpreter bytecode/IR/invoke/init/bridge helpers use `*rtda.ExecutionContext`; generic native helpers use `Frame.Context`; launcher and runtime bridge use execution-context naming; compatibility audit leaves only `rtda.Thread` alias, `NewThread`, `Frame.Thread`, `runtime.Thread`, and focused compatibility test; `GOCACHE=/private/tmp/catty-review-go-cache go test ./rtda ./interpreter ./native ./launch ./runtime` Pass; `GOCACHE=/private/tmp/catty-review-go-cache go test ./...` Pass; `GOCACHE=/private/tmp/catty-review-go-cache go vet ./...` Pass |
-| E. Regression/evidence closure | Partial — fixed candidate required | Dirty-tree evidence: `docs/workstreams/r3-execution-context-boundary-evidence/ee088a0-preflight-20260724/slice-e-dirty-20260725/summary.md`; passed `go test ./...`, `go test -race ./...`, `go vet ./...`, `bash tests/run.sh`, R3 baseline, historical evidence check, and `git diff --check`; R2 concurrency candidate 1x/100x pending fixed candidate commit |
+| E. Regression/evidence closure | Complete | Dirty-tree evidence: `docs/workstreams/r3-execution-context-boundary-evidence/ee088a0-preflight-20260724/slice-e-dirty-20260725/summary.md`; fixed candidate: `6dc325c`; R2 candidate evidence: `docs/workstreams/r2-concurrency-candidate-evidence/6dc325c/results.txt` and `results-stress-100x.txt`; passed `go test ./...`, `go test -race ./...`, `go vet ./...`, `bash tests/run.sh`, R3 baseline, historical evidence check, `git diff --check`, R2 concurrency 1x, and R2 concurrency 100x race-built stress |
 
 ---
 
 ## Handoff
 
-- **Branch / candidate:** `codex/r3-execution-context-thread-facade-boundary`
+- **Branch / candidate:** `codex/r3-execution-context-thread-facade-boundary`;
+  implementation candidate `6dc325cae30dd0ecfc544c7fc9e3b536f04efefb`
 - **Acceptance anchor / base:** `ee088a0ce7b1d0ba6b2f97d59f0c07274464373e`
-- **Dirty files:** this proposed workstream until committed
+- **Dirty files:** candidate evidence/status updates after fixing implementation
+  candidate; implementation commit is fixed
 - **Historical evidence check:** Pass on 2026-07-24; exact command recorded above
 - **Candidate evidence path:** `docs/workstreams/r3-execution-context-boundary-evidence/ee088a0-preflight-20260724/`
-- **Last location:** Slice E dirty-tree regression evidence completed; fixed
-  candidate evidence is pending.
+- **Last location:** Slice E fixed-candidate regression evidence completed; owner
+  review is pending.
 - **Checks run / not run:** historical evidence check, `git diff --check`,
   `GOCACHE=/private/tmp/catty-review-go-cache go test ./...`,
   `GOCACHE=/private/tmp/catty-review-go-cache go test -race ./...`,
   `GOCACHE=/private/tmp/catty-review-go-cache go vet ./...`,
   `GOCACHE=/private/tmp/catty-review-go-cache bash tests/run.sh`, and R3
-  baseline Pass on the dirty worktree. R2 concurrency candidate 1x/100x gates
-  remain not run because they require a fixed candidate commit id.
-- **Blocker:** No acceptance-anchor blocker remains. Workstream completion still
-  requires a fixed candidate commit and candidate-specific R2 concurrency
-  evidence.
-- **Next action:** After Owner authorizes commit/staging, fix a candidate commit
-  and run `run-concurrency-candidate.sh <candidate>` plus
-  `R2_CONCURRENCY_STRESS=100 ... <candidate>`; do not claim production
-  capability until those acceptance gates pass.
+  baseline Pass on the dirty worktree. R2 concurrency candidate 1x and 100x
+  race-built stress Pass at fixed candidate `6dc325c`.
+- **Blocker:** No known technical blocker remains. Because Review is `owner`,
+  Done/integration still requires Owner acceptance.
+- **Next action:** Owner reviews candidate `6dc325c` and its evidence; if
+  accepted, mark Done/integrate per project protocol.
 - **Non-derivable context:** This is a boundary-hardening prerequisite for the accepted typed dynamic-invocation kernel, not an implementation of typed values or Java Thread feature expansion.

@@ -4,12 +4,12 @@
 **Stable baseline:** R3 K2 runtime identity and typed class-definition slice complete; R2 concurrency milestone remains complete
 **Baseline commit:** `ee088a0` (K2 runtime identity/typed definition integration)
 **Governance/research anchor:** `f685526` (R3 research Done); K2 acceptance anchor: `0fcf316`
-**Active workstream:** In Progress
+**Active workstream:** Ready
 [`r3-execution-context-thread-facade-boundary-slice`](./workstreams/r3-execution-context-thread-facade-boundary-slice.md).
 Implementation preflight, boundary inventory, ExecutionContext kernel Slice B,
 Java Thread facade sidecar Slice C, and engine/native migration Slice D are
 complete. Slice E dirty-tree regression checks are complete; fixed-candidate
-R2 concurrency evidence remains before Ready.
+R2 concurrency evidence has passed at candidate `6dc325c`; owner review remains.
 **Current phase:** R3 research is Done. The project is in R3 Entry Hardening
 (R3 前置收口). K1 dynamic metadata and K2 runtime identity/typed
 class-definition shared-kernel slices are complete. No
@@ -122,12 +122,11 @@ deferred.
 
 Continue the accepted
 [`r3-execution-context-thread-facade-boundary-slice`](./workstreams/r3-execution-context-thread-facade-boundary-slice.md)
-by fixing a candidate commit, then running the R2 concurrency candidate 1x and
-race-built 100x matrices against that commit. Dirty-tree `go test`, race,
+through Owner review of fixed candidate `6dc325c`. Dirty-tree `go test`, race,
 vet, e2e, R3 baseline, historical-evidence, and `git diff --check` evidence
-has passed, but cannot substitute for fixed-candidate concurrency evidence.
-Preserve the temporary `rtda.Thread` compatibility alias until the final gates
-decide whether removal is authorized. This boundary-hardening slice is a
+has passed; fixed-candidate R2 concurrency 1x and race-built 100x matrices also
+passed. Preserve the temporary `rtda.Thread` compatibility alias until Owner
+accepts a removal step or later cleanup. This boundary-hardening slice is a
 prerequisite for typed dynamic invocation. The accepted
 [`r3-typed-invocation-kernel-slice`](./workstreams/r3-typed-invocation-kernel-slice.md)
 has its K2 prerequisite satisfied, but implementation remains unauthorized
