@@ -1,6 +1,6 @@
 # R3 execution-context and Java Thread facade boundary slice
 
-**Status:** Ready
+**Status:** Done
 **Type:** implementation
 **Review:** owner
 **Profile:** Catty JVMS Core shared kernel; Java Thread facade remains bounded
@@ -80,9 +80,9 @@ changing the launcher default.
 
 | Gate | Command / artifact | Result |
 |---|---|---|
-| Boundary map | Documented map of execution-context state vs Java Thread facade state vs carrier-only state in this workstream | Pass for Slice A inventory; full closure pending |
+| Boundary map | Documented map of execution-context state vs Java Thread facade state vs carrier-only state in this workstream | Pass |
 | API migration | `rg` audit shows generic runtime/engine APIs use execution-context naming; Java Thread facade APIs remain confined to facade/lifecycle/native Thread code or documented temporary aliases | Pass for Slice D: engine/native/launcher/runtime bridge use `ExecutionContext` terminology; remaining `Thread` names are documented temporary compatibility |
-| Identity/context | focused tests prove `currentThread`, facade attachment, EC owner ID, monitor ownership, synchronized static mirror, and throwable identity survive the boundary split | Partial: ExecutionContext constructor, ID/EC compatibility, frame identity, bridge return, exception isolation, sidecar facade/lifecycle ownership, currentThread, start/join/interrupt/daemon, existing monitor tests, and focused engine/native compile tests pass; full regression pending |
+| Identity/context | focused tests prove `currentThread`, facade attachment, EC owner ID, monitor ownership, synchronized static mirror, and throwable identity survive the boundary split | Pass: focused identity, sidecar, monitor, engine, native, and full regression evidence |
 | R2 concurrency regression | 19-fixture concurrency matrix 1x and race-built 100x: 19/19 Interpreter + IR Match, 19/19 AOT NO-BUILD | Pass at candidate `6dc325c`: 1x 19/19 Interpreter + IR Match, 19/19 AOT NO-BUILD; 100x race-built stress 19/19 Interpreter + IR Match, 19/19 AOT NO-BUILD |
 | Core regression | `GOCACHE=/private/tmp/catty-go-cache go test ./...`; `GOCACHE=/private/tmp/catty-go-cache go test -race ./...`; `GOCACHE=/private/tmp/catty-go-cache bash tests/run.sh` | Dirty-tree Pass: `go test ./...`, `go test -race ./...`, `go vet ./...`, and `bash tests/run.sh` 10/10 |
 | Capability honesty | R3 24-row baseline remains Interpreter 0/24 Match, IR 0/24 Match, AOT 24/24 NO-BUILD; no new Java-visible R3 row claimed Supported | Dirty-tree Pass: 24/24 rows; Interpreter 0/24 MATCH; IR 0/24 MATCH; AOT 24/24 NO-BUILD |
@@ -130,12 +130,11 @@ Accepted 后只在此追加由 Owner 接受的需求变化，不回写降低原�
 - **Branch / candidate:** `codex/r3-execution-context-thread-facade-boundary`;
   implementation candidate `6dc325cae30dd0ecfc544c7fc9e3b536f04efefb`
 - **Acceptance anchor / base:** `ee088a0ce7b1d0ba6b2f97d59f0c07274464373e`
-- **Dirty files:** candidate evidence/status updates after fixing implementation
-  candidate; implementation commit is fixed
+- **Dirty files:** none; implementation and candidate evidence are committed
 - **Historical evidence check:** Pass on 2026-07-24; exact command recorded above
 - **Candidate evidence path:** `docs/workstreams/r3-execution-context-boundary-evidence/ee088a0-preflight-20260724/`
-- **Last location:** Slice E fixed-candidate regression evidence completed; owner
-  review is pending.
+- **Last location:** Slice E fixed-candidate regression evidence completed; Owner
+  accepted candidate `6dc325c` and closed the workstream.
 - **Checks run / not run:** historical evidence check, `git diff --check`,
   `GOCACHE=/private/tmp/catty-review-go-cache go test ./...`,
   `GOCACHE=/private/tmp/catty-review-go-cache go test -race ./...`,
@@ -143,8 +142,8 @@ Accepted 后只在此追加由 Owner 接受的需求变化，不回写降低原�
   `GOCACHE=/private/tmp/catty-review-go-cache bash tests/run.sh`, and R3
   baseline Pass on the dirty worktree. R2 concurrency candidate 1x and 100x
   race-built stress Pass at fixed candidate `6dc325c`.
-- **Blocker:** No known technical blocker remains. Because Review is `owner`,
-  Done/integration still requires Owner acceptance.
-- **Next action:** Owner reviews candidate `6dc325c` and its evidence; if
-  accepted, mark Done/integrate per project protocol.
+- **Blocker:** None known.
+- **Next action:** Continue with the accepted typed-invocation kernel after its
+  own acceptance anchor is fixed; preserve the temporary `rtda.Thread` alias
+  until an explicit cleanup step.
 - **Non-derivable context:** This is a boundary-hardening prerequisite for the accepted typed dynamic-invocation kernel, not an implementation of typed values or Java Thread feature expansion.
