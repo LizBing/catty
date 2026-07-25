@@ -123,7 +123,7 @@ deferred.
 
 Proceed with the accepted
 [`r3-typed-invocation-kernel-slice`](./workstreams/r3-typed-invocation-kernel-slice.md)
-after its acceptance anchor is fixed in a commit. Dirty-tree `go test`, race,
+whose acceptance anchor is fixed at `6563045`. Dirty-tree `go test`, race,
 vet, e2e, R3 baseline, historical-evidence, and `git diff --check` evidence
 has passed; fixed-candidate R2 concurrency 1x and race-built 100x matrices also
 passed. Preserve the temporary `rtda.Thread` compatibility alias until Owner

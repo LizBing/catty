@@ -8,7 +8,10 @@
 **Governing ADRs:** ADR-0016, ADR-0018 through ADR-0021, ADR-0025,
 ADR-0028 through ADR-0031, ADR-0033, and ADR-0034
 **Prerequisites:** `r3-runtime-identity-definition-slice` Done; acceptance
-anchor fixed
+anchor fixed at `6563045`
+**Acceptance anchor:** `65630453cdb7579c85f602b21c2d9f459a042f88`; prerequisites
+include the completed execution-context and Java Thread facade boundary slice
+at the same commit
 
 ## Outcome
 
@@ -63,12 +66,14 @@ kernel's value representation.
 
 ## Plan
 
-Accepted; waiting for prerequisites and acceptance anchor. No implementation
-is in progress.
+Accepted; prerequisites and acceptance anchor are fixed at `6563045`. No
+implementation is in progress.
 
 ## Acceptance record
 
 Accepted by Owner on 2026-07-18. Outcome, Scope, Non-scope, Semantic
 constraints, Acceptance gates, profile classification, and owner review are
-frozen. Implementation remains unauthorized until prerequisites are Done and
-this contract is fixed in an acceptance-anchor commit.
+frozen. Acceptance anchor fixed by Owner on 2026-07-25 at `6563045` after the
+execution-context and Java Thread facade boundary prerequisite was closed.
+Implementation remains unauthorized until a separate implementation start is
+explicitly accepted under this contract.
