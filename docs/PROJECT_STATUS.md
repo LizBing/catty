@@ -1,19 +1,16 @@
 # Project status
 
 **As of:** 2026-07-25
-**Stable baseline:** R3 K2 runtime identity and typed class-definition slice complete; R2 concurrency milestone remains complete
-**Baseline commit:** `ee088a0` (K2 runtime identity/typed definition integration)
+**Stable baseline:** R3 Entry Hardening boundary slice integrated; R3 K2 runtime identity and typed class-definition slice complete; R2 concurrency milestone remains complete
+**Baseline commit:** `6563045` (R3 execution-context/Java Thread boundary integration)
 **Governance/research anchor:** `f685526` (R3 research Done); K2 acceptance anchor: `0fcf316`
-**Active workstream:** Done
-[`r3-execution-context-thread-facade-boundary-slice`](./workstreams/r3-execution-context-thread-facade-boundary-slice.md).
-Implementation preflight, boundary inventory, ExecutionContext kernel Slice B,
-Java Thread facade sidecar Slice C, and engine/native migration Slice D are
-complete. Slice E dirty-tree regression checks are complete; fixed-candidate
-R2 concurrency evidence has passed at candidate `6dc325c`; Owner accepted the
-candidate and this workstream is closed.
-**Current phase:** R3 research is Done. The project is in R3 Entry Hardening
-(R3 前置收口). K1 dynamic metadata and K2 runtime identity/typed
-class-definition shared-kernel slices are complete. No
+**Active workstream:** Accepted
+[`r3-typed-invocation-kernel-slice`](./workstreams/r3-typed-invocation-kernel-slice.md).
+The R3 Entry Hardening boundary slice is integrated; its fixed candidate and
+R2 concurrency evidence remain recorded under the workstream evidence paths.
+**Current phase:** R3 research and Entry Hardening are Done. The project is
+preparing the accepted typed-invocation kernel. K1 dynamic metadata and K2
+runtime identity/typed class-definition shared-kernel slices are complete. No
 Java-visible reflection, InvokeDynamic, generated-class, or arbitrary
 ClassLoader capability is claimed by K1/K2. Timed `wait`/`join`, `Unsafe`,
 virtual threads, `ThreadGroup`/`ThreadLocal`, and `java.util.concurrent`
@@ -121,11 +118,10 @@ deferred.
 
 ## Next action
 
-Proceed with the accepted
+Complete the implementation preflight for the accepted
 [`r3-typed-invocation-kernel-slice`](./workstreams/r3-typed-invocation-kernel-slice.md)
-whose acceptance anchor is fixed at `6563045`. Dirty-tree `go test`, race,
-vet, e2e, R3 baseline, historical-evidence, and `git diff --check` evidence
-has passed; fixed-candidate R2 concurrency 1x and race-built 100x matrices also
-passed. Preserve the temporary `rtda.Thread` compatibility alias until Owner
-accepts a removal step or later cleanup. No Java-visible R3 row may be newly
-claimed Supported without a later accepted workstream and evidence.
+whose acceptance anchor is fixed at `6563045`. Implementation remains
+unauthorized until that preflight is recorded and explicitly accepted.
+Preserve the temporary `rtda.Thread` compatibility alias until Owner accepts a
+removal step or later cleanup. No Java-visible R3 row may be newly claimed
+Supported without a later accepted workstream and evidence.
