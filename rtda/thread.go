@@ -50,6 +50,10 @@ type ExecutionContext struct {
 	// (interpreter.RunMethod): there is no caller frame, so the return helpers
 	// write here instead of pushing. nil outside bridge mode.
 	bridgeReturn *Slot
+	// bridgeDynamicReturn captures one logical Java result for the typed direct
+	// invocation adapters. It is separate from bridgeReturn so the legacy AOT
+	// Slot bridge remains an adapter rather than the stable result boundary.
+	bridgeDynamicReturn *JavaValue
 	// pendingException is non-nil when an exception is in flight (athrow or a
 	// runtime error like NPE). The interpreter Loop checks HasException after
 	// each instruction and dispatches to handleException.
@@ -183,6 +187,10 @@ func (t *ExecutionContext) FrameCount() int { return len(t.stack) }
 func (t *ExecutionContext) SetBridgeReturn(s *Slot) { t.bridgeReturn = s }
 func (t *ExecutionContext) HasBridgeReturn() bool   { return t.bridgeReturn != nil }
 func (t *ExecutionContext) BridgeReturn(s Slot)     { *t.bridgeReturn = s }
+
+func (t *ExecutionContext) SetBridgeDynamicReturn(v *JavaValue) { t.bridgeDynamicReturn = v }
+func (t *ExecutionContext) HasBridgeDynamicReturn() bool        { return t.bridgeDynamicReturn != nil }
+func (t *ExecutionContext) BridgeDynamicReturn(v JavaValue)     { *t.bridgeDynamicReturn = v }
 
 // --- Exception handling ---
 

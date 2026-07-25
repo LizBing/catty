@@ -1,6 +1,6 @@
 # R3 typed dynamic-invocation kernel slice
 
-**Status:** Accepted
+**Status:** In Progress
 **Type:** implementation
 **Review:** owner
 **Profile:** Catty JVMS Core shared kernel; reusable by profiles and Host ABI adapters
@@ -66,8 +66,51 @@ kernel's value representation.
 
 ## Plan
 
-Accepted; prerequisites and acceptance anchor are fixed at `6563045`. No
-implementation is in progress.
+In Progress; prerequisites and acceptance anchor are fixed at `6563045`.
+Implementation preflight is recorded at
+[`r3-typed-invocation-preflight-20260725/preflight-review.md`](./r3-typed-invocation-preflight-20260725/preflight-review.md).
+Owner accepted the preflight and authorized implementation start on 2026-07-25.
+The first implementation slice is the typed value/result vocabulary and its
+frame/heap adapters; no Java-visible capability is claimed until acceptance
+evidence is recorded.
+
+### First implementation record
+
+On 2026-07-25, the candidate introduced the shared `rtda.JavaValue` and
+`rtda.DynamicResult` vocabulary plus descriptor-aware Frame-local and typed
+HeapCell adapters. It also added resolved instance/static typed field access
+with exact descriptor-kind validation; class initialization remains owned by a
+later ExecutionContext-aware direct-invocation service. The adapter unit matrix
+covers void, every primitive, category-2 values, reference/null identity,
+normal/throwable/internal-failure states, field receiver/value validation, and
+containment of legacy adapter panics. At that point it did not yet add direct
+method/constructor dispatch, Interpreter/IR invocation acceptance, or AOT
+dynamic invocation. Local `go test ./rtda` and `go test ./...` passed for this
+candidate; full workstream acceptance evidence remains pending.
+
+### Direct invocation implementation record
+
+The candidate now defines `rtda.InvocationRequest` (execution context, caller,
+resolved method, receiver, and logical arguments) and an Interpreter adapter
+for direct native and bytecode method execution. It validates exact descriptor
+kinds and receiver/arity before writing Frame locals; it carries normal return
+values, including category-2 values, through `DynamicResult`, and returns an
+escaping Java throwable with its original object identity. The initial adapter
+requires an empty execution-context stack, so it cannot silently mix the new
+typed boundary with nested legacy Slot invocation. IR direct invocation,
+Java-level direct-access failures, class-initialization triggers, and AOT
+dynamic invocation remain pending.
+
+## Preflight review
+
+Recorded on 2026-07-25 at actual review base `cc1da5d`, a descendant of the
+fixed acceptance anchor `6563045`. The review found the implementation may
+start after explicit Owner authorization, with the first slice focused on the
+typed value/result vocabulary and adapters. It also recorded two boundary
+risks: the existing AOT bridge still exposes `[]rtda.Slot`, and missing
+classfile natives still use zero/null default stubs. The former is in scope as
+adapter debt for typed invocation; the latter is adjacent Host ABI/native
+binding debt and is not authorized for this workstream.
 
 ## Acceptance record
 
@@ -75,5 +118,5 @@ Accepted by Owner on 2026-07-18. Outcome, Scope, Non-scope, Semantic
 constraints, Acceptance gates, profile classification, and owner review are
 frozen. Acceptance anchor fixed by Owner on 2026-07-25 at `6563045` after the
 execution-context and Java Thread facade boundary prerequisite was closed.
-Implementation remains unauthorized until a separate implementation start is
-explicitly accepted under this contract.
+Implementation start explicitly accepted by Owner on 2026-07-25 under this
+contract.

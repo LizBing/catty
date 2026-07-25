@@ -130,7 +130,7 @@ There are **no import cycles**. The one place a cycle would naturally appear —
 - `classloader.ClassLoader` implements it.
 - `rtda.NewClass` / `rtda.NewArrayClass` take a `Loader` and call back into it
   for supers and components.
-- The interpreter resolves classes through `thread.Loader()` (typed
+- The interpreter resolves classes through `context.Loader()` (typed
   `rtda.Loader`), so it never imports `classloader`.
 
 This keeps `rtda` — the most depended-upon package — free of upward imports.
@@ -187,32 +187,32 @@ advance `pc` past the bytes they consume.
   e.g. a synthetic `java.lang.String`'s immutable `rtda.StringValue` UTF-16
   code-unit backing, or a `PrintStream`'s `io.Writer`.
 
-### `rtda.Thread` — execution context  *(thread.go)*
+### `rtda.ExecutionContext` — execution context  *(thread.go)*
 
 ```go
-type Thread struct {
+type ExecutionContext struct {
     stack      []*Frame
     loader     Loader
     ecID       uint64
-    // Slice B/C: Java Thread facade, lifecycle, interrupt, daemon, monitor wait
-    javaThread *Object
-    state      int32
+    // Java Thread facade sidecar, lifecycle, interrupt, daemon, monitor wait
+    threadState *JavaThreadState
     // ...
 }
 ```
 
-Each `Thread` is one Java execution context with a stable `ecID` (ADR-0028). A
-started platform Thread runs on one goroutine carrier; the primordial `main`
-thread is created by the launcher. Pushing a frame per call and popping on
-return gives the JVM stack. Per ADR-0028/ADR-0029/ADR-0030, Java Thread
-identity/lifecycle, daemon liveness, object monitors, wait sets, and
-interruption are implemented in Interpreter/IR; AOT concurrency remains
-`Not implemented`.
+Each `ExecutionContext` is one Java execution context with a stable `ecID`
+(ADR-0028). `rtda.Thread` remains only a temporary compatibility alias while
+callers finish migrating terminology. A started platform Thread runs on one
+goroutine carrier; the primordial `main` thread is created by the launcher.
+Pushing a frame per call and popping on return gives the JVM stack. Per
+ADR-0028/ADR-0029/ADR-0030, Java Thread identity/lifecycle, daemon liveness,
+object monitors, wait sets, and interruption are implemented in Interpreter/IR;
+AOT concurrency remains `Not implemented`.
 
 ## 5. Class loading, in detail
 
 `classloader.ClassLoader.LoadClass(name)` is the single entry point used both at
-startup and at run time (via `thread.Loader()`). It memoizes into a `cache`
+startup and at run time (via `context.Loader()`). It memoizes into a `cache`
 map. For a cache miss it walks a **chain of `ClassProvider`s** — the first that
 returns a non-nil class wins. `New(cp)` wires the standard chain; the order is
 the loading strategy:

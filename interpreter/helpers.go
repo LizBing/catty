@@ -168,6 +168,8 @@ func returnInt(frame *rtda.Frame, context *rtda.ExecutionContext) {
 	context.PopFrame()
 	if !context.IsStackEmpty() {
 		context.CurrentFrame().PushInt(v)
+	} else if context.HasBridgeDynamicReturn() {
+		context.BridgeDynamicReturn(rtda.IntValue(v))
 	} else if context.HasBridgeReturn() {
 		context.BridgeReturn(rtda.IntSlot(v))
 	}
@@ -178,6 +180,8 @@ func returnRef(frame *rtda.Frame, context *rtda.ExecutionContext) {
 	context.PopFrame()
 	if !context.IsStackEmpty() {
 		context.CurrentFrame().PushRef(v)
+	} else if context.HasBridgeDynamicReturn() {
+		context.BridgeDynamicReturn(rtda.ReferenceValue(v))
 	} else if context.HasBridgeReturn() {
 		context.BridgeReturn(rtda.RefSlot(v))
 	}
@@ -188,6 +192,8 @@ func returnLong(frame *rtda.Frame, context *rtda.ExecutionContext) {
 	context.PopFrame()
 	if !context.IsStackEmpty() {
 		context.CurrentFrame().PushLong(v)
+	} else if context.HasBridgeDynamicReturn() {
+		context.BridgeDynamicReturn(rtda.LongValue(v))
 	} else if context.HasBridgeReturn() {
 		panic("catty: long return through the AOT bridge not supported yet")
 	}
@@ -198,6 +204,8 @@ func returnFloat(frame *rtda.Frame, context *rtda.ExecutionContext) {
 	context.PopFrame()
 	if !context.IsStackEmpty() {
 		context.CurrentFrame().PushFloat(v)
+	} else if context.HasBridgeDynamicReturn() {
+		context.BridgeDynamicReturn(rtda.FloatValue(v))
 	} else if context.HasBridgeReturn() {
 		panic("catty: float return through the AOT bridge not supported yet")
 	}
@@ -208,6 +216,8 @@ func returnDouble(frame *rtda.Frame, context *rtda.ExecutionContext) {
 	context.PopFrame()
 	if !context.IsStackEmpty() {
 		context.CurrentFrame().PushDouble(v)
+	} else if context.HasBridgeDynamicReturn() {
+		context.BridgeDynamicReturn(rtda.DoubleValue(v))
 	} else if context.HasBridgeReturn() {
 		panic("catty: double return through the AOT bridge not supported yet")
 	}

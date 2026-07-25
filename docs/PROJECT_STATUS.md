@@ -4,12 +4,12 @@
 **Stable baseline:** R3 Entry Hardening boundary slice integrated; R3 K2 runtime identity and typed class-definition slice complete; R2 concurrency milestone remains complete
 **Baseline commit:** `6563045` (R3 execution-context/Java Thread boundary integration)
 **Governance/research anchor:** `f685526` (R3 research Done); K2 acceptance anchor: `0fcf316`
-**Active workstream:** Accepted
+**Active workstream:** In Progress
 [`r3-typed-invocation-kernel-slice`](./workstreams/r3-typed-invocation-kernel-slice.md).
 The R3 Entry Hardening boundary slice is integrated; its fixed candidate and
 R2 concurrency evidence remain recorded under the workstream evidence paths.
 **Current phase:** R3 research and Entry Hardening are Done. The project is
-preparing the accepted typed-invocation kernel. K1 dynamic metadata and K2
+implementing the accepted typed-invocation kernel. K1 dynamic metadata and K2
 runtime identity/typed class-definition shared-kernel slices are complete. No
 Java-visible reflection, InvokeDynamic, generated-class, or arbitrary
 ClassLoader capability is claimed by K1/K2. Timed `wait`/`join`, `Unsafe`,
@@ -118,10 +118,17 @@ deferred.
 
 ## Next action
 
-Complete the implementation preflight for the accepted
+Continue the in-progress
 [`r3-typed-invocation-kernel-slice`](./workstreams/r3-typed-invocation-kernel-slice.md)
-whose acceptance anchor is fixed at `6563045`. Implementation remains
-unauthorized until that preflight is recorded and explicitly accepted.
+whose acceptance anchor is fixed at `6563045`. The preflight record lives at
+[`r3-typed-invocation-preflight-20260725/preflight-review.md`](./workstreams/r3-typed-invocation-preflight-20260725/preflight-review.md).
+Owner accepted the preflight and authorized the workstream to move to In Progress
+on 2026-07-25. Its typed value/result, Frame/HeapCell adapter, and resolved
+field-access candidates are implemented and unit/regression-tested; direct
+method/constructor invocation now has an Interpreter-only candidate; IR direct
+invocation and cross-engine acceptance remain pending. Keep implementation
+bounded by the recorded scope and do not claim new Java-visible R3 support
+without acceptance evidence.
 Preserve the temporary `rtda.Thread` compatibility alias until Owner accepts a
 removal step or later cleanup. No Java-visible R3 row may be newly claimed
 Supported without a later accepted workstream and evidence.
