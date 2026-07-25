@@ -3,6 +3,7 @@ package interpreter
 import (
 	"fmt"
 
+	"catty/lowering"
 	"catty/opcode"
 	"catty/rtda"
 )
@@ -14,6 +15,17 @@ import (
 // ambiguous. Caller identity is carried in InvocationRequest for the later
 // access-policy adapter.
 func InvokeDirect(request rtda.InvocationRequest) (result rtda.DynamicResult) {
+	return invokeDirect(request, invokeDirectInterpreted)
+}
+
+// InvokeDirectIR is the IR counterpart to InvokeDirect. It shares the typed
+// request/result and exception boundary while executing interpreted bytecode
+// through the lowering IR adapter.
+func InvokeDirectIR(request rtda.InvocationRequest) (result rtda.DynamicResult) {
+	return invokeDirect(request, invokeDirectIR)
+}
+
+func invokeDirect(request rtda.InvocationRequest, interpreted func(*rtda.ExecutionContext, *rtda.Frame) rtda.DynamicResult) (result rtda.DynamicResult) {
 	if failure := validateDirectRequest(request); failure != nil {
 		return rtda.InternalFailureResult(failure)
 	}
@@ -35,7 +47,7 @@ func InvokeDirect(request rtda.InvocationRequest) (result rtda.DynamicResult) {
 	if request.Method.IsNative() {
 		return invokeDirectNative(context, request.Method, frame)
 	}
-	return invokeDirectInterpreted(context, frame)
+	return interpreted(context, frame)
 }
 
 func validateDirectRequest(request rtda.InvocationRequest) error {
@@ -125,6 +137,35 @@ func invokeDirectInterpreted(context *rtda.ExecutionContext, frame *rtda.Frame) 
 		op := opcode.Opcode(current.Code()[pc])
 		current.SetPC(pc + 1)
 		exec(context, current, op, pc)
+		for context.HasException() {
+			thrown, uncaught := unwindDirectException(context, pc)
+			if uncaught {
+				return rtda.ThrowableResult(thrown)
+			}
+		}
+	}
+	return rtda.NormalResult(value)
+}
+
+func invokeDirectIR(context *rtda.ExecutionContext, frame *rtda.Frame) rtda.DynamicResult {
+	var value rtda.JavaValue
+	context.SetBridgeDynamicReturn(&value)
+	defer context.SetBridgeDynamicReturn(nil)
+	context.PushFrame(frame)
+	cache := map[*rtda.Method]*lowering.IR{}
+	for !context.IsStackEmpty() {
+		current := context.CurrentFrame()
+		ir := cache[current.Method()]
+		if ir == nil {
+			var err error
+			ir, err = lowering.Lower(current.Method())
+			if err != nil {
+				return rtda.InternalFailureResult(fmt.Errorf("typed direct IR lowering: %w", err))
+			}
+			cache[current.Method()] = ir
+		}
+		pc := current.PC()
+		execIR(context, current, ir)
 		for context.HasException() {
 			thrown, uncaught := unwindDirectException(context, pc)
 			if uncaught {

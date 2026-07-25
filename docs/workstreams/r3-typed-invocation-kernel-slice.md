@@ -101,6 +101,30 @@ typed boundary with nested legacy Slot invocation. IR direct invocation,
 Java-level direct-access failures, class-initialization triggers, and AOT
 dynamic invocation remain pending.
 
+### Dispatch and IR implementation record
+
+The candidate now provides matching tree-Interpreter and IR direct adapters.
+Resolved direct dispatch covers static, virtual, interface, special, and
+constructor selection; static calls initialize the actual declarer's Class
+before invocation. Direct field wrappers apply the corresponding static-field
+initialization trigger before using the typed field boundary. A null direct
+receiver is mapped to a Java `NullPointerException` result when the configured
+loader can construct it; malformed adapter input remains an internal failure.
+The unit matrix exercises normal and abrupt Interpreter/IR execution,
+category-2 transport, dispatch selection, constructor receiver identity,
+static initialization, and null-receiver throwable transport. It does not yet
+prove broad access checks, every linkage failure mapping, static-field storage
+through a full classfile fixture, or nested typed calls. Direct reference-field
+assignment now resolves the descriptor target through the typed loader service:
+an incompatible non-null object yields `ClassCastException`, and load failure
+yields the corresponding linkage throwable. The AOT bridge exposes an explicit
+typed-dynamic unsupported result and does not delegate this new boundary to its
+legacy Slot fallback.
+Local candidate validation on 2026-07-25 passed `go vet ./...`, `go test ./...`,
+`go test -race ./...`, `bash tests/run.sh` (10/10 fixtures), and
+`git diff --check`; this is implementation evidence, not final workstream
+acceptance.
+
 ## Preflight review
 
 Recorded on 2026-07-25 at actual review base `cc1da5d`, a descendant of the

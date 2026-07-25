@@ -12,3 +12,30 @@ type InvocationRequest struct {
 	Receiver  *Object
 	Arguments []JavaValue
 }
+
+// InvocationKind describes Java dispatch selection for an unresolved direct
+// call. It is separate from InvocationRequest because the latter always carries
+// an already-resolved Method.
+type InvocationKind uint8
+
+const (
+	InvokeStatic InvocationKind = iota
+	InvokeVirtual
+	InvokeInterface
+	InvokeSpecial
+	InvokeConstructor
+)
+
+// InvocationLookupRequest is the typed input for direct dispatch. Target is
+// the symbolic target class already resolved by the caller; Method selection is
+// performed by the engine adapter according to Kind.
+type InvocationLookupRequest struct {
+	Context    *ExecutionContext
+	Caller     *Class
+	Target     *Class
+	Kind       InvocationKind
+	Name       string
+	Descriptor string
+	Receiver   *Object
+	Arguments  []JavaValue
+}

@@ -58,22 +58,35 @@ func TestInvokeDirectNativeConstructorAndThrowable(t *testing.T) {
 
 func TestInvokeDirectInterpretedNormalAndAbrupt(t *testing.T) {
 	rtda.InitVMTypes()
-	receiver := rtda.NewObject(rtda.VMPrimitiveInt)
-	normal := rtda.InterpretedMethod(nil, "constant", "()I", 0, 1, 1,
+	normalOwner := rtda.NewSyntheticClass("test/DirectNormal", nil)
+	normal := rtda.InterpretedMethod(normalOwner, "constant", "()I", 0x0009, 1, 0,
 		[]byte{byte(opcode.Iconst5), byte(opcode.Ireturn)}, nil)
-	result := InvokeDirect(rtda.InvocationRequest{Context: rtda.NewExecutionContext(nil), Method: normal, Receiver: receiver})
+	normalOwner.AddMethod(normal)
+	result := InvokeDirect(rtda.InvocationRequest{Context: rtda.NewExecutionContext(nil), Method: normal})
 	value, ok := result.Value()
 	got, intOK := value.Int()
 	if !ok || !intOK || got != 5 {
 		t.Fatalf("interpreted direct normal result = %#v, %v, %v; want int 5", value, ok, intOK)
 	}
+	result = InvokeDirectIR(rtda.InvocationRequest{Context: rtda.NewExecutionContext(nil), Method: normal})
+	value, ok = result.Value()
+	got, intOK = value.Int()
+	if !ok || !intOK || got != 5 {
+		t.Fatalf("IR direct normal result = %#v, %v, %v; want int 5", value, ok, intOK)
+	}
 
-	throwable := rtda.NewObject(rtda.VMPrimitiveInt)
-	abrupt := rtda.InterpretedMethod(nil, "abrupt", "()V", 0, 1, 1,
+	abruptOwner := rtda.NewSyntheticClass("test/DirectAbrupt", nil)
+	throwable := rtda.NewObject(abruptOwner)
+	abrupt := rtda.InterpretedMethod(abruptOwner, "abrupt", "()V", 0, 1, 1,
 		[]byte{byte(opcode.Aload0), byte(opcode.Athrow)}, nil)
+	abruptOwner.AddMethod(abrupt)
 	result = InvokeDirect(rtda.InvocationRequest{Context: rtda.NewExecutionContext(nil), Method: abrupt, Receiver: throwable})
 	if got, ok := result.Throwable(); !ok || got != throwable {
 		t.Fatal("interpreted Java throwable identity was not preserved")
+	}
+	result = InvokeDirectIR(rtda.InvocationRequest{Context: rtda.NewExecutionContext(nil), Method: abrupt, Receiver: throwable})
+	if got, ok := result.Throwable(); !ok || got != throwable {
+		t.Fatal("IR Java throwable identity was not preserved")
 	}
 }
 
@@ -92,4 +105,122 @@ func TestInvokeDirectRejectsBoundaryMisuse(t *testing.T) {
 		t.Fatal("non-empty execution context stack must be rejected")
 	}
 	context.PopFrame()
+}
+
+func TestInvokeDispatchInterpreterAndIR(t *testing.T) {
+	loader := newTestLoader()
+	setupBaseClasses(loader)
+	owner := rtda.NewSyntheticClass("test/Dispatch", nil)
+	loader.addClass(owner)
+	static := rtda.NativeMethod(owner, "staticValue", "()I", func(frame *rtda.Frame) { frame.PushInt(7) })
+	static.SetStatic()
+	owner.AddMethod(static)
+	virtual := rtda.NativeMethod(owner, "virtualValue", "()I", func(frame *rtda.Frame) { frame.PushInt(9) })
+	owner.AddMethod(virtual)
+	constructor := rtda.NativeMethod(owner, "<init>", "(I)V", func(frame *rtda.Frame) {
+		frame.GetRef(0).SetExtra(frame.GetInt(1))
+	})
+	owner.AddMethod(constructor)
+
+	staticRequest := rtda.InvocationLookupRequest{
+		Context: rtda.NewExecutionContext(loader), Target: owner,
+		Kind: rtda.InvokeStatic, Name: "staticValue", Descriptor: "()I",
+	}
+	assertDirectInt(t, InvokeDispatch(staticRequest), 7)
+	if !owner.IsInitialized() {
+		t.Fatal("direct static dispatch did not initialize declaring class")
+	}
+	staticRequest.Context = rtda.NewExecutionContext(loader)
+	assertDirectInt(t, InvokeDispatchIR(staticRequest), 7)
+
+	receiver := rtda.NewObject(owner)
+	virtualRequest := rtda.InvocationLookupRequest{
+		Context: rtda.NewExecutionContext(loader), Target: owner, Receiver: receiver,
+		Kind: rtda.InvokeVirtual, Name: "virtualValue", Descriptor: "()I",
+	}
+	assertDirectInt(t, InvokeDispatch(virtualRequest), 9)
+	virtualRequest.Context = rtda.NewExecutionContext(loader)
+	virtualRequest.Kind = rtda.InvokeInterface
+	assertDirectInt(t, InvokeDispatchIR(virtualRequest), 9)
+	virtualRequest.Context = rtda.NewExecutionContext(loader)
+	virtualRequest.Kind = rtda.InvokeSpecial
+	assertDirectInt(t, InvokeDispatch(virtualRequest), 9)
+
+	constructorRequest := rtda.InvocationLookupRequest{
+		Context: rtda.NewExecutionContext(loader), Target: owner, Receiver: receiver,
+		Kind: rtda.InvokeConstructor, Name: "<init>", Descriptor: "(I)V",
+		Arguments: []rtda.JavaValue{rtda.IntValue(11)},
+	}
+	if result := InvokeDispatch(constructorRequest); !result.IsNormal() {
+		t.Fatalf("constructor dispatch failed: %v", result.Failure())
+	}
+	if receiver.Extra() != int32(11) {
+		t.Fatal("constructor dispatch did not preserve receiver state")
+	}
+}
+
+func TestInvokeDispatchNullReceiverIsJavaThrowable(t *testing.T) {
+	loader := newTestLoader()
+	setupBaseClasses(loader)
+	loader.addClass(rtda.NewSyntheticClass("java/lang/NoSuchMethodError", nil))
+	loader.addClass(rtda.NewSyntheticClass("java/lang/IncompatibleClassChangeError", nil))
+	loader.addClass(rtda.NewSyntheticClass("java/lang/ClassCastException", nil))
+	owner := rtda.NewSyntheticClass("test/NullReceiver", nil)
+	loader.addClass(owner)
+	result := InvokeDispatch(rtda.InvocationLookupRequest{
+		Context: rtda.NewExecutionContext(loader), Target: owner,
+		Kind: rtda.InvokeVirtual, Name: "missing", Descriptor: "()V",
+	})
+	throwable, ok := result.Throwable()
+	if !ok || throwable.Class().Name() != "java/lang/NullPointerException" {
+		t.Fatalf("null receiver result = %#v, throwable=%v; want NullPointerException", result, ok)
+	}
+	field := rtda.NewField(owner, "i", "I", 0, false, 0)
+	result = ReadDirectField(rtda.NewExecutionContext(loader), field, nil)
+	throwable, ok = result.Throwable()
+	if !ok || throwable.Class().Name() != "java/lang/NullPointerException" {
+		t.Fatalf("null field receiver result = %#v, throwable=%v; want NullPointerException", result, ok)
+	}
+	result = InvokeDispatch(rtda.InvocationLookupRequest{
+		Context: rtda.NewExecutionContext(loader), Target: owner,
+		Kind: rtda.InvokeStatic, Name: "missing", Descriptor: "()V",
+	})
+	throwable, ok = result.Throwable()
+	if !ok || throwable.Class().Name() != "java/lang/NoSuchMethodError" {
+		t.Fatalf("missing method result = %#v, throwable=%v; want NoSuchMethodError", result, ok)
+	}
+	other := rtda.NewSyntheticClass("test/Other", nil)
+	result = InvokeDispatch(rtda.InvocationLookupRequest{
+		Context: rtda.NewExecutionContext(loader), Target: owner, Receiver: rtda.NewObject(other),
+		Kind: rtda.InvokeVirtual, Name: "missing", Descriptor: "()V",
+	})
+	throwable, ok = result.Throwable()
+	if !ok || throwable.Class().Name() != "java/lang/IncompatibleClassChangeError" {
+		t.Fatalf("receiver mismatch result = %#v, throwable=%v; want IncompatibleClassChangeError", result, ok)
+	}
+	targetClass := rtda.NewSyntheticClass("test/FieldTarget", nil)
+	otherClass := rtda.NewSyntheticClass("test/FieldOther", nil)
+	loader.addClass(targetClass)
+	loader.addClass(otherClass)
+	referenceField := rtda.NewField(owner, "ref", "Ltest/FieldTarget;", 0, false, 0)
+	result = WriteDirectField(rtda.NewExecutionContext(loader), referenceField, rtda.NewObject(owner), rtda.ReferenceValue(rtda.NewObject(otherClass)))
+	throwable, ok = result.Throwable()
+	if !ok || throwable.Class().Name() != "java/lang/ClassCastException" {
+		t.Fatalf("reference mismatch result = %#v, throwable=%v; want ClassCastException", result, ok)
+	}
+	missingField := rtda.NewField(owner, "missing", "Ltest/Missing;", 0, false, 0)
+	result = WriteDirectField(rtda.NewExecutionContext(loader), missingField, rtda.NewObject(owner), rtda.ReferenceValue(rtda.NewObject(targetClass)))
+	throwable, ok = result.Throwable()
+	if !ok || throwable.Class().Name() != "java/lang/NoClassDefFoundError" {
+		t.Fatalf("reference resolution result = %#v, throwable=%v; want NoClassDefFoundError", result, ok)
+	}
+}
+
+func assertDirectInt(t *testing.T, result rtda.DynamicResult, want int32) {
+	t.Helper()
+	value, ok := result.Value()
+	got, intOK := value.Int()
+	if !ok || !intOK || got != want {
+		t.Fatalf("direct result = %#v, normal=%v int=%v; want %d", result, ok, intOK, want)
+	}
 }

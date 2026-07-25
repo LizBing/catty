@@ -9,6 +9,7 @@
 package runtime
 
 import (
+	"fmt"
 	"math"
 
 	"catty/classloader"
@@ -16,6 +17,13 @@ import (
 	"catty/interpreter"
 	"catty/rtda"
 )
+
+// InvokeTypedDynamic is the explicit AOT boundary for the R3 typed dynamic
+// invocation kernel. Generated AOT code must not fall back through this path:
+// no typed dynamic invocation transport has been accepted for AOT yet.
+func InvokeTypedDynamic(rtda.InvocationLookupRequest) rtda.DynamicResult {
+	return rtda.InternalFailureResult(fmt.Errorf("catty/runtime: typed dynamic invocation is not implemented for AOT"))
+}
 
 // loader and context are set by Bootstrap and shared across bridge calls.
 var (

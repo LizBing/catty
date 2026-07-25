@@ -125,10 +125,13 @@ whose acceptance anchor is fixed at `6563045`. The preflight record lives at
 Owner accepted the preflight and authorized the workstream to move to In Progress
 on 2026-07-25. Its typed value/result, Frame/HeapCell adapter, and resolved
 field-access candidates are implemented and unit/regression-tested; direct
-method/constructor invocation now has an Interpreter-only candidate; IR direct
-invocation and cross-engine acceptance remain pending. Keep implementation
-bounded by the recorded scope and do not claim new Java-visible R3 support
-without acceptance evidence.
+method/constructor invocation, typed dispatch, static-init triggers, and
+null-receiver throwable transport now have Interpreter and IR candidates.
+Broader linkage/access checks, nested typed invocation, static-field classfile
+coverage, and cross-engine acceptance remain pending. The AOT bridge now
+explicitly rejects the typed dynamic-invocation API; it does not provide an AOT
+dynamic fallback. Keep implementation bounded by the recorded scope and do not
+claim new Java-visible R3 support without acceptance evidence.
 Preserve the temporary `rtda.Thread` compatibility alias until Owner accepts a
 removal step or later cleanup. No Java-visible R3 row may be newly claimed
 Supported without a later accepted workstream and evidence.
