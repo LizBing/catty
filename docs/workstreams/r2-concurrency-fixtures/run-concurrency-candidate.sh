@@ -22,7 +22,9 @@
 # Candidate evidence is isolated under:
 #   docs/workstreams/r2-concurrency-candidate-evidence/<candidate>/
 # with NO slice-c suffix. Never writes research baseline, shared/latest,
-# or any slice-c/ directory.
+# or any slice-c/ directory. A final results file is published only after the
+# entire matrix passes; interrupted runs are retained as dated incomplete
+# evidence files.
 #
 # Usage:
 #   bash docs/workstreams/r2-concurrency-fixtures/run-concurrency-candidate.sh <candidate>
@@ -73,13 +75,21 @@ CONCURRENCY="${R2_STRESS_CONCURRENCY:-4}"
 # --- Evidence directory (main repo, never in the detached worktree) ---
 EVIDENCE_DIR="$ROOT/docs/workstreams/r2-concurrency-candidate-evidence/$CANDIDATE"
 if [ "$STRESS" -gt 1 ]; then
-  RESULTS="$EVIDENCE_DIR/results-stress-${STRESS}x.txt"
+  FINAL_RESULTS="$EVIDENCE_DIR/results-stress-${STRESS}x.txt"
 else
-  RESULTS="$EVIDENCE_DIR/results.txt"
+  FINAL_RESULTS="$EVIDENCE_DIR/results.txt"
 fi
 
-[ ! -f "$RESULTS" ] || die "refusing to overwrite existing evidence: $RESULTS"
+[ ! -f "$FINAL_RESULTS" ] || die "refusing to overwrite existing evidence: $FINAL_RESULTS"
 mkdir -p "$EVIDENCE_DIR" || die "cannot create evidence directory: $EVIDENCE_DIR"
+
+# All writes first go to a private candidate-local file. `mv` publishes the
+# completed matrix atomically only after the summary is written. This prevents
+# a killed runner from leaving a partial file at the canonical evidence path.
+RUN_ID="$(date -u +%Y%m%dT%H%M%SZ).$$"
+RESULTS="$EVIDENCE_DIR/.${FINAL_RESULTS##*/}.partial-${RUN_ID}"
+INCOMPLETE_RESULTS="$EVIDENCE_DIR/${FINAL_RESULTS##*/}.incomplete-${RUN_ID}"
+RESULTS_PUBLISHED=0
 
 # --- Detached worktree at candidate ---
 (cd "$ROOT" && git worktree prune) >/dev/null 2>&1 || true
@@ -99,8 +109,22 @@ STAGE="$(mktemp -d -t candidate-stage.XXXXXX)"
 # FIFO for concurrent job-server token passing (stress mode only)
 JOBSERVER_FIFO=""
 CONC_OUT=""
+PIDS=""
+CHILDREN_REAPED=0
 
 cleanup() {
+  # A parent cancellation must not remove BUILD_DIR/STAGE while a fixture
+  # child can still read from them. Stop and reap every launched child first.
+  if [ "$CHILDREN_REAPED" -ne 1 ]; then
+    for pid in $PIDS; do
+      kill "$pid" 2>/dev/null || true
+    done
+    for pid in $PIDS; do
+      wait "$pid" 2>/dev/null || true
+    done
+    CHILDREN_REAPED=1
+  fi
+
   # Close job server fd if open
   exec 3>&- 2>/dev/null || true
   exec 4>&- 2>/dev/null || true
@@ -113,8 +137,18 @@ cleanup() {
   rm -rf "$BIN" "$STAGE"
   git -C "$ROOT" worktree remove --force "$BUILD_DIR" >/dev/null 2>&1 || true
   rm -rf "$BUILD_DIR"
+
+  # Preserve interruption/failure diagnostics, but never publish them at the
+  # canonical final-results path.
+  if [ "$RESULTS_PUBLISHED" -ne 1 ] && [ -f "$RESULTS" ]; then
+    mv "$RESULTS" "$INCOMPLETE_RESULTS" 2>/dev/null || true
+  fi
 }
 trap cleanup EXIT
+
+# Exit through the EXIT trap so cleanup follows the stop/reap/retain ordering.
+interrupted() { exit 130; }
+trap interrupted HUP INT TERM
 
 # --- The fixed 19 fixtures (hard-coded, from matrix.md) ---
 FIXTURES=(
@@ -320,7 +354,6 @@ else
   # Launch all fixtures as background subshells.
   # Each acquires a FIFO token (blocks when all slots are taken),
   # runs process_fixture, then returns the token.
-  pids=""
   for name in "${FIXTURES[@]}"; do
     (
       # Acquire token (blocks if no slot available).
@@ -331,14 +364,15 @@ else
       printf '\n' >&4
       exit $rc
     ) &
-    pids="$pids $!"
+    PIDS="$PIDS $!"
   done
 
   # Wait for all background jobs; track failures.
   failed=0
-  for pid in $pids; do
+  for pid in $PIDS; do
     wait "$pid" || failed=$((failed + 1))
   done
+  CHILDREN_REAPED=1
 
   # Close job server fds.
   exec 3>&- 2>/dev/null || true
@@ -381,5 +415,10 @@ fi
   fi
   echo "result:             Pass"
 } >> "$RESULTS"
+
+# `mv` is atomic within EVIDENCE_DIR. No incomplete run can be mistaken for
+# a completed acceptance result at FINAL_RESULTS.
+mv "$RESULTS" "$FINAL_RESULTS" || die "failed to publish final evidence: $FINAL_RESULTS"
+RESULTS_PUBLISHED=1
 
 echo "candidate-runner: all $EXPECTED fixtures passed (Interpreter + IR + AOT NO-BUILD)" >&2

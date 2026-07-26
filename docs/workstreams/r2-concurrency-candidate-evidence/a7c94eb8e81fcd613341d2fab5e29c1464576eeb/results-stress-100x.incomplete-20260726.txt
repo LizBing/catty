@@ -1,0 +1,21 @@
+=== R2 concurrency candidate runner (19-fixture matrix) ===
+candidate:           a7c94eb8e81fcd613341d2fab5e29c1464576eeb
+candidate-full:      a7c94eb8e81fcd613341d2fab5e29c1464576eeb
+build-commit:        a7c94eb8e81fcd613341d2fab5e29c1464576eeb
+build-source:        detached worktree at a7c94eb8e81fcd613341d2fab5e29c1464576eeb
+worktree-cleanliness: detached (immutable candidate snapshot)
+date:                2026-07-26T06:51:51Z
+java:                openjdk version "25.0.3" 2026-04-21 LTS
+javac:               javac 25.0.3
+go:                  go version go1.26.5 darwin/arm64
+stress:              100x
+race-build:          1
+concurrency:         4 (max concurrent fixtures)
+timeout:             20s (AOT 120s)
+fixtures:            19
+policy:              fail-closed — any mismatch or missing row is a failure
+aot-policy:          all 19 must be NO-BUILD; any built binary, panic, mismatch, omitted row, or Fallback is Fail
+
+==> building catty (race-enabled)
+fixture                             Temurin25      Interpreter(100x)      IR(100x)               AOT
+-------                             ---------      --------------------   --------------------   ---

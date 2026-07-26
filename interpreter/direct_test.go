@@ -108,6 +108,75 @@ func TestInvokeDirectRejectsBoundaryMisuse(t *testing.T) {
 	context.PopFrame()
 }
 
+func TestInvokeDirectValidatesReferenceArgumentAssignment(t *testing.T) {
+	loader := newTestLoader()
+	target := rtda.NewSyntheticClass("test/ArgumentTarget", nil)
+	other := rtda.NewSyntheticClass("test/ArgumentOther", nil)
+	owner := rtda.NewSyntheticClass("test/ArgumentOwner", nil)
+	for _, class := range []*rtda.Class{target, other, owner} {
+		loader.addClass(class)
+	}
+	method := rtda.InterpretedMethod(owner, "accept", "(Ltest/ArgumentTarget;)V", 0x0009, 0, 1,
+		[]byte{byte(opcode.Return)}, nil)
+	owner.AddMethod(method)
+
+	for _, invoke := range []struct {
+		name string
+		fn   func(rtda.InvocationRequest) rtda.DynamicResult
+	}{
+		{"tree", InvokeDirect},
+		{"ir", InvokeDirectIR},
+	} {
+		t.Run(invoke.name, func(t *testing.T) {
+			context := rtda.NewExecutionContext(loader)
+			result := invoke.fn(rtda.InvocationRequest{
+				Context: context, Method: method,
+				Arguments: []rtda.JavaValue{rtda.ReferenceValue(rtda.NewObject(other))},
+			})
+			if !result.IsInternalFailure() {
+				t.Fatalf("incompatible reference argument result = %#v; want internal failure", result)
+			}
+			if context.FrameCount() != 0 {
+				t.Fatal("rejected reference argument modified the execution context")
+			}
+
+			result = invoke.fn(rtda.InvocationRequest{
+				Context: context, Method: method,
+				Arguments: []rtda.JavaValue{rtda.ReferenceValue(nil)},
+			})
+			if !result.IsNormal() {
+				t.Fatalf("null reference argument result = %#v; want normal", result)
+			}
+		})
+	}
+}
+
+func TestInvokeDirectIRRestoresEntryDepthAfterLoweringFailure(t *testing.T) {
+	parent := rtda.NativeMethod(nil, "parent", "()V", func(*rtda.Frame) {})
+	parent.SetStatic()
+	owner := rtda.NewSyntheticClass("test/InvalidIR", nil)
+	invalid := rtda.InterpretedMethod(owner, "invalid", "()V", 0x0009, 1, 0,
+		[]byte{
+			byte(opcode.Iconst0),
+			byte(opcode.Ifeq), 0, 4,
+			byte(opcode.Iconst1),
+			byte(opcode.Return),
+		}, nil)
+	owner.AddMethod(invalid)
+	context := rtda.NewExecutionContext(nil)
+	caller := context.NewFrame(parent)
+	context.PushFrame(caller)
+
+	result := InvokeDirectIR(rtda.InvocationRequest{Context: context, Method: invalid})
+	if !result.IsInternalFailure() {
+		t.Fatalf("invalid IR result = %#v; want internal failure", result)
+	}
+	if context.FrameCount() != 1 || context.CurrentFrame() != caller || caller.StackSize() != 0 {
+		t.Fatal("IR internal failure did not restore the typed invocation entry depth")
+	}
+	context.PopFrame()
+}
+
 func TestInvokeDirectNestedInterpretedBoundary(t *testing.T) {
 	parent := rtda.NativeMethod(nil, "parent", "()V", func(*rtda.Frame) {})
 	parent.SetStatic()
@@ -209,6 +278,33 @@ func TestInvokeDispatchInterpreterAndIR(t *testing.T) {
 	}
 	if receiver.Extra() != int32(11) {
 		t.Fatal("constructor dispatch did not preserve receiver state")
+	}
+}
+
+func TestInvokeConstructorDoesNotInheritSuperclassConstructor(t *testing.T) {
+	loader := newTestLoader()
+	setupBaseClasses(loader)
+	loader.addClass(rtda.NewSyntheticClass("java/lang/NoSuchMethodError", nil))
+	super := rtda.NewSyntheticClass("test/ConstructorSuper", nil)
+	constructor := rtda.NativeMethod(super, "<init>", "()V", func(frame *rtda.Frame) {
+		frame.GetRef(0).SetExtra("super constructor invoked")
+	})
+	super.AddMethod(constructor)
+	target := rtda.NewSyntheticClass("test/ConstructorTarget", super)
+	loader.addClass(super)
+	loader.addClass(target)
+	receiver := rtda.NewObject(target)
+
+	result := InvokeDispatch(rtda.InvocationLookupRequest{
+		Context: rtda.NewExecutionContext(loader), Target: target, Receiver: receiver,
+		Kind: rtda.InvokeConstructor, Name: "<init>", Descriptor: "()V",
+	})
+	throwable, ok := result.Throwable()
+	if !ok || throwable.Class().Name() != "java/lang/NoSuchMethodError" {
+		t.Fatalf("inherited constructor result = %#v, throwable=%v; want NoSuchMethodError", result, ok)
+	}
+	if receiver.Extra() != nil {
+		t.Fatal("constructor dispatch invoked an inherited superclass constructor")
 	}
 }
 

@@ -149,6 +149,26 @@ Local candidate validation on 2026-07-25 passed `go vet ./...`, `go test ./...`,
 `git diff --check`; this is implementation evidence, not final workstream
 acceptance.
 
+### Final-gate record
+
+Candidate `a7c94eb8e81fcd613341d2fab5e29c1464576eeb` fixes the current
+implementation scope. Its complete gate record is
+[`final-gates-a7c94eb.md`](./r3-typed-invocation-evidence-20260725/final-gates-a7c94eb.md).
+All gates pass, including the required race-built R2 100× matrix (19/19
+Interpreter match, 19/19 IR match, 19/19 AOT NO-BUILD). This workstream is
+Ready for Owner review. Per COLLABORATION.md §6.1, only the Owner can accept
+the review and mark this workstream Done.
+
+### Owner review correction record
+
+On 2026-07-26, Owner accepted the existing gate evidence but requested changes
+before Done. The workstream returned to In Progress for three corrections
+within the frozen contract: validate non-null reference arguments against their
+declared parameter descriptors, restore the typed invocation entry depth after
+an IR internal failure, and restrict constructor resolution to constructors
+declared by the target Class. No ADR or new workstream is required. A new fixed
+candidate and complete final-gate set are required before returning to Ready.
+
 ## Preflight review
 
 Recorded on 2026-07-25 at actual review base `cc1da5d`, a descendant of the

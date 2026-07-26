@@ -111,10 +111,12 @@ func classPackage(class *rtda.Class) string {
 
 func resolveDirectMethod(request rtda.InvocationLookupRequest) *rtda.Method {
 	switch request.Kind {
-	case rtda.InvokeStatic, rtda.InvokeSpecial, rtda.InvokeConstructor:
-		if request.Kind == rtda.InvokeConstructor && request.Name != "<init>" {
+	case rtda.InvokeConstructor:
+		if request.Name != "<init>" {
 			return nil
 		}
+		return request.Target.GetMethod(request.Name, request.Descriptor)
+	case rtda.InvokeStatic, rtda.InvokeSpecial:
 		return request.Target.LookupMethod(request.Name, request.Descriptor)
 	case rtda.InvokeVirtual, rtda.InvokeInterface:
 		return request.Receiver.Class().LookupMethod(request.Name, request.Descriptor)

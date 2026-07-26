@@ -1,0 +1,135 @@
+=== R2 concurrency candidate runner (19-fixture matrix) ===
+candidate:           a7c94eb8e81fcd613341d2fab5e29c1464576eeb
+candidate-full:      a7c94eb8e81fcd613341d2fab5e29c1464576eeb
+build-commit:        a7c94eb8e81fcd613341d2fab5e29c1464576eeb
+build-source:        detached worktree at a7c94eb8e81fcd613341d2fab5e29c1464576eeb
+worktree-cleanliness: detached (immutable candidate snapshot)
+date:                2026-07-26T07:16:35Z
+java:                openjdk version "25.0.3" 2026-04-21 LTS
+javac:               javac 25.0.3
+go:                  go version go1.26.5 darwin/arm64
+stress:              100x
+race-build:          1
+concurrency:         4 (max concurrent fixtures)
+timeout:             20s (AOT 120s)
+fixtures:            19
+policy:              fail-closed — any mismatch or missing row is a failure
+aot-policy:          all 19 must be NO-BUILD; any built binary, panic, mismatch, omitted row, or Fallback is Fail
+
+==> building catty (race-enabled)
+fixture                             Temurin25      Interpreter(100x)      IR(100x)               AOT
+-------                             ---------      --------------------   --------------------   ---
+SynchronizedBlocks                  ref            Match                  Match                  NO-BUILD
+----- SynchronizedBlocks -----
+[0] temurin25:
+2000
+[0] catty interpreter:
+2000
+[0] catty IR:
+2000
+[AOT] catty aot:
+catty build: transpile: SynchronizedBlocks.main([Ljava/lang/String;)V triggers class initialization on SynchronizedBlocks; AOT exception propagation not yet supported
+javac failed for SynchronizedMethods
+CurrentThreadIdentity               ref            Match                  Match                  NO-BUILD
+----- CurrentThreadIdentity -----
+[0] temurin25:
+true
+true
+[0] catty interpreter:
+true
+true
+[0] catty IR:
+true
+true
+[AOT] catty aot:
+catty build: transpile: CurrentThreadIdentity.main([Ljava/lang/String;)V — invoke on java/lang/Thread.currentThread (Thread), concurrency not supported in AOT; AOT concurrency not supported
+javac failed for ThreadStartJoin
+javac failed for ThreadStartTwice
+NonDaemonLiveness                   ref            Match                  Match                  NO-BUILD
+----- NonDaemonLiveness -----
+[0] temurin25:
+main
+worker
+[0] catty interpreter:
+main
+worker
+[0] catty IR:
+main
+worker
+[AOT] catty aot:
+catty build: transpile: NonDaemonLiveness.main cannot be AOT'd (unsupported opcodes?)
+javac failed for DaemonLiveness
+javac failed for SynchronizedBlocks
+SynchronizedMethods                 ref            Match                  Match                  NO-BUILD
+----- SynchronizedMethods -----
+[0] temurin25:
+true
+true
+[0] catty interpreter:
+true
+true
+[0] catty IR:
+true
+true
+[AOT] catty aot:
+catty build: transpile: SynchronizedMethods.instanceLockHeld()Z — synchronized method (ACC_SYNCHRONIZED), concurrency not supported in AOT; AOT concurrency not supported
+MonitorNull                         ref            Match                  Match                  NO-BUILD
+----- MonitorNull -----
+[0] temurin25:
+NullPointerException
+[0] catty interpreter:
+NullPointerException
+[0] catty IR:
+NullPointerException
+[AOT] catty aot:
+catty build: transpile: MonitorNull.main cannot be AOT'd (unsupported opcodes?)
+javac failed for MonitorOwnership
+javac failed for WaitNotify
+javac failed for NotifyAll
+InterruptStatus                     ref            Match                  Match                  NO-BUILD
+----- InterruptStatus -----
+[0] temurin25:
+true
+true
+false
+[0] catty interpreter:
+true
+true
+false
+[0] catty IR:
+true
+true
+false
+[AOT] catty aot:
+catty build: transpile: InterruptStatus.main([Ljava/lang/String;)V — invoke on java/lang/Thread.currentThread (Thread), concurrency not supported in AOT; AOT concurrency not supported
+javac failed for InterruptWait
+javac failed for InterruptSleep
+InterruptJoin                       ref            Match                  Match                  NO-BUILD
+----- InterruptJoin -----
+[0] temurin25:
+false
+main
+[0] catty interpreter:
+false
+main
+[0] catty IR:
+false
+main
+[AOT] catty aot:
+catty build: transpile: InterruptJoin.main([Ljava/lang/String;)V — invoke on java/lang/Thread.onSpinWait (Thread), concurrency not supported in AOT; AOT concurrency not supported
+javac failed for VolatilePublication
+FinalFieldPublication               ref            Match                  Match                  NO-BUILD
+----- FinalFieldPublication -----
+[0] temurin25:
+42
+24
+[0] catty interpreter:
+42
+24
+[0] catty IR:
+42
+24
+[AOT] catty aot:
+catty build: transpile: FinalFieldPublication.main cannot be AOT'd (unsupported opcodes?)
+javac failed for CrossThreadClassInitialization
+javac failed for ProducerConsumer

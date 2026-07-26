@@ -1,0 +1,64 @@
+CurrentThreadIdentity               ref            Match                  Match                  NO-BUILD
+----- CurrentThreadIdentity -----
+[0] temurin25:
+true
+true
+[0] catty interpreter:
+true
+true
+[0] catty IR:
+true
+true
+[AOT] catty aot:
+catty build: transpile: CurrentThreadIdentity.main([Ljava/lang/String;)V — invoke on java/lang/Thread.currentThread (Thread), concurrency not supported in AOT; AOT concurrency not supported
+ThreadStartJoin                     ref            Match                  Match                  NO-BUILD
+----- ThreadStartJoin -----
+[0] temurin25:
+false
+false
+42
+[0] catty interpreter:
+false
+false
+42
+[0] catty IR:
+false
+false
+42
+[AOT] catty aot:
+catty build: transpile: ThreadStartJoin$Worker.<init>()V — invoke on java/lang/Thread.<init> (Thread), concurrency not supported in AOT; AOT concurrency not supported
+ThreadStartTwice                    ref            Match                  Match                  NO-BUILD
+----- ThreadStartTwice -----
+[0] temurin25:
+IllegalThreadStateException
+[0] catty interpreter:
+IllegalThreadStateException
+[0] catty IR:
+IllegalThreadStateException
+[AOT] catty aot:
+catty build: transpile: ThreadStartTwice$Worker.<init>()V — invoke on java/lang/Thread.<init> (Thread), concurrency not supported in AOT; AOT concurrency not supported
+javac failed for NonDaemonLiveness
+DaemonLiveness                      ref            Match                  Match                  NO-BUILD
+----- DaemonLiveness -----
+[0] temurin25:
+main
+[0] catty interpreter:
+main
+[0] catty IR:
+main
+[AOT] catty aot:
+catty build: transpile: DaemonLiveness$Worker.<init>()V — invoke on java/lang/Thread.<init> (Thread), concurrency not supported in AOT; AOT concurrency not supported
+javac failed for SynchronizedBlocks
+javac failed for SynchronizedMethods
+javac failed for MonitorNull
+javac failed for MonitorOwnership
+javac failed for WaitNotify
+javac failed for NotifyAll
+javac failed for InterruptStatus
+javac failed for InterruptWait
+javac failed for InterruptSleep
+javac failed for InterruptJoin
+javac failed for VolatilePublication
+javac failed for FinalFieldPublication
+javac failed for CrossThreadClassInitialization
+javac failed for ProducerConsumer

@@ -1,6 +1,6 @@
 # Project status
 
-**As of:** 2026-07-25
+**As of:** 2026-07-26
 **Stable baseline:** R3 Entry Hardening boundary slice integrated; R3 K2 runtime identity and typed class-definition slice complete; R2 concurrency milestone remains complete
 **Baseline commit:** `6563045` (R3 execution-context/Java Thread boundary integration)
 **Governance/research anchor:** `f685526` (R3 research Done); K2 acceptance anchor: `0fcf316`
@@ -118,21 +118,19 @@ deferred.
 
 ## Next action
 
-Continue the in-progress
+The active workstream
 [`r3-typed-invocation-kernel-slice`](./workstreams/r3-typed-invocation-kernel-slice.md)
-whose acceptance anchor is fixed at `6563045`. The preflight record lives at
-[`r3-typed-invocation-preflight-20260725/preflight-review.md`](./workstreams/r3-typed-invocation-preflight-20260725/preflight-review.md).
-Owner accepted the preflight and authorized the workstream to move to In Progress
-on 2026-07-25. Its typed value/result, Frame/HeapCell adapter, and resolved
-field-access candidates are implemented and unit/regression-tested; direct
-method/constructor invocation, typed dispatch, static-init triggers, and
-null-receiver throwable transport now have Interpreter and IR candidates.
-The typed static-field composite evidence is recorded at
-[`r3-typed-invocation-evidence-20260725/acceptance-candidate.md`](./workstreams/r3-typed-invocation-evidence-20260725/acceptance-candidate.md).
-Comprehensive linkage matrices and final cross-engine acceptance remain pending. The AOT bridge now
-explicitly rejects the typed dynamic-invocation API; it does not provide an AOT
-dynamic fallback. Keep implementation bounded by the recorded scope and do not
-claim new Java-visible R3 support without acceptance evidence.
+returned to In Progress after Owner review requested three corrections within
+the existing Accepted contract: reference-argument assignment checks, IR
+internal-failure stack restoration, and declared-only constructor resolution.
+The prior candidate `a7c94eb8e81fcd613341d2fab5e29c1464576eeb` and all of its
+gates, including the race-built R2 100× matrix, remain accepted evidence. Its
+final-gate record is at
+[`final-gates-a7c94eb.md`](./workstreams/r3-typed-invocation-evidence-20260725/final-gates-a7c94eb.md).
+Implement the three bounded corrections, fix a new candidate commit, and rerun
+the complete final-gate set before returning to Ready for Owner review. No new
+ADR or workstream is required. Only the Owner can accept the review and mark
+this workstream Done.
 Preserve the temporary `rtda.Thread` compatibility alias until Owner accepts a
 removal step or later cleanup. No Java-visible R3 row may be newly claimed
 Supported without a later accepted workstream and evidence.

@@ -31,10 +31,12 @@ func invokeDirect(request rtda.InvocationRequest, interpreted func(*rtda.Executi
 	baseDepth := context.FrameCount()
 	defer func() {
 		if recovered := recover(); recovered != nil {
+			result = rtda.InternalFailureResult(fmt.Errorf("typed direct invocation panic: %v", recovered))
+		}
+		if result.IsInternalFailure() {
 			for context.FrameCount() > baseDepth {
 				context.PopFrame()
 			}
-			result = rtda.InternalFailureResult(fmt.Errorf("typed direct invocation panic: %v", recovered))
 		}
 	}()
 
@@ -81,6 +83,34 @@ func validateDirectRequest(request rtda.InvocationRequest) error {
 			return fmt.Errorf("typed direct invocation %s%s: argument %d kind %s, want %s",
 				request.Method.Name(), request.Method.Descriptor(), i, request.Arguments[i].Kind(), kind)
 		}
+		if kind == rtda.JavaValueReference {
+			if failure := validateDirectReferenceArgument(request.Context, descriptor, request.Arguments[i]); failure != nil {
+				return fmt.Errorf("typed direct invocation %s%s: argument %d: %w",
+					request.Method.Name(), request.Method.Descriptor(), i, failure)
+			}
+		}
+	}
+	return nil
+}
+
+func validateDirectReferenceArgument(context *rtda.ExecutionContext, descriptor string, value rtda.JavaValue) error {
+	reference, _ := value.Reference()
+	if reference == nil {
+		return nil
+	}
+	if context.Loader() == nil {
+		return fmt.Errorf("cannot validate reference assignment without a class loader")
+	}
+	className := descriptor
+	if descriptor[0] == 'L' {
+		className = descriptor[1 : len(descriptor)-1]
+	}
+	load := context.Loader().LoadClassResult(className)
+	if !load.IsSuccess() {
+		return fmt.Errorf("cannot resolve parameter type %s: %w", descriptor, load.Failure())
+	}
+	if !reference.IsInstanceOf(load.Class()) {
+		return fmt.Errorf("reference is not assignable to parameter type %s", descriptor)
 	}
 	return nil
 }
