@@ -50,10 +50,12 @@ type ExecutionContext struct {
 	// (interpreter.RunMethod): there is no caller frame, so the return helpers
 	// write here instead of pushing. nil outside bridge mode.
 	bridgeReturn *Slot
-	// bridgeDynamicReturn captures one logical Java result for the typed direct
-	// invocation adapters. It is separate from bridgeReturn so the legacy AOT
-	// Slot bridge remains an adapter rather than the stable result boundary.
-	bridgeDynamicReturn *JavaValue
+	// bridgeDynamicReturns captures logical Java results for typed direct
+	// invocation boundaries. Each boundary owns a target stack depth, allowing a
+	// direct invocation to run while an ordinary Java caller frame remains below
+	// it. This is separate from bridgeReturn so the legacy AOT Slot bridge
+	// remains an adapter rather than the stable result boundary.
+	bridgeDynamicReturns []dynamicReturnCapture
 	// pendingException is non-nil when an exception is in flight (athrow or a
 	// runtime error like NPE). The interpreter Loop checks HasException after
 	// each instruction and dispatches to handleException.
@@ -188,9 +190,39 @@ func (t *ExecutionContext) SetBridgeReturn(s *Slot) { t.bridgeReturn = s }
 func (t *ExecutionContext) HasBridgeReturn() bool   { return t.bridgeReturn != nil }
 func (t *ExecutionContext) BridgeReturn(s Slot)     { *t.bridgeReturn = s }
 
-func (t *ExecutionContext) SetBridgeDynamicReturn(v *JavaValue) { t.bridgeDynamicReturn = v }
-func (t *ExecutionContext) HasBridgeDynamicReturn() bool        { return t.bridgeDynamicReturn != nil }
-func (t *ExecutionContext) BridgeDynamicReturn(v JavaValue)     { *t.bridgeDynamicReturn = v }
+type dynamicReturnCapture struct {
+	depth int
+	value *JavaValue
+}
+
+// PushBridgeDynamicReturn starts a typed return boundary at depth. The caller
+// must pop it after normal or abrupt completion.
+func (t *ExecutionContext) PushBridgeDynamicReturn(depth int, value *JavaValue) {
+	t.bridgeDynamicReturns = append(t.bridgeDynamicReturns, dynamicReturnCapture{depth: depth, value: value})
+}
+
+func (t *ExecutionContext) PopBridgeDynamicReturn() {
+	n := len(t.bridgeDynamicReturns)
+	if n > 0 {
+		t.bridgeDynamicReturns = t.bridgeDynamicReturns[:n-1]
+	}
+}
+
+// CaptureBridgeDynamicReturn records v only when the just-popped frame reached
+// the innermost active typed boundary. It returns true when the value belongs
+// to that boundary rather than its ordinary Java caller.
+func (t *ExecutionContext) CaptureBridgeDynamicReturn(v JavaValue) bool {
+	n := len(t.bridgeDynamicReturns)
+	if n == 0 {
+		return false
+	}
+	capture := t.bridgeDynamicReturns[n-1]
+	if capture.depth != len(t.stack) {
+		return false
+	}
+	*capture.value = v
+	return true
+}
 
 // --- Exception handling ---
 

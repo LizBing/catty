@@ -127,8 +127,9 @@ on 2026-07-25. Its typed value/result, Frame/HeapCell adapter, and resolved
 field-access candidates are implemented and unit/regression-tested; direct
 method/constructor invocation, typed dispatch, static-init triggers, and
 null-receiver throwable transport now have Interpreter and IR candidates.
-Broader linkage/access checks, nested typed invocation, static-field classfile
-coverage, and cross-engine acceptance remain pending. The AOT bridge now
+The typed static-field composite evidence is recorded at
+[`r3-typed-invocation-evidence-20260725/acceptance-candidate.md`](./workstreams/r3-typed-invocation-evidence-20260725/acceptance-candidate.md).
+Comprehensive linkage matrices and final cross-engine acceptance remain pending. The AOT bridge now
 explicitly rejects the typed dynamic-invocation API; it does not provide an AOT
 dynamic fallback. Keep implementation bounded by the recorded scope and do not
 claim new Java-visible R3 support without acceptance evidence.

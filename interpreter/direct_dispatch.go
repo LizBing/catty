@@ -23,8 +23,8 @@ func invokeDispatch(request rtda.InvocationLookupRequest, invoke func(rtda.Invoc
 	if request.Context == nil {
 		return rtda.InternalFailureResult(fmt.Errorf("typed direct dispatch: nil execution context"))
 	}
-	if !request.Context.IsStackEmpty() || request.Context.HasException() {
-		return rtda.InternalFailureResult(fmt.Errorf("typed direct dispatch: execution context is not idle"))
+	if request.Context.HasException() {
+		return rtda.InternalFailureResult(fmt.Errorf("typed direct dispatch: execution context has a pending exception"))
 	}
 	if request.Target == nil {
 		return rtda.InternalFailureResult(fmt.Errorf("typed direct dispatch: nil target class"))
@@ -38,6 +38,9 @@ func invokeDispatch(request rtda.InvocationLookupRequest, invoke func(rtda.Invoc
 	method := resolveDirectMethod(request)
 	if method == nil {
 		return directJavaThrowable(request.Context, "java/lang/NoSuchMethodError", request.Target.Name()+"."+request.Name+request.Descriptor)
+	}
+	if !hasDirectAccess(request.Caller, method.Owner(), method.AccessFlags(), request.Receiver) {
+		return directJavaThrowable(request.Context, "java/lang/IllegalAccessError", "direct invocation access denied")
 	}
 	if request.Kind == rtda.InvokeStatic {
 		if !method.IsStatic() {
@@ -54,6 +57,56 @@ func invokeDispatch(request rtda.InvocationLookupRequest, invoke func(rtda.Invoc
 		Context: request.Context, Caller: request.Caller, Method: method,
 		Receiver: request.Receiver, Arguments: request.Arguments,
 	})
+}
+
+const (
+	directAccPublic    uint16 = 0x0001
+	directAccPrivate   uint16 = 0x0002
+	directAccProtected uint16 = 0x0004
+)
+
+func hasDirectAccess(caller, owner *rtda.Class, flags uint16, receiver *rtda.Object) bool {
+	if flags&directAccPublic != 0 {
+		return true
+	}
+	if caller == nil || owner == nil {
+		return false
+	}
+	if flags&directAccPrivate != 0 {
+		return caller == owner
+	}
+	samePackage := classPackage(caller) == classPackage(owner)
+	if flags&directAccProtected == 0 {
+		return samePackage
+	}
+	if samePackage {
+		return true
+	}
+	if !isSubclassOf(caller, owner) {
+		return false
+	}
+	// JVMS protected cross-package instance access requires the receiver to be
+	// an instance of the accessing subclass (or one of its subclasses).
+	return receiver == nil || receiver.IsInstanceOf(caller)
+}
+
+func isSubclassOf(class, ancestor *rtda.Class) bool {
+	for current := class; current != nil; current = current.SuperClass() {
+		if current == ancestor {
+			return true
+		}
+	}
+	return false
+}
+
+func classPackage(class *rtda.Class) string {
+	name := class.Name()
+	for i := len(name) - 1; i >= 0; i-- {
+		if name[i] == '/' {
+			return name[:i]
+		}
+	}
+	return ""
 }
 
 func resolveDirectMethod(request rtda.InvocationLookupRequest) *rtda.Method {
@@ -73,8 +126,16 @@ func resolveDirectMethod(request rtda.InvocationLookupRequest) *rtda.Method {
 // ReadDirectField applies the direct-call initialization trigger to static
 // fields before delegating storage access to the typed rtda field boundary.
 func ReadDirectField(context *rtda.ExecutionContext, field *rtda.Field, receiver *rtda.Object) rtda.DynamicResult {
+	return ReadDirectFieldFrom(context, nil, field, receiver)
+}
+
+// ReadDirectFieldFrom reads a field with an explicit Java caller identity.
+func ReadDirectFieldFrom(context *rtda.ExecutionContext, caller *rtda.Class, field *rtda.Field, receiver *rtda.Object) rtda.DynamicResult {
 	if failure := validateDirectFieldContext(context, field); failure != nil {
 		return rtda.InternalFailureResult(failure)
+	}
+	if !hasDirectAccess(caller, field.Owner(), field.AccessFlags(), receiver) {
+		return directJavaThrowable(context, "java/lang/IllegalAccessError", "direct field access denied")
 	}
 	if field.IsStatic() {
 		ensureInitialized(context, field.Owner())
@@ -90,8 +151,16 @@ func ReadDirectField(context *rtda.ExecutionContext, field *rtda.Field, receiver
 
 // WriteDirectField is the write counterpart to ReadDirectField.
 func WriteDirectField(context *rtda.ExecutionContext, field *rtda.Field, receiver *rtda.Object, value rtda.JavaValue) rtda.DynamicResult {
+	return WriteDirectFieldFrom(context, nil, field, receiver, value)
+}
+
+// WriteDirectFieldFrom writes a field with an explicit Java caller identity.
+func WriteDirectFieldFrom(context *rtda.ExecutionContext, caller *rtda.Class, field *rtda.Field, receiver *rtda.Object, value rtda.JavaValue) rtda.DynamicResult {
 	if failure := validateDirectFieldContext(context, field); failure != nil {
 		return rtda.InternalFailureResult(failure)
+	}
+	if !hasDirectAccess(caller, field.Owner(), field.AccessFlags(), receiver) {
+		return directJavaThrowable(context, "java/lang/IllegalAccessError", "direct field access denied")
 	}
 	if field.IsStatic() {
 		ensureInitialized(context, field.Owner())
@@ -112,8 +181,8 @@ func validateDirectFieldContext(context *rtda.ExecutionContext, field *rtda.Fiel
 	if context == nil {
 		return fmt.Errorf("typed direct field access: nil execution context")
 	}
-	if !context.IsStackEmpty() || context.HasException() {
-		return fmt.Errorf("typed direct field access: execution context is not idle")
+	if context.HasException() {
+		return fmt.Errorf("typed direct field access: execution context has a pending exception")
 	}
 	if field == nil || field.Owner() == nil {
 		return fmt.Errorf("typed direct field access: invalid field")

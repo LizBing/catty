@@ -9,11 +9,9 @@ import (
 )
 
 // InvokeDirect executes one already-resolved method through the typed dynamic
-// invocation boundary. The initial adapter deliberately requires an empty
-// ExecutionContext stack: existing nested bytecode invocation still uses its
-// Slot/frame implementation, and mixing the two would make caller ownership
-// ambiguous. Caller identity is carried in InvocationRequest for the later
-// access-policy adapter.
+// invocation boundary. It may run above an ordinary Java caller frame; the
+// boundary captures only the return/throwable that crosses its entry depth.
+// Caller identity is carried in InvocationRequest for later access policy.
 func InvokeDirect(request rtda.InvocationRequest) (result rtda.DynamicResult) {
 	return invokeDirect(request, invokeDirectInterpreted)
 }
@@ -25,17 +23,17 @@ func InvokeDirectIR(request rtda.InvocationRequest) (result rtda.DynamicResult) 
 	return invokeDirect(request, invokeDirectIR)
 }
 
-func invokeDirect(request rtda.InvocationRequest, interpreted func(*rtda.ExecutionContext, *rtda.Frame) rtda.DynamicResult) (result rtda.DynamicResult) {
+func invokeDirect(request rtda.InvocationRequest, interpreted func(*rtda.ExecutionContext, *rtda.Frame, int) rtda.DynamicResult) (result rtda.DynamicResult) {
 	if failure := validateDirectRequest(request); failure != nil {
 		return rtda.InternalFailureResult(failure)
 	}
 	context := request.Context
+	baseDepth := context.FrameCount()
 	defer func() {
 		if recovered := recover(); recovered != nil {
-			for !context.IsStackEmpty() {
+			for context.FrameCount() > baseDepth {
 				context.PopFrame()
 			}
-			context.SetBridgeDynamicReturn(nil)
 			result = rtda.InternalFailureResult(fmt.Errorf("typed direct invocation panic: %v", recovered))
 		}
 	}()
@@ -47,15 +45,12 @@ func invokeDirect(request rtda.InvocationRequest, interpreted func(*rtda.Executi
 	if request.Method.IsNative() {
 		return invokeDirectNative(context, request.Method, frame)
 	}
-	return interpreted(context, frame)
+	return interpreted(context, frame, baseDepth)
 }
 
 func validateDirectRequest(request rtda.InvocationRequest) error {
 	if request.Context == nil {
 		return fmt.Errorf("typed direct invocation: nil execution context")
-	}
-	if !request.Context.IsStackEmpty() {
-		return fmt.Errorf("typed direct invocation: execution context stack must be empty")
 	}
 	if request.Context.HasException() {
 		return fmt.Errorf("typed direct invocation: execution context has a pending exception")
@@ -126,19 +121,19 @@ func invokeDirectNative(context *rtda.ExecutionContext, method *rtda.Method, fra
 	return directFrameResult(frame, method.ReturnType())
 }
 
-func invokeDirectInterpreted(context *rtda.ExecutionContext, frame *rtda.Frame) rtda.DynamicResult {
+func invokeDirectInterpreted(context *rtda.ExecutionContext, frame *rtda.Frame, baseDepth int) rtda.DynamicResult {
 	var value rtda.JavaValue
-	context.SetBridgeDynamicReturn(&value)
-	defer context.SetBridgeDynamicReturn(nil)
+	context.PushBridgeDynamicReturn(baseDepth, &value)
+	defer context.PopBridgeDynamicReturn()
 	context.PushFrame(frame)
-	for !context.IsStackEmpty() {
+	for context.FrameCount() > baseDepth {
 		current := context.CurrentFrame()
 		pc := current.PC()
 		op := opcode.Opcode(current.Code()[pc])
 		current.SetPC(pc + 1)
 		exec(context, current, op, pc)
 		for context.HasException() {
-			thrown, uncaught := unwindDirectException(context, pc)
+			thrown, uncaught := unwindDirectException(context, pc, baseDepth)
 			if uncaught {
 				return rtda.ThrowableResult(thrown)
 			}
@@ -147,13 +142,13 @@ func invokeDirectInterpreted(context *rtda.ExecutionContext, frame *rtda.Frame) 
 	return rtda.NormalResult(value)
 }
 
-func invokeDirectIR(context *rtda.ExecutionContext, frame *rtda.Frame) rtda.DynamicResult {
+func invokeDirectIR(context *rtda.ExecutionContext, frame *rtda.Frame, baseDepth int) rtda.DynamicResult {
 	var value rtda.JavaValue
-	context.SetBridgeDynamicReturn(&value)
-	defer context.SetBridgeDynamicReturn(nil)
+	context.PushBridgeDynamicReturn(baseDepth, &value)
+	defer context.PopBridgeDynamicReturn()
 	context.PushFrame(frame)
 	cache := map[*rtda.Method]*lowering.IR{}
-	for !context.IsStackEmpty() {
+	for context.FrameCount() > baseDepth {
 		current := context.CurrentFrame()
 		ir := cache[current.Method()]
 		if ir == nil {
@@ -167,7 +162,7 @@ func invokeDirectIR(context *rtda.ExecutionContext, frame *rtda.Frame) rtda.Dyna
 		pc := current.PC()
 		execIR(context, current, ir)
 		for context.HasException() {
-			thrown, uncaught := unwindDirectException(context, pc)
+			thrown, uncaught := unwindDirectException(context, pc, baseDepth)
 			if uncaught {
 				return rtda.ThrowableResult(thrown)
 			}
@@ -210,10 +205,10 @@ func directFrameResult(frame *rtda.Frame, descriptor string) rtda.DynamicResult 
 // unwindDirectException mirrors the interpreter's exception-table walk but
 // returns an exception that escapes the direct invocation boundary instead of
 // printing it or terminating a Java Thread.
-func unwindDirectException(context *rtda.ExecutionContext, throwPC int) (*rtda.Object, bool) {
+func unwindDirectException(context *rtda.ExecutionContext, throwPC, baseDepth int) (*rtda.Object, bool) {
 	thrown := context.ClearException()
 forFrames:
-	for !context.IsStackEmpty() {
+	for context.FrameCount() > baseDepth {
 		frame := context.CurrentFrame()
 		for _, entry := range frame.Method().ExceptionTable() {
 			if throwPC < entry.StartPc() || throwPC >= entry.EndPc() {
@@ -229,7 +224,7 @@ forFrames:
 			if catchClass == nil {
 				thrown = context.ClearException()
 				context.PopFrame()
-				if context.IsStackEmpty() {
+				if context.FrameCount() == baseDepth {
 					return thrown, true
 				}
 				throwPC = context.CurrentFrame().PC() - 1
@@ -243,7 +238,7 @@ forFrames:
 			}
 		}
 		context.PopFrame()
-		if context.IsStackEmpty() {
+		if context.FrameCount() == baseDepth {
 			return thrown, true
 		}
 		throwPC = context.CurrentFrame().PC() - 1

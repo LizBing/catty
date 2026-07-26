@@ -414,10 +414,8 @@ func execIR(context *rtda.ExecutionContext, frame *rtda.Frame, ir *lowering.IR) 
 
 	// ---------- returns (shared helpers) ----------
 	case opcode.Return:
-		if context.FrameCount() == 1 && context.HasBridgeDynamicReturn() {
-			context.BridgeDynamicReturn(rtda.VoidValue())
-		}
 		context.PopFrame()
+		context.CaptureBridgeDynamicReturn(rtda.VoidValue())
 	case opcode.Ireturn:
 		returnInt(frame, context)
 	case opcode.Areturn:

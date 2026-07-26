@@ -101,10 +101,55 @@ func TestInvokeDirectRejectsBoundaryMisuse(t *testing.T) {
 		t.Fatal("primitive widening must not be implicit")
 	}
 	context.PushFrame(context.NewFrame(method))
-	if result := InvokeDirect(rtda.InvocationRequest{Context: context, Method: method, Arguments: []rtda.JavaValue{rtda.IntValue(1)}}); !result.IsInternalFailure() {
-		t.Fatal("non-empty execution context stack must be rejected")
+	assertDirectInt(t, InvokeDirect(rtda.InvocationRequest{Context: context, Method: method, Arguments: []rtda.JavaValue{rtda.IntValue(1)}}), 1)
+	if context.FrameCount() != 1 || context.CurrentFrame().StackSize() != 0 {
+		t.Fatal("direct native invocation must preserve the existing Java caller frame")
 	}
 	context.PopFrame()
+}
+
+func TestInvokeDirectNestedInterpretedBoundary(t *testing.T) {
+	parent := rtda.NativeMethod(nil, "parent", "()V", func(*rtda.Frame) {})
+	parent.SetStatic()
+	normalOwner := rtda.NewSyntheticClass("test/NestedNormal", nil)
+	normal := rtda.InterpretedMethod(normalOwner, "constant", "()J", 0x0009, 2, 0,
+		[]byte{byte(opcode.Lconst1), byte(opcode.Lreturn)}, nil)
+	normalOwner.AddMethod(normal)
+	abruptOwner := rtda.NewSyntheticClass("test/NestedAbrupt", nil)
+	throwable := rtda.NewObject(abruptOwner)
+	abrupt := rtda.InterpretedMethod(abruptOwner, "abrupt", "()V", 0, 1, 1,
+		[]byte{byte(opcode.Aload0), byte(opcode.Athrow)}, nil)
+	abruptOwner.AddMethod(abrupt)
+
+	for _, invoke := range []struct {
+		name string
+		fn   func(rtda.InvocationRequest) rtda.DynamicResult
+	}{
+		{"tree", InvokeDirect},
+		{"ir", InvokeDirectIR},
+	} {
+		t.Run(invoke.name, func(t *testing.T) {
+			context := rtda.NewExecutionContext(nil)
+			context.PushFrame(context.NewFrame(parent))
+			result := invoke.fn(rtda.InvocationRequest{Context: context, Method: normal})
+			value, ok := result.Value()
+			got, longOK := value.Long()
+			if !ok || !longOK || got != 1 {
+				t.Fatalf("nested normal result = %#v, normal=%v long=%v", result, ok, longOK)
+			}
+			if context.FrameCount() != 1 || context.CurrentFrame().StackSize() != 0 {
+				t.Fatal("nested normal invocation modified the Java caller frame")
+			}
+			result = invoke.fn(rtda.InvocationRequest{Context: context, Method: abrupt, Receiver: throwable})
+			if gotThrowable, ok := result.Throwable(); !ok || gotThrowable != throwable {
+				t.Fatal("nested abrupt invocation lost throwable identity")
+			}
+			if context.FrameCount() != 1 || context.CurrentFrame().StackSize() != 0 {
+				t.Fatal("nested abrupt invocation unwound the Java caller frame")
+			}
+			context.PopFrame()
+		})
+	}
 }
 
 func TestInvokeDispatchInterpreterAndIR(t *testing.T) {
@@ -132,6 +177,14 @@ func TestInvokeDispatchInterpreterAndIR(t *testing.T) {
 	}
 	staticRequest.Context = rtda.NewExecutionContext(loader)
 	assertDirectInt(t, InvokeDispatchIR(staticRequest), 7)
+	nestedContext := rtda.NewExecutionContext(loader)
+	nestedContext.PushFrame(nestedContext.NewFrame(static))
+	staticRequest.Context = nestedContext
+	assertDirectInt(t, InvokeDispatch(staticRequest), 7)
+	if nestedContext.FrameCount() != 1 || nestedContext.CurrentFrame().StackSize() != 0 {
+		t.Fatal("nested direct dispatch modified the Java caller frame")
+	}
+	nestedContext.PopFrame()
 
 	receiver := rtda.NewObject(owner)
 	virtualRequest := rtda.InvocationLookupRequest{
@@ -175,7 +228,7 @@ func TestInvokeDispatchNullReceiverIsJavaThrowable(t *testing.T) {
 	if !ok || throwable.Class().Name() != "java/lang/NullPointerException" {
 		t.Fatalf("null receiver result = %#v, throwable=%v; want NullPointerException", result, ok)
 	}
-	field := rtda.NewField(owner, "i", "I", 0, false, 0)
+	field := rtda.NewField(owner, "i", "I", 0x0001, false, 0)
 	result = ReadDirectField(rtda.NewExecutionContext(loader), field, nil)
 	throwable, ok = result.Throwable()
 	if !ok || throwable.Class().Name() != "java/lang/NullPointerException" {
@@ -202,17 +255,62 @@ func TestInvokeDispatchNullReceiverIsJavaThrowable(t *testing.T) {
 	otherClass := rtda.NewSyntheticClass("test/FieldOther", nil)
 	loader.addClass(targetClass)
 	loader.addClass(otherClass)
-	referenceField := rtda.NewField(owner, "ref", "Ltest/FieldTarget;", 0, false, 0)
+	referenceField := rtda.NewField(owner, "ref", "Ltest/FieldTarget;", 0x0001, false, 0)
 	result = WriteDirectField(rtda.NewExecutionContext(loader), referenceField, rtda.NewObject(owner), rtda.ReferenceValue(rtda.NewObject(otherClass)))
 	throwable, ok = result.Throwable()
 	if !ok || throwable.Class().Name() != "java/lang/ClassCastException" {
 		t.Fatalf("reference mismatch result = %#v, throwable=%v; want ClassCastException", result, ok)
 	}
-	missingField := rtda.NewField(owner, "missing", "Ltest/Missing;", 0, false, 0)
+	missingField := rtda.NewField(owner, "missing", "Ltest/Missing;", 0x0001, false, 0)
 	result = WriteDirectField(rtda.NewExecutionContext(loader), missingField, rtda.NewObject(owner), rtda.ReferenceValue(rtda.NewObject(targetClass)))
 	throwable, ok = result.Throwable()
 	if !ok || throwable.Class().Name() != "java/lang/NoClassDefFoundError" {
 		t.Fatalf("reference resolution result = %#v, throwable=%v; want NoClassDefFoundError", result, ok)
+	}
+}
+
+func TestInvokeDispatchCallerAccess(t *testing.T) {
+	loader := newTestLoader()
+	setupBaseClasses(loader)
+	loader.addClass(rtda.NewSyntheticClass("java/lang/IllegalAccessError", nil))
+	owner := rtda.NewSyntheticClass("access/Owner", nil)
+	samePackage := rtda.NewSyntheticClass("access/Peer", nil)
+	outsider := rtda.NewSyntheticClass("other/Outsider", nil)
+	subclass := rtda.NewSyntheticClass("other/Subclass", owner)
+	for _, class := range []*rtda.Class{owner, samePackage, outsider, subclass} {
+		loader.addClass(class)
+	}
+	private := rtda.InterpretedMethod(owner, "privateValue", "()I", 0x000a, 1, 0,
+		[]byte{byte(opcode.Iconst1), byte(opcode.Ireturn)}, nil)
+	packageValue := rtda.InterpretedMethod(owner, "packageValue", "()I", 0x0008, 1, 0,
+		[]byte{byte(opcode.Iconst2), byte(opcode.Ireturn)}, nil)
+	protected := rtda.InterpretedMethod(owner, "protectedValue", "()I", 0x000c, 1, 0,
+		[]byte{byte(opcode.Iconst3), byte(opcode.Ireturn)}, nil)
+	owner.AddMethod(private)
+	owner.AddMethod(packageValue)
+	owner.AddMethod(protected)
+
+	invoke := func(caller *rtda.Class, name string) rtda.DynamicResult {
+		return InvokeDispatch(rtda.InvocationLookupRequest{
+			Context: rtda.NewExecutionContext(loader), Caller: caller, Target: owner,
+			Kind: rtda.InvokeStatic, Name: name, Descriptor: "()I",
+		})
+	}
+	assertDirectInt(t, invoke(owner, "privateValue"), 1)
+	assertIllegalAccess(t, invoke(outsider, "privateValue"))
+	assertDirectInt(t, invoke(samePackage, "packageValue"), 2)
+	assertIllegalAccess(t, invoke(outsider, "packageValue"))
+	assertDirectInt(t, invoke(subclass, "protectedValue"), 3)
+	assertIllegalAccess(t, invoke(outsider, "protectedValue"))
+	privateField := rtda.NewField(owner, "privateField", "I", 0x0002, false, 0)
+	assertIllegalAccess(t, ReadDirectFieldFrom(rtda.NewExecutionContext(loader), outsider, privateField, rtda.NewObject(owner)))
+}
+
+func assertIllegalAccess(t *testing.T, result rtda.DynamicResult) {
+	t.Helper()
+	throwable, ok := result.Throwable()
+	if !ok || throwable.Class().Name() != "java/lang/IllegalAccessError" {
+		t.Fatalf("access result = %#v, throwable=%v; want IllegalAccessError", result, ok)
 	}
 }
 

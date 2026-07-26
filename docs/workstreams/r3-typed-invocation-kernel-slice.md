@@ -96,10 +96,11 @@ for direct native and bytecode method execution. It validates exact descriptor
 kinds and receiver/arity before writing Frame locals; it carries normal return
 values, including category-2 values, through `DynamicResult`, and returns an
 escaping Java throwable with its original object identity. The initial adapter
-requires an empty execution-context stack, so it cannot silently mix the new
-typed boundary with nested legacy Slot invocation. IR direct invocation,
-Java-level direct-access failures, class-initialization triggers, and AOT
-dynamic invocation remain pending.
+required an empty execution-context stack; it now captures returns and abrupt
+completion at an explicit entry depth, preserving any ordinary Java caller
+frame below the typed boundary. IR direct invocation, Java-level direct-access
+failures, class-initialization triggers, and AOT dynamic invocation remain
+pending.
 
 ### Dispatch and IR implementation record
 
@@ -120,6 +121,29 @@ an incompatible non-null object yields `ClassCastException`, and load failure
 yields the corresponding linkage throwable. The AOT bridge exposes an explicit
 typed-dynamic unsupported result and does not delegate this new boundary to its
 legacy Slot fallback.
+
+### Nested invocation boundary record
+
+Typed direct invocation now permits an existing Java caller stack. Each direct
+call installs a LIFO result capture at its entry depth; returns crossing that
+depth become `JavaValue` results, while ordinary bytecode calls above it still
+transfer through their existing Frame/Slot path. Abrupt completion unwinds only
+to that boundary and preserves the outer caller frame. Tree Interpreter and IR
+tests cover nested normal category-2 return and nested uncaught throwable
+identity. This does not convert the legacy bytecode invocation path into a
+stable Slot API.
+
+### Caller access record
+
+Dispatch and direct-field adapters now enforce caller-aware public, private,
+package-private, and protected access checks. Public members remain callable
+without a caller identity; non-public field consumers use the explicit
+`ReadDirectFieldFrom`/`WriteDirectFieldFrom` variants. Denied access yields a
+Java `IllegalAccessError`. The protected rule includes the cross-package
+receiver constraint for instance calls. The current tests cover method access
+for each visibility and private-field denial; full classfile fixture coverage
+for static typed fields is recorded as composite evidence at
+[`r3-typed-invocation-evidence-20260725/acceptance-candidate.md`](./r3-typed-invocation-evidence-20260725/acceptance-candidate.md).
 Local candidate validation on 2026-07-25 passed `go vet ./...`, `go test ./...`,
 `go test -race ./...`, `bash tests/run.sh` (10/10 fixtures), and
 `git diff --check`; this is implementation evidence, not final workstream
