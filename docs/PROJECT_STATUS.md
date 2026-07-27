@@ -2,7 +2,7 @@
 
 **As of:** 2026-07-26
 **Stable baseline:** R3 Entry Hardening, R3 K2 runtime identity/typed class-definition, and R3 typed-invocation kernel slices integrated; R2 concurrency milestone remains complete
-**Baseline commit:** `047ffca5b0126262865e13884dc48528b74a2985` (R3 typed-invocation corrected candidate; integration metadata commit follows)
+**Baseline commit:** `9dd96afd5ad8d1c076b80375abfc3585625bdfcd` (R3 typed-invocation kernel integration)
 **Governance/research anchor:** `f685526` (R3 research Done); K2 acceptance anchor: `0fcf316`
 **Active workstream:** None
 The `r3-typed-invocation-kernel-slice` is Done. The R3 Entry Hardening boundary
@@ -129,8 +129,8 @@ matrix. Its final-gate record is at
 [`final-gates-047ffca.md`](./workstreams/r3-typed-invocation-evidence-20260725/final-gates-047ffca.md).
 The prior candidate's gates remain accepted evidence at
 [`final-gates-a7c94eb.md`](./workstreams/r3-typed-invocation-evidence-20260725/final-gates-a7c94eb.md).
-The workstream is Done; its integration commit is recorded below after commit
-creation. No Java-visible reflection, MethodHandle, InvokeDynamic,
+The workstream is Done. Integration commit:
+`9dd96afd5ad8d1c076b80375abfc3585625bdfcd`. No Java-visible reflection, MethodHandle, InvokeDynamic,
 generated-class, Host ABI provider, or AOT dynamic execution capability is
 claimed.
 

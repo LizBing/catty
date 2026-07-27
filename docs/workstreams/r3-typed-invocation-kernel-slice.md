@@ -203,3 +203,4 @@ contract.
 
 Integration accepted by Owner on 2026-07-26 after candidate
 `047ffca5b0126262865e13884dc48528b74a2985` passed the complete final-gate set.
+Integration commit: `9dd96afd5ad8d1c076b80375abfc3585625bdfcd`.
