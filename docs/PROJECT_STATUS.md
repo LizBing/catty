@@ -1,16 +1,17 @@
 # Project status
 
 **As of:** 2026-07-26
-**Stable baseline:** R3 Entry Hardening boundary slice integrated; R3 K2 runtime identity and typed class-definition slice complete; R2 concurrency milestone remains complete
-**Baseline commit:** `6563045` (R3 execution-context/Java Thread boundary integration)
+**Stable baseline:** R3 Entry Hardening, R3 K2 runtime identity/typed class-definition, and R3 typed-invocation kernel slices integrated; R2 concurrency milestone remains complete
+**Baseline commit:** `047ffca5b0126262865e13884dc48528b74a2985` (R3 typed-invocation corrected candidate; integration metadata commit follows)
 **Governance/research anchor:** `f685526` (R3 research Done); K2 acceptance anchor: `0fcf316`
-**Active workstream:** In Progress
-[`r3-typed-invocation-kernel-slice`](./workstreams/r3-typed-invocation-kernel-slice.md).
-The R3 Entry Hardening boundary slice is integrated; its fixed candidate and
-R2 concurrency evidence remain recorded under the workstream evidence paths.
+**Active workstream:** None
+The `r3-typed-invocation-kernel-slice` is Done. The R3 Entry Hardening boundary
+slice is integrated; its fixed candidate and R2 concurrency evidence remain
+recorded under the workstream evidence paths.
 **Current phase:** R3 research and Entry Hardening are Done. The project is
-implementing the accepted typed-invocation kernel. K1 dynamic metadata and K2
-runtime identity/typed class-definition shared-kernel slices are complete. No
+implementing the accepted R3 shared-kernel sequence. K1 dynamic metadata, K2
+runtime identity/typed class-definition, and typed-invocation kernel slices are
+complete. No
 Java-visible reflection, InvokeDynamic, generated-class, or arbitrary
 ClassLoader capability is claimed by K1/K2. Timed `wait`/`join`, `Unsafe`,
 virtual threads, `ThreadGroup`/`ThreadLocal`, and `java.util.concurrent`
@@ -112,25 +113,27 @@ completed bounded UTF-16 String workstream. ADR-0028 through ADR-0030 govern and
 by the completed, bounded Thread/monitor/init Slices A–E. ADR-0031 through
 ADR-0033 govern the R3 shared-kernel sequence; K1 and K2 implement the
 metadata-retention and runtime-identity/typed-definition prerequisites, while
-typed invocation, InvokeDynamic linkage, and generated classes remain future
-workstreams. Bootstrap capability mapping, Unsafe, and allocation remain
+typed invocation is complete; InvokeDynamic linkage and generated classes remain
+future workstreams. Bootstrap capability mapping, Unsafe, and allocation remain
 deferred.
 
 ## Next action
 
-The active workstream
-[`r3-typed-invocation-kernel-slice`](./workstreams/r3-typed-invocation-kernel-slice.md)
-returned to In Progress after Owner review requested three corrections within
-the existing Accepted contract: reference-argument assignment checks, IR
-internal-failure stack restoration, and declared-only constructor resolution.
-The prior candidate `a7c94eb8e81fcd613341d2fab5e29c1464576eeb` and all of its
-gates, including the race-built R2 100× matrix, remain accepted evidence. Its
-final-gate record is at
+The `r3-typed-invocation-kernel-slice` was accepted by Owner on 2026-07-26.
+Corrected candidate
+`a7c94eb8e81fcd613341d2fab5e29c1464576eeb` was accepted as evidence but Owner
+requested three bounded code corrections. Corrected candidate
+`047ffca5b0126262865e13884dc48528b74a2985` fixes those three issues and passes
+the complete final-gate set, including the race-built R2 100× concurrency
+matrix. Its final-gate record is at
+[`final-gates-047ffca.md`](./workstreams/r3-typed-invocation-evidence-20260725/final-gates-047ffca.md).
+The prior candidate's gates remain accepted evidence at
 [`final-gates-a7c94eb.md`](./workstreams/r3-typed-invocation-evidence-20260725/final-gates-a7c94eb.md).
-Implement the three bounded corrections, fix a new candidate commit, and rerun
-the complete final-gate set before returning to Ready for Owner review. No new
-ADR or workstream is required. Only the Owner can accept the review and mark
-this workstream Done.
+The workstream is Done; its integration commit is recorded below after commit
+creation. No Java-visible reflection, MethodHandle, InvokeDynamic,
+generated-class, Host ABI provider, or AOT dynamic execution capability is
+claimed.
+
 Preserve the temporary `rtda.Thread` compatibility alias until Owner accepts a
 removal step or later cleanup. No Java-visible R3 row may be newly claimed
 Supported without a later accepted workstream and evidence.

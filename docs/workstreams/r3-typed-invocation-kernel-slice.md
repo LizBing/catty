@@ -1,6 +1,6 @@
 # R3 typed dynamic-invocation kernel slice
 
-**Status:** In Progress
+**Status:** Done
 **Type:** implementation
 **Review:** owner
 **Profile:** Catty JVMS Core shared kernel; reusable by profiles and Host ABI adapters
@@ -166,8 +166,20 @@ before Done. The workstream returned to In Progress for three corrections
 within the frozen contract: validate non-null reference arguments against their
 declared parameter descriptors, restore the typed invocation entry depth after
 an IR internal failure, and restrict constructor resolution to constructors
-declared by the target Class. No ADR or new workstream is required. A new fixed
-candidate and complete final-gate set are required before returning to Ready.
+declared by the target Class. No ADR or new workstream is required.
+
+### Corrected candidate record
+
+Candidate `047ffca5b0126262865e13884dc48528b74a2985` fixes the three Owner-requested
+corrections. Its complete final-gate evidence is recorded at
+[`final-gates-047ffca.md`](./r3-typed-invocation-evidence-20260725/final-gates-047ffca.md).
+All gates pass: `go vet ./...`, `go test ./...`, `go test -race ./...`,
+`bash tests/run.sh` (10/10 fixtures), R2 concurrency 1× (19/19 Interpreter + IR
+Match, 19/19 AOT NO-BUILD), R2 concurrency 100× race-built (19/19 Interpreter +
+IR Match, 19/19 AOT NO-BUILD), evidence isolation, and `git diff --check`.
+
+Per COLLABORATION.md §6.1, Owner accepted the review and marked this workstream
+Done on 2026-07-26. The integration commit is recorded in the acceptance record.
 
 ## Preflight review
 
@@ -188,3 +200,6 @@ frozen. Acceptance anchor fixed by Owner on 2026-07-25 at `6563045` after the
 execution-context and Java Thread facade boundary prerequisite was closed.
 Implementation start explicitly accepted by Owner on 2026-07-25 under this
 contract.
+
+Integration accepted by Owner on 2026-07-26 after candidate
+`047ffca5b0126262865e13884dc48528b74a2985` passed the complete final-gate set.
