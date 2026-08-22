@@ -195,7 +195,7 @@ func natPrintlnBool(ctx *CallContext, recv Value, args []Value) (Value, error) {
 }
 
 func natPrintlnObject(ctx *CallContext, recv Value, args []Value) (Value, error) {
-	writeOut(ctx, ctx.K.Stringify(args[0])+"\n")
+	writeOut(ctx, ctx.Stringify(args[0])+"\n")
 	return nil, nil
 }
 
@@ -214,7 +214,7 @@ func natPrintString(ctx *CallContext, recv Value, args []Value) (Value, error) {
 }
 
 func natPrintObject(ctx *CallContext, recv Value, args []Value) (Value, error) {
-	writeOut(ctx, ctx.K.Stringify(args[0]))
+	writeOut(ctx, ctx.Stringify(args[0]))
 	return nil, nil
 }
 
@@ -431,4 +431,46 @@ func natArrayListContains(ctx *CallContext, recv Value, args []Value) (Value, er
 		}
 	}
 	return boolV(false), nil
+}
+
+
+// ---- java/lang/Object monitor operations (wait/notify) ----------------------
+
+// heapHeader extracts the common header of any heap value.
+func heapHeader(v Value) *Header {
+	switch o := v.(type) {
+	case *Instance:
+		return &o.Header
+	case *ArrayObj:
+		return &o.Header
+	case *JString:
+		return &o.Header
+	default:
+		panic(fmt.Sprintf("kernel: %T is not a heap object", v))
+	}
+}
+
+func natObjectWaitMillis(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	if ctx.Owner == nil {
+		return nil, fmt.Errorf("wait called without thread context")
+	}
+	out := heapHeader(recv).Monitor().Wait(ctx.ownerKey(), argL(args, 0))
+	if out == waitGotInterrupt {
+		return nil, ctx.Throw("java/lang/InterruptedException", "wait interrupted")
+	}
+	return nil, nil
+}
+
+func natObjectNotify(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	if _, err := heapHeader(recv).Monitor().Notify(ctx.ownerKey()); err != nil {
+		return nil, ctx.Throw("java/lang/IllegalMonitorStateException", "notify without ownership")
+	}
+	return nil, nil
+}
+
+func natObjectNotifyAll(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	if _, err := heapHeader(recv).Monitor().NotifyAll(ctx.ownerKey()); err != nil {
+		return nil, ctx.Throw("java/lang/IllegalMonitorStateException", "notifyAll without ownership")
+	}
+	return nil, nil
 }

@@ -15,9 +15,48 @@ import (
 // argument order.
 type NativeFunc func(ctx *CallContext, recv Value, args []Value) (Value, error)
 
+// OwnerKey is the opaque thread identity used for monitor ownership.
+// Implemented by the execution layer's thread abstraction.
+type OwnerKey interface {
+	OwnerKey() uint64
+}
+
 // CallContext gives natives access to runtime services.
 type CallContext struct {
-	K *Kernel
+	K     *Kernel
+	Owner OwnerKey // executing thread identity (nil in thread-less paths)
+}
+
+func (ctx *CallContext) ownerKey() uint64 {
+	if ctx.Owner != nil {
+		return ctx.Owner.OwnerKey()
+	}
+	return 0
+}
+
+// Stringify renders a value the way PrintStream.println(Object) does,
+// dispatching toString() with the calling thread's identity.
+func (ctx *CallContext) Stringify(v Value) string {
+	if v == nil {
+		return "null"
+	}
+	switch o := v.(type) {
+	case *JString:
+		return o.String()
+	case *Instance:
+		if m, err := ctx.K.ResolveMethod(o.Class, "toString", "()Ljava/lang/String;"); err == nil {
+			if r, err2 := ctx.Invoke(m, o, nil); err2 == nil {
+				if s, ok := r.(*JString); ok {
+					return s.String()
+				}
+			}
+		}
+		return dotted(o.Class.Name) + "@" + fmt.Sprintf("%x", o.IdentityHash())
+	case *ArrayObj:
+		return dotted(o.Class.Name) + "@" + fmt.Sprintf("%x", o.IdentityHash())
+	default:
+		return fmt.Sprintf("%v", v)
+	}
 }
 
 // Invoke calls a resolved method through the kernel dispatcher.
@@ -93,11 +132,17 @@ func New(opts Options) *Kernel {
 // Stdout returns the writer backing System.out.
 func (k *Kernel) Stdout() io.Writer { return k.opts.Stdout }
 
-// Invoke dispatches any resolved method: natives directly, interpreted
-// methods through the installed Invoker.
+// Invoke dispatches any resolved method without a thread identity.
+// Prefer InvokeAs from code running on behalf of a Java thread.
 func (k *Kernel) Invoke(m *Method, recv Value, args []Value) (Value, error) {
+	return k.InvokeAs(nil, m, recv, args)
+}
+
+// InvokeAs dispatches a method carrying the calling thread's identity so
+// monitors and (future) interrupt state attribute correctly.
+func (k *Kernel) InvokeAs(owner OwnerKey, m *Method, recv Value, args []Value) (Value, error) {
 	if m.Native != nil {
-		return m.Native(&CallContext{K: k}, recv, args)
+		return m.Native(&CallContext{K: k, Owner: owner}, recv, args)
 	}
 	if k.Invoker == nil {
 		return nil, fmt.Errorf("kernel: no Invoker installed for interpreted method %s.%s", m.Holder.Name, m.Name)
@@ -650,31 +695,7 @@ func (k *Kernel) arrayIsa(a *ArrayObj, target *Class) bool {
 
 // ---- Misc helpers ----------------------------------------------------------
 
-// Stringify renders a value the way PrintStream.println(Object) does.
-// Uses toString() via dispatch when an Invoker is available.
-func (k *Kernel) Stringify(v Value) string {
-	if v == nil {
-		return "null"
-	}
-	switch o := v.(type) {
-	case *JString:
-		return o.String()
-	case *Instance:
-		if m, err := k.ResolveMethod(o.Class, "toString", "()Ljava/lang/String;"); err == nil {
-			if r, err2 := k.Invoke(m, o, nil); err2 == nil {
-				if s, ok := r.(*JString); ok {
-					return s.String()
-				}
-			}
-		}
-		return dotted(o.Class.Name) + "@" +
-			fmt.Sprintf("%x", o.IdentityHash())
-	case *ArrayObj:
-		return dotted(o.Class.Name) + "@" + fmt.Sprintf("%x", o.IdentityHash())
-	default:
-		return fmt.Sprintf("%v", v)
-	}
-}
+
 
 // constPoolPrimitive converts a constant-pool entry into a Value matching
 // the field descriptor desc (for ConstantValue attributes).

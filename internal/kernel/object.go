@@ -3,7 +3,6 @@ package kernel
 import (
 	"fmt"
 	"strings"
-	"sync"
 	"sync/atomic"
 )
 
@@ -11,18 +10,20 @@ import (
 // Go GC traces all of it; identity semantics are pointer equality.
 type Header struct {
 	Class *Class
-	mu    *sync.Mutex // lazy monitor (synchronized support, M0 stub)
-	hash  uint32      // lazy identity hash; 0 = unassigned
+	mon   atomic.Pointer[Monitor]
+	hash  uint32 // lazy identity hash; 0 = unassigned
 }
 
-// Monitor returns the object's monitor, allocating on first use.
-// M0: plain mutex under single-threaded execution; wait/notify and
-// thin-lock semantics arrive with the M1 monitor rework (P-0001 scope note).
-func (h *Header) Monitor() *sync.Mutex {
-	if h.mu == nil {
-		h.mu = new(sync.Mutex)
+// Monitor returns the object's monitor, allocating exactly once.
+func (h *Header) Monitor() *Monitor {
+	if m := h.mon.Load(); m != nil {
+		return m
 	}
-	return h.mu
+	m := &Monitor{}
+	if h.mon.CompareAndSwap(nil, m) {
+		return m
+	}
+	return h.mon.Load()
 }
 
 var hashCtr atomic.Uint64

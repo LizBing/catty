@@ -171,7 +171,11 @@ func (k *Kernel) EnsureInitialized(tracker InitTracker, c *Class) error {
 	}
 	c.State = StateInitializing
 	if m := c.FindMethod("<clinit>", "()V"); m != nil {
-		if _, err := k.Invoke(m, nil, nil); err != nil {
+		var owner OwnerKey
+		if o, ok := tracker.(OwnerKey); ok {
+			owner = o
+		}
+		if _, err := k.InvokeAs(owner, m, nil, nil); err != nil {
 			c.State = StateErroneous
 			return err
 		}

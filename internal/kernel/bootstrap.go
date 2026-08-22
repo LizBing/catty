@@ -14,6 +14,9 @@ func bootstrap(k *Kernel) {
 			{Name: "hashCode", Desc: "()I", Flags: classfile.AccPublic, Native: natObjectHashCode},
 			{Name: "equals", Desc: "(Ljava/lang/Object;)Z", Flags: classfile.AccPublic, Native: natObjectEquals},
 			{Name: "toString", Desc: "()Ljava/lang/String;", Flags: classfile.AccPublic, Native: natObjectToString},
+			{Name: "wait", Desc: "(J)V", Flags: classfile.AccPublic|classfile.AccFinal, Native: natObjectWaitMillis},
+			{Name: "notify", Desc: "()V", Flags: classfile.AccPublic|classfile.AccFinal, Native: natObjectNotify},
+			{Name: "notifyAll", Desc: "()V", Flags: classfile.AccPublic|classfile.AccFinal, Native: natObjectNotifyAll},
 		},
 	})
 
@@ -60,6 +63,8 @@ func bootstrap(k *Kernel) {
 		{"java/lang/IllegalArgumentException", "java/lang/RuntimeException"},
 		{"java/lang/IllegalStateException", "java/lang/RuntimeException"},
 		{"java/lang/UnsupportedOperationException", "java/lang/RuntimeException"},
+		{"java/lang/IllegalMonitorStateException", "java/lang/RuntimeException"},
+		{"java/lang/InterruptedException", "java/lang/Exception"},
 	}
 	for _, t := range throwables {
 		def := &ClassDef{

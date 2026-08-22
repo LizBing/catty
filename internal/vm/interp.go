@@ -9,25 +9,32 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sync/atomic"
 
 	"catty/internal/classfile"
 	"catty/internal/kernel"
 )
 
+var threadCtr atomic.Uint64
+
 // Thread is an execution context: one goroutine of Java execution.
-// M0 runs single-threaded; multi-thread semantics arrive in M2 with the
-// interrupt-aware blocking layer (architecture.md §7).
+// Cross-thread scheduling primitives arrive in M2; monitor ownership is
+// already keyed per-Thread (M1 monitor rework).
 type Thread struct {
 	K         *kernel.Kernel
+	id        uint64
 	initStack []string // class names with <clinit> in progress (JVMS §5.5)
 }
 
 // New creates a Thread and installs the kernel's Invoker bridge.
 func New(k *kernel.Kernel) *Thread {
-	t := &Thread{K: k}
+	t := &Thread{K: k, id: threadCtr.Add(1)}
 	k.Invoker = t
 	return t
 }
+
+// OwnerKey implements kernel.OwnerKey.
+func (t *Thread) OwnerKey() uint64 { return t.id }
 
 // --- kernel.InitTracker -----------------------------------------------------
 
@@ -57,9 +64,10 @@ func (t *Thread) InvokeInterpreted(m *kernel.Method, recv kernel.Value, args []k
 	return t.exec(m, recv, args)
 }
 
-// Call invokes any method (native or interpreted) with full dispatch.
+// Call invokes any method (native or interpreted) with full dispatch,
+// attributing monitor operations to this thread.
 func (t *Thread) Call(m *kernel.Method, recv kernel.Value, args []kernel.Value) (kernel.Value, error) {
-	return t.K.Invoke(m, recv, args)
+	return t.K.InvokeAs(t, m, recv, args)
 }
 
 // --- frame -------------------------------------------------------------------
@@ -991,7 +999,7 @@ func (t *Thread) exec(m *kernel.Method, recv kernel.Value, args []kernel.Value) 
 				}
 				return nil, th
 			}
-			objHeader(obj).Monitor().Lock()
+			objHeader(obj).Monitor().Enter(t.OwnerKey())
 		case opMonitorexit:
 			obj := f.popRef()
 			if obj == nil {
@@ -1001,7 +1009,14 @@ func (t *Thread) exec(m *kernel.Method, recv kernel.Value, args []kernel.Value) 
 				}
 				return nil, th
 			}
-			objHeader(obj).Monitor().Unlock()
+			if err := objHeader(obj).Monitor().Exit(t.OwnerKey()); err != nil {
+				th := t.throwNamed("java/lang/IllegalMonitorStateException",
+					"monitorexit on unowned monitor")
+				if throwOrHandle(th, faultPc) {
+					continue
+				}
+				return nil, th
+			}
 		case opWide:
 			wop := f.u1()
 			ni := int(f.u2())
