@@ -56,10 +56,12 @@ while IFS= read -r -d '' f; do
 done < <(find . -path ./.git -prune -o -path ./tools -prune -o -type f \
         \( -name '*.go' -o -name '*.sh' -o -name '*.js' -o -name '*.ts' \) -print0)
 
-# Code gates, active once a Go module exists.
-if [[ -f go.mod ]]; then
+# Code gates, active once Go sources exist.
+if [[ -n "$(find . -path ./.git -prune -o -name '*.go' -print -quit 2>/dev/null)" ]]; then
   go vet ./... || err "go vet failed"
   go build ./... || err "go build failed"
+  go test ./... > /tmp/catty_go_test.out 2>&1 \
+    || { err "go test failed (tail below)"; tail -40 /tmp/catty_go_test.out; }
 fi
 
 if (( fail )); then
