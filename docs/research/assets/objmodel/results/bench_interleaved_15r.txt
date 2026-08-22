@@ -1,0 +1,540 @@
+goos: darwin
+goarch: arm64
+pkg: objbench/hybrid
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	153843338	         3.139 ns/op
+BenchmarkCallMonoD6-8     	126813531	         3.839 ns/op
+BenchmarkCallBiD3-8       	100000000	         4.289 ns/op
+BenchmarkCallBiD6-8       	90178254	         5.176 ns/op
+BenchmarkCallMegaD3-8     	93850815	         4.847 ns/op
+BenchmarkCallMegaD6-8     	88935546	         4.816 ns/op
+BenchmarkFieldReadD3-8    	143719280	         3.388 ns/op
+BenchmarkFieldReadD6-8    	145959080	         3.449 ns/op
+BenchmarkFieldWriteD3-8   	100000000	         4.153 ns/op
+BenchmarkFieldWriteD6-8   	126383858	         3.883 ns/op
+BenchmarkDowncastD3-8     	147744018	         3.238 ns/op
+BenchmarkDowncastD6-8     	148564897	         3.420 ns/op
+PASS
+ok  	objbench/hybrid	8.665s
+goos: darwin
+goarch: arm64
+pkg: objbench/uniform
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	150665398	         3.504 ns/op
+BenchmarkCallMonoD6-8     	138406108	         3.817 ns/op
+BenchmarkCallBiD3-8       	129917378	         3.547 ns/op
+BenchmarkCallBiD6-8       	100000000	         5.116 ns/op
+BenchmarkCallMegaD3-8     	100000000	         4.779 ns/op
+BenchmarkCallMegaD6-8     	89043003	         5.106 ns/op
+BenchmarkFieldReadD3-8    	152465145	         3.108 ns/op
+BenchmarkFieldReadD6-8    	139932561	         3.419 ns/op
+BenchmarkFieldWriteD3-8   	125784282	         3.824 ns/op
+BenchmarkFieldWriteD6-8   	134040973	         3.801 ns/op
+BenchmarkDowncastD3-8     	146761819	         3.298 ns/op
+BenchmarkDowncastD6-8     	147756524	         3.398 ns/op
+PASS
+ok  	objbench/uniform	9.888s
+goos: darwin
+goarch: arm64
+pkg: objbench/hybrid
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	147577858	         3.528 ns/op
+BenchmarkCallMonoD6-8     	128672379	         3.848 ns/op
+BenchmarkCallBiD3-8       	100000000	         4.160 ns/op
+BenchmarkCallBiD6-8       	100000000	         4.250 ns/op
+BenchmarkCallMegaD3-8     	100000000	         4.516 ns/op
+BenchmarkCallMegaD6-8     	94041583	         4.729 ns/op
+BenchmarkFieldReadD3-8    	147917540	         3.172 ns/op
+BenchmarkFieldReadD6-8    	140565766	         3.390 ns/op
+BenchmarkFieldWriteD3-8   	100000000	         4.076 ns/op
+BenchmarkFieldWriteD6-8   	122990527	         4.155 ns/op
+BenchmarkDowncastD3-8     	143724640	         3.374 ns/op
+BenchmarkDowncastD6-8     	141720391	         3.430 ns/op
+PASS
+ok  	objbench/hybrid	8.837s
+goos: darwin
+goarch: arm64
+pkg: objbench/uniform
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	142626788	         3.539 ns/op
+BenchmarkCallMonoD6-8     	127109007	         5.385 ns/op
+BenchmarkCallBiD3-8       	44170423	        13.68 ns/op
+BenchmarkCallBiD6-8       	65079418	         7.099 ns/op
+BenchmarkCallMegaD3-8     	76616120	         7.141 ns/op
+BenchmarkCallMegaD6-8     	86418433	         9.324 ns/op
+BenchmarkFieldReadD3-8    	97477604	         4.858 ns/op
+BenchmarkFieldReadD6-8    	100000000	         5.769 ns/op
+BenchmarkFieldWriteD3-8   	84012771	         6.403 ns/op
+BenchmarkFieldWriteD6-8   	81709665	         6.213 ns/op
+BenchmarkDowncastD3-8     	96965504	         4.602 ns/op
+BenchmarkDowncastD6-8     	100000000	         4.522 ns/op
+PASS
+ok  	objbench/uniform	9.286s
+goos: darwin
+goarch: arm64
+pkg: objbench/hybrid
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	100000000	         4.192 ns/op
+BenchmarkCallMonoD6-8     	100000000	         4.386 ns/op
+BenchmarkCallBiD3-8       	138357004	         4.942 ns/op
+BenchmarkCallBiD6-8       	87881367	         6.360 ns/op
+BenchmarkCallMegaD3-8     	87407084	         5.299 ns/op
+BenchmarkCallMegaD6-8     	100000000	         5.571 ns/op
+BenchmarkFieldReadD3-8    	100000000	         4.085 ns/op
+BenchmarkFieldReadD6-8    	121999029	         3.932 ns/op
+BenchmarkFieldWriteD3-8   	119740509	         4.158 ns/op
+BenchmarkFieldWriteD6-8   	100000000	         4.216 ns/op
+BenchmarkDowncastD3-8     	132183625	         3.940 ns/op
+BenchmarkDowncastD6-8     	100000000	         4.336 ns/op
+PASS
+ok  	objbench/hybrid	8.853s
+goos: darwin
+goarch: arm64
+pkg: objbench/uniform
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	135020748	         4.507 ns/op
+BenchmarkCallMonoD6-8     	98129407	         4.389 ns/op
+BenchmarkCallBiD3-8       	132334954	         3.674 ns/op
+BenchmarkCallBiD6-8       	96183344	         5.211 ns/op
+BenchmarkCallMegaD3-8     	100000000	         4.991 ns/op
+BenchmarkCallMegaD6-8     	82116202	         6.092 ns/op
+BenchmarkFieldReadD3-8    	144166512	         3.431 ns/op
+BenchmarkFieldReadD6-8    	147467157	         3.871 ns/op
+BenchmarkFieldWriteD3-8   	78513696	         7.083 ns/op
+BenchmarkFieldWriteD6-8   	125659207	         5.118 ns/op
+BenchmarkDowncastD3-8     	123875083	         4.960 ns/op
+BenchmarkDowncastD6-8     	100000000	         4.706 ns/op
+PASS
+ok  	objbench/uniform	9.684s
+goos: darwin
+goarch: arm64
+pkg: objbench/hybrid
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	100000000	         4.178 ns/op
+BenchmarkCallMonoD6-8     	100000000	         6.622 ns/op
+BenchmarkCallBiD3-8       	86925026	         7.596 ns/op
+BenchmarkCallBiD6-8       	78732085	         7.087 ns/op
+BenchmarkCallMegaD3-8     	93953342	         5.427 ns/op
+BenchmarkCallMegaD6-8     	94243915	        10.62 ns/op
+BenchmarkFieldReadD3-8    	100000000	         4.282 ns/op
+BenchmarkFieldReadD6-8    	110991135	         3.733 ns/op
+BenchmarkFieldWriteD3-8   	100000000	         4.128 ns/op
+BenchmarkFieldWriteD6-8   	100000000	         4.325 ns/op
+BenchmarkDowncastD3-8     	124112505	         3.695 ns/op
+BenchmarkDowncastD6-8     	130472600	         3.841 ns/op
+PASS
+ok  	objbench/hybrid	8.411s
+goos: darwin
+goarch: arm64
+pkg: objbench/uniform
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	129969880	         3.660 ns/op
+BenchmarkCallMonoD6-8     	100000000	         4.060 ns/op
+BenchmarkCallBiD3-8       	122306262	         3.963 ns/op
+BenchmarkCallBiD6-8       	94089973	         5.537 ns/op
+BenchmarkCallMegaD3-8     	100000000	         5.974 ns/op
+BenchmarkCallMegaD6-8     	66771766	         6.284 ns/op
+BenchmarkFieldReadD3-8    	131363098	         3.573 ns/op
+BenchmarkFieldReadD6-8    	120071880	         3.882 ns/op
+BenchmarkFieldWriteD3-8   	100000000	         4.527 ns/op
+BenchmarkFieldWriteD6-8   	98126900	         4.349 ns/op
+BenchmarkDowncastD3-8     	134944878	         3.472 ns/op
+BenchmarkDowncastD6-8     	135339235	         3.445 ns/op
+PASS
+ok  	objbench/uniform	8.388s
+goos: darwin
+goarch: arm64
+pkg: objbench/hybrid
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	142823420	         3.358 ns/op
+BenchmarkCallMonoD6-8     	100000000	         4.121 ns/op
+BenchmarkCallBiD3-8       	99722127	         4.963 ns/op
+BenchmarkCallBiD6-8       	93017991	         5.235 ns/op
+BenchmarkCallMegaD3-8     	100000000	         4.876 ns/op
+BenchmarkCallMegaD6-8     	100000000	         5.401 ns/op
+BenchmarkFieldReadD3-8    	137066181	         3.369 ns/op
+BenchmarkFieldReadD6-8    	122578345	         3.746 ns/op
+BenchmarkFieldWriteD3-8   	100000000	         4.485 ns/op
+BenchmarkFieldWriteD6-8   	100000000	         4.498 ns/op
+BenchmarkDowncastD3-8     	129349400	         3.525 ns/op
+BenchmarkDowncastD6-8     	136231033	         3.753 ns/op
+PASS
+ok  	objbench/hybrid	7.945s
+goos: darwin
+goarch: arm64
+pkg: objbench/uniform
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	143984323	         3.414 ns/op
+BenchmarkCallMonoD6-8     	122014652	         3.681 ns/op
+BenchmarkCallBiD3-8       	124541617	         3.790 ns/op
+BenchmarkCallBiD6-8       	92325529	         5.223 ns/op
+BenchmarkCallMegaD3-8     	84992727	         5.232 ns/op
+BenchmarkCallMegaD6-8     	91503360	         6.200 ns/op
+BenchmarkFieldReadD3-8    	126334836	         3.961 ns/op
+BenchmarkFieldReadD6-8    	121940737	         3.955 ns/op
+BenchmarkFieldWriteD3-8   	100000000	         5.006 ns/op
+BenchmarkFieldWriteD6-8   	100000000	         4.615 ns/op
+BenchmarkDowncastD3-8     	127198831	         3.576 ns/op
+BenchmarkDowncastD6-8     	141952791	         3.450 ns/op
+PASS
+ok  	objbench/uniform	9.206s
+goos: darwin
+goarch: arm64
+pkg: objbench/hybrid
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	141121698	         3.484 ns/op
+BenchmarkCallMonoD6-8     	123764011	         3.932 ns/op
+BenchmarkCallBiD3-8       	100000000	         4.429 ns/op
+BenchmarkCallBiD6-8       	100000000	         4.820 ns/op
+BenchmarkCallMegaD3-8     	96742430	         4.926 ns/op
+BenchmarkCallMegaD6-8     	100000000	         5.717 ns/op
+BenchmarkFieldReadD3-8    	132922488	         3.657 ns/op
+BenchmarkFieldReadD6-8    	134980642	         3.583 ns/op
+BenchmarkFieldWriteD3-8   	100000000	         4.432 ns/op
+BenchmarkFieldWriteD6-8   	100000000	         4.281 ns/op
+BenchmarkDowncastD3-8     	130174550	         3.790 ns/op
+BenchmarkDowncastD6-8     	138567628	         3.462 ns/op
+PASS
+ok  	objbench/hybrid	8.712s
+goos: darwin
+goarch: arm64
+pkg: objbench/uniform
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	146816901	         3.461 ns/op
+BenchmarkCallMonoD6-8     	128140398	         3.669 ns/op
+BenchmarkCallBiD3-8       	128568500	         3.848 ns/op
+BenchmarkCallBiD6-8       	100000000	         4.811 ns/op
+BenchmarkCallMegaD3-8     	100000000	         4.509 ns/op
+BenchmarkCallMegaD6-8     	78494424	         5.337 ns/op
+BenchmarkFieldReadD3-8    	153696090	         3.330 ns/op
+BenchmarkFieldReadD6-8    	141444573	         3.272 ns/op
+BenchmarkFieldWriteD3-8   	122747916	         3.799 ns/op
+BenchmarkFieldWriteD6-8   	125003932	         3.775 ns/op
+BenchmarkDowncastD3-8     	148706581	         3.451 ns/op
+BenchmarkDowncastD6-8     	139481884	         3.488 ns/op
+PASS
+ok  	objbench/uniform	9.311s
+goos: darwin
+goarch: arm64
+pkg: objbench/hybrid
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	150486612	         3.257 ns/op
+BenchmarkCallMonoD6-8     	136377907	         3.777 ns/op
+BenchmarkCallBiD3-8       	100000000	         4.150 ns/op
+BenchmarkCallBiD6-8       	100000000	         4.982 ns/op
+BenchmarkCallMegaD3-8     	82368081	         5.099 ns/op
+BenchmarkCallMegaD6-8     	87072192	         5.299 ns/op
+BenchmarkFieldReadD3-8    	142666689	         3.564 ns/op
+BenchmarkFieldReadD6-8    	135742143	         3.383 ns/op
+BenchmarkFieldWriteD3-8   	130541578	         3.842 ns/op
+BenchmarkFieldWriteD6-8   	121161254	         4.319 ns/op
+BenchmarkDowncastD3-8     	126686653	         3.474 ns/op
+BenchmarkDowncastD6-8     	128942121	         5.367 ns/op
+PASS
+ok  	objbench/hybrid	9.242s
+goos: darwin
+goarch: arm64
+pkg: objbench/uniform
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	153108602	         3.326 ns/op
+BenchmarkCallMonoD6-8     	135563541	         3.845 ns/op
+BenchmarkCallBiD3-8       	123897304	         3.696 ns/op
+BenchmarkCallBiD6-8       	103724068	         5.288 ns/op
+BenchmarkCallMegaD3-8     	93095422	         4.510 ns/op
+BenchmarkCallMegaD6-8     	96590806	         4.860 ns/op
+BenchmarkFieldReadD3-8    	156700965	         3.024 ns/op
+BenchmarkFieldReadD6-8    	151404433	         3.313 ns/op
+BenchmarkFieldWriteD3-8   	137183259	         3.640 ns/op
+BenchmarkFieldWriteD6-8   	145768756	         3.735 ns/op
+BenchmarkDowncastD3-8     	155463592	         3.012 ns/op
+BenchmarkDowncastD6-8     	157547553	         3.052 ns/op
+PASS
+ok  	objbench/uniform	10.031s
+goos: darwin
+goarch: arm64
+pkg: objbench/hybrid
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	161664310	         3.031 ns/op
+BenchmarkCallMonoD6-8     	152803485	         3.341 ns/op
+BenchmarkCallBiD3-8       	129750418	         3.882 ns/op
+BenchmarkCallBiD6-8       	120256035	         4.684 ns/op
+BenchmarkCallMegaD3-8     	102416647	         4.727 ns/op
+BenchmarkCallMegaD6-8     	100000000	         4.209 ns/op
+BenchmarkFieldReadD3-8    	156688816	         3.012 ns/op
+BenchmarkFieldReadD6-8    	145406920	         3.076 ns/op
+BenchmarkFieldWriteD3-8   	141272660	         3.884 ns/op
+BenchmarkFieldWriteD6-8   	134047508	         3.492 ns/op
+BenchmarkDowncastD3-8     	148076337	         3.099 ns/op
+BenchmarkDowncastD6-8     	153997888	         3.023 ns/op
+PASS
+ok  	objbench/hybrid	10.015s
+goos: darwin
+goarch: arm64
+pkg: objbench/uniform
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	154189620	         3.244 ns/op
+BenchmarkCallMonoD6-8     	130603996	         3.672 ns/op
+BenchmarkCallBiD3-8       	126612022	         3.645 ns/op
+BenchmarkCallBiD6-8       	97407538	         4.507 ns/op
+BenchmarkCallMegaD3-8     	108904485	         4.440 ns/op
+BenchmarkCallMegaD6-8     	80549292	         5.534 ns/op
+BenchmarkFieldReadD3-8    	154572301	         3.350 ns/op
+BenchmarkFieldReadD6-8    	129064089	         3.556 ns/op
+BenchmarkFieldWriteD3-8   	122928924	         3.736 ns/op
+BenchmarkFieldWriteD6-8   	100000000	         4.091 ns/op
+BenchmarkDowncastD3-8     	136165366	         3.495 ns/op
+BenchmarkDowncastD6-8     	100000000	         4.916 ns/op
+PASS
+ok  	objbench/uniform	8.877s
+goos: darwin
+goarch: arm64
+pkg: objbench/hybrid
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	152985264	         3.301 ns/op
+BenchmarkCallMonoD6-8     	140060892	         3.516 ns/op
+BenchmarkCallBiD3-8       	100000000	         4.063 ns/op
+BenchmarkCallBiD6-8       	100000000	         4.455 ns/op
+BenchmarkCallMegaD3-8     	100000000	         4.827 ns/op
+BenchmarkCallMegaD6-8     	89955021	         4.780 ns/op
+BenchmarkFieldReadD3-8    	143851760	         3.281 ns/op
+BenchmarkFieldReadD6-8    	141664135	         3.335 ns/op
+BenchmarkFieldWriteD3-8   	131152602	         3.957 ns/op
+BenchmarkFieldWriteD6-8   	122709958	         3.729 ns/op
+BenchmarkDowncastD3-8     	144002122	         3.269 ns/op
+BenchmarkDowncastD6-8     	141602718	         3.270 ns/op
+PASS
+ok  	objbench/hybrid	9.582s
+goos: darwin
+goarch: arm64
+pkg: objbench/uniform
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	140794358	         3.650 ns/op
+BenchmarkCallMonoD6-8     	125583945	         4.099 ns/op
+BenchmarkCallBiD3-8       	100000000	         4.329 ns/op
+BenchmarkCallBiD6-8       	82619733	         5.641 ns/op
+BenchmarkCallMegaD3-8     	98460690	         6.085 ns/op
+BenchmarkCallMegaD6-8     	63177288	         7.677 ns/op
+BenchmarkFieldReadD3-8    	139435525	         3.767 ns/op
+BenchmarkFieldReadD6-8    	129698108	         3.577 ns/op
+BenchmarkFieldWriteD3-8   	112128446	         4.297 ns/op
+BenchmarkFieldWriteD6-8   	97135670	         4.520 ns/op
+BenchmarkDowncastD3-8     	138235825	         3.599 ns/op
+BenchmarkDowncastD6-8     	134594895	         3.409 ns/op
+PASS
+ok  	objbench/uniform	8.780s
+goos: darwin
+goarch: arm64
+pkg: objbench/hybrid
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	100000000	         4.386 ns/op
+BenchmarkCallMonoD6-8     	100000000	         4.277 ns/op
+BenchmarkCallBiD3-8       	100000000	         4.976 ns/op
+BenchmarkCallBiD6-8       	81149042	         5.497 ns/op
+BenchmarkCallMegaD3-8     	92210161	         5.123 ns/op
+BenchmarkCallMegaD6-8     	100000000	         6.072 ns/op
+BenchmarkFieldReadD3-8    	130081798	         3.566 ns/op
+BenchmarkFieldReadD6-8    	127330959	         3.641 ns/op
+BenchmarkFieldWriteD3-8   	100000000	         4.578 ns/op
+BenchmarkFieldWriteD6-8   	91566652	         4.428 ns/op
+BenchmarkDowncastD3-8     	138918114	         3.404 ns/op
+BenchmarkDowncastD6-8     	144588547	         3.419 ns/op
+PASS
+ok  	objbench/hybrid	7.693s
+goos: darwin
+goarch: arm64
+pkg: objbench/uniform
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	131979126	         3.570 ns/op
+BenchmarkCallMonoD6-8     	100000000	         4.307 ns/op
+BenchmarkCallBiD3-8       	100000000	         4.084 ns/op
+BenchmarkCallBiD6-8       	100000000	         4.929 ns/op
+BenchmarkCallMegaD3-8     	84679113	         5.484 ns/op
+BenchmarkCallMegaD6-8     	85915650	         6.410 ns/op
+BenchmarkFieldReadD3-8    	143983801	         3.362 ns/op
+BenchmarkFieldReadD6-8    	126310831	         3.685 ns/op
+BenchmarkFieldWriteD3-8   	131953683	         3.850 ns/op
+BenchmarkFieldWriteD6-8   	100000000	         4.017 ns/op
+BenchmarkDowncastD3-8     	138043789	         3.381 ns/op
+BenchmarkDowncastD6-8     	143208699	         3.376 ns/op
+PASS
+ok  	objbench/uniform	8.191s
+goos: darwin
+goarch: arm64
+pkg: objbench/hybrid
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	152360778	         3.293 ns/op
+BenchmarkCallMonoD6-8     	132619704	         3.445 ns/op
+BenchmarkCallBiD3-8       	100000000	         4.121 ns/op
+BenchmarkCallBiD6-8       	100000000	         4.414 ns/op
+BenchmarkCallMegaD3-8     	100000000	         4.721 ns/op
+BenchmarkCallMegaD6-8     	100000000	         5.466 ns/op
+BenchmarkFieldReadD3-8    	141852582	         3.232 ns/op
+BenchmarkFieldReadD6-8    	141014959	         3.530 ns/op
+BenchmarkFieldWriteD3-8   	127024101	         4.009 ns/op
+BenchmarkFieldWriteD6-8   	92970698	         4.345 ns/op
+BenchmarkDowncastD3-8     	143900492	         3.432 ns/op
+BenchmarkDowncastD6-8     	147770569	         3.505 ns/op
+PASS
+ok  	objbench/hybrid	8.535s
+goos: darwin
+goarch: arm64
+pkg: objbench/uniform
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	144337767	         3.638 ns/op
+BenchmarkCallMonoD6-8     	128970012	         3.841 ns/op
+BenchmarkCallBiD3-8       	123144230	         3.921 ns/op
+BenchmarkCallBiD6-8       	93019125	         5.739 ns/op
+BenchmarkCallMegaD3-8     	82902154	         6.453 ns/op
+BenchmarkCallMegaD6-8     	58542831	         7.505 ns/op
+BenchmarkFieldReadD3-8    	147599263	         3.301 ns/op
+BenchmarkFieldReadD6-8    	148105026	         3.389 ns/op
+BenchmarkFieldWriteD3-8   	121059726	         3.832 ns/op
+BenchmarkFieldWriteD6-8   	124158588	         3.968 ns/op
+BenchmarkDowncastD3-8     	137278239	         3.430 ns/op
+BenchmarkDowncastD6-8     	133384864	         3.634 ns/op
+PASS
+ok  	objbench/uniform	9.898s
+goos: darwin
+goarch: arm64
+pkg: objbench/hybrid
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	144713964	         3.384 ns/op
+BenchmarkCallMonoD6-8     	136703841	         3.402 ns/op
+BenchmarkCallBiD3-8       	121558981	         4.248 ns/op
+BenchmarkCallBiD6-8       	89562758	         5.149 ns/op
+BenchmarkCallMegaD3-8     	100000000	         5.037 ns/op
+BenchmarkCallMegaD6-8     	92469958	         5.466 ns/op
+BenchmarkFieldReadD3-8    	141249518	         3.495 ns/op
+BenchmarkFieldReadD6-8    	120235096	         4.381 ns/op
+BenchmarkFieldWriteD3-8   	88035708	         4.571 ns/op
+BenchmarkFieldWriteD6-8   	100000000	         4.051 ns/op
+BenchmarkDowncastD3-8     	143604602	         3.377 ns/op
+BenchmarkDowncastD6-8     	139464120	         3.350 ns/op
+PASS
+ok  	objbench/hybrid	9.101s
+goos: darwin
+goarch: arm64
+pkg: objbench/uniform
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	144112118	         3.370 ns/op
+BenchmarkCallMonoD6-8     	129855285	         3.855 ns/op
+BenchmarkCallBiD3-8       	100000000	         4.061 ns/op
+BenchmarkCallBiD6-8       	100000000	         5.686 ns/op
+BenchmarkCallMegaD3-8     	100000000	         4.960 ns/op
+BenchmarkCallMegaD6-8     	76069730	         5.759 ns/op
+BenchmarkFieldReadD3-8    	135376038	         3.286 ns/op
+BenchmarkFieldReadD6-8    	144367432	         3.615 ns/op
+BenchmarkFieldWriteD3-8   	122949099	         4.037 ns/op
+BenchmarkFieldWriteD6-8   	100000000	         4.154 ns/op
+BenchmarkDowncastD3-8     	144500604	         3.519 ns/op
+BenchmarkDowncastD6-8     	143669469	         3.365 ns/op
+PASS
+ok  	objbench/uniform	8.629s
+goos: darwin
+goarch: arm64
+pkg: objbench/hybrid
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	143368228	         3.252 ns/op
+BenchmarkCallMonoD6-8     	137909518	         3.556 ns/op
+BenchmarkCallBiD3-8       	100000000	         4.104 ns/op
+BenchmarkCallBiD6-8       	100000000	         4.718 ns/op
+BenchmarkCallMegaD3-8     	90886144	         4.796 ns/op
+BenchmarkCallMegaD6-8     	102210246	         4.708 ns/op
+BenchmarkFieldReadD3-8    	133730810	         3.492 ns/op
+BenchmarkFieldReadD6-8    	100000000	         4.100 ns/op
+BenchmarkFieldWriteD3-8   	100000000	         4.069 ns/op
+BenchmarkFieldWriteD6-8   	100000000	         4.318 ns/op
+BenchmarkDowncastD3-8     	132791806	         3.609 ns/op
+BenchmarkDowncastD6-8     	130600294	         3.406 ns/op
+PASS
+ok  	objbench/hybrid	7.944s
+goos: darwin
+goarch: arm64
+pkg: objbench/uniform
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	139467919	         3.746 ns/op
+BenchmarkCallMonoD6-8     	100000000	         4.175 ns/op
+BenchmarkCallBiD3-8       	100000000	         5.061 ns/op
+BenchmarkCallBiD6-8       	100000000	         7.590 ns/op
+BenchmarkCallMegaD3-8     	80697141	         6.164 ns/op
+BenchmarkCallMegaD6-8     	71952776	         7.308 ns/op
+BenchmarkFieldReadD3-8    	132275146	         3.524 ns/op
+BenchmarkFieldReadD6-8    	118177980	         3.831 ns/op
+BenchmarkFieldWriteD3-8   	100000000	         4.411 ns/op
+BenchmarkFieldWriteD6-8   	93408692	         4.720 ns/op
+BenchmarkDowncastD3-8     	127136671	         3.941 ns/op
+BenchmarkDowncastD6-8     	135999328	         3.459 ns/op
+PASS
+ok  	objbench/uniform	8.260s
+goos: darwin
+goarch: arm64
+pkg: objbench/hybrid
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	145590853	         3.438 ns/op
+BenchmarkCallMonoD6-8     	100000000	         4.180 ns/op
+BenchmarkCallBiD3-8       	100000000	         4.524 ns/op
+BenchmarkCallBiD6-8       	92151902	         4.732 ns/op
+BenchmarkCallMegaD3-8     	82092214	         5.102 ns/op
+BenchmarkCallMegaD6-8     	96049927	         4.852 ns/op
+BenchmarkFieldReadD3-8    	136269740	         3.395 ns/op
+BenchmarkFieldReadD6-8    	127892882	         3.689 ns/op
+BenchmarkFieldWriteD3-8   	100000000	         4.228 ns/op
+BenchmarkFieldWriteD6-8   	100000000	         4.219 ns/op
+BenchmarkDowncastD3-8     	125409205	         3.680 ns/op
+BenchmarkDowncastD6-8     	135255129	         3.426 ns/op
+PASS
+ok  	objbench/hybrid	8.019s
+goos: darwin
+goarch: arm64
+pkg: objbench/uniform
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	134079648	         3.463 ns/op
+BenchmarkCallMonoD6-8     	128402655	         3.956 ns/op
+BenchmarkCallBiD3-8       	122066664	         4.095 ns/op
+BenchmarkCallBiD6-8       	87755380	         5.244 ns/op
+BenchmarkCallMegaD3-8     	83974190	         5.253 ns/op
+BenchmarkCallMegaD6-8     	69048186	         5.862 ns/op
+BenchmarkFieldReadD3-8    	130281267	         3.296 ns/op
+BenchmarkFieldReadD6-8    	131112717	         3.469 ns/op
+BenchmarkFieldWriteD3-8   	121949824	         5.133 ns/op
+BenchmarkFieldWriteD6-8   	100000000	         4.246 ns/op
+BenchmarkDowncastD3-8     	128323146	         3.657 ns/op
+BenchmarkDowncastD6-8     	139724923	         3.464 ns/op
+PASS
+ok  	objbench/uniform	9.078s
+goos: darwin
+goarch: arm64
+pkg: objbench/hybrid
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	140384740	         3.356 ns/op
+BenchmarkCallMonoD6-8     	130595498	         3.622 ns/op
+BenchmarkCallBiD3-8       	100000000	         4.081 ns/op
+BenchmarkCallBiD6-8       	84237614	         5.333 ns/op
+BenchmarkCallMegaD3-8     	97855994	         5.038 ns/op
+BenchmarkCallMegaD6-8     	90425979	         5.683 ns/op
+BenchmarkFieldReadD3-8    	130879731	         3.524 ns/op
+BenchmarkFieldReadD6-8    	124611804	         3.616 ns/op
+BenchmarkFieldWriteD3-8   	100000000	         4.128 ns/op
+BenchmarkFieldWriteD6-8   	100000000	         4.056 ns/op
+BenchmarkDowncastD3-8     	134911879	         3.719 ns/op
+BenchmarkDowncastD6-8     	129482137	         3.745 ns/op
+PASS
+ok  	objbench/hybrid	8.106s
+goos: darwin
+goarch: arm64
+pkg: objbench/uniform
+cpu: Apple M1
+BenchmarkCallMonoD3-8     	127375590	         3.870 ns/op
+BenchmarkCallMonoD6-8     	100000000	         4.150 ns/op
+BenchmarkCallBiD3-8       	120142268	         4.082 ns/op
+BenchmarkCallBiD6-8       	87406490	         5.733 ns/op
+BenchmarkCallMegaD3-8     	88370660	         5.712 ns/op
+BenchmarkCallMegaD6-8     	87403832	         5.818 ns/op
+BenchmarkFieldReadD3-8    	133215042	         3.727 ns/op
+BenchmarkFieldReadD6-8    	100000000	         4.173 ns/op
+BenchmarkFieldWriteD3-8   	100000000	         4.504 ns/op
+BenchmarkFieldWriteD6-8   	100000000	         5.381 ns/op
+BenchmarkDowncastD3-8     	100000000	         4.265 ns/op
+BenchmarkDowncastD6-8     	126519829	         3.788 ns/op
+PASS
+ok  	objbench/uniform	7.721s
