@@ -1,0 +1,12 @@
+# worktrees（协议 §10 Worker 隔离工作区）
+/worktree/
+# 构建产物
+/dist/
+*.test
+*.out
+coverage.txt
+bench.out
+# 编辑器
+.DS_Store
+.idea/
+.vscode/
