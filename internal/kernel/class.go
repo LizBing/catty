@@ -72,10 +72,10 @@ type Class struct {
 	methodsByKey map[string]*Method
 	fieldsByKey  map[string]*Field
 
-	// Resolved constant-pool entries for interpreted classes, keyed by
-	// cp index. Guarded by resolveMu.
+	// Resolved constant-pool entries for interpreted classes. Key space
+	// is owned by callers (VM: kind<<16|index). Guarded by resolveMu.
 	resolveMu sync.Mutex
-	resolved  map[uint16]any
+	resolved  map[uint32]any
 
 	layoutSize int // total instance slots including supers
 
@@ -109,11 +109,27 @@ func (c *Class) IsSubclassOf(anc *Class) bool {
 }
 
 // ResolvedCache returns the resolution cache map (lazy init).
-func (c *Class) resolvedCache() map[uint16]any {
+func (c *Class) resolvedCache() map[uint32]any {
 	if c.resolved == nil {
-		c.resolved = make(map[uint16]any)
+		c.resolved = make(map[uint32]any)
 	}
 	return c.resolved
+}
+
+// CacheGet reads a constant-pool resolution cache entry (thread-safe).
+// The key space is owned by callers (e.g. the VM's kind<<16|index scheme).
+func (c *Class) CacheGet(key uint32) (any, bool) {
+	c.resolveMu.Lock()
+	defer c.resolveMu.Unlock()
+	v, ok := c.resolvedCache()[key]
+	return v, ok
+}
+
+// CacheSet writes a resolution cache entry (thread-safe).
+func (c *Class) CacheSet(key uint32, v any) {
+	c.resolveMu.Lock()
+	defer c.resolveMu.Unlock()
+	c.resolvedCache()[key] = v
 }
 
 // InitTracker lets the VM report in-progress class initialization so that

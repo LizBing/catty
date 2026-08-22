@@ -1,6 +1,6 @@
 # P-0001: M0 — 仓库工程化 + classfile 解析器 + 最小解释器（HelloWorld）
 
-- 状态：active
+- 状态：completed（2026-08-22，验收见 Progress）
 - 优先级：最高（当前唯一主线）
 - 风险评分：Medium（新代码库，无不可逆外部承诺）
 
@@ -54,7 +54,15 @@ T6 集成验收(HelloWorld + 集合/异常 demo) + 文档回写
 ## Progress
 
 - [x] 治理 bootstrap（2026-08-22）
-- [ ] T1 … T6
+- [x] T1 go.mod/目录/check 门（aec10df）
+- [x] T2 classfile v52 解析器（1e267aa）
+- [x] T3 内核对象模型 + T5 bootstrap natives（bc15ac2）
+- [x] T4 解释器核心 + T6 验收（本提交）
+- [x] **验收**：`go test ./internal/vm` 全绿；HelloWorld 与 CollectionsDemo 经
+      `catty run` 输出与 JDK 参考一致；`make check` 通过。
+
+已知限制移交：见 docs/specifications/deviation-ledger.md 与 debt/register.md
+(DEBT-0005..0007)。clinit 循环依赖跨线程死锁、监视器重入、SOE 计量均不在 M0 范围。
 
 ## Open Questions
 

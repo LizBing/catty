@@ -35,12 +35,8 @@ func natObjectHashCode(ctx *CallContext, recv Value, args []Value) (Value, error
 	return int32(recv.(*Instance).IdentityHash()), nil
 }
 
-func natObjectEquals(ctx *CallContext, recv Value, args []Value) (Value, error) {
-	return boolV(refIdentical(recv, args[0])), nil
-}
-
-// refIdentical is Java `==` on references.
-func refIdentical(a, b Value) bool {
+// RefIdentical is Java `==` on references.
+func RefIdentical(a, b Value) bool {
 	switch a.(type) {
 	case *Instance, *ArrayObj, *JString:
 		return a == b
@@ -50,6 +46,10 @@ func refIdentical(a, b Value) bool {
 		}
 		return a == b
 	}
+}
+
+func natObjectEquals(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	return boolV(RefIdentical(recv, args[0])), nil
 }
 
 func natObjectToString(ctx *CallContext, recv Value, args []Value) (Value, error) {
@@ -375,7 +375,7 @@ func alOf(recv Value) *alBuf { return recv.(*Instance).Payload.(*alBuf) }
 // elementMatches implements M0 contains(): identity, plus Integer value
 // equality (real equals() dispatch lands with the M1 reflection work).
 func elementMatches(elem, target Value) bool {
-	if refIdentical(elem, target) {
+	if RefIdentical(elem, target) {
 		return true
 	}
 	ei, okE := IntValueOf(elem)

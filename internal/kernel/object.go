@@ -2,6 +2,7 @@ package kernel
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 	"sync/atomic"
 )
@@ -127,9 +128,9 @@ func zeroValue(compDesc string) Value {
 		return float32(0)
 	case "D":
 		return float64(0)
-	case "L", "[": // never exact; refs default nil
-		return nil
-	default: // B C S I Z and reference forms
-		return int32(0)
 	}
+	if strings.HasPrefix(compDesc, "L") || strings.HasPrefix(compDesc, "[") {
+		return nil // reference component
+	}
+	return int32(0) // B C S I Z
 }

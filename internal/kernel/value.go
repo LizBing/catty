@@ -20,13 +20,13 @@ import "strconv"
 //   - *JString             → java/lang/String
 type Value = any
 
-// topSentinel fills the second raw slot of category-2 values so that
+// TopSentinel fills the second raw slot of category-2 values so that
 // stack manipulation opcodes (dup2/pop2/…) can follow JVMS semantics
 // verbatim with one Value per slot.
-var topSentinel = new(struct{ reserved byte })
+var TopSentinel = new(struct{ reserved byte })
 
 // IsTop reports whether v is a category-2 filler slot.
-func IsTop(v Value) bool { return v == Value(topSentinel) }
+func IsTop(v Value) bool { return v == Value(TopSentinel) }
 
 // IsCat2 reports whether v occupies two stack/local slots.
 func IsCat2(v Value) bool {
