@@ -15,6 +15,7 @@ required=(
   .gitignore
   docs/protocol/autonomous-development-protocol.md
   docs/vision.md
+  docs/status.md
   docs/architecture.md
   docs/quality/testing.md
   docs/quality/performance.md

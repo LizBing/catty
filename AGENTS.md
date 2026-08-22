@@ -42,6 +42,7 @@ make check
 |---|---|
 | 治理协议 | `docs/protocol/autonomous-development-protocol.md` |
 | 产品意图 | `docs/vision.md` |
+| 能力状态 | `docs/status.md`（里程碑收口时刷新） |
 | 架构基线 | `docs/architecture.md` |
 | 决策记录 | `docs/decisions/ADR-xxxx.md` |
 | 执行计划 | `docs/plans/{active,blocked,completed}/` |
