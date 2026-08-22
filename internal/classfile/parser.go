@@ -229,12 +229,21 @@ func parseCode(cf *ClassFile, data []byte) (*Code, error) {
 			}
 		}
 	}
-	// Nested attributes (LineNumberTable, StackMapTable, …): skip by length.
+	// Nested attributes: LineNumberTable etc. are skipped by length;
+	// StackMapTable is decoded for the verifier.
 	nested, err := parseAttributes(r, cf)
 	if err != nil {
 		return nil, err
 	}
-	_ = nested
+	for _, a := range nested {
+		if a.Name == "StackMapTable" {
+			c.StackMaps, err = ParseStackMapTable(cf, a.Data)
+			if err != nil {
+				return nil, err
+			}
+			break
+		}
+	}
 	return c, nil
 }
 

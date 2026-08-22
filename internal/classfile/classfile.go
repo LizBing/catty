@@ -139,6 +139,7 @@ type Code struct {
 	MaxLocals uint16
 	Code      []byte
 	Handlers  []ExceptionHandler
+	StackMaps []StackMapFrame // decoded StackMapTable (may be nil)
 }
 
 // FieldInfo is a parsed field.

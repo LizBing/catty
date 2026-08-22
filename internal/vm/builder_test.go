@@ -187,7 +187,9 @@ func (b *classBuilder) build(t *testing.T) (*kernel.Kernel, *kernel.Class) {
 	}
 	w = u2(w, 0) // class attributes
 
-	k := kernel.New(kernel.Options{})
+	// Interpreter unit tests target the engine, not the verifier: the
+	// builder does not synthesize StackMapTable frames yet (DEBT-0009).
+	k := kernel.New(kernel.Options{SkipVerify: true})
 	cls, err := k.LoadClassBytes(w)
 	if err != nil {
 		t.Fatalf("build/load %s: %v", b.name, err)

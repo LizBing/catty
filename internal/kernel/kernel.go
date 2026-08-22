@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"catty/internal/classfile"
+	"catty/internal/verify"
 )
 
 // NativeFunc is a synthesized method implementation. recv is nil for
@@ -101,6 +102,16 @@ type Invoker interface {
 // Options configures a Kernel.
 type Options struct {
 	Stdout io.Writer
+
+	// SkipVerify disables bytecode verification (JVMS §4.10). Default is
+	// verified-on-load once the verifier is wired; trusted-input tooling
+	// may turn it off.
+	SkipVerify bool
+
+	// Resolver optionally backs runtime class resolution (VM
+	// resolveClassIdx / ResolveClass misses). Set to a ClassPathLoader.Load
+	// bound method by embedders that support dynamic loading.
+	Resolver func(name string) (*Class, error)
 }
 
 // Kernel is the runtime registry and object-model entry point.
@@ -131,6 +142,14 @@ func New(opts Options) *Kernel {
 
 // Stdout returns the writer backing System.out.
 func (k *Kernel) Stdout() io.Writer { return k.opts.Stdout }
+
+// SetResolver installs a runtime class-resolution fallback (classpath
+// loader). Call before executing Java code.
+func (k *Kernel) SetResolver(r func(name string) (*Class, error)) {
+	k.mu.Lock()
+	defer k.mu.Unlock()
+	k.opts.Resolver = r
+}
 
 // Invoke dispatches any resolved method without a thread identity.
 // Prefer InvokeAs from code running on behalf of a Java thread.
@@ -169,13 +188,17 @@ func (k *Kernel) lookupClass(name string) *Class {
 	return k.classes[name]
 }
 
-// ResolveClass is ClassByName with an error for unknown classes.
+// ResolveClass is ClassByName with an error for unknown classes. When a
+// Resolver is configured, misses fall back to it (and thereby register).
 func (k *Kernel) ResolveClass(name string) (*Class, error) {
 	c, ok := k.ClassByName(name)
-	if !ok {
-		return nil, fmt.Errorf("class %s not found", name)
+	if ok {
+		return c, nil
 	}
-	return c, nil
+	if k.opts.Resolver != nil && !strings.HasPrefix(name, "[") {
+		return k.opts.Resolver(name)
+	}
+	return nil, fmt.Errorf("java.lang.ClassNotFoundException: %s", dotted(name))
 }
 
 // ArrayClassOf returns the array pseudo-class for a component descriptor,
@@ -311,40 +334,69 @@ func (k *Kernel) DefineClass(def *ClassDef) (*Class, error) {
 }
 
 // LoadClassBytes parses and registers a class file image. Superclass and
-// interfaces must already be known (M0 has no classpath loader; dynamic
-// loading lands with the M1 loader work).
+// interfaces must already be known (M0-style explicit loading).
 func (k *Kernel) LoadClassBytes(data []byte) (*Class, error) {
+	return k.LoadClassBytesWith(data, nil)
+}
+
+// LoadClassBytesWith parses and registers a class file, resolving
+// superclasses/interfaces through dep when absent from the registry.
+//
+// M1 note: registration happens up-front (placeholder pattern) so recursive
+// dependencies observe a stable namespace; concurrent duplicate loads of the
+// same name are outside M1 scope and serialized by embedders.
+func (k *Kernel) LoadClassBytesWith(data []byte, dep func(name string) (*Class, error)) (*Class, error) {
 	cf, err := classfile.Parse(data)
 	if err != nil {
 		return nil, err
 	}
 
 	k.mu.Lock()
-	defer k.mu.Unlock()
 	if _, exists := k.classes[cf.ThisClass]; exists {
+		k.mu.Unlock()
 		return nil, fmt.Errorf("class %s already loaded", cf.ThisClass)
 	}
 	c := &Class{Name: cf.ThisClass, Flags: cf.AccessFlags, CF: cf, State: StateDefined,
 		methodsByKey: make(map[string]*Method), fieldsByKey: make(map[string]*Field)}
 	k.classes[c.Name] = c
+	k.mu.Unlock()
+
+	fail := func(err error) (*Class, error) {
+		k.mu.Lock()
+		delete(k.classes, c.Name)
+		k.mu.Unlock()
+		return nil, err
+	}
+
+	resolveDep := func(name string) (*Class, error) {
+		k.mu.Lock()
+		existing, ok := k.classes[name]
+		k.mu.Unlock()
+		if ok {
+			return existing, nil
+		}
+		if dep == nil {
+			return nil, fmt.Errorf("load %s: %s not loaded", c.Name, name)
+		}
+		return dep(name)
+	}
 
 	if cf.SuperClass != "" {
-		sc, ok := k.classes[cf.SuperClass]
-		if !ok {
-			delete(k.classes, c.Name)
-			return nil, fmt.Errorf("load %s: superclass %s not loaded", c.Name, cf.SuperClass)
+		sc, err := resolveDep(cf.SuperClass)
+		if err != nil {
+			return fail(err)
 		}
 		c.Super = sc
 	}
 	for _, in := range cf.Interfaces {
-		ic, ok := k.classes[in]
-		if !ok {
-			delete(k.classes, c.Name)
-			return nil, fmt.Errorf("load %s: interface %s not loaded", c.Name, in)
+		ic, err := resolveDep(in)
+		if err != nil {
+			return fail(err)
 		}
 		c.Ifaces = append(c.Ifaces, ic)
 	}
 
+	// Layout across the hierarchy.
 	var chain []*Class
 	for x := c; x != nil; x = x.Super {
 		chain = append([]*Class{x}, chain...)
@@ -364,14 +416,13 @@ func (k *Kernel) LoadClassBytes(data []byte) (*Class, error) {
 				if cvi := fd.ConstantValue(); cvi != 0 {
 					v, err := k.constPoolPrimitive(x.CF, cvi, fd.Desc)
 					if err != nil {
-						delete(k.classes, c.Name)
-						return nil, fmt.Errorf("load %s: %w", c.Name, err)
+						return fail(err)
 					}
 					x.Statics[f.StaticSlot] = v
 				}
 			} else {
 				f.Slot = slot
-				slot += SlotCount(fd.Desc) // category-2 (J/D) occupies two slots
+				slot += SlotCount(fd.Desc) // category-2 fields take two slots
 				if x == c {
 					c.OwnFields = append(c.OwnFields, f)
 				}
@@ -387,7 +438,49 @@ func (k *Kernel) LoadClassBytes(data []byte) (*Class, error) {
 		c.Methods = append(c.Methods, m)
 		c.methodsByKey[memberKey(m.Name, m.Desc)] = m
 	}
+
+	// Java defaults for statics without ConstantValue.
+	for _, f := range c.fieldsByKey {
+		if f.Static && f.Holder == c && c.Statics[f.StaticSlot] == nil {
+			c.Statics[f.StaticSlot] = zeroValue(f.Desc)
+		}
+	}
+
+	if !k.opts.SkipVerify {
+		if err := k.verifyLoaded(c, cf); err != nil {
+			return fail(fmt.Errorf("VerifyError in %s: %w", c.Name, err))
+		}
+	}
 	return c, nil
+}
+
+// verifyLoaded runs the structural verifier against a freshly loaded class.
+// The resolver adapter answers from the currently-registered class graph
+// only (registry reads; no recursive loading during verification).
+func (k *Kernel) verifyLoaded(c *Class, cf *classfile.ClassFile) error {
+	adapter := &registryResolver{k: k}
+	return verify.Verify(cf, adapter)
+}
+
+type registryResolver struct{ k *Kernel }
+
+func (r *registryResolver) Known(name string) bool {
+	_, ok := r.k.ClassByName(name)
+	return ok
+}
+
+func (r *registryResolver) IsSubclass(child, anc string) bool {
+	cc, ok1 := r.k.ClassByName(child)
+	ac, ok2 := r.k.ClassByName(anc)
+	if !ok1 || !ok2 {
+		return false
+	}
+	for x := cc; x != nil; x = x.Super {
+		if x == ac {
+			return true
+		}
+	}
+	return r.k.implementsIface(cc, ac)
 }
 
 func (c *Class) flatField(f *Field) {
@@ -465,15 +558,19 @@ func (k *Kernel) ResolveMethod(start *Class, name, desc string) (*Method, error)
 
 // ---- Object construction -------------------------------------------------
 
-// NewInstance allocates an object of class c with zeroed fields.
+// NewInstance allocates an object of class c. Fields receive their Java
+// default values per descriptor (0/0L/false… for primitives, null for refs).
 func (k *Kernel) NewInstance(c *Class) (*Instance, error) {
 	if c.IsArray || c.Flags&(classfile.AccAbstract|classfile.AccInterface) != 0 {
 		return nil, fmt.Errorf("cannot instantiate %s", c.Name)
 	}
 	in := &Instance{}
 	in.Class = c
-	if c.layoutSize > 0 {
-		in.Fields = make([]Value, c.layoutSize)
+	in.Fields = make([]Value, c.layoutSize)
+	for _, f := range c.fieldsByKey {
+		if !f.Static && f.Slot < c.layoutSize {
+			in.Fields[f.Slot] = zeroValue(f.Desc)
+		}
 	}
 	return in, nil
 }

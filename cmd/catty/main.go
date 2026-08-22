@@ -1,6 +1,9 @@
-// Command catty runs a Java class file on the Catty interpreter (M0).
+// Command catty runs Java programs on the Catty interpreter.
 //
-// Usage: catty run <path/to/Class.class> [main-args…]  (args not yet wired)
+// Usage:
+//
+//	catty run <path/to/Class.class>
+//	catty [-cp <dir>] run <dotted.MainClass>   (directory classpath)
 package main
 
 import (
@@ -13,20 +16,38 @@ import (
 )
 
 func main() {
-	if len(os.Args) < 3 || os.Args[1] != "run" {
-		fmt.Fprintln(os.Stderr, "usage: catty run <file.class>")
-		os.Exit(2)
+	cp := ""
+	rest := os.Args[1:]
+	if len(rest) > 0 && rest[0] == "-cp" {
+		if len(rest) < 2 {
+			usage()
+		}
+		cp = rest[1]
+		rest = rest[2:]
 	}
-	path := os.Args[2]
-
-	data, err := os.ReadFile(path)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "catty:", err)
-		os.Exit(2)
+	if len(rest) < 2 || rest[0] != "run" {
+		usage()
 	}
+	target := rest[1]
 
 	k := kernel.New(kernel.Options{Stdout: os.Stdout})
-	cls, err := k.LoadClassBytes(data)
+	var cls *kernel.Class
+	var err error
+	if strings.HasSuffix(target, ".class") {
+		var data []byte
+		data, err = os.ReadFile(target)
+		if err == nil {
+			cls, err = k.LoadClassBytes(data)
+		}
+	} else if cp != "" {
+		loader := kernel.NewClassPathLoader(k, strings.Split(cp, string(os.PathListSeparator)))
+		cls, err = loader.Load(dottedToInternal(target))
+		if err == nil {
+			k.SetResolver(loader.Load)
+		}
+	} else {
+		err = fmt.Errorf("named class requires -cp")
+	}
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "catty:", err)
 		os.Exit(1)
@@ -54,6 +75,15 @@ func main() {
 		fmt.Fprintln(os.Stderr, "catty engine error:", err)
 		os.Exit(70) // EX_SOFTWARE: engine bug, not a Java-level failure
 	}
+}
+
+func usage() {
+	fmt.Fprintln(os.Stderr, "usage: catty [-cp <dir>] run <File.class | dotted.Main>")
+	os.Exit(2)
+}
+
+func dottedToInternal(s string) string {
+	return strings.ReplaceAll(strings.TrimSuffix(s, ".class"), ".", "/")
 }
 
 func asThrown(err error, target **kernel.Thrown) bool {

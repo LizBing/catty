@@ -68,3 +68,36 @@ func TestAcceptanceCollectionsDemo(t *testing.T) {
 		t.Errorf("stdout =\n%q\nwant\n%q", out, want)
 	}
 }
+
+
+func TestAcceptanceClassPathMulti(t *testing.T) {
+	var out bytes.Buffer
+	k := kernel.New(kernel.Options{Stdout: &out})
+	loader := kernel.NewClassPathLoader(k, []string{"../../testdata/cp"})
+	k.SetResolver(loader.Load)
+
+	cls, err := loader.Load("app/Main")
+	if err != nil {
+		t.Fatalf("load app/Main: %v", err)
+	}
+	th := New(k)
+	main, err := k.ResolveMethod(cls, "main", "([Ljava/lang/String;)V")
+	if err != nil {
+		t.Fatalf("resolve main: %v", err)
+	}
+	argsArr, _ := k.NewArray("Ljava/lang/String;", 0)
+	if _, err := th.Call(main, nil, []kernel.Value{argsArr}); err != nil {
+		t.Fatalf("run: %v", err)
+	}
+
+	want := strings.Join([]string{
+		"hi:m1:1",
+		"hi:m2:2",
+		"true",
+		"0", // second Helper instance: fresh field default
+		"",
+	}, "\n")
+	if out.String() != want {
+		t.Errorf("stdout =\n%q\nwant\n%q", out.String(), want)
+	}
+}
