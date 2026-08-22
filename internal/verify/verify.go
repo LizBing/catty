@@ -168,21 +168,21 @@ func branchTargets(code []byte) (map[int]bool, error) {
 			0x9f, 0xa0, 0xa1, 0xa2, 0xa3, 0xa4, // if_icmp*
 			0xa5, 0xa6, // if_acmpeq/ne
 			0xc6, 0xc7: // ifnull/nonnull
-			if i+3 >= len(code) {
+			if i+3 > len(code) {
 				return nil, fmt.Errorf("branch operand overrun at %d", i)
 			}
 			off := int(int16(uint16(code[i+1])<<8 | uint16(code[i+2])))
 			out[i+off] = true
 			i += 3
 		case 0xa7, 0xa8: // goto/jsr
-			if i+3 >= len(code) {
+			if i+3 > len(code) {
 				return nil, fmt.Errorf("branch operand overrun at %d", i)
 			}
 			off := int(int16(uint16(code[i+1])<<8 | uint16(code[i+2])))
 			out[i+off] = true
 			i += 3
 		case 0xc8: // goto_w
-			if i+5 >= len(code) {
+			if i+5 > len(code) {
 				return nil, fmt.Errorf("goto_w operand overrun at %d", i)
 			}
 			out[i+int(add4(i+1))] = true

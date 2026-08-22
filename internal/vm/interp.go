@@ -894,7 +894,34 @@ func (t *Thread) exec(m *kernel.Method, recv kernel.Value, args []kernel.Value) 
 			if target.Native == nil && target.Code == nil {
 				return nil, fmt.Errorf("method %s.%s%s has neither code nor native", cls, name, desc)
 			}
+			// Method-level synchronized (JVMS §2.11.10): instance methods
+			// lock the receiver, static methods lock the Class object.
+			var syncHdr *kernel.Header
+			if target.Flags&classfile.AccSynchronized != 0 {
+				if target.Static() {
+					cobj, cerr := t.K.ClassObjectOf(target.Holder)
+					if cerr != nil {
+						return nil, cerr
+					}
+					syncHdr = &cobj.Header
+				} else if recv != nil {
+					syncHdr = objHeader(recv)
+				}
+				if syncHdr == nil {
+					th := t.npe(f, "synchronized method on null")
+					if throwOrHandle(th, faultPc) {
+						continue
+					}
+					return nil, th
+				}
+				syncHdr.Monitor().Enter(t.OwnerKey())
+			}
 			res, callErr := t.K.InvokeAs(t, target, recv, vals) // attribute to this thread
+			if syncHdr != nil {
+				if serr := syncHdr.Monitor().Exit(t.OwnerKey()); serr != nil {
+					return nil, fmt.Errorf("sync method exit: %w", serr)
+				}
+			}
 			if callErr != nil {
 				if throwOrHandle(callErr, faultPc) {
 					continue

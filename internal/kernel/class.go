@@ -80,6 +80,8 @@ type Class struct {
 
 	layoutSize int // total instance slots including supers
 
+	classObj atomic.Pointer[Instance] // lazily created java.lang.Class instance
+
 	IsArray  bool
 	CompDesc string // array component descriptor (arrays only)
 }

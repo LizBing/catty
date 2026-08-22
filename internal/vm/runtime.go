@@ -288,7 +288,15 @@ func (t *Thread) ldc(holder *kernel.Class, idx uint16) (kernel.Value, error) {
 			}
 			return t.K.InternGo(s), nil
 		case classfile.CClass:
-			return nil, fmt.Errorf("ldc of Class constant unsupported in M0")
+			clsName, err := holder.CF.ClassName(idx)
+			if err != nil {
+				return nil, err
+			}
+			cls, err := t.K.ResolveClass(clsName)
+			if err != nil {
+				return nil, err
+			}
+			return t.K.ClassObjectOf(cls)
 		default:
 			return nil, fmt.Errorf("ldc on %s", e.Tag)
 		}

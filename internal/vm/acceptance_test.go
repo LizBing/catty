@@ -3,9 +3,15 @@ package vm
 import (
 	"bytes"
 	"errors"
+	"fmt"
+	"io"
+	"net"
 	"os"
+	"strconv"
 	"strings"
+	"sync"
 	"testing"
+	"time"
 
 	"catty/internal/kernel"
 )
@@ -135,5 +141,82 @@ func TestAcceptanceThreads(t *testing.T) {
 	}, "\n")
 	if out.String() != want {
 		t.Errorf("stdout =\n%q\nwant\n%q", out.String(), want)
+	}
+}
+
+// syncBuf is a mutex-guarded buffer: Java threads println from their own
+// goroutines while the test goroutine polls stdout.
+type syncBuf struct {
+	mu sync.Mutex
+	b  bytes.Buffer
+}
+
+func (w *syncBuf) Write(p []byte) (int, error) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return w.b.Write(p)
+}
+
+func (w *syncBuf) String() string {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return w.b.String()
+}
+
+// TestAcceptanceHttpEcho boots the pure-Java HTTP echo server on an
+// ephemeral port (args wiring), then talks real sockets to it.
+func TestAcceptanceHttpEcho(t *testing.T) {
+	out := &syncBuf{}
+	k := kernel.New(kernel.Options{Stdout: out})
+	loader := kernel.NewClassPathLoader(k, []string{"../../testdata/cp"})
+	k.SetResolver(loader.Load)
+
+	cls, err := loader.Load("HttpEcho")
+	if err != nil {
+		t.Fatalf("load HttpEcho: %v", err)
+	}
+	th := New(k)
+	mainM, err := k.ResolveMethod(cls, "main", "([Ljava/lang/String;)V")
+	if err != nil {
+		t.Fatal(err)
+	}
+	argsArr, _ := k.NewArray("Ljava/lang/String;", 1)
+	argsArr.Elems[0] = k.InternGo("0") // port 0 → ephemeral
+	go th.Call(mainM, nil, []kernel.Value{argsArr})
+
+	// wait for "listening <port>"
+	dl := time.Now().Add(5 * time.Second)
+	var port int
+	for {
+		line := strings.TrimSpace(out.String())
+		if strings.HasPrefix(line, "listening ") {
+			port, err = strconv.Atoi(strings.TrimSpace(strings.TrimPrefix(line, "listening ")))
+			if err != nil {
+				t.Fatalf("bad listening line %q", line)
+			}
+			break
+		}
+		if time.Now().After(dl) {
+			t.Fatalf("server never listened; got %q", out.String())
+		}
+		time.Sleep(5 * time.Millisecond)
+	}
+
+	req := "GET /abc HTTP/1.1\r\nHost: test\r\nX-A: b\r\n\r\n"
+	conn, derr := net.Dial("tcp", fmt.Sprintf("127.0.0.1:%d", port))
+	if derr != nil {
+		t.Fatalf("dial: %v", derr)
+	}
+	conn.Write([]byte(req))
+	resp, _ := io.ReadAll(conn)
+	conn.Close()
+
+	respStr := string(resp)
+	if !strings.HasPrefix(respStr, "HTTP/1.0 200 OK\r\n") {
+		t.Fatalf("status line: %q", respStr)
+	}
+	wantBody := strconv.Itoa(strings.Index(req, "\r\n\r\n"))
+	if !strings.HasSuffix(respStr, "\r\n\r\n"+wantBody) {
+		t.Fatalf("body mismatch: %q (want suffix %q)", respStr, wantBody)
 	}
 }

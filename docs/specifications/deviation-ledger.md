@@ -13,3 +13,4 @@
 | DEV-0005 | JVMS §5.4.3.3 invokespecial 精确接收者规则 | 按引用类沿超类链解析（简化） | M0 简化 | 极端 super 调用场景 | review checklist |
 | DEV-0006 | Thread.setDaemon / 守护线程退出规则 | 未实现；所有线程等价非守护 | 范围未至 | 进程退出语义 | P-0005 |
 | DEV-0007 | JVMS §8.3.1.4 volatile 字段 | 字段访问忽略 volatile 标志（普通读写）；解释器下 Go 内存模型恰好覆盖多数场景，但语义上未兑现 | 发射器未上线，解释路径未接 atomic | 可见性敏感代码 | P-0005 评估：解释器接 atomic.Load/Store 或留待 AOT 发射 |
+| DEV-0008 | R4 阻塞操作可中断（socket 读） | Socket InputStream.read 阻塞不可被 Thread.interrupt 唤醒（未接 SetDeadline 唤醒通路） | M2 最小网络面范围裁剪 | 中断期间挂死读 | DEBT-0011 |

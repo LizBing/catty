@@ -1,7 +1,7 @@
 # Catty 能力状态
 
 > 持续更新的能力矩阵。每次里程碑收口时刷新；与 `deviation-ledger.md`（行为偏差）、
-> `debt/register.md`(已知债务) 互为对照。最后更新：2026-08-23（M2 第一阶段完成）。
+> `debt/register.md`(已知债务) 互为对照。最后更新：2026-08-23（M2 第二阶段完成点）。
 
 ## 一句话现状
 
@@ -21,6 +21,8 @@
 | 异常 | Throwable 家族、异常表分发、隐式抛出（NPE/越界/除零/负长/强转）、SOE（帧预算 4096）、uncaught 打印 |
 | 对象模型 | 身份语义、继承链 embedding、接口分派 invokeinterface、字段默认值、数组、UTF-16 String（窄方法面） |
 | 并发 | Thread 全生命周期 + 中断三路径；可重入监视器；wait/notify/notifyAll；goroutine 底座 |
+| 类元对象 | ldc <class>、getClass()、静态 synchronized（Class 监视器） |
+| 网络 | ServerSocket/Socket/流最小映射（payload=net.Conn），纯 Java HTTP echo 可运行 |
 | 类加载 | 目录 classpath、懒式依赖（循环守卫）、结构层验证（SM 帧/池合法/边界） |
 | CLI | `catty [-cp dir] run <File.class \| dotted.Main>` |
 
@@ -29,9 +31,8 @@
 | 缺口 | 债务/计划 | 解锁什么 |
 |---|---|---|
 | AOT 发射器 | M3 | 核心卖点全部（启动/吞吐/部署形态） |
-| java.lang.Class 元对象 | DEBT-0010 / P-0005 | ldc-class、静态 synchronized、getClass |
-| 数据流类型验证 | DEBT-0009 / P-0005 | 不可信输入防线（当前仅信任 javac） |
-| nio/net/charset 映射 | P-0005 | socket 程序、http echo 验收 |
+| 数据流类型验证 | DEBT-0009/0012 | 不可信输入防线（当前仅信任 javac） |
+| socket 读的中断唤醒 | DEBT-0011 | 中断期间的阻塞读 |
 | 包装类 Long/Boolean 等 | 类库 backlog | 相应自动装箱 |
 | HashMap/Set/迭代器 | 类库 backlog | 常见数据结构程序 |
 | String 宽方法面 | 类库 backlog | substring/indexOf/format… |
@@ -50,7 +51,7 @@
 ```
 M0 ████████ 完成（解释器 + HelloWorld）
 M1 ██████████ 完成（Monitor/加载器/验证器结构层）
-M2 ████░░░░░░ 第一阶段完成（线程/SOE）；剩：Class 元对象、数据流验证器、net 映射
+M2 ████████░░ 线程/SOE/Class 元对象/net+echo 完成；剩：数据流验证器
 M3 ░░░░░░░░░░ AOT 发射器（未开始）
 M4 ░░░░░░░░░░ 三方基准报告（未开始）
 ```

@@ -3,7 +3,9 @@ package kernel
 import (
 	"fmt"
 	"io"
+	"math"
 	"strconv"
+	"strings"
 	"sync/atomic"
 	"time"
 )
@@ -637,4 +639,186 @@ func natStaticInterruptedFlag(ctx *CallContext, recv Value, args []Value) (Value
 // natThreadJoinForever backs join() with no timeout.
 func natThreadJoinForever(ctx *CallContext, recv Value, args []Value) (Value, error) {
 	return natThreadJoinMillis(ctx, recv, []Value{int64(0)})
+}
+
+// ---- java/lang/Class + Object.getClass ----------------------------------------
+
+func natObjectGetClass(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	cls := heapHeader(recv).Class
+	return ctx.K.ClassObjectOf(cls)
+}
+
+func natClassGetName(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	in, ok := recv.(*Instance)
+	if !ok {
+		return nil, fmt.Errorf("getClass receiver payload missing")
+	}
+	c, ok := in.Payload.(*Class)
+	if !ok {
+		return nil, fmt.Errorf("Class instance lacks class payload")
+	}
+	if strings.HasPrefix(c.Name, "[") {
+		return ctx.K.MakeJStringFromGo(c.Name), nil // arrays keep descriptor form
+	}
+	return ctx.K.MakeJStringFromGo(dotted(c.Name)), nil
+}
+
+// ---- java/lang/String byte conversions + search --------------------------------
+
+// elemsToBytes extracts [off,off+len) of a byte array as Go bytes.
+func elemsToBytes(arr *ArrayObj, off, length int32) ([]byte, error) {
+	if off < 0 || length < 0 || int64(off)+int64(length) > int64(len(arr.Elems)) {
+		return nil, fmt.Errorf("bad range off=%d len=%d size=%d", off, length, len(arr.Elems))
+	}
+	out := make([]byte, length)
+	for i := 0; i < int(length); i++ {
+		out[i] = byte(arr.Elems[int(off)+i].(int32))
+	}
+	return out, nil
+}
+
+func bytesToElems(b []byte) []Value {
+	out := make([]Value, len(b))
+	for i, c := range b {
+		out[i] = int32(c)
+	}
+	return out
+}
+
+func natStringGetBytes(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	chars := recv.(*JString).Chars
+	rs := utf16Decode(chars)
+	b := make([]byte, 0, len(rs))
+	for _, r := range rs {
+		b = appendRune(b, r)
+	}
+	arr, err := ctx.K.NewArray("[B", len(b))
+	if err != nil {
+		return nil, err
+	}
+	copy(arr.Elems, bytesToElems(b))
+	return arr, nil
+}
+
+func appendRune(b []byte, r rune) []byte {
+	switch {
+	case r < 0x80:
+		return append(b, byte(r))
+	case r < 0x800:
+		return append(b, byte(0xC0|r>>6), byte(0x80|r&0x3F))
+	case r < 0x10000:
+		return append(b, byte(0xE0|r>>12), byte(0x80|(r>>6)&0x3F), byte(0x80|r&0x3F))
+	default:
+		r -= 0x10000
+		hi, lo := rune(0xD800+(r>>10)), rune(0xDC00+(r&0x3FF))
+		return append(b,
+			byte(0xE0|hi>>12), byte(0x80|(hi>>6)&0x3F), byte(0x80|hi&0x3F),
+			byte(0xE0|lo>>12), byte(0x80|(lo>>6)&0x3F), byte(0x80|lo&0x3F))
+	}
+}
+
+func natStringInitBytesRange(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	arr := args[0].(*ArrayObj)
+	off := argI(args, 1)
+	length := argI(args, 2)
+	b, err := elemsToBytes(arr, off, length)
+	if err != nil {
+		return nil, ctx.Throw("java/lang/StringIndexOutOfBoundsException", err.Error())
+	}
+	js := ctx.K.MakeJString(utf16Encode(decodeUTF8Runes(b)))
+	recv.(*JString).Chars = js.Chars
+	return nil, nil
+}
+
+func decodeUTF8Runes(b []byte) []rune {
+	var rs []rune
+	for i := 0; i < len(b); {
+		c := b[i]
+		switch {
+		case c < 0x80:
+			rs = append(rs, rune(c))
+			i++
+		case c>>5 == 0b110 && i+1 < len(b):
+			rs = append(rs, rune(c&0x1F)<<6|rune(b[i+1]&0x3F))
+			i += 2
+		case c>>4 == 0b1110 && i+2 < len(b):
+			rs = append(rs, rune(c&0x0F)<<12|rune(b[i+1]&0x3F)<<6|rune(b[i+2]&0x3F))
+			i += 3
+		default:
+			rs = append(rs, 0xFFFD)
+			i++
+		}
+	}
+	return rs
+}
+
+func natStringIndexOf(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	hay := recv.(*JString).Chars
+	pat, ok := args[0].(*JString)
+	if !ok || pat == nil {
+		return int32(-1), nil
+	}
+	if len(pat.Chars) == 0 || len(pat.Chars) > len(hay) {
+		if len(pat.Chars) == 0 {
+			return 0, nil
+		}
+		return int32(-1), nil
+	}
+	for i := 0; i+len(pat.Chars) <= len(hay); i++ {
+		match := true
+		for j := range pat.Chars {
+			if hay[i+j] != pat.Chars[j] {
+				match = false
+				break
+			}
+		}
+		if match {
+			return int32(i), nil
+		}
+	}
+	return int32(-1), nil
+}
+
+func natStaticIntegerParseInt(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	s, ok := args[0].(*JString)
+	if !ok || s == nil {
+		return nil, ctx.Throw("java/lang/NumberFormatException", "null")
+	}
+	text := s.String()
+	neg := false
+	body := text
+	if strings.HasPrefix(body, "-") {
+		neg = true
+		body = body[1:]
+	} else if strings.HasPrefix(body, "+") {
+		body = body[1:]
+	}
+	if body == "" {
+		return nil, ctx.Throw("java/lang/NumberFormatException", "for input string: \""+text+"\"")
+	}
+	var v int64
+	for _, ch := range []byte(body) {
+		if ch < '0' || ch > '9' {
+			return nil, ctx.Throw("java/lang/NumberFormatException",
+				"for input string: \""+text+"\"")
+		}
+		v = v*10 + int64(ch-'0')
+		if v > 1<<31 {
+			v = 1 << 31 // clamp; overflow wrap handled below
+		}
+	}
+	if neg {
+		v = -v
+	}
+	if v < math.MinInt32 || v > math.MaxInt32 {
+		return nil, ctx.Throw("java/lang/NumberFormatException",
+			"for input string: \""+text+"\"")
+	}
+	return int32(v), nil
+}
+
+// natStreamWriteB backs write([B)V.
+func natStreamWriteB(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	arr := args[0].(*ArrayObj)
+	return natStreamWriteBII(ctx, recv, []Value{arr, int32(0), int32(len(arr.Elems))})
 }

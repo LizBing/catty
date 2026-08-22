@@ -17,6 +17,16 @@ func bootstrap(k *Kernel) {
 			{Name: "wait", Desc: "(J)V", Flags: classfile.AccPublic|classfile.AccFinal, Native: natObjectWaitMillis},
 			{Name: "notify", Desc: "()V", Flags: classfile.AccPublic|classfile.AccFinal, Native: natObjectNotify},
 			{Name: "notifyAll", Desc: "()V", Flags: classfile.AccPublic|classfile.AccFinal, Native: natObjectNotifyAll},
+			{Name: "getClass", Desc: "()Ljava/lang/Class;", Flags: classfile.AccPublic|classfile.AccFinal, Native: natObjectGetClass},
+		},
+	})
+
+	mustDefine(k, &ClassDef{
+		Name:  "java/lang/Class",
+		Super: "java/lang/Object",
+		Flags: classfile.AccPublic | classfile.AccFinal,
+		Methods: []MethodDef{
+			{Name: "getName", Desc: "()Ljava/lang/String;", Flags: classfile.AccPublic, Native: natClassGetName},
 		},
 	})
 
@@ -29,6 +39,9 @@ func bootstrap(k *Kernel) {
 			{Name: "charAt", Desc: "(I)C", Flags: classfile.AccPublic, Native: natStringCharAt},
 			{Name: "equals", Desc: "(Ljava/lang/Object;)Z", Flags: classfile.AccPublic, Native: natStringEquals},
 			{Name: "hashCode", Desc: "()I", Flags: classfile.AccPublic, Native: natStringHashCode},
+			{Name: "indexOf", Desc: "(Ljava/lang/String;)I", Flags: classfile.AccPublic, Native: natStringIndexOf},
+			{Name: "getBytes", Desc: "()[B", Flags: classfile.AccPublic, Native: natStringGetBytes},
+			{Name: "<init>", Desc: "([BII)V", Flags: classfile.AccPublic, Native: natStringInitBytesRange},
 			{Name: "toString", Desc: "()Ljava/lang/String;", Flags: classfile.AccPublic, Native: natStringToString},
 		},
 	})
@@ -64,6 +77,8 @@ func bootstrap(k *Kernel) {
 		{"java/lang/IllegalStateException", "java/lang/RuntimeException"},
 		{"java/lang/UnsupportedOperationException", "java/lang/RuntimeException"},
 		{"java/lang/IllegalMonitorStateException", "java/lang/RuntimeException"},
+		{"java/net/SocketException", "java/lang/Exception"},
+		{"java/net/BindException", "java/net/SocketException"},
 		{"java/lang/IllegalThreadStateException", "java/lang/IllegalArgumentException"},
 		{"java/lang/InterruptedException", "java/lang/Exception"},
 		{"java/lang/VirtualMachineError", "java/lang/Error"},
@@ -106,6 +121,7 @@ func bootstrap(k *Kernel) {
 			{Name: "toString", Desc: "()Ljava/lang/String;", Flags: classfile.AccPublic, Native: natIntegerToString},
 			{Name: "valueOf", Desc: "(I)Ljava/lang/Integer;", Flags: classfile.AccPublic | classfile.AccStatic, Native: natStaticIntegerValueOf},
 			{Name: "toString", Desc: "(I)Ljava/lang/String;", Flags: classfile.AccPublic | classfile.AccStatic, Native: natStaticIntegerToString},
+			{Name: "parseInt", Desc: "(Ljava/lang/String;)I", Flags: classfile.AccPublic | classfile.AccStatic, Native: natStaticIntegerParseInt},
 		},
 	})
 
@@ -138,6 +154,56 @@ func bootstrap(k *Kernel) {
 			{Name: "currentThread", Desc: "()Ljava/lang/Thread;", Flags: classfile.AccPublic | classfile.AccStatic, Native: natStaticCurrentThread},
 			{Name: "sleep", Desc: "(J)V", Flags: classfile.AccPublic | classfile.AccStatic, Native: natStaticSleep},
 			{Name: "interrupted", Desc: "()Z", Flags: classfile.AccPublic | classfile.AccStatic, Native: natStaticInterruptedFlag},
+		},
+	})
+
+	// ---- java.net / java.io streams (payload-backed, M2) ----
+	mustDefine(k, &ClassDef{
+		Name:  "java/io/InputStream",
+		Super: "java/lang/Object",
+		Flags: classfile.AccPublic,
+		Methods: []MethodDef{
+			{Name: "<init>", Desc: "()V", Flags: classfile.AccPublic, Native: natObjectInit},
+			{Name: "read", Desc: "([B)I", Flags: classfile.AccPublic, Native: natStreamReadB},
+			{Name: "close", Desc: "()V", Flags: classfile.AccPublic, Native: natStreamClose},
+		},
+	})
+
+	mustDefine(k, &ClassDef{
+		Name:  "java/io/OutputStream",
+		Super: "java/lang/Object",
+		Flags: classfile.AccPublic,
+		Methods: []MethodDef{
+			{Name: "<init>", Desc: "()V", Flags: classfile.AccPublic, Native: natObjectInit},
+			{Name: "write", Desc: "([B)V", Flags: classfile.AccPublic, Native: natStreamWriteB},
+			{Name: "write", Desc: "([BII)V", Flags: classfile.AccPublic, Native: natStreamWriteBII},
+			{Name: "close", Desc: "()V", Flags: classfile.AccPublic, Native: natStreamClose},
+		},
+	})
+
+	mustDefine(k, &ClassDef{
+		Name:   "java/net/Socket",
+		Super:  "java/lang/Object",
+		Flags:  classfile.AccPublic,
+		Fields: []FieldDef{},
+		Methods: []MethodDef{
+			{Name: "<init>", Desc: "()V", Flags: classfile.AccPublic, Native: natObjectInit},
+			{Name: "getInputStream", Desc: "()Ljava/io/InputStream;", Flags: classfile.AccPublic, Native: natSocketGetInputStream},
+			{Name: "getOutputStream", Desc: "()Ljava/io/OutputStream;", Flags: classfile.AccPublic, Native: natSocketGetOutputStream},
+			{Name: "close", Desc: "()V", Flags: classfile.AccPublic, Native: natSocketClose},
+		},
+	})
+
+	mustDefine(k, &ClassDef{
+		Name:   "java/net/ServerSocket",
+		Super:  "java/lang/Object",
+		Flags:  classfile.AccPublic,
+		Fields: []FieldDef{},
+		Methods: []MethodDef{
+			{Name: "<init>", Desc: "(I)V", Flags: classfile.AccPublic, Native: natServerSocketInit},
+			{Name: "accept", Desc: "()Ljava/net/Socket;", Flags: classfile.AccPublic, Native: natServerSocketAccept},
+			{Name: "getLocalPort", Desc: "()I", Flags: classfile.AccPublic, Native: natServerSocketLocalPort},
+			{Name: "close", Desc: "()V", Flags: classfile.AccPublic, Native: natServerSocketClose},
 		},
 	})
 

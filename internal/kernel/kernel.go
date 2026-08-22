@@ -630,10 +630,32 @@ func (k *Kernel) ResolveMethod(start *Class, name, desc string) (*Method, error)
 
 // ---- Object construction -------------------------------------------------
 
+// ClassObjectOf returns the unique java.lang.Class instance for c,
+// creating it on first use (identity stable for == comparisons).
+func (k *Kernel) ClassObjectOf(c *Class) (*Instance, error) {
+	if o := c.classObj.Load(); o != nil {
+		return o, nil
+	}
+	cls, ok := k.ClassByName("java/lang/Class")
+	if !ok {
+		return nil, fmt.Errorf("kernel: bootstrap Class missing")
+	}
+	in, err := k.NewInstance(cls)
+	if err != nil {
+		return nil, err
+	}
+	in.Payload = c
+	if !c.classObj.CompareAndSwap(nil, in) {
+		return c.classObj.Load(), nil
+	}
+	return in, nil
+}
+
 // NewInstance allocates an object of class c. Fields receive their Java
 // default values per descriptor (0/0L/false… for primitives, null for refs).
 func (k *Kernel) NewInstance(c *Class) (*Instance, error) {
-	if c.IsArray || c.Flags&(classfile.AccAbstract|classfile.AccInterface) != 0 {
+	if c.IsArray || c.Name == "java/lang/Class" ||
+		c.Flags&(classfile.AccAbstract|classfile.AccInterface) != 0 {
 		return nil, fmt.Errorf("cannot instantiate %s", c.Name)
 	}
 	in := &Instance{}
