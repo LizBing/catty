@@ -6,7 +6,7 @@
 
 | ID | 规范条款 | Catty 行为 | 差异原因 | 影响面 | 追踪 |
 |---|---|---|---|---|---|
-| DEV-0001 | JVMS §4.10 字节码验证 | 不验证，仅执行可信 javac 产物 | M0 范围裁剪 | 恶意 .class 可致引擎 panic | DEBT-0005 |
+| DEV-0001 | JVMS §4.10 字节码验证 | 结构层已实现（分支/处理点必须有 SM 帧、池引用合法、边界检查）；操作数类型数据流模拟未做，引用归并对未知类保守放行 | 类型检查器按高风险任务单列（DEBT-0009），避免带缺陷的类型检查器造成虚假安全感 | 恶意 .class 仍可致引擎 panic | DEBT-0005→拆分：结构层已完成，数据流=DEBT-0009 |
 | DEV-0002 | JVMS §5.5 跨线程循环 <clinit> 死锁破除 | 未实现；跨线程循环初始化会阻塞 | M0 单线程语义 | 多线程类初始化 | M1 loader 工作 |
 | DEV-0003 | JVMS §2.2.8 监视器可重入 + wait/notify | sync.Mutex 不可重入，wait/notify 未实现 | M0 占位实现 | synchronized 重入会死锁 | DEBT-0006 |
 | DEV-0004 | JVM 栈深度限制 / StackOverflowError | 无 SOE；goroutine 栈自动增长至 Go 上限 | 连续栈模型差异 | 无限递归进程崩溃而非 SOE | DEBT-0007 |

@@ -58,8 +58,16 @@ T5 多类 fixture 验收（Main↔Helper 经 -cp 加载，含 synchronized/wait-
 ## Progress
 
 - [x] 计划建立（2026-08-22）
-- [x] P-0002 已委派 Researcher（后台）
-- [ ] T1 … T5
+- [x] P-0002 已委派 Researcher（后台，进行中）
+- [x] T1 Monitor 重写（24fc480）：可重入/FIFO 竞争队列/wait 全深度释放/
+      中断感知等待（atomic outcome）；OwnerKey 身份贯穿；-race ×2 绿
+- [x] T3 SM 解析 + T4 结构层验证器（37a356a）：SM 全帧型解码；
+      分支/处理点帧存在性、池合法性、边界检查；负面测试×5
+- [x] T2 类加载器（37a356a）：目录 classpath、懒式依赖、循环守卫、CLI -cp
+- [x] T5 多类验收（app.Main/Greeter/Helper）：invokeinterface +
+      instanceof/checkcast(接口) + synchronized 重入 + 跨类加载，
+      输出与参考 JVM 逐字节一致；字段默认值语义修复随本验收发现
+- [ ] Jackson 反序列化验收 → 移交 M1-stretch/M2 决策（brief 披露）
 
 ## Open Questions
 
