@@ -101,3 +101,39 @@ func TestAcceptanceClassPathMulti(t *testing.T) {
 		t.Errorf("stdout =\n%q\nwant\n%q", out.String(), want)
 	}
 }
+
+
+// TestAcceptanceThreads runs the multithreaded fixture through start/join,
+// monitor contention and interrupt-of-sleep, comparing to the reference
+// JVM output captured at fixture creation time.
+func TestAcceptanceThreads(t *testing.T) {
+	var out bytes.Buffer
+	k := kernel.New(kernel.Options{Stdout: &out})
+	loader := kernel.NewClassPathLoader(k, []string{"../../testdata/cp"})
+	k.SetResolver(loader.Load)
+
+	cls, err := loader.Load("ThreadsDemo")
+	if err != nil {
+		t.Fatalf("load ThreadsDemo: %v", err)
+	}
+	th := New(k)
+	main, err := k.ResolveMethod(cls, "main", "([Ljava/lang/String;)V")
+	if err != nil {
+		t.Fatalf("resolve main: %v", err)
+	}
+	argsArr, _ := k.NewArray("Ljava/lang/String;", 0)
+	if _, err := th.Call(main, nil, []kernel.Value{argsArr}); err != nil {
+		t.Fatalf("run: %v", err)
+	}
+
+	want := strings.Join([]string{
+		"500",
+		"interrupted ok",
+		"main done main",
+		"w1 alive=false",
+		"",
+	}, "\n")
+	if out.String() != want {
+		t.Errorf("stdout =\n%q\nwant\n%q", out.String(), want)
+	}
+}

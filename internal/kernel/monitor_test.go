@@ -76,7 +76,7 @@ func TestWaitNotifyHandshake(t *testing.T) {
 
 	go func() {
 		m.Enter(10)
-		out := m.Wait(10, -1) // indefinitely
+		out := m.Wait(nil, 10, -1) // indefinitely
 		done <- out           // reacquired on wake; ownership verified below
 	}()
 
@@ -119,7 +119,7 @@ func TestWaitTimeoutRestoresDepth(t *testing.T) {
 	m.Enter(5)
 	m.Enter(5) // depth 2
 	start := time.Now()
-	out := m.Wait(5, 40)
+	out := m.Wait(nil, 5, 40)
 	if out != waitHitDeadline {
 		t.Fatalf("outcome = %v, want waitHitDeadline", out)
 	}
@@ -141,7 +141,7 @@ func TestInterruptedWait(t *testing.T) {
 	outCh := make(chan waitOutcome, 1)
 	go func() {
 		m.Enter(9)
-		outCh <- m.Wait(9, -1)
+		outCh <- m.Wait(nil, 9, -1)
 	}()
 	waiters := func() int {
 		m.mu.Lock()
@@ -173,7 +173,7 @@ func TestNotifyAllWakesAll(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			m.Enter(100)
-			if o := m.Wait(100, 2000); o == waitGotNotify {
+			if o := m.Wait(nil, 100, 2000); o == waitGotNotify {
 				woke.Add(1)
 			}
 			m.Exit(100)

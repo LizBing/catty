@@ -64,7 +64,10 @@ func bootstrap(k *Kernel) {
 		{"java/lang/IllegalStateException", "java/lang/RuntimeException"},
 		{"java/lang/UnsupportedOperationException", "java/lang/RuntimeException"},
 		{"java/lang/IllegalMonitorStateException", "java/lang/RuntimeException"},
+		{"java/lang/IllegalThreadStateException", "java/lang/IllegalArgumentException"},
 		{"java/lang/InterruptedException", "java/lang/Exception"},
+		{"java/lang/VirtualMachineError", "java/lang/Error"},
+		{"java/lang/StackOverflowError", "java/lang/VirtualMachineError"},
 	}
 	for _, t := range throwables {
 		def := &ClassDef{
@@ -103,6 +106,38 @@ func bootstrap(k *Kernel) {
 			{Name: "toString", Desc: "()Ljava/lang/String;", Flags: classfile.AccPublic, Native: natIntegerToString},
 			{Name: "valueOf", Desc: "(I)Ljava/lang/Integer;", Flags: classfile.AccPublic | classfile.AccStatic, Native: natStaticIntegerValueOf},
 			{Name: "toString", Desc: "(I)Ljava/lang/String;", Flags: classfile.AccPublic | classfile.AccStatic, Native: natStaticIntegerToString},
+		},
+	})
+
+	mustDefine(k, &ClassDef{
+		Name:   "java/lang/Runnable",
+		Super:  "",
+		Flags:  classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
+	})
+
+	mustDefine(k, &ClassDef{
+		Name:  "java/lang/Thread",
+		Super: "java/lang/Object",
+		Flags: classfile.AccPublic,
+		Ifaces: []string{"java/lang/Runnable"},
+		Fields: []FieldDef{
+			{Name: "name", Desc: "Ljava/lang/String;", Flags: classfile.AccPrivate},
+		},
+		Methods: []MethodDef{
+			{Name: "<init>", Desc: "()V", Flags: classfile.AccPublic, Native: natThreadInitVoid},
+			{Name: "<init>", Desc: "(Ljava/lang/String;)V", Flags: classfile.AccPublic, Native: natThreadInitName},
+			{Name: "run", Desc: "()V", Flags: classfile.AccPublic, Native: natThreadRunDefault},
+			{Name: "start", Desc: "()V", Flags: classfile.AccPublic, Native: natThreadStart},
+			{Name: "join", Desc: "()V", Flags: classfile.AccPublic, Native: natThreadJoinForever},
+			{Name: "join", Desc: "(J)V", Flags: classfile.AccPublic, Native: natThreadJoinMillis},
+			{Name: "isAlive", Desc: "()Z", Flags: classfile.AccPublic, Native: natThreadIsAlive},
+			{Name: "setName", Desc: "(Ljava/lang/String;)V", Flags: classfile.AccPublic, Native: natThreadSetName},
+			{Name: "getName", Desc: "()Ljava/lang/String;", Flags: classfile.AccPublic, Native: natThreadGetName},
+			{Name: "interrupt", Desc: "()V", Flags: classfile.AccPublic, Native: natThreadInterrupt},
+			{Name: "isInterrupted", Desc: "()Z", Flags: classfile.AccPublic, Native: natThreadIsInterrupted},
+			{Name: "currentThread", Desc: "()Ljava/lang/Thread;", Flags: classfile.AccPublic | classfile.AccStatic, Native: natStaticCurrentThread},
+			{Name: "sleep", Desc: "(J)V", Flags: classfile.AccPublic | classfile.AccStatic, Native: natStaticSleep},
+			{Name: "interrupted", Desc: "()Z", Flags: classfile.AccPublic | classfile.AccStatic, Native: natStaticInterruptedFlag},
 		},
 	})
 

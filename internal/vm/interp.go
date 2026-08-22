@@ -9,32 +9,61 @@ import (
 	"fmt"
 	"math"
 	"os"
-	"sync/atomic"
 
 	"catty/internal/classfile"
 	"catty/internal/kernel"
 )
 
-var threadCtr atomic.Uint64
-
 // Thread is an execution context: one goroutine of Java execution.
-// Cross-thread scheduling primitives arrive in M2; monitor ownership is
-// already keyed per-Thread (M1 monitor rework).
 type Thread struct {
 	K         *kernel.Kernel
 	id        uint64
+	jobj      *kernel.Instance // bound java.lang.Thread (nil for primordial v0)
+	depth     int              // interpreted-frame depth (SOE metering)
+	maxDepth  int
 	initStack []string // class names with <clinit> in progress (JVMS §5.5)
 }
 
-// New creates a Thread and installs the kernel's Invoker bridge.
+// New creates the primordial thread for a kernel and installs the VM's
+// bridges (Invoker, spawn hook, main-thread record).
 func New(k *kernel.Kernel) *Thread {
-	t := &Thread{K: k, id: threadCtr.Add(1)}
-	k.Invoker = t
+	id := k.MintKey()
+	t := &Thread{K: k, id: id}
+	k.InstallInvoker(t)
+
+	// Bind java.lang.Thread for main and install goroutine spawning.
+	if cls, ok := k.ClassByName("java/lang/Thread"); ok {
+		if obj, err := k.NewInstance(cls); err == nil {
+			name := "main"
+			j := k.Threads.Register(id, obj, name)
+			obj.Payload = j
+			if f := cls.FindField("name", "Ljava/lang/String;"); f != nil {
+				obj.Fields[f.Slot] = k.InternGo(name)
+			}
+			t.jobj = obj
+			k.Threads.SetMain(j)
+		}
+	}
+	k.SpawnJavaThread = func(j *kernel.JThread) { go runJavaThread(k, j) }
+	k.UncaughtHandler = defaultUncaughtHandler(k)
 	return t
 }
 
 // OwnerKey implements kernel.OwnerKey.
 func (t *Thread) OwnerKey() uint64 { return t.id }
+
+// InvokeInterpreted implements kernel.Invoker with SOE depth metering.
+func (t *Thread) InvokeInterpreted(m *kernel.Method, recv kernel.Value, args []kernel.Value) (kernel.Value, error) {
+	if t.maxDepth == 0 { // primordial thread lazy-init
+		t.maxDepth = t.K.MaxFrames()
+	}
+	t.depth++
+	defer func() { t.depth-- }()
+	if t.depth > t.maxDepth {
+		return nil, t.throwNamed("java/lang/StackOverflowError", "")
+	}
+	return t.exec(m, recv, args)
+}
 
 // --- kernel.InitTracker -----------------------------------------------------
 
@@ -60,9 +89,7 @@ func (t *Thread) EnsureInitialized(c *kernel.Class) error {
 }
 
 // InvokeInterpreted implements kernel.Invoker.
-func (t *Thread) InvokeInterpreted(m *kernel.Method, recv kernel.Value, args []kernel.Value) (kernel.Value, error) {
-	return t.exec(m, recv, args)
-}
+
 
 // Call invokes any method (native or interpreted) with full dispatch,
 // attributing monitor operations to this thread.
@@ -867,7 +894,7 @@ func (t *Thread) exec(m *kernel.Method, recv kernel.Value, args []kernel.Value) 
 			if target.Native == nil && target.Code == nil {
 				return nil, fmt.Errorf("method %s.%s%s has neither code nor native", cls, name, desc)
 			}
-			res, callErr := t.K.Invoke(target, recv, vals)
+			res, callErr := t.K.InvokeAs(t, target, recv, vals) // attribute to this thread
 			if callErr != nil {
 				if throwOrHandle(callErr, faultPc) {
 					continue

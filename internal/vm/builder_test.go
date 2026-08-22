@@ -93,10 +93,8 @@ func u4(w []byte, v uint32) []byte {
 	return append(w, byte(v>>24), byte(v>>16), byte(v>>8), byte(v))
 }
 
-// build serializes and parses the class through the real pipeline, then
-// loads it into a fresh kernel.
-func (b *classBuilder) build(t *testing.T) (*kernel.Kernel, *kernel.Class) {
-	t.Helper()
+// serialize assembles the class file image.
+func (b *classBuilder) serialize(t *testing.T) []byte {
 
 	// Reserve standard entries up front so ordering is stable.
 	objUtf8 := b.utf8("java/lang/Object")
@@ -189,8 +187,15 @@ func (b *classBuilder) build(t *testing.T) (*kernel.Kernel, *kernel.Class) {
 
 	// Interpreter unit tests target the engine, not the verifier: the
 	// builder does not synthesize StackMapTable frames yet (DEBT-0009).
+	return w
+}
+
+// build serializes and loads the class into a fresh kernel (unverified:
+// the builder does not synthesize StackMapTable frames — DEBT-0009).
+func (b *classBuilder) build(t *testing.T) (*kernel.Kernel, *kernel.Class) {
+	t.Helper()
 	k := kernel.New(kernel.Options{SkipVerify: true})
-	cls, err := k.LoadClassBytes(w)
+	cls, err := k.LoadClassBytes(b.serialize(t))
 	if err != nil {
 		t.Fatalf("build/load %s: %v", b.name, err)
 	}

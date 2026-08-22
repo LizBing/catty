@@ -11,7 +11,8 @@ Orchestrator 在空闲期择"高收益/低成本"清偿；清偿后移入表格�
 | DEBT-0004 | libcore/Harmony 逐文件许可甄别未开始（ADR-0006 前置） | 阻塞 L2 移植 | M | M | M1 启动前产出甄别清单报告（research artifact） |
 | DEBT-0005 | ~~字节码验证器缺失~~ 已部分完成：结构层验证落地（P-0003），数据流类型检查未做 | 安全/健壮性 | H | M | 拆出 DEBT-0009 跟踪类型层 |
 | DEBT-0006 | 监视器不可重入、无 wait/notify/interrupt | 正确性（DEV-0003） | H | M | M1 重写 kernel Monitor：计数+等待队列+中断通道 |
-| DEBT-0007 | 无 StackOverflowError 深度计量 | 语义完整性（DEV-0004） | M | S | M2 发射序言/解释循环加低频深度检查，映射 -Xss |
+| DEBT-0007 | ~~SOE 深度计量~~ 已完成（P-0004，Options.MaxFrames） | — | — | — | 关闭；发射器侧序言计量待 AOT 后评估 |
+| DEBT-0010 | 缺 java.lang.Class 对象：ldc <class>、静态 synchronized、getClass() 均不可用 | 语言面完整性 | H | M | M2/P-0005 引入 Class 元对象（类注册表映射），同步解锁三特性 |
 | DEBT-0008 | ~~cmd/catty 未接线 main args 与 classpath~~ 已完成目录 -cp；args/JAR 仍缺 | 可用性 | L | S | JAR 支持随 ClassLoader 抽象（M2） |
 | DEBT-0009 | 验证器缺数据流类型检查（类别不匹配/栈深线性模拟） | 安全边界完整性 | H | L | M2 高优：复用 vm 操作码表做线性模拟，SM 帧为合并规范形；未知引用类对保守放行需同步收敛 |
 

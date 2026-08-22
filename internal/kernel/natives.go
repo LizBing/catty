@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"sync/atomic"
 	"time"
 )
 
@@ -454,7 +455,10 @@ func natObjectWaitMillis(ctx *CallContext, recv Value, args []Value) (Value, err
 	if ctx.Owner == nil {
 		return nil, fmt.Errorf("wait called without thread context")
 	}
-	out := heapHeader(recv).Monitor().Wait(ctx.ownerKey(), argL(args, 0))
+	if ctx.K.Threads.ClearInterrupted(ctx.ownerKey()) {
+		return nil, ctx.Throw("java/lang/InterruptedException", "flag set before wait")
+	}
+	out := heapHeader(recv).Monitor().Wait(ctx.K.Threads, ctx.ownerKey(), argL(args, 0))
 	if out == waitGotInterrupt {
 		return nil, ctx.Throw("java/lang/InterruptedException", "wait interrupted")
 	}
@@ -473,4 +477,164 @@ func natObjectNotifyAll(ctx *CallContext, recv Value, args []Value) (Value, erro
 		return nil, ctx.Throw("java/lang/IllegalMonitorStateException", "notifyAll without ownership")
 	}
 	return nil, nil
+}
+
+// ---- java/lang/Thread --------------------------------------------------------
+
+func threadOf(recv Value) (*JThread, error) {
+	in, ok := recv.(*Instance)
+	if !ok {
+		return nil, fmt.Errorf("receiver is not a heap object")
+	}
+	j, ok := in.Payload.(*JThread)
+	if !ok || j == nil {
+		return nil, fmt.Errorf("receiver is not a java.lang.Thread (no record)")
+	}
+	return j, nil
+}
+
+func natThreadInitVoid(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	return initJavaThread(ctx, recv, "")
+}
+
+func natThreadInitName(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	name := "Thread"
+	if s, ok := args[0].(*JString); ok && s != nil {
+		name = s.String()
+	}
+	return initJavaThread(ctx, recv, name)
+}
+
+var threadNameCtr atomic.Uint64
+
+func initJavaThread(ctx *CallContext, recv Value, name string) (Value, error) {
+	in := recv.(*Instance)
+	if name == "" {
+		name = fmt.Sprintf("Thread-%d", threadNameCtr.Add(1))
+	}
+	j := ctx.K.Threads.NewRecord(in, name)
+	in.Payload = j
+	f := in.Class.FindField("name", "Ljava/lang/String;")
+	if f != nil {
+		in.Fields[f.Slot] = ctx.K.MakeJStringFromGo(name)
+	}
+	return nil, nil
+}
+
+func natThreadStart(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	j, err := threadOf(recv)
+	if err != nil {
+		return nil, err
+	}
+	if !j.state.CompareAndSwap(int32(threadNew), int32(threadRunning)) {
+		return nil, ctx.Throw("java/lang/IllegalThreadStateException", "start on running/finished thread")
+	}
+	key := ctx.K.MintKey()
+	j.Key = key
+	ctx.K.Threads.attach(j)
+	j.alive.Store(true)
+	if ctx.K.SpawnJavaThread == nil {
+		return nil, fmt.Errorf("no SpawnJavaThread hook installed")
+	}
+	ctx.K.SpawnJavaThread(j)
+	return nil, nil
+}
+
+func natThreadRunDefault(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	return nil, nil // default run(); subclasses override via dispatch
+}
+
+func natThreadJoinMillis(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	j, err := threadOf(recv)
+	if err != nil {
+		return nil, err
+	}
+	reached, interrupted := ctx.K.Threads.Join(ctx.ownerKey(), j, time.Duration(argL(args, 0))*time.Millisecond)
+	if interrupted {
+		return nil, ctx.Throw("java/lang/InterruptedException", "join interrupted")
+	}
+	_ = reached
+	return nil, nil
+}
+
+func natThreadIsAlive(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	j, err := threadOf(recv)
+	if err != nil {
+		return nil, err
+	}
+	return boolV(j.IsAlive()), nil
+}
+
+func natThreadSetName(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	j, _ := threadOf(recv)
+	if s, ok := args[0].(*JString); ok && s != nil {
+		j.Name = s.String()
+	}
+	in := recv.(*Instance)
+	if f := in.Class.FindField("name", "Ljava/lang/String;"); f != nil {
+		in.Fields[f.Slot] = args[0]
+	}
+	return nil, nil
+}
+
+func natThreadGetName(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	in := recv.(*Instance)
+	if f := in.Class.FindField("name", "Ljava/lang/String;"); f != nil {
+		if s, ok := in.Fields[f.Slot].(*JString); ok {
+			return s, nil
+		}
+	}
+	j, err := threadOf(recv)
+	if err != nil {
+		return nil, err
+	}
+	return ctx.K.MakeJStringFromGo(j.Name), nil
+}
+
+func natThreadInterrupt(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	j, err := threadOf(recv)
+	if err != nil {
+		return nil, err
+	}
+	ctx.K.Threads.InterruptByKey(j)
+	return nil, nil
+}
+
+func natThreadIsInterrupted(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	j, err := threadOf(recv)
+	if err != nil {
+		return nil, err
+	}
+	return boolV(j.interrupted.Load()), nil
+}
+
+func natStaticCurrentThread(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	j := ctx.K.Threads.ByKey(ctx.ownerKey())
+	if j == nil {
+		return nil, fmt.Errorf("current thread has no record")
+	}
+	return j.Obj, nil
+}
+
+func natStaticSleep(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	key := ctx.ownerKey()
+	if key == 0 {
+		return nil, fmt.Errorf("Thread.sleep without thread context")
+	}
+	if ctx.K.Threads.ClearInterrupted(key) {
+		return nil, ctx.Throw("java/lang/InterruptedException", "sleep interrupted before park")
+	}
+	if !ctx.K.Threads.Sleep(key, time.Duration(argL(args, 0))*time.Millisecond) {
+		return nil, ctx.Throw("java/lang/InterruptedException", "sleep interrupted")
+	}
+	return nil, nil
+}
+
+func natStaticInterruptedFlag(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	return boolV(ctx.K.Threads.ClearInterrupted(ctx.ownerKey())), nil
+}
+
+// natThreadJoinForever backs join() with no timeout.
+func natThreadJoinForever(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	return natThreadJoinMillis(ctx, recv, []Value{int64(0)})
 }

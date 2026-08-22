@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	"catty/internal/classfile"
 	"catty/internal/verify"
@@ -35,6 +36,9 @@ func (ctx *CallContext) ownerKey() uint64 {
 	return 0
 }
 
+// OwnerKeyValue exposes the calling thread's monitor key to natives/tests.
+func (ctx *CallContext) OwnerKeyValue() uint64 { return ctx.ownerKey() }
+
 // Stringify renders a value the way PrintStream.println(Object) does,
 // dispatching toString() with the calling thread's identity.
 func (ctx *CallContext) Stringify(v Value) string {
@@ -60,9 +64,11 @@ func (ctx *CallContext) Stringify(v Value) string {
 	}
 }
 
-// Invoke calls a resolved method through the kernel dispatcher.
+// Invoke calls a resolved method through the kernel dispatcher, carrying
+// the calling thread's identity so nested monitor/sleep ops attribute
+// correctly.
 func (ctx *CallContext) Invoke(m *Method, recv Value, args []Value) (Value, error) {
-	return ctx.K.Invoke(m, recv, args)
+	return ctx.K.InvokeAs(ctx.Owner, m, recv, args)
 }
 
 // NewStringGo builds a non-interned String from Go text.
@@ -102,11 +108,16 @@ type Invoker interface {
 // Options configures a Kernel.
 type Options struct {
 	Stdout io.Writer
+	Stderr io.Writer
 
 	// SkipVerify disables bytecode verification (JVMS §4.10). Default is
 	// verified-on-load once the verifier is wired; trusted-input tooling
 	// may turn it off.
 	SkipVerify bool
+
+	// MaxFrames bounds interpreted-call depth for StackOverflowError
+	// detection (0 selects the default 4096).
+	MaxFrames int
 
 	// Resolver optionally backs runtime class resolution (VM
 	// resolveClassIdx / ResolveClass misses). Set to a ClassPathLoader.Load
@@ -122,8 +133,40 @@ type Kernel struct {
 	strPool map[string]*JString
 	intBox  [256]*Instance // Integer.valueOf cache [-128,127]
 
-	// Invoker is installed by the VM before executing Java code.
-	Invoker Invoker
+	// Threads tracks java.lang.Thread identities and blocking operations.
+	Threads *ThreadRegistry
+
+	nextKey atomic.Uint64
+
+	// SpawnJavaThread is installed by the VM: start() delegates goroutine
+	// creation upward (kernel must not import the VM). The hook runs the
+	// thread's run() on a fresh execution context and terminates the record.
+	SpawnJavaThread func(j *JThread)
+
+	// UncaughtHandler formats an uncaught throwable from a Java thread.
+	// Installed by the VM alongside SpawnJavaThread.
+	UncaughtHandler func(j *JThread, thrown *Thrown)
+
+	// invoker is the VM execution bridge. Accessed via setInvoker/
+	// invokerFallback because spawned threads race to install it.
+	invoker Invoker
+}
+
+// InstallInvoker registers the VM execution bridge. Idempotent: the first
+// installation wins (all threads of one kernel share one engine bridge).
+func (k *Kernel) InstallInvoker(i Invoker) {
+	k.mu.Lock()
+	defer k.mu.Unlock()
+	if k.invoker == nil {
+		k.invoker = i
+	}
+}
+
+// invokerFallback returns the installed bridge (may be nil).
+func (k *Kernel) invokerFallback() Invoker {
+	k.mu.Lock()
+	defer k.mu.Unlock()
+	return k.invoker
 }
 
 // New builds a Kernel with the full bootstrap (synthesized java.*) surface.
@@ -131,13 +174,32 @@ func New(opts Options) *Kernel {
 	if opts.Stdout == nil {
 		opts.Stdout = os.Stdout
 	}
+	if opts.Stderr == nil {
+		opts.Stderr = os.Stderr
+	}
 	k := &Kernel{
 		opts:    opts,
 		classes: make(map[string]*Class),
 		strPool: make(map[string]*JString),
+		Threads: NewThreadRegistry(),
 	}
 	bootstrap(k)
 	return k
+}
+
+// Stderr returns the diagnostic writer (uncaught exceptions etc).
+func (k *Kernel) Stderr() io.Writer { return k.opts.Stderr }
+
+// MintKey allocates a unique monitor-owner/thread identity.
+func (k *Kernel) MintKey() uint64 { return k.nextKey.Add(1) }
+
+// MaxFrames returns the interpreted-frame budget for StackOverflowError
+// detection (default 4096).
+func (k *Kernel) MaxFrames() int {
+	if k.opts.MaxFrames > 0 {
+		return k.opts.MaxFrames
+	}
+	return 4096
 }
 
 // Stdout returns the writer backing System.out.
@@ -158,15 +220,23 @@ func (k *Kernel) Invoke(m *Method, recv Value, args []Value) (Value, error) {
 }
 
 // InvokeAs dispatches a method carrying the calling thread's identity so
-// monitors and (future) interrupt state attribute correctly.
+// monitors, class-init re-entrancy and interrupt state attribute correctly.
+//
+// Interpreted methods run on the OWNER's execution context when it provides
+// one (the VM's Thread does); k.Invoker is only the fallback for
+// owner-less paths (tests, kernel-internal probes).
 func (k *Kernel) InvokeAs(owner OwnerKey, m *Method, recv Value, args []Value) (Value, error) {
 	if m.Native != nil {
 		return m.Native(&CallContext{K: k, Owner: owner}, recv, args)
 	}
-	if k.Invoker == nil {
+	if io, ok := owner.(Invoker); ok {
+		return io.InvokeInterpreted(m, recv, args)
+	}
+	fb := k.invokerFallback()
+	if fb == nil {
 		return nil, fmt.Errorf("kernel: no Invoker installed for interpreted method %s.%s", m.Holder.Name, m.Name)
 	}
-	return k.Invoker.InvokeInterpreted(m, recv, args)
+	return fb.InvokeInterpreted(m, recv, args)
 }
 
 // ClassByName looks a class up by internal name (array pseudo-classes
@@ -215,10 +285,10 @@ func (k *Kernel) ArrayClassOf(compDesc string) *Class {
 		Name:     name,
 		Super:    objCls,
 		Flags:    classfile.AccFinal | classfile.AccPublic,
-		State:    StateInitialized,
 		IsArray:  true,
 		CompDesc: compDesc,
 	}
+	c.setState(StateInitialized)
 	k.classes[name] = c
 	return c
 }
@@ -261,10 +331,11 @@ func (k *Kernel) DefineClass(def *ClassDef) (*Class, error) {
 	}
 
 	c := &Class{
-		Name: def.Name, Flags: def.Flags, State: StateInitializing, def: def,
+		Name: def.Name, Flags: def.Flags, def: def,
 		methodsByKey: make(map[string]*Method),
 		fieldsByKey:  make(map[string]*Field),
 	}
+	c.setState(StateInitializing)
 	k.classes[def.Name] = c
 
 	superName := ""
@@ -325,11 +396,11 @@ func (k *Kernel) DefineClass(def *ClassDef) (*Class, error) {
 
 	if def.StaticInit != nil {
 		if err := def.StaticInit(k, c); err != nil {
-			c.State = StateErroneous
+			c.setState(StateErroneous)
 			return nil, fmt.Errorf("static init of %s: %w", def.Name, err)
 		}
 	}
-	c.State = StateInitialized
+	c.setState(StateInitialized)
 	return c, nil
 }
 
@@ -356,8 +427,9 @@ func (k *Kernel) LoadClassBytesWith(data []byte, dep func(name string) (*Class, 
 		k.mu.Unlock()
 		return nil, fmt.Errorf("class %s already loaded", cf.ThisClass)
 	}
-	c := &Class{Name: cf.ThisClass, Flags: cf.AccessFlags, CF: cf, State: StateDefined,
+	c := &Class{Name: cf.ThisClass, Flags: cf.AccessFlags, CF: cf,
 		methodsByKey: make(map[string]*Method), fieldsByKey: make(map[string]*Field)}
+	c.setState(StateDefined)
 	k.classes[c.Name] = c
 	k.mu.Unlock()
 

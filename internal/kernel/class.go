@@ -3,6 +3,7 @@ package kernel
 import (
 	"fmt"
 	"sync"
+	"sync/atomic"
 
 	"catty/internal/classfile"
 )
@@ -65,7 +66,7 @@ type Class struct {
 	CF   *classfile.ClassFile // nil for synthesized classes
 	def  *ClassDef            // synthesized origin (nil for CF classes)
 
-	State  ClassState
+	state  atomic.Int32 // ClassState; fast-path reads are atomic
 	initMu sync.Mutex
 
 	// Lookup caches cover this class plus all ancestors (flat view).
@@ -82,6 +83,11 @@ type Class struct {
 	IsArray  bool
 	CompDesc string // array component descriptor (arrays only)
 }
+
+// State returns the current initialization state.
+func (c *Class) State() ClassState { return ClassState(c.state.Load()) }
+
+func (c *Class) setState(s ClassState) { c.state.Store(int32(s)) }
 
 // Synthetic reports whether the class was defined by the runtime rather
 // than loaded from a class file.
@@ -143,7 +149,7 @@ type InitTracker interface {
 // EnsureInitialized drives <clinit> execution: supers first, then self.
 // Synthesized classes are pre-initialized at define time.
 func (k *Kernel) EnsureInitialized(tracker InitTracker, c *Class) error {
-	if c.State == StateInitialized {
+	if c.State() == StateInitialized {
 		return nil
 	}
 	if tracker != nil && tracker.IsInitializing(c.Name) {
@@ -152,7 +158,7 @@ func (k *Kernel) EnsureInitialized(tracker InitTracker, c *Class) error {
 
 	c.initMu.Lock()
 	defer c.initMu.Unlock()
-	switch c.State {
+	switch c.State() {
 	case StateInitialized:
 		return nil
 	case StateErroneous:
@@ -161,7 +167,7 @@ func (k *Kernel) EnsureInitialized(tracker InitTracker, c *Class) error {
 
 	if c.Super != nil {
 		if err := k.EnsureInitialized(tracker, c.Super); err != nil {
-			c.State = StateErroneous
+			c.setState(StateErroneous)
 			return err
 		}
 	}
@@ -169,17 +175,17 @@ func (k *Kernel) EnsureInitialized(tracker InitTracker, c *Class) error {
 		tracker.BeginInit(c.Name)
 		defer tracker.EndInit(c.Name)
 	}
-	c.State = StateInitializing
+	c.setState(StateInitializing)
 	if m := c.FindMethod("<clinit>", "()V"); m != nil {
 		var owner OwnerKey
 		if o, ok := tracker.(OwnerKey); ok {
 			owner = o
 		}
 		if _, err := k.InvokeAs(owner, m, nil, nil); err != nil {
-			c.State = StateErroneous
+			c.setState(StateErroneous)
 			return err
 		}
 	}
-	c.State = StateInitialized
+	c.setState(StateInitialized)
 	return nil
 }

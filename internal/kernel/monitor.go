@@ -118,8 +118,9 @@ const (
 
 // Wait implements Object.wait(timeoutMillis): full-depth release, park
 // until notify/interrupt/deadline, then reacquire to the prior depth.
-// timeoutMillis <= 0 means indefinitely.
-func (m *Monitor) Wait(key uint64, timeoutMillis int64) waitOutcome {
+// timeoutMillis <= 0 means indefinitely. When reg is non-nil the parking is
+// published there so Thread.interrupt can wake cross-monitor waiters.
+func (m *Monitor) Wait(reg *ThreadRegistry, key uint64, timeoutMillis int64) waitOutcome {
 	m.mu.Lock()
 	if m.owner != key {
 		m.mu.Unlock()
@@ -134,6 +135,11 @@ func (m *Monitor) Wait(key uint64, timeoutMillis int64) waitOutcome {
 	m.owner = 0
 	m.releaseLocked()
 	m.mu.Unlock()
+
+	if reg != nil {
+		reg.publishWait(key, rec)
+		defer reg.retractWait(key, rec)
+	}
 
 	var deadline <-chan time.Time
 	if timeoutMillis > 0 {
