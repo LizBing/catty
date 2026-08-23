@@ -4,15 +4,15 @@ pkg: gcopt/q1_devirt
 cpu: Apple M1
                  │ results/bench_all_count10.txt │
                  │            sec/op             │
-Direct-8                            2.090n ±  2%
-InterfaceLocal-8                    2.552n ± 86%
-AssertThenCall-8                    2.188n ±  3%
-OpaqueMono-8                        2.115n ± 16%
-OpaqueBi-8                          2.096n ±  2%
-Field-8                             2.091n ±  2%
-BudgetUnder-8                       2.771n ±  3%
-BudgetOver-8                        7.106n ±  1%
-geomean                             2.606n
+Direct-8                            2.251n ± 42%
+InterfaceLocal-8                    2.450n ±  3%
+AssertThenCall-8                    2.167n ± 11%
+OpaqueMono-8                        2.111n ±  1%
+OpaqueBi-8                          2.130n ±  5%
+Field-8                             2.154n ± 38%
+BudgetUnder-8                       2.767n ±  1%
+BudgetOver-8                        7.141n ± 11%
+geomean                             2.630n
 
                  │ results/bench_all_count10.txt │
                  │             B/op              │
@@ -43,13 +43,15 @@ geomean                                        ¹
 pkg: gcopt/q2_closure
                        │ results/bench_all_count10.txt │
                        │            sec/op             │
-DirectCall-8                               2.086n ± 2%
-ClosureByValue-8                           2.071n ± 0%
-ClosureByRef-8                             2.410n ± 2%
-ClosureHeap-8                              2.169n ± 2%
-MethodValueConcrete-8                      2.093n ± 1%
-MethodValueInterface-8                     2.120n ± 3%
-geomean                                    2.155n
+DirectCall-8                               2.068n ± 0%
+ClosureByValue-8                           2.073n ± 0%
+ClosureByRef-8                             2.399n ± 0%
+ClosureHeap-8                              2.146n ± 0%
+MethodValueConcrete-8                      2.083n ± 1%
+MethodValueInterface-8                     2.109n ± 3%
+ClosureEscapeByValue-8                     11.51n ± 1%
+ClosureEscapeByRef-8                       22.21n ± 1%
+geomean                                    3.542n
 
                        │ results/bench_all_count10.txt │
                        │             B/op              │
@@ -59,6 +61,8 @@ ClosureByRef-8                            0.000 ± 0%
 ClosureHeap-8                             0.000 ± 0%
 MethodValueConcrete-8                     0.000 ± 0%
 MethodValueInterface-8                    0.000 ± 0%
+ClosureEscapeByValue-8                    16.00 ± 0%
+ClosureEscapeByRef-8                      24.00 ± 0%
 geomean                                              ¹
 ¹ summaries must be >0 to compute geomean
 
@@ -70,21 +74,23 @@ ClosureByRef-8                            0.000 ± 0%
 ClosureHeap-8                             0.000 ± 0%
 MethodValueConcrete-8                     0.000 ± 0%
 MethodValueInterface-8                    0.000 ± 0%
+ClosureEscapeByValue-8                    1.000 ± 0%
+ClosureEscapeByRef-8                      2.000 ± 0%
 geomean                                              ¹
 ¹ summaries must be >0 to compute geomean
 
 pkg: gcopt/q3_bigfunc
                 │ results/bench_all_count10.txt │
                 │            sec/op             │
-BigChain50-8                       48.02n ±  2%
-BigChain100-8                      131.8n ±  1%
-BigChain200-8                      320.9n ±  4%
-BigChain500-8                      885.4n ±  1%
-BigChain1000-8                     1.829µ ±  1%
-BigChain2000-8                     3.716µ ±  2%
-BigChain4000-8                     7.559µ ± 11%
-SplitChain200-8                    349.3n ±  5%
-geomean                            651.0n
+BigChain50-8                        47.43n ± 0%
+BigChain100-8                       134.2n ± 4%
+BigChain200-8                       324.7n ± 2%
+BigChain500-8                       900.1n ± 3%
+BigChain1000-8                      1.853µ ± 0%
+BigChain2000-8                      3.736µ ± 1%
+BigChain4000-8                      7.528µ ± 0%
+SplitChain200-8                     321.2n ± 1%
+geomean                             648.1n
 
                 │ results/bench_all_count10.txt │
                 │             B/op              │
@@ -115,15 +121,15 @@ geomean                                       ¹
 pkg: gcopt/q4_concat
                   │ results/bench_all_count10.txt │
                   │            sec/op             │
-LoopPlus-8                           253.7µ ± 82%
-LoopBuilder-8                        3.711µ ± 12%
-LoopAppendPre-8                      2.903µ ±  7%
-LoopAppendNaive-8                    3.958µ ± 16%
-FixedPlus4-8                         22.32n ± 13%
-FixedBuilder4-8                      42.22n ± 19%
-FixedPlus8-8                         56.47n ±  9%
-FixedBuilder8-8                      71.19n ± 34%
-geomean                              670.8n
+LoopPlus-8                            215.1µ ± 0%
+LoopBuilder-8                         3.399µ ± 2%
+LoopAppendPre-8                       2.902µ ± 0%
+LoopAppendNaive-8                     3.907µ ± 1%
+FixedPlus4-8                          20.37n ± 1%
+FixedBuilder4-8                       36.02n ± 0%
+FixedPlus8-8                          45.31n ± 5%
+FixedBuilder8-8                       58.38n ± 1%
+geomean                               596.8n
 
                   │ results/bench_all_count10.txt │
                   │             B/op              │
@@ -154,15 +160,15 @@ geomean                                         ¹
 pkg: gcopt/q5_dispatch
                     │ results/bench_all_count10.txt │
                     │            sec/op             │
-TypeSwitch2-8                           2.150n ± 3%
-AssertChain2-8                          2.122n ± 1%
-TypeSwitch4-8                           2.094n ± 2%
-AssertChain4-8                          2.123n ± 1%
-TypeSwitch8-8                           2.101n ± 2%
-TypeSwitchNoBind8-8                     2.671n ± 9%
-AssertChain8-8                          2.147n ± 1%
-TagSwitch8-8                            2.300n ± 1%
-geomean                                 2.207n
+TypeSwitch2-8                          2.107n ±  1%
+AssertChain2-8                         2.084n ±  0%
+TypeSwitch4-8                          2.090n ±  0%
+AssertChain4-8                         2.085n ±  0%
+TypeSwitch8-8                          2.091n ±  2%
+TypeSwitchNoBind8-8                    2.581n ±  1%
+AssertChain8-8                         2.144n ±  2%
+TagSwitch8-8                           2.476n ± 65%
+geomean                                2.200n
 
                     │ results/bench_all_count10.txt │
                     │             B/op              │
@@ -193,13 +199,14 @@ geomean                                           ¹
 pkg: gcopt/q6_bce
                  │ results/bench_all_count10.txt │
                  │            sec/op             │
-SumRangeIndex-8                      92.22n ± 3%
-SumRangeValue-8                      92.98n ± 7%
-SumForLen-8                          92.77n ± 1%
-SumForCache-8                        93.21n ± 2%
-SumReverse-8                         93.16n ± 2%
-SumOpaqueIndex-8                     565.2n ± 2%
-geomean                              125.5n
+SumRangeIndex-8                     92.94n ±  3%
+SumRangeValue-8                     93.97n ±  0%
+SumForLen-8                         100.8n ± 13%
+SumForCache-8                       93.80n ±  1%
+SumReverse-8                        94.72n ±  3%
+SumWithN-8                          93.39n ±  6%
+SumOpaqueIndex-8                    574.3n ±  3%
+geomean                             122.7n
 
                  │ results/bench_all_count10.txt │
                  │             B/op              │
@@ -208,6 +215,7 @@ SumRangeValue-8                     0.000 ± 0%
 SumForLen-8                         0.000 ± 0%
 SumForCache-8                       0.000 ± 0%
 SumReverse-8                        0.000 ± 0%
+SumWithN-8                          0.000 ± 0%
 SumOpaqueIndex-8                    0.000 ± 0%
 geomean                                        ¹
 ¹ summaries must be >0 to compute geomean
@@ -219,6 +227,7 @@ SumRangeValue-8                     0.000 ± 0%
 SumForLen-8                         0.000 ± 0%
 SumForCache-8                       0.000 ± 0%
 SumReverse-8                        0.000 ± 0%
+SumWithN-8                          0.000 ± 0%
 SumOpaqueIndex-8                    0.000 ± 0%
 geomean                                        ¹
 ¹ summaries must be >0 to compute geomean

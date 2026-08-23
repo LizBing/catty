@@ -10,6 +10,8 @@ q2_closure/types.go:41:6: can inline ProbeClosureEscapeByRef
 q2_closure/types.go:43:9: can inline ProbeClosureEscapeByRef.func1
 q2_closure/types.go:47:6: can inline ProbeMethodValueConcrete
 q2_closure/types.go:66:6: can inline ProbeMethodValueInterface
+q2_closure/types.go:84:9: can inline makeAdderClosure.func1
+q2_closure/types.go:92:9: can inline makeCounter.func1
 q2_closure/types.go:24:10: inlining call to ProbeClosureByValue.func1
 q2_closure/types.go:24:17: inlining call to ProbeClosureByValue.func1
 q2_closure/types.go:30:10: inlining call to ProbeClosureByRef.func1
@@ -24,3 +26,6 @@ q2_closure/types.go:49:10: c.Add escapes to heap
 q2_closure/types.go:61:9: &C{...} escapes to heap
 q2_closure/types.go:68:10: a.Add escapes to heap
 q2_closure/types.go:75:15: f does not escape
+q2_closure/types.go:84:9: func literal escapes to heap
+q2_closure/types.go:91:18: moved to heap: x
+q2_closure/types.go:92:9: func literal escapes to heap

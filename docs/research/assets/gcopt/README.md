@@ -40,6 +40,9 @@ go build -gcflags='-m'    ./q2_closure          # closure escape analysis
 go build -gcflags='-m -m' ./q3_bigfunc          # big-function inline refusal
 go build -gcflags='-d=ssa/check_bce/debug=1' ./q6_bce   # bounds-check report
 go build -gcflags='-S'    ./q1_devirt           # devirtualization disassembly
+go build -gcflags='-S'    ./q3_bigfunc          # big-function code-size scaling
+go test -c -gcflags='-S' -o /dev/null ./q4_concat  # concatstringN vs concatstrings
+go test -c -gcflags='-S' -o /dev/null ./q5_dispatch # type-switch jump table
 
 # benchmark timing + allocation counters
 go test -run '^$' -bench . -benchmem -count=10 ./...
