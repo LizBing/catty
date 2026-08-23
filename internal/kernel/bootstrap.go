@@ -52,6 +52,7 @@ func bootstrap(k *Kernel) {
 		Flags: classfile.AccPublic | classfile.AccFinal,
 		Methods: []MethodDef{
 			{Name: "<init>", Desc: "()V", Flags: classfile.AccPublic, Native: natStringBuilderInit},
+			appendSB("Ljava/lang/Object;", natSBAppendObject),
 			appendSB("Ljava/lang/String;", natSBAppendString),
 			appendSB("I", natSBAppendInt),
 			appendSB("J", natSBAppendLong),
@@ -156,6 +157,10 @@ func bootstrap(k *Kernel) {
 			{Name: "interrupted", Desc: "()Z", Flags: classfile.AccPublic | classfile.AccStatic, Native: natStaticInterruptedFlag},
 		},
 	})
+
+	bootstrapP7(k)
+	bootstrapCollectionsP7(k)
+	bootstrapStringP7(k)
 
 	// ---- java.net / java.io streams (payload-backed, M2) ----
 	mustDefine(k, &ClassDef{

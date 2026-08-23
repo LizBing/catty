@@ -81,8 +81,18 @@ func (e *methodEmitter) body() error {
 		} else if isJumpTarget {
 			e.p("L%d:", pc)
 		}
+		before := e.w.Len()
+		if os.Getenv("CATTY_PC_TRACE") != "" && pc == 87 {
+			fmt.Fprintf(os.Stderr, "[pc87] depth=%d op=%#x\n", e.depth, e.code[pc])
+		}
 		if err := e.emitOne(pc); err != nil {
 			return err
+		}
+		if os.Getenv("CATTY_PC_TRACE") != "" {
+			emitted := e.w.String()[before:]
+			if true {
+				fmt.Fprintf(os.Stderr, "[pc] %d → %q\n", pc, emitted)
+			}
 		}
 	}
 	return nil

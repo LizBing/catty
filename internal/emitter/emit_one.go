@@ -87,22 +87,61 @@ func (e *methodEmitter) emitOne(pc int) error {
 		}
 		pushV(e.LocalName(n))
 
+	case 0x16: // lload
+		idx := int(code[pc+1])
+		if err := e.checkLocalIdx(idx); err != nil {
+			return fail("%v", err)
+		}
+		pushCat2(e.LocalName(idx))
+	case 0x1e, 0x1f, 0x20, 0x21: // lload_0..3
+		n := int(op - 0x1e)
+		if err := e.checkLocalIdx(n); err != nil {
+			return fail("%v", err)
+		}
+		pushCat2(e.LocalName(n))
 	case 0x36, 0x3a: // istore / astore
 		idx := int(code[pc+1])
 		if err := e.checkLocalIdx(idx); err != nil {
 			return fail("%v", err)
 		}
 		e.p("%s = %s", e.LocalName(idx), popRef())
-	case 0x3b, 0x3c, 0x3d, 0x3e, 0x4b, 0x4c, 0x4d, 0x4e:
+	case 0x3b, 0x3c, 0x3d, 0x3e:
 		n := int(op - 0x3b)
-		if op >= 0x4b {
-			n = int(op - 0x4b)
+		if err := e.checkLocalIdx(n); err != nil {
+			return fail("%v", err)
 		}
+		e.p("%s = %s", e.LocalName(n), popRef())
+	case 0x3f, 0x40, 0x41, 0x42: // lstore_0..3
+		n := int(op - 0x3f)
+		if err := e.checkLocalIdx(n); err != nil {
+			return fail("%v", err)
+		}
+		e.p("%s = %s", e.LocalName(n), popRef())
+	case 0x43, 0x44, 0x45, 0x46: // fstore_0..3
+		n := int(op - 0x43)
+		if err := e.checkLocalIdx(n); err != nil {
+			return fail("%v", err)
+		}
+		e.p("%s = %s", e.LocalName(n), popRef())
+	case 0x47, 0x48, 0x49, 0x4a: // dstore_0..3
+		n := int(op - 0x47)
+		if err := e.checkLocalIdx(n); err != nil {
+			return fail("%v", err)
+		}
+		e.p("%s = %s", e.LocalName(n), popRef())
+	case 0x4b, 0x4c, 0x4d, 0x4e: // astore_0..3
+		n := int(op - 0x4b)
 		if err := e.checkLocalIdx(n); err != nil {
 			return fail("%v", err)
 		}
 		e.p("%s = %s", e.LocalName(n), popRef())
 
+	case 0x37: // lstore (indexed)
+		idx := int(code[pc+1])
+		if err := e.checkLocalIdx(idx); err != nil {
+			return fail("%v", err)
+		}
+		e.p("%s = %s", e.LocalName(idx), popRef())
 	case 0x57: // pop
 		e.depth--
 	case 0x59: // dup

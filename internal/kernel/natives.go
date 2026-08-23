@@ -822,3 +822,40 @@ func natStreamWriteB(ctx *CallContext, recv Value, args []Value) (Value, error) 
 	arr := args[0].(*ArrayObj)
 	return natStreamWriteBII(ctx, recv, []Value{arr, int32(0), int32(len(arr.Elems))})
 }
+
+func natSBAppendObject(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	b := sbOf(recv)
+	if len(args) > 0 && args[0] != nil {
+		s, err := valueToDisplayString(ctx, args[0])
+		if err != nil {
+			return nil, err
+		}
+		b.buf = append(b.buf, utf16Encode([]rune(s))...)
+	} else {
+		b.buf = append(b.buf, utf16Encode([]rune("null"))...)
+	}
+	return recv, nil
+}
+
+// valueToDisplayString calls toString() on an object value.
+func valueToDisplayString(ctx *CallContext, v Value) (string, error) {
+	if js, ok := v.(*JString); ok {
+		return js.String(), nil
+	}
+	in, ok := v.(*Instance)
+	if !ok {
+		return fmt.Sprintf("%v", v), nil
+	}
+	m, err := ctx.K.ResolveMethod(in.Class, "toString", "()Ljava/lang/String;")
+	if err != nil {
+		return fmt.Sprintf("%s@%x", in.Class.Name, 0), nil
+	}
+	res, err := ctx.K.InvokeAs(ctx.Owner, m, v, nil)
+	if err != nil {
+		return "", err
+	}
+	if js, ok := res.(*JString); ok {
+		return js.String(), nil
+	}
+	return "", nil
+}

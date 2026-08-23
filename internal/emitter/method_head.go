@@ -187,6 +187,10 @@ type methodEmitter struct {
 var _ = fmt.Sprintf
 
 func (e *methodEmitter) p(format string, args ...any) {
+	if os.Getenv("CATTY_P_TRACE") != "" && e.cf != nil && e.cf.ThisClass == "CollectionsDemo" &&
+		strings.Contains(fmt.Sprintf(format, args...), "l3") {
+		fmt.Fprintf(os.Stderr, "[e.p] %q\n", fmt.Sprintf(format, args...))
+	}
 	fmt.Fprintf(&e.w, "\t"+format+"\n", args...)
 }
 
