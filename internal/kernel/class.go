@@ -167,17 +167,22 @@ func (k *Kernel) EnsureInitialized(tracker InitTracker, c *Class) error {
 		return fmt.Errorf("class %s is in erroneous state from a failed <clinit>", c.Name)
 	}
 
+	// Mark in-progress BEFORE the super leg: a <clinit> that instantiates
+	// its own subclass (JsonValue -> JsonLiteral in minimal-json) makes the
+	// subclass re-enter EnsureInitialized while this frame is still in the
+	// super phase. JVMS §5.5 permits same-thread in-progress reentry.
+	if tracker != nil {
+		tracker.BeginInit(c.Name)
+		defer tracker.EndInit(c.Name)
+	}
+	c.setState(StateInitializing)
+
 	if c.Super != nil {
 		if err := k.EnsureInitialized(tracker, c.Super); err != nil {
 			c.setState(StateErroneous)
 			return err
 		}
 	}
-	if tracker != nil {
-		tracker.BeginInit(c.Name)
-		defer tracker.EndInit(c.Name)
-	}
-	c.setState(StateInitializing)
 	if m := c.FindMethod("<clinit>", "()V"); m != nil {
 		var owner OwnerKey
 		if o, ok := tracker.(OwnerKey); ok {

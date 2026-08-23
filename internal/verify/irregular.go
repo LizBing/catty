@@ -202,9 +202,18 @@ func (c *checker) simulateIrregular(m *classfile.MethodInfo, pc int, st *frame, 
 				return nil, fail("receiver %s not a %s", recv.class, clsName)
 			}
 		}
-		// <init> completion: initialize uninit markers
+		// <init> completion: initialize uninit markers. JVMS §4.10.1.6:
+		// uninitialized(this) becomes the class UNDER VERIFICATION (not the
+		// super constructor's declaring class) — minimal-json's
+		// JsonParser.<init> exposed this via a loop merge on local 0.
 		if isCtor {
-			holder := tObj(clsName)
+			holder := tObj(c.cf.ThisClass)
+			if recv.kind == kUninitThis {
+				replaceUninitThis(st, holder)
+			} else if recv.kind == kUninit {
+				holder = tObj(clsName) // new X(...) sites keep their ref class
+				replaceUninitAt(st, recv.off, holder)
+			}
 			if recv.kind == kUninitThis {
 				replaceUninitThis(st, holder)
 			} else if recv.kind == kUninit {
