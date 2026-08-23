@@ -181,8 +181,8 @@ func New(opts Options) *Kernel {
 		opts:    opts,
 		classes: make(map[string]*Class),
 		strPool: make(map[string]*JString),
-		Threads: NewThreadRegistry(),
 	}
+	k.Threads = NewThreadRegistry(k.MaxFrames())
 	bootstrap(k)
 	return k
 }

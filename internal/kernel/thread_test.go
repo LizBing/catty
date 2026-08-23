@@ -7,7 +7,7 @@ import (
 )
 
 func TestRegistryInterruptSleep(t *testing.T) {
-	r := NewThreadRegistry()
+	r := NewThreadRegistry(4096)
 	obj := &Instance{} // stand-in object; registry only stores the pointer
 	j := r.Register(1, obj, "sleeper")
 
@@ -35,7 +35,7 @@ func TestRegistryInterruptSleep(t *testing.T) {
 }
 
 func TestRegistryInterruptWaiter(t *testing.T) {
-	r := NewThreadRegistry()
+	r := NewThreadRegistry(4096)
 	m := &Monitor{}
 	j := r.Register(2, &Instance{}, "waiter")
 	_ = j
@@ -68,7 +68,7 @@ func TestRegistryInterruptWaiter(t *testing.T) {
 }
 
 func TestJoinLatchAndStates(t *testing.T) {
-	r := NewThreadRegistry()
+	r := NewThreadRegistry(4096)
 	obj := &Instance{}
 	j := r.Register(3, obj, "t3")
 	if j.IsAlive() {
@@ -100,7 +100,7 @@ func TestJoinLatchAndStates(t *testing.T) {
 }
 
 func TestInterruptFlagPeekClear(t *testing.T) {
-	r := NewThreadRegistry()
+	r := NewThreadRegistry(4096)
 	r.Register(4, &Instance{}, "t4")
 	if r.PeekInterrupted(4) {
 		t.Fatal("fresh flag set")
@@ -119,7 +119,7 @@ func TestInterruptFlagPeekClear(t *testing.T) {
 
 // TestConcurrentCounters exercises registry under contention (race detector).
 func TestConcurrentCounters(t *testing.T) {
-	r := NewThreadRegistry()
+	r := NewThreadRegistry(4096)
 	var live atomic.Int32
 	for key := uint64(100); key < 108; key++ {
 		r.Register(key, &Instance{}, "c")

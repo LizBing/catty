@@ -79,7 +79,7 @@ func checkMethod(cf *classfile.ClassFile, m *classfile.MethodInfo) error {
 	code := m.Code
 	name := m.Name + m.Desc
 
-	targets, err := branchTargets(code.Code)
+	targets, err := BranchTargets(code.Code)
 	if err != nil {
 		return verr(name, 0, "%v", err)
 	}
@@ -164,9 +164,10 @@ func cfEntryIsClass(cf *classfile.ClassFile, idx uint16) error {
 	return nil
 }
 
-// branchTargets enumerates every bytecode offset that can start execution
-// other than fallthrough from the previous instruction.
-func branchTargets(code []byte) (map[int]bool, error) {
+// BranchTargets enumerates every bytecode offset that can start execution
+// other than fallthrough from the previous instruction. Exported for the
+// emitter's label planning (build-time tool usage).
+func BranchTargets(code []byte) (map[int]bool, error) {
 	out := make(map[int]bool)
 	i := 0
 	add4 := func(at int) int32 {

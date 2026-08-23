@@ -1,6 +1,7 @@
 package kernel
 
 import (
+	"errors"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -97,17 +98,87 @@ func (j *JThread) Terminate() {
 // Interrupt a path to wake Object.wait waiters and sleepers regardless of
 // which monitor they were parked on.
 type ThreadRegistry struct {
-	mu   sync.Mutex
-	byID map[uint64]*JThread
-	main *JThread
+	mu        sync.Mutex
+	byID      map[uint64]*JThread
+	main      *JThread
+	depths      map[uint64]int // interpreted+emitted frame depth per owner key
+	maxFrames   int
+	initStacks  map[uint64]map[string]bool
 
 	waiting map[uint64][]*waitRec // key -> active Object.wait records
 }
 
-func NewThreadRegistry() *ThreadRegistry {
+func NewThreadRegistry(maxFrames int) *ThreadRegistry {
+	if maxFrames <= 0 {
+		maxFrames = 4096
+	}
 	return &ThreadRegistry{
-		byID:    make(map[uint64]*JThread),
-		waiting: make(map[uint64][]*waitRec),
+		byID:      make(map[uint64]*JThread),
+		waiting:   make(map[uint64][]*waitRec),
+		depths:    make(map[uint64]int),
+		maxFrames: maxFrames,
+	}
+}
+
+var errStackOverflow = errors.New("stack overflow")
+
+// FrameEnter bumps the frame depth of a thread; returns StackOverflow signal
+// when the budget is exhausted (emitted-code SOE guard, R-0002 finding 3).
+func (r *ThreadRegistry) FrameEnter(key uint64) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	d := r.depths[key] + 1
+	r.depths[key] = d
+	if d > r.maxFrames {
+		return errStackOverflow
+	}
+	return nil
+}
+
+// FrameExit releases one frame.
+func (r *ThreadRegistry) FrameExit(key uint64) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if d := r.depths[key]; d <= 1 {
+		delete(r.depths, key)
+	} else {
+		r.depths[key] = d - 1
+	}
+}
+
+// KeyTracker adapts a registry key into the class-init recursion guard
+// (kernel.InitTracker) for emitted-code paths that have no vm.Thread.
+type KeyTracker struct {
+	R   *ThreadRegistry
+	Key uint64
+}
+
+func (t KeyTracker) IsInitializing(name string) bool {
+	r := t.R
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	return r.initStacks[t.Key][name]
+}
+
+func (t KeyTracker) BeginInit(name string) {
+	r := t.R
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.initStacks == nil {
+		r.initStacks = make(map[uint64]map[string]bool)
+	}
+	if r.initStacks[t.Key] == nil {
+		r.initStacks[t.Key] = make(map[string]bool)
+	}
+	r.initStacks[t.Key][name] = true
+}
+
+func (t KeyTracker) EndInit(name string) {
+	r := t.R
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if set := r.initStacks[t.Key]; set != nil {
+		delete(set, name)
 	}
 }
 
