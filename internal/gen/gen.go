@@ -159,8 +159,8 @@ func Catty_CollectionsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 		return nil, exc // no handler matched
 	}
 	goto L116
-	s0 = exc.Obj
 	L87:
+	s0 = exc.Obj
 	l3 = s0
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New("java/lang/StringBuilder")
@@ -208,8 +208,8 @@ func Catty_CollectionsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 		return nil, exc // no handler matched
 	}
 	goto L139
-	s0 = exc.Obj
 	L130:
+	s0 = exc.Obj
 	l3 = s0
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.Str("div-by-zero caught")
@@ -324,8 +324,8 @@ func Catty_ThreadsDemo_bump___I_V(thr kernel.OwnerKey, recv kernel.Value, args [
 		return nil, exc // no handler matched
 	}
 	goto L31
-	s0 = exc.Obj
 	L26:
+	s0 = exc.Obj
 	l3 = s0
 	s0 = l2
 	exc = genrt.MonitorExit(thr, s0)
@@ -676,8 +676,8 @@ func Catty_Conn_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.V
 		return nil, exc // no handler matched
 	}
 	goto L164
-	s0 = exc.Obj
 	L135:
+	s0 = exc.Obj
 	l1 = s0
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New("java/lang/StringBuilder")
@@ -756,8 +756,8 @@ func Catty_Sleeper_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kerne
 		return nil, exc // no handler matched
 	}
 	goto L26
-	s0 = exc.Obj
 	L17:
+	s0 = exc.Obj
 	l1 = s0
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.Str("interrupted ok")
@@ -985,8 +985,8 @@ func Catty_app_Helper_greet___Ljava_lang_String__Ljava_lang_String_(thr kernel.O
 		return nil, exc // no handler matched
 	}
 	goto L30
-	s0 = exc.Obj
 	L23:
+	s0 = exc.Obj
 	l4 = s0
 	s0 = l3
 	exc = genrt.MonitorExit(thr, s0)
@@ -1009,8 +1009,8 @@ func Catty_app_Helper_greet___Ljava_lang_String__Ljava_lang_String_(thr kernel.O
 		return nil, exc // no handler matched
 	}
 	goto L42
-	s0 = exc.Obj
 	L35:
+	s0 = exc.Obj
 	l5 = s0
 	s0 = l2
 	exc = genrt.MonitorExit(thr, s0)

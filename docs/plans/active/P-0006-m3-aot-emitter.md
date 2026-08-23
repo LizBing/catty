@@ -90,5 +90,9 @@ T8 启动/首响对照表（AOT 二进制 vs 解释器 vs java），方法学按
 - [ ] T3 ADR-0010 表示法边界 → 下轮评审
 - [ ] T4..T8 发射器实现 → **下轮整段专注预算**
       当前进度：genrt 桥 ✓ / 命名混淆 ✓ / 方法发射器骨架 ✓
-      已知阻塞：生成代码的标签管理、cat2 深度追踪、字段访问助手签名
-      需要一次性重写 emit_one.go + body.go 的驱动模型
+      handler-entry 深度缺口已关闭（2026-08-23）：异常接收者推送改到
+      handler 标签之后发射（JVMS §2.6 栈清空 + 异常入栈，规范深度恒 1，
+      不再依赖 StackMapFrame 命中）；CollectionsDemo AOT 输出与解释路径/
+      参考 JVM 一致（回归：internal/emitter/body_test.go、
+      internal/vm/aot_acceptance_test.go）
+      余项：T8 启动/首响对照表

@@ -60,13 +60,21 @@ func (e *methodEmitter) body() error {
 	for _, pc := range pcs {
 		isJumpTarget := jumpTargets[pc]
 		_, isHandler := e.handlerAt[pc]
-		if isJumpTarget || isHandler {
-			// Reset operand stack to canonical depth at merge points.
-			d := e.mergeStackDepth(pc)
-			e.depth = d
-			if isHandler && d > 0 {
-				e.p("s%d = exc.Obj", d-1)
-			}
+		if isHandler {
+			// Exception handler entry (JVMS §2.6, §4.10.1.6): the operand
+			// stack is cleared and the caught exception pushed, so the
+			// canonical depth is always 1 — no StackMapFrame lookup needed.
+			// The push must come AFTER the label: every arrival goes through
+			// excDispatch's `goto`, so a statement emitted before the label
+			// is dead code and the handler would observe a stale slot.
+			e.p("L%d:", pc)
+			e.p("s0 = exc.Obj")
+			e.depth = 1
+		} else if isJumpTarget {
+			// Merge point: reset operand stack to the StackMapTable
+			// canonical depth so subsequent slots are named consistently
+			// with the verifier's frame.
+			e.depth = e.mergeStackDepth(pc)
 			e.p("L%d:", pc)
 		}
 		if err := e.emitOne(pc); err != nil {

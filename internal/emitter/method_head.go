@@ -266,9 +266,6 @@ func sortInts(xs []int) {
 // mergeStackDepth lazily computes the canonical operand-stack depth for a
 // merge pc from its StackMapFrame (0 when absent).
 func (e *methodEmitter) mergeStackDepth(pc int) int {
-	if e.cf.ThisClass == "CollectionsDemo" {
-		fmt.Fprintf(os.Stderr, "[msd] %s.%s pc=%d frames=%d\n", e.cf.ThisClass, e.m.Name, pc, len(e.m.Code.StackMaps))
-	}
 	if e.mergeDepth == nil {
 		e.mergeDepth = make(map[int]int)
 	}

@@ -2,6 +2,7 @@
 /worktree/
 # 构建产物
 /dist/
+.gocache/
 *.test
 *.out
 coverage.txt
