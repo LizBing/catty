@@ -62,7 +62,7 @@ type StackMapFrame struct {
 	// Kind is the raw frame_type byte; consumers derive semantics
 	// (0-63 same, 64-127 same+1 stack, 247 ext-same, 248-250 chop,
 	// 251 ext-same, 252-254 append, 255 full).
-	Kind     byte
+	Kind byte
 }
 
 // ParseStackMapTable decodes the StackMapTable attribute payload

@@ -152,6 +152,8 @@ func (e *methodEmitter) emitOne(pc int) error {
 		e.p("%s = %s", e.LocalName(idx), popRefCat2())
 	case 0x57: // pop
 		e.depth--
+	case 0x58: // pop2
+		e.depth -= 2
 	case 0x59: // dup
 		top := e.peekTop()
 		pushV(top)
@@ -181,6 +183,62 @@ func (e *methodEmitter) emitOne(pc int) error {
 		e.p("%s, exc = genrt.IRem(%s.(int32), %s.(int32))", dst, a, b)
 		excAfter()
 		e.depth++
+
+	case 0x78: // ishl
+		b, a := popRef(), popRef()
+		pushV(fmt.Sprintf("(%s.(int32) << (%s.(int32) & 31))", a, b))
+	case 0x79: // lshl (long value, int shift)
+		b := popRef()
+		a := popRefCat2()
+		pushCat2(fmt.Sprintf("((%s.(int64)) << (%s.(int32) & 63))", a, b))
+	case 0x7a: // ishr
+		b, a := popRef(), popRef()
+		pushV(fmt.Sprintf("(%s.(int32) >> (%s.(int32) & 31))", a, b))
+	case 0x7b: // lshr
+		b := popRef()
+		a := popRefCat2()
+		pushCat2(fmt.Sprintf("((%s.(int64)) >> (%s.(int32) & 63))", a, b))
+	case 0x7c: // iushr
+		b, a := popRef(), popRef()
+		pushV(fmt.Sprintf("int32(uint32(%s.(int32)) >> (uint32(%s.(int32)) & 31))", a, b))
+	case 0x7d: // lushr
+		b := popRef()
+		a := popRefCat2()
+		pushCat2(fmt.Sprintf("int64(uint64(%s.(int64)) >> (uint32(%s.(int32)) & 63))", a, b))
+
+	case 0x61: // ladd
+		b, a := popRefCat2(), popRefCat2()
+		pushCat2(fmt.Sprintf("(%s.(int64)) + (%s.(int64))", a, b))
+	case 0x65: // lsub
+		b, a := popRefCat2(), popRefCat2()
+		pushCat2(fmt.Sprintf("(%s.(int64)) - (%s.(int64))", a, b))
+	case 0x69: // lmul
+		b, a := popRefCat2(), popRefCat2()
+		pushCat2(fmt.Sprintf("(%s.(int64)) * (%s.(int64))", a, b))
+	case 0x6d: // ldiv
+		b, a := popRefCat2(), popRefCat2()
+		dst := fmt.Sprintf("s%d", e.depth)
+		e.p("%s, exc = genrt.LDiv(%s.(int64), %s.(int64))", dst, a, b)
+		excAfter()
+		e.depth += 2
+	case 0x71: // lrem
+		b, a := popRefCat2(), popRefCat2()
+		dst := fmt.Sprintf("s%d", e.depth)
+		e.p("%s, exc = genrt.LRem(%s.(int64), %s.(int64))", dst, a, b)
+		excAfter()
+		e.depth += 2
+	case 0x75: // lneg
+		a := popRefCat2()
+		pushCat2(fmt.Sprintf("-(%s.(int64))", a))
+	case 0x7f: // land
+		b, a := popRefCat2(), popRefCat2()
+		pushCat2(fmt.Sprintf("(%s.(int64)) & (%s.(int64))", a, b))
+	case 0x81: // lor
+		b, a := popRefCat2(), popRefCat2()
+		pushCat2(fmt.Sprintf("(%s.(int64)) | (%s.(int64))", a, b))
+	case 0x83: // lxor
+		b, a := popRefCat2(), popRefCat2()
+		pushCat2(fmt.Sprintf("(%s.(int64)) ^ (%s.(int64))", a, b))
 
 	case 0x84: // iinc (non-wide: u1 index + s1 const)
 		idx := int(code[pc+1])
@@ -223,6 +281,8 @@ func (e *methodEmitter) emitOne(pc int) error {
 		tgt := branchTarget(pc, code)
 		e.p("goto L%d", tgt)
 
+	case 0xad, 0xaf: // lreturn / dreturn (cat2)
+		e.p("return %s, nil", popRefCat2())
 	case 0xac, 0xb0: // ireturn / areturn
 		v := popRef()
 		e.p("return %s, nil", v)

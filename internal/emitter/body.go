@@ -3,6 +3,7 @@ package emitter
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"catty/internal/classfile"
 	"catty/internal/verify"
@@ -59,17 +60,7 @@ func (e *methodEmitter) body() error {
 	}
 	sortInts(pcs)
 
-	debugOn := os.Getenv("CATTY_DEPTH") != ""
-
 	for _, pc := range pcs {
-		if debugOn && true && e.m.Name == "main" {
-			fmt.Fprintf(os.Stderr, "[dep] pc=%d canon=%d before\n", pc, func() int {
-				if d, ok := canonDepths[pc]; ok {
-					return d
-				}
-				return -999
-			}())
-		}
 		isJumpTarget := jumpTargets[pc]
 		_, isHandler := e.handlerAt[pc]
 		if d, ok := canonDepths[pc]; ok {
@@ -87,6 +78,13 @@ func (e *methodEmitter) body() error {
 		}
 		if err := e.emitOne(pc); err != nil {
 			return err
+		}
+		if os.Getenv("CATTY_NEG") != "" {
+			emitted := e.w.String()[before:]
+			if strings.Contains(emitted, "s-") {
+				fmt.Fprintf(os.Stderr, "[neg] %s.%s pc=%d depth=%d out=%q\n",
+					e.cf.ThisClass, e.m.Name, pc, e.depth, emitted)
+			}
 		}
 		if os.Getenv("CATTY_PC_TRACE") != "" {
 			emitted := e.w.String()[before:]

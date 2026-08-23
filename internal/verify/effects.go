@@ -55,7 +55,7 @@ func fall(st *frame, nextPC int) []successor {
 func constK(v vtype) simFunc {
 	return func(c *checker, m *classfile.MethodInfo, pc int, st *frame) ([]successor, error) {
 		st.push(v)
-		return fall(st, pc + 1), nil
+		return fall(st, pc+1), nil
 	}
 }
 
@@ -123,6 +123,19 @@ func storeLocal(idxOf func(*cursor) int, want vkind) simFunc {
 
 func binary(kind vkind) simFunc {
 	return func(c *checker, m *classfile.MethodInfo, pc int, st *frame) ([]successor, error) {
+		if kind == kLong || kind == kDouble {
+			// Category-2 operands sit as [value, top] pairs; plain
+			// popExpect would trip on the sentinel (found via Bench
+			// lsub — Route-C gap surfaced early).
+			if _, err := st.popCat2(); err != nil {
+				return nil, verr(c.mn, pc, "rhs: %v", err)
+			}
+			if _, err := st.popCat2(); err != nil {
+				return nil, verr(c.mn, pc, "lhs: %v", err)
+			}
+			st.push(vtype{kind: kind})
+			return fall(st, pc+1), nil
+		}
 		if _, err := st.popExpect(kind, "rhs"); err != nil {
 			return nil, verr(c.mn, pc, "%v", err)
 		}
@@ -442,7 +455,7 @@ func buildEffects() {
 	set(0x7d, shift(kLong))
 
 	convPairs := []struct {
-		op      byte
+		op       byte
 		from, to vkind
 	}{
 		{0x85, kInt, kLong}, {0x86, kInt, kFloat}, {0x87, kInt, kDouble},

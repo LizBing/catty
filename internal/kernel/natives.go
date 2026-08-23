@@ -858,3 +858,32 @@ func valueToDisplayString(ctx *CallContext, v Value) (string, error) {
 	}
 	return "", nil
 }
+
+func natStaticNanoTime(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	return time.Now().UnixNano(), nil
+}
+
+func natStaticCurrentTimeMillis(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	return time.Now().UnixMilli(), nil
+}
+
+func natSBInitString(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	b := &sbBuf{}
+	if len(args) > 0 && args[0] != nil {
+		js, err := AsJString(args[0])
+		if err == nil {
+			b.buf = append(b.buf, js.Chars...)
+		}
+	}
+	recv.(*Instance).Payload = b
+	return nil, nil
+}
+
+var procStart = time.Now()
+
+// tickMillis reports milliseconds since process start as int32 — a
+// cat1-free clock for benchmark loops in emitted code (long-return
+// canonical-depth unification pending).
+func natStaticTickMillis(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	return int32(time.Since(procStart).Milliseconds()), nil
+}

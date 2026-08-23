@@ -52,6 +52,7 @@ func bootstrap(k *Kernel) {
 		Flags: classfile.AccPublic | classfile.AccFinal,
 		Methods: []MethodDef{
 			{Name: "<init>", Desc: "()V", Flags: classfile.AccPublic, Native: natStringBuilderInit},
+			{Name: "<init>", Desc: "(Ljava/lang/String;)V", Flags: classfile.AccPublic, Native: natSBInitString},
 			appendSB("Ljava/lang/Object;", natSBAppendObject),
 			appendSB("Ljava/lang/String;", natSBAppendString),
 			appendSB("I", natSBAppendInt),
@@ -257,6 +258,9 @@ func bootstrap(k *Kernel) {
 				Flags: classfile.AccPublic | classfile.AccStatic | classfile.AccFinal},
 		},
 		Methods: []MethodDef{
+			{Name: "nanoTime", Desc: "()J", Flags: classfile.AccPublic | classfile.AccStatic, Native: natStaticNanoTime},
+			{Name: "tickMillis", Desc: "()I", Flags: classfile.AccPublic | classfile.AccStatic, Native: natStaticTickMillis},
+			{Name: "currentTimeMillis", Desc: "()J", Flags: classfile.AccPublic | classfile.AccStatic, Native: natStaticCurrentTimeMillis},
 			{Name: "arraycopy", Desc: "(Ljava/lang/Object;ILjava/lang/Object;II)V",
 				Flags: classfile.AccPublic | classfile.AccStatic, Native: natSystemArraycopy},
 			{Name: "currentTimeMillis", Desc: "()J",

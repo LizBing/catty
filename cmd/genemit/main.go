@@ -23,10 +23,19 @@ func main() {
 	}
 
 	var files []*classfile.ClassFile
+	dirs := filepath.SplitList(*cp)
 	for _, name := range flag.Args() {
-		path := filepath.Join(*cp, filepath.FromSlash(name)+".class")
-		data, err := os.ReadFile(path)
-		if err != nil {
+		var data []byte
+		var err error
+		for _, dir := range dirs {
+			var d []byte
+			d, err = os.ReadFile(filepath.Join(dir, filepath.FromSlash(name)+".class"))
+			if err == nil {
+				data = d
+				break
+			}
+		}
+		if data == nil {
 			fmt.Fprintln(os.Stderr, "genemit:", err)
 			os.Exit(1)
 		}

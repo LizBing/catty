@@ -11,14 +11,14 @@ import (
 // classBuilder assembles minimal-but-valid v52 class files so interpreter
 // unit tests can run hand-written bytecode without javac.
 type cpEntry struct {
-	tag  classfile.ConstTag
-	slot uint16 // resolved pool slot index (long/double consume 2)
+	tag    classfile.ConstTag
+	slot   uint16 // resolved pool slot index (long/double consume 2)
 	c1, c2 uint16
-	str  string
-	i32  int32
-	i64v int64
-	f32v float32
-	f64v float64
+	str    string
+	i32    int32
+	i64v   int64
+	f32v   float32
+	f64v   float64
 }
 
 type classBuilder struct {
@@ -29,13 +29,13 @@ type classBuilder struct {
 }
 
 type methodBlob struct {
-	flags      uint16
-	name       string
-	desc       string
-	maxStack   uint16
-	maxLocals  uint16
-	code       []byte
-	handlers   []excHandler
+	flags     uint16
+	name      string
+	desc      string
+	maxStack  uint16
+	maxLocals uint16
+	code      []byte
+	handlers  []excHandler
 }
 
 type excHandler struct {
@@ -79,7 +79,9 @@ func (b *classBuilder) memberRef(tag classfile.ConstTag, cls, name, desc string)
 	return b.add(cpEntry{tag: tag, c1: b.class(cls), c2: b.nameAndType(name, desc)})
 }
 
-func (b *classBuilder) integer(v int32) uint16 { return b.add(cpEntry{tag: classfile.CInteger, i32: v}) }
+func (b *classBuilder) integer(v int32) uint16 {
+	return b.add(cpEntry{tag: classfile.CInteger, i32: v})
+}
 func (b *classBuilder) long(v int64) uint16    { return b.add(cpEntry{tag: classfile.CLong, i64v: v}) }
 func (b *classBuilder) float(v float32) uint16 { return b.add(cpEntry{tag: classfile.CFloat, f32v: v}) }
 func (b *classBuilder) double(v float64) uint16 {

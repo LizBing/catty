@@ -90,13 +90,13 @@ func TestExceptionHandlerCatches(t *testing.T) {
 		flags: 0x0009, name: "m", desc: "()I",
 		maxStack: 2, maxLocals: 1,
 		code: []byte{
-			bIconst1,          // 0
-			bIconst0,          // 1
-			bIdiv,             // 2 — fault
-			bIreturn,          // 3
-			bLdcW,             // 4? handler at 4: ldc_w 42
+			bIconst1, // 0
+			bIconst0, // 1
+			bIdiv,    // 2 — fault
+			bIreturn, // 3
+			bLdcW,    // 4? handler at 4: ldc_w 42
 			byte(fortyTwo >> 8), byte(fortyTwo),
-			bIreturn,          // 7
+			bIreturn, // 7
 		},
 		handlers: []excHandler{{start: 0, end: 4, handler: 4, catchClassName: "java/lang/ArithmeticException"}},
 	})
@@ -128,21 +128,21 @@ func TestSumLoopAligned(t *testing.T) {
 	// 20 iload_0
 	// 21 ireturn
 	code := []byte{
-		bIconst0,         // 0
-		bIstore0,         // 1
-		bIconst0,         // 2
-		bIstore0 + 1,     // 3
-		bIload0 + 1,      // 4
-		bBipush, 10,      // 5..6
+		bIconst0,     // 0
+		bIstore0,     // 1
+		bIconst0,     // 2
+		bIstore0 + 1, // 3
+		bIload0 + 1,  // 4
+		bBipush, 10,  // 5..6
 		bIfIcmpgt, 0, 13, // 7..9: exit when i > 10 → 20 (iload_0)
-		bIload0,          // 10
-		bIload0 + 1,      // 11
-		0x60,             // 12 iadd
-		bIstore0,         // 13
-		bIinc, 1, 1,      // 14..16 (idx=1, const=+1 as signed byte)
+		bIload0,     // 10
+		bIload0 + 1, // 11
+		0x60,        // 12 iadd
+		bIstore0,    // 13
+		bIinc, 1, 1, // 14..16 (idx=1, const=+1 as signed byte)
 		bGoto, 0xFF, 0xF3, // 17..19 → 4
-		bIload0,          // 20
-		bIreturn,         // 21
+		bIload0,  // 20
+		bIreturn, // 21
 	}
 	b := newClassBuilder("SumLoop")
 	b.addMethod(methodBlob{
@@ -173,17 +173,17 @@ func TestLookupswitchAligned(t *testing.T) {
 	// 20: bipush 100; 22: ireturn
 	// 23: ldc_w -1; 26: ireturn
 	code2 := []byte{}
-	code2 = append(code2, 0x1A)              // 0
-	code2 = append(code2, 0xAB)              // 1
-	code2 = append(code2, 0, 0)              // 2..3 pad → default at pc 4
-	code2 = append(code2, 0, 0, 0, 22)       // 4..7 default → 1+22=23
-	code2 = append(code2, 0, 0, 0, 1)        // 8..11
-	code2 = append(code2, 0, 0, 0, 7)        // 12..15
-	code2 = append(code2, 0, 0, 0, 19)       // 16..19 → 1+19=20
-	code2 = append(code2, bBipush, 100)      // 20..21
-	code2 = append(code2, bIreturn)          // 22
+	code2 = append(code2, 0x1A)                             // 0
+	code2 = append(code2, 0xAB)                             // 1
+	code2 = append(code2, 0, 0)                             // 2..3 pad → default at pc 4
+	code2 = append(code2, 0, 0, 0, 22)                      // 4..7 default → 1+22=23
+	code2 = append(code2, 0, 0, 0, 1)                       // 8..11
+	code2 = append(code2, 0, 0, 0, 7)                       // 12..15
+	code2 = append(code2, 0, 0, 0, 19)                      // 16..19 → 1+19=20
+	code2 = append(code2, bBipush, 100)                     // 20..21
+	code2 = append(code2, bIreturn)                         // 22
 	code2 = append(code2, bLdcW, byte(neg1>>8), byte(neg1)) // 23..25
-	code2 = append(code2, bIreturn)          // 26
+	code2 = append(code2, bIreturn)                         // 26
 
 	b.addMethod(methodBlob{
 		flags: 0x0009, name: "m", desc: "(I)I",

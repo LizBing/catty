@@ -7,7 +7,7 @@ import (
 
 // branchTarget resolves a two-byte signed branch offset at pc.
 func branchTarget(pc int, code []byte) int {
-	return pc + int(int16(uint16(code[pc+1])<<8 | uint16(code[pc+2])))
+	return pc + int(int16(uint16(code[pc+1])<<8|uint16(code[pc+2])))
 }
 
 // Reachable computes reachable instruction start offsets from pc 0,
@@ -106,7 +106,7 @@ func switchLen(code []byte, pc int) int {
 		p += 4 + 8*n
 	} else {
 		low := int(rd32(p))
-		high := int(rd32(p+4))
+		high := int(rd32(p + 4))
 		p += 8 + 4*(high-low+1)
 	}
 	return p
@@ -145,7 +145,6 @@ func switchTargets(code []byte, pc int) []int {
 	return out
 }
 
-
 // switchNext returns the next linear pc after a variable-length switch.
 func switchNext(code []byte, pc int) (int, bool) {
 	return switchLen(code, pc), true
@@ -179,7 +178,6 @@ func buildFixedLenTable() map[byte]int {
 	delete(m, 0xc4)
 	return m
 }
-
 
 // SwitchNext returns the next linear pc after a variable-length switch.
 func SwitchNext(code []byte, pc int) (int, bool) {

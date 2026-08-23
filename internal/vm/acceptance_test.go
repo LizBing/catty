@@ -75,7 +75,6 @@ func TestAcceptanceCollectionsDemo(t *testing.T) {
 	}
 }
 
-
 func TestAcceptanceClassPathMulti(t *testing.T) {
 	var out bytes.Buffer
 	k := kernel.New(kernel.Options{Stdout: &out})
@@ -107,7 +106,6 @@ func TestAcceptanceClassPathMulti(t *testing.T) {
 		t.Errorf("stdout =\n%q\nwant\n%q", out.String(), want)
 	}
 }
-
 
 // TestAcceptanceThreads runs the multithreaded fixture through start/join,
 // monitor contention and interrupt-of-sleep, comparing to the reference

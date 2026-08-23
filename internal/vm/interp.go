@@ -90,7 +90,6 @@ func (t *Thread) EnsureInitialized(c *kernel.Class) error {
 
 // InvokeInterpreted implements kernel.Invoker.
 
-
 // Call invokes any method (native or interpreted) with full dispatch,
 // attributing monitor operations to this thread.
 func (t *Thread) Call(m *kernel.Method, recv kernel.Value, args []kernel.Value) (kernel.Value, error) {
@@ -109,9 +108,13 @@ type frame struct {
 }
 
 // operand readers (advance f.pc)
-func (f *frame) u1() uint8  { v := f.code[f.pc]; f.pc++; return v }
-func (f *frame) u2() uint16 { v := uint16(f.code[f.pc])<<8 | uint16(f.code[f.pc+1]); f.pc += 2; return v }
-func (f *frame) s2() int32  { return int32(int16(f.u2())) }
+func (f *frame) u1() uint8 { v := f.code[f.pc]; f.pc++; return v }
+func (f *frame) u2() uint16 {
+	v := uint16(f.code[f.pc])<<8 | uint16(f.code[f.pc+1])
+	f.pc += 2
+	return v
+}
+func (f *frame) s2() int32 { return int32(int16(f.u2())) }
 func (f *frame) s4() int32 {
 	v := uint32(f.code[f.pc])<<24 | uint32(f.code[f.pc+1])<<16 |
 		uint32(f.code[f.pc+2])<<8 | uint32(f.code[f.pc+3])
@@ -147,7 +150,7 @@ func (f *frame) popRaw() kernel.Value {
 	return v
 }
 
-func (f *frame) pop1() kernel.Value  { return f.popRaw() }
+func (f *frame) pop1() kernel.Value { return f.popRaw() }
 
 // pop2s pops a category-2 value laid out as [value][sentinel].
 func (f *frame) pop2s() kernel.Value {
@@ -158,10 +161,10 @@ func (f *frame) pop2s() kernel.Value {
 	return v
 }
 
-func (f *frame) popI() int32     { return f.pop1().(int32) }
-func (f *frame) popL() int64     { return f.pop2s().(int64) }
-func (f *frame) popF() float32   { return f.pop1().(float32) }
-func (f *frame) popD() float64   { return f.pop2s().(float64) }
+func (f *frame) popI() int32          { return f.pop1().(int32) }
+func (f *frame) popL() int64          { return f.pop2s().(int64) }
+func (f *frame) popF() float32        { return f.pop1().(float32) }
+func (f *frame) popD() float64        { return f.pop2s().(float64) }
 func (f *frame) popRef() kernel.Value { return f.pop1() }
 
 // asThrown converts an error into *kernel.Thrown when it is one.

@@ -372,7 +372,6 @@ func NewPrimitiveArray(compDesc string, size int32) (kernel.Value, *kernel.Throw
 	return a, nil
 }
 
-
 // ALoadChecked reads an array element with NPE/bounds semantics.
 func ALoadChecked(arr kernel.Value, idx int32) (kernel.Value, *kernel.Thrown) {
 	a, ok := arr.(*kernel.ArrayObj)
@@ -400,8 +399,23 @@ func AStoreChecked(arr kernel.Value, idx int32, v kernel.Value) *kernel.Thrown {
 	return nil
 }
 
-
 // CallInterface resolves like invokevirtual (dynamic dispatch).
 func CallInterface(th kernel.OwnerKey, recv kernel.Value, cls, name, desc string, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	return CallVirtual(th, recv, cls, name, desc, args)
+}
+
+// LDiv implements JLS 15.17.1 long division incl. div-by-zero throw.
+func LDiv(a, b int64) (int64, *kernel.Thrown) {
+	if b == 0 {
+		return 0, Throw("java/lang/ArithmeticException", "/ by zero")
+	}
+	return a / b, nil
+}
+
+// LRem implements JLS 15.17.3 long remainder.
+func LRem(a, b int64) (int64, *kernel.Thrown) {
+	if b == 0 {
+		return 0, Throw("java/lang/ArithmeticException", "/ by zero")
+	}
+	return a % b, nil
 }
