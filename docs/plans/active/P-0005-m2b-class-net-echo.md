@@ -62,4 +62,10 @@ T5 HttpEcho fixture + 真 socket 验收 + -race
       进程内测试走 port 0+getLocalPort+真实 dial 断言
 - 验证期修复：验证器分支扫描 off-by-one（`i+3>=len` 误判满装 goto）、
   OutputStream write([B)V 重载缺失、StringBuilder.indexOf 超出合成面
-- [ ] DEBT-0009 数据流验证器 → 已显式移交独立专注任务（DEBT-0012 记录三次顺延）
+- [x] **DEBT-0009 数据流验证器专项完成（同轮追加，整段专注预算）**：
+      表驱动效果表(~30族)+不规则指令专写；SM帧型语义上移验证器
+      （full替换/append增量/chop裁剪/same继承+入口前缀仅相对帧）；
+      checkcast 方向修正+成功后类型收窄；异常处理帧兼容；
+      状态快照防原地突变。全部真实 fixture 过数据流；篡改样本被拒。
+      验证期修复：newarray 长度(2B)、s2 符号扩展(二次)、iinc 注册、
+      popExpect unknown 语义、setLocalPair 幻影槽、双重栈压入

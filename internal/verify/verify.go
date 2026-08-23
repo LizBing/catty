@@ -26,6 +26,7 @@ import (
 type RefResolver interface {
 	Known(name string) bool
 	IsSubclass(child, anc string) bool
+	IsInterface(name string) bool
 }
 
 type errVerify struct {
@@ -42,14 +43,32 @@ func verr(method string, pc int, format string, args ...any) error {
 	return &errVerify{method: method, pc: pc, msg: fmt.Sprintf(format, args...)}
 }
 
-// Verify checks every Code-bearing method of cf structurally.
-func Verify(cf *classfile.ClassFile, _ RefResolver) error {
+// nilResolver treats every class as unknown: all reference compatibility
+// defers to true (DEV-0001 conservatism). Used when callers have no class
+// graph to offer.
+type nilResolver struct{}
+
+func (nilResolver) Known(string) bool                 { return false }
+func (nilResolver) IsSubclass(child, anc string) bool { return false }
+func (nilResolver) IsInterface(name string) bool      { return false }
+
+// Verify checks every Code-bearing method of cf: structural tier first,
+// then the dataflow type-checker (DEBT-0009).
+func Verify(cf *classfile.ClassFile, r RefResolver) error {
+	if r == nil {
+		r = nilResolver{}
+	}
+	c := &checker{cf: cf, r: r}
 	for i := range cf.Methods {
 		m := &cf.Methods[i]
 		if m.Code == nil {
 			continue // abstract/native
 		}
+		c.mn = m.Name + m.Desc
 		if err := checkMethod(cf, m); err != nil {
+			return err
+		}
+		if err := c.checkMethodDataflow(m); err != nil {
 			return err
 		}
 	}

@@ -541,6 +541,14 @@ func (r *registryResolver) Known(name string) bool {
 	return ok
 }
 
+func (r *registryResolver) IsInterface(name string) bool {
+	c, ok := r.k.ClassByName(name)
+	if !ok {
+		return false
+	}
+	return c.Flags&classfile.AccInterface != 0
+}
+
 func (r *registryResolver) IsSubclass(child, anc string) bool {
 	cc, ok1 := r.k.ClassByName(child)
 	ac, ok2 := r.k.ClassByName(anc)

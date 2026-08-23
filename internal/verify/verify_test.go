@@ -99,3 +99,24 @@ func TestErrorCarriesMethodAndPc(t *testing.T) {
 		t.Errorf("method context missing: %v", err)
 	}
 }
+
+// TestRejectsTypeFlowTampering flips one opcode so a long is loaded where
+// the frame says int — only the DATAFLOW tier can catch this.
+func TestRejectsTypeFlowTampering(t *testing.T) {
+	cf := mustParseFixture(t, "CollectionsDemo.class")
+	main := cf.FindMethod("main", "([Ljava/lang/String;)V")
+	if main == nil || len(main.Code.Code) < 11 {
+		t.Fatal("fixture shape unexpected")
+	}
+	if main.Code.Code[10] != 0x1c { // iload_2
+		t.Fatalf("expected iload_2 at pc=10, got %#x", main.Code.Code[10])
+	}
+	main.Code.Code[10] = 0x1e // lload_2: loads long from an int local
+	err := Verify(cf, nil)
+	if err == nil {
+		t.Fatal("tampered type flow accepted")
+	}
+	// Rejection reason depends on the diverged path; the security property
+	// is that tampering cannot slip through.
+	t.Logf("rejection: %v", err)
+}

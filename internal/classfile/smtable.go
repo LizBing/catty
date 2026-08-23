@@ -58,6 +58,11 @@ type StackMapFrame struct {
 	Offset int32
 	Locals []VItem
 	Stack  []VItem
+
+	// Kind is the raw frame_type byte; consumers derive semantics
+	// (0-63 same, 64-127 same+1 stack, 247 ext-same, 248-250 chop,
+	// 251 ext-same, 252-254 append, 255 full).
+	Kind     byte
 }
 
 // ParseStackMapTable decodes the StackMapTable attribute payload
@@ -108,10 +113,8 @@ func decodeFrames(cf *ClassFile, data []byte) ([]StackMapFrame, error) {
 		switch {
 		case ft <= 63: // same_frame: offset_delta implied
 			abs = prevAbs + int32(ft) + 1
-			locs = prevLocals
 		case ft <= 127: // same_locals_1_stack_item_frame
 			abs = prevAbs + int32(ft-64) + 1
-			locs = prevLocals
 			it, err := readItem()
 			if err != nil {
 				return nil, err
@@ -124,11 +127,8 @@ func decodeFrames(cf *ClassFile, data []byte) ([]StackMapFrame, error) {
 			locs = prevLocals
 		case ft <= 250: // chop_frame
 			abs = prevAbs + int32(r.u2()) + 1
-			k := 251 - int(ft)
-			if k > len(prevLocals) {
-				return nil, fmt.Errorf("chop_frame removes %d of %d locals", k, len(prevLocals))
-			}
-			locs = append([]VItem(nil), prevLocals[:len(prevLocals)-k]...)
+			// chop: locals are the previous frame's minus k; the verifier
+			// applies this over its running absolute state.
 		case ft == 251: // same_frame_extended (u2 form)
 			abs = prevAbs + int32(r.u2()) + 1
 			locs = prevLocals
@@ -142,7 +142,7 @@ func decodeFrames(cf *ClassFile, data []byte) ([]StackMapFrame, error) {
 				}
 				add = append(add, it)
 			}
-			locs = append(append([]VItem(nil), prevLocals...), add...)
+			locs = add
 		default: // full_frame
 			abs = prevAbs + int32(r.u2()) + 1
 			nl := int(r.u2())
@@ -163,7 +163,9 @@ func decodeFrames(cf *ClassFile, data []byte) ([]StackMapFrame, error) {
 			}
 		}
 
-		frames = append(frames, StackMapFrame{Offset: abs, Locals: locs, Stack: stk})
+		frames = append(frames, StackMapFrame{
+			Offset: abs, Locals: locs, Stack: stk, Kind: ft,
+		})
 		prevAbs = abs
 		prevLocals = locs
 	}

@@ -14,7 +14,7 @@ Orchestrator 在空闲期择"高收益/低成本"清偿；清偿后移入表格�
 | DEBT-0007 | ~~SOE 深度计量~~ 已完成（P-0004，Options.MaxFrames） | — | — | — | 关闭；发射器侧序言计量待 AOT 后评估 |
 | DEBT-0010 | ~~Class 元对象缺失~~ 已完成（P-0005）：ldc-class/getClass/静态 synchronized 解锁 | — | — | — | 关闭；Class 反射 API（字段/方法）仍属远期反射面 |
 | DEBT-0011 | socket 读阻塞不可被中断唤醒（DEV-0008） | 线程中断完整性 | M | S | SetDeadline-on-interrupt：Interrupt 时对该线程登记的 conn 设置最近 deadline |
-| DEBT-0012 | 数据流类型验证器仍未实施（连续第三次排期顺延） | 安全边界完整性 | H | L | 下一轮整段专注预算，禁止与其它主线并行；输入仍限定可信 javac 产物 |
+| DEBT-0012 | ~~数据流验证器三次顺延~~ 已闭环（P-0005 专项） | — | — | — | 关闭；教训记录：该类任务必须整段预算，前三次并行挤压均产出废稿 |
 | DEBT-0008 | ~~cmd/catty 未接线 main args 与 classpath~~ 已完成目录 -cp；args/JAR 仍缺 | 可用性 | L | S | JAR 支持随 ClassLoader 抽象（M2） |
 | DEBT-0009 | 验证器缺数据流类型检查（类别不匹配/栈深线性模拟） | 安全边界完整性 | H | L | M2 高优：复用 vm 操作码表做线性模拟，SM 帧为合并规范形；未知引用类对保守放行需同步收敛 |
 
