@@ -1,0 +1,56 @@
+goos: darwin
+goarch: arm64
+pkg: excbench/panicpkg
+cpu: Apple M1
+BenchmarkNormalPathFinally-8   	80596983	         6.646 ns/op
+PASS
+ok  	excbench/panicpkg	0.997s
+goos: darwin
+goarch: arm64
+pkg: excbench/flagpkg
+cpu: Apple M1
+BenchmarkNormalPath-8   	132485523	         4.476 ns/op
+PASS
+ok  	excbench/flagpkg	1.296s
+goos: darwin
+goarch: arm64
+pkg: excbench/panicpkg
+cpu: Apple M1
+BenchmarkNormalPathFinally-8   	87465217	         6.564 ns/op
+PASS
+ok  	excbench/panicpkg	1.118s
+goos: darwin
+goarch: arm64
+pkg: excbench/flagpkg
+cpu: Apple M1
+BenchmarkNormalPath-8   	119800713	         4.488 ns/op
+PASS
+ok  	excbench/flagpkg	1.050s
+goos: darwin
+goarch: arm64
+pkg: excbench/panicpkg
+cpu: Apple M1
+BenchmarkNormalPathFinally-8   	80889248	         6.535 ns/op
+PASS
+ok  	excbench/panicpkg	0.978s
+goos: darwin
+goarch: arm64
+pkg: excbench/flagpkg
+cpu: Apple M1
+BenchmarkNormalPath-8   	118919077	         4.468 ns/op
+PASS
+ok  	excbench/flagpkg	1.019s
+goos: darwin
+goarch: arm64
+pkg: excbench/panicpkg
+cpu: Apple M1
+BenchmarkNormalPathFinally-8   	82278141	         6.509 ns/op
+PASS
+ok  	excbench/panicpkg	0.998s
+goos: darwin
+goarch: arm64
+pkg: excbench/flagpkg
+cpu: Apple M1
+BenchmarkNormalPath-8   	119190121	         4.484 ns/op
+PASS
+ok  	excbench/flagpkg	1.043s

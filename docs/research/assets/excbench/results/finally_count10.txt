@@ -1,0 +1,16 @@
+goos: darwin
+goarch: arm64
+pkg: excbench/panicpkg
+cpu: Apple M1
+BenchmarkNormalPathFinally-8   	160168042	         9.621 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPathFinally-8   	165587977	         7.889 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPathFinally-8   	149958963	         8.519 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPathFinally-8   	157134777	         7.609 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPathFinally-8   	155026842	         7.161 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPathFinally-8   	138115068	         9.146 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPathFinally-8   	150816474	         7.275 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPathFinally-8   	179556025	         6.667 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPathFinally-8   	174901075	         6.800 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPathFinally-8   	173663150	         6.715 ns/op	       0 B/op	       0 allocs/op
+PASS
+ok  	excbench/panicpkg	20.192s

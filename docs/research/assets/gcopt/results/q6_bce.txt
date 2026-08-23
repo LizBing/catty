@@ -1,0 +1,4 @@
+# gcopt/q6_bce
+q6_bce/probe.go:83:14: Found IsInBounds
+q6_bce/probe.go:94:9: Found IsInBounds
+q6_bce/probe.go:104:9: Found IsInBounds

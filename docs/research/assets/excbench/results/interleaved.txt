@@ -1,0 +1,300 @@
+goos: darwin
+goarch: arm64
+pkg: excbench/panicpkg
+cpu: Apple M1
+BenchmarkNormalPath-8             	36268954	        13.11 ns/op
+BenchmarkNormalPathNoHandlers-8   	124563217	         3.795 ns/op
+BenchmarkThrowShallow-8           	 2838412	       172.6 ns/op
+BenchmarkDeepPropFree-8           	 2289865	       210.4 ns/op
+BenchmarkDeepPropRethrow-8        	  288084	      1651 ns/op
+PASS
+ok  	excbench/panicpkg	3.574s
+goos: darwin
+goarch: arm64
+pkg: excbench/flagpkg
+cpu: Apple M1
+BenchmarkNormalPath-8     	100000000	         4.826 ns/op
+BenchmarkThrowShallow-8   	219244990	         2.258 ns/op
+BenchmarkDeepProp-8       	160233451	         3.043 ns/op
+PASS
+ok  	excbench/flagpkg	2.216s
+goos: darwin
+goarch: arm64
+pkg: excbench/flagpkg
+cpu: Apple M1
+BenchmarkNormalPath-8     	100000000	         4.574 ns/op
+BenchmarkThrowShallow-8   	229555465	         2.157 ns/op
+BenchmarkDeepProp-8       	164158966	         2.954 ns/op
+PASS
+ok  	excbench/flagpkg	2.178s
+goos: darwin
+goarch: arm64
+pkg: excbench/panicpkg
+cpu: Apple M1
+BenchmarkNormalPath-8             	37240214	        16.19 ns/op
+BenchmarkNormalPathNoHandlers-8   	128403285	         3.711 ns/op
+BenchmarkThrowShallow-8           	 2847498	       173.0 ns/op
+BenchmarkDeepPropFree-8           	 1978524	       250.8 ns/op
+BenchmarkDeepPropRethrow-8        	  291223	      1762 ns/op
+PASS
+ok  	excbench/panicpkg	3.627s
+goos: darwin
+goarch: arm64
+pkg: excbench/panicpkg
+cpu: Apple M1
+BenchmarkNormalPath-8             	34846154	        14.77 ns/op
+BenchmarkNormalPathNoHandlers-8   	100000000	         4.450 ns/op
+BenchmarkThrowShallow-8           	 2237901	       195.3 ns/op
+BenchmarkDeepPropFree-8           	 2101989	       222.5 ns/op
+BenchmarkDeepPropRethrow-8        	  232039	      1764 ns/op
+PASS
+ok  	excbench/panicpkg	3.023s
+goos: darwin
+goarch: arm64
+pkg: excbench/flagpkg
+cpu: Apple M1
+BenchmarkNormalPath-8     	100000000	         5.777 ns/op
+BenchmarkThrowShallow-8   	210025317	         2.315 ns/op
+BenchmarkDeepProp-8       	153450538	         3.249 ns/op
+PASS
+ok  	excbench/flagpkg	2.386s
+goos: darwin
+goarch: arm64
+pkg: excbench/flagpkg
+cpu: Apple M1
+BenchmarkNormalPath-8     	87926178	         4.864 ns/op
+BenchmarkThrowShallow-8   	215899296	         2.278 ns/op
+BenchmarkDeepProp-8       	156832164	         3.001 ns/op
+PASS
+ok  	excbench/flagpkg	2.161s
+goos: darwin
+goarch: arm64
+pkg: excbench/panicpkg
+cpu: Apple M1
+BenchmarkNormalPath-8             	36951145	        13.07 ns/op
+BenchmarkNormalPathNoHandlers-8   	131087517	         3.789 ns/op
+BenchmarkThrowShallow-8           	 2833185	       201.8 ns/op
+BenchmarkDeepPropFree-8           	 2373129	       207.6 ns/op
+BenchmarkDeepPropRethrow-8        	  300132	      1637 ns/op
+PASS
+ok  	excbench/panicpkg	3.536s
+goos: darwin
+goarch: arm64
+pkg: excbench/panicpkg
+cpu: Apple M1
+BenchmarkNormalPath-8             	37279621	        12.73 ns/op
+BenchmarkNormalPathNoHandlers-8   	132484755	         3.590 ns/op
+BenchmarkThrowShallow-8           	 2896117	       166.3 ns/op
+BenchmarkDeepPropFree-8           	 2379543	       203.1 ns/op
+BenchmarkDeepPropRethrow-8        	  295411	      1591 ns/op
+PASS
+ok  	excbench/panicpkg	3.377s
+goos: darwin
+goarch: arm64
+pkg: excbench/flagpkg
+cpu: Apple M1
+BenchmarkNormalPath-8     	90546817	         4.618 ns/op
+BenchmarkThrowShallow-8   	226107483	         2.195 ns/op
+BenchmarkDeepProp-8       	148273863	         2.970 ns/op
+PASS
+ok  	excbench/flagpkg	2.118s
+goos: darwin
+goarch: arm64
+pkg: excbench/flagpkg
+cpu: Apple M1
+BenchmarkNormalPath-8     	98320359	         4.561 ns/op
+BenchmarkThrowShallow-8   	225681452	         2.169 ns/op
+BenchmarkDeepProp-8       	163618490	         2.967 ns/op
+PASS
+ok  	excbench/flagpkg	2.171s
+goos: darwin
+goarch: arm64
+pkg: excbench/panicpkg
+cpu: Apple M1
+BenchmarkNormalPath-8             	37741040	        13.38 ns/op
+BenchmarkNormalPathNoHandlers-8   	131697855	         3.609 ns/op
+BenchmarkThrowShallow-8           	 2867977	       172.8 ns/op
+BenchmarkDeepPropFree-8           	 2334295	       224.1 ns/op
+BenchmarkDeepPropRethrow-8        	  258796	      1636 ns/op
+PASS
+ok  	excbench/panicpkg	3.436s
+goos: darwin
+goarch: arm64
+pkg: excbench/panicpkg
+cpu: Apple M1
+BenchmarkNormalPath-8             	36984835	        13.64 ns/op
+BenchmarkNormalPathNoHandlers-8   	131692059	         3.638 ns/op
+BenchmarkThrowShallow-8           	 2930118	       170.9 ns/op
+BenchmarkDeepPropFree-8           	 2333754	       208.5 ns/op
+BenchmarkDeepPropRethrow-8        	  299970	      1593 ns/op
+PASS
+ok  	excbench/panicpkg	3.450s
+goos: darwin
+goarch: arm64
+pkg: excbench/flagpkg
+cpu: Apple M1
+BenchmarkNormalPath-8     	100000000	         4.606 ns/op
+BenchmarkThrowShallow-8   	221903407	         2.360 ns/op
+BenchmarkDeepProp-8       	160003221	         2.997 ns/op
+PASS
+ok  	excbench/flagpkg	2.241s
+goos: darwin
+goarch: arm64
+pkg: excbench/flagpkg
+cpu: Apple M1
+BenchmarkNormalPath-8     	93153381	         4.633 ns/op
+BenchmarkThrowShallow-8   	224868373	         2.172 ns/op
+BenchmarkDeepProp-8       	158731185	         2.960 ns/op
+PASS
+ok  	excbench/flagpkg	2.155s
+goos: darwin
+goarch: arm64
+pkg: excbench/panicpkg
+cpu: Apple M1
+BenchmarkNormalPath-8             	37791680	        13.06 ns/op
+BenchmarkNormalPathNoHandlers-8   	131402356	         3.581 ns/op
+BenchmarkThrowShallow-8           	 2942277	       167.4 ns/op
+BenchmarkDeepPropFree-8           	 2363412	       203.8 ns/op
+BenchmarkDeepPropRethrow-8        	  299640	      1606 ns/op
+PASS
+ok  	excbench/panicpkg	3.409s
+goos: darwin
+goarch: arm64
+pkg: excbench/panicpkg
+cpu: Apple M1
+BenchmarkNormalPath-8             	37741290	        12.99 ns/op
+BenchmarkNormalPathNoHandlers-8   	134039007	         3.613 ns/op
+BenchmarkThrowShallow-8           	 2770158	       165.6 ns/op
+BenchmarkDeepPropFree-8           	 2335352	       203.7 ns/op
+BenchmarkDeepPropRethrow-8        	  305208	      1593 ns/op
+PASS
+ok  	excbench/panicpkg	3.387s
+goos: darwin
+goarch: arm64
+pkg: excbench/flagpkg
+cpu: Apple M1
+BenchmarkNormalPath-8     	100000000	         4.672 ns/op
+BenchmarkThrowShallow-8   	221816925	         2.145 ns/op
+BenchmarkDeepProp-8       	161591768	         3.042 ns/op
+PASS
+ok  	excbench/flagpkg	2.406s
+goos: darwin
+goarch: arm64
+pkg: excbench/flagpkg
+cpu: Apple M1
+BenchmarkNormalPath-8     	92238956	         4.575 ns/op
+BenchmarkThrowShallow-8   	225133232	         2.150 ns/op
+BenchmarkDeepProp-8       	162583014	         2.946 ns/op
+PASS
+ok  	excbench/flagpkg	2.137s
+goos: darwin
+goarch: arm64
+pkg: excbench/panicpkg
+cpu: Apple M1
+BenchmarkNormalPath-8             	37516243	        12.76 ns/op
+BenchmarkNormalPathNoHandlers-8   	132712273	         3.579 ns/op
+BenchmarkThrowShallow-8           	 2842477	       169.1 ns/op
+BenchmarkDeepPropFree-8           	 2395570	       209.1 ns/op
+BenchmarkDeepPropRethrow-8        	  303288	      1587 ns/op
+PASS
+ok  	excbench/panicpkg	3.638s
+goos: darwin
+goarch: arm64
+pkg: excbench/panicpkg
+cpu: Apple M1
+BenchmarkNormalPath-8             	36954464	        13.54 ns/op
+BenchmarkNormalPathNoHandlers-8   	133273483	         3.598 ns/op
+BenchmarkThrowShallow-8           	 2856802	       210.6 ns/op
+BenchmarkDeepPropFree-8           	 2358254	       212.1 ns/op
+BenchmarkDeepPropRethrow-8        	  294822	      1589 ns/op
+PASS
+ok  	excbench/panicpkg	3.560s
+goos: darwin
+goarch: arm64
+pkg: excbench/flagpkg
+cpu: Apple M1
+BenchmarkNormalPath-8     	89381313	         4.703 ns/op
+BenchmarkThrowShallow-8   	220274551	         2.197 ns/op
+BenchmarkDeepProp-8       	158040560	         3.136 ns/op
+PASS
+ok  	excbench/flagpkg	2.173s
+goos: darwin
+goarch: arm64
+pkg: excbench/flagpkg
+cpu: Apple M1
+BenchmarkNormalPath-8     	100000000	         4.728 ns/op
+BenchmarkThrowShallow-8   	214277223	         2.214 ns/op
+BenchmarkDeepProp-8       	161120142	         3.110 ns/op
+PASS
+ok  	excbench/flagpkg	2.205s
+goos: darwin
+goarch: arm64
+pkg: excbench/panicpkg
+cpu: Apple M1
+BenchmarkNormalPath-8             	34250394	        13.74 ns/op
+BenchmarkNormalPathNoHandlers-8   	100000000	         5.215 ns/op
+BenchmarkThrowShallow-8           	 2197954	       226.0 ns/op
+BenchmarkDeepPropFree-8           	 2160650	       229.7 ns/op
+BenchmarkDeepPropRethrow-8        	  261357	      1745 ns/op
+PASS
+ok  	excbench/panicpkg	4.586s
+goos: darwin
+goarch: arm64
+pkg: excbench/panicpkg
+cpu: Apple M1
+BenchmarkNormalPath-8             	37507204	        12.91 ns/op
+BenchmarkNormalPathNoHandlers-8   	134083158	         3.614 ns/op
+BenchmarkThrowShallow-8           	 2925655	       165.6 ns/op
+BenchmarkDeepPropFree-8           	 2391822	       204.4 ns/op
+BenchmarkDeepPropRethrow-8        	  304348	      1586 ns/op
+PASS
+ok  	excbench/panicpkg	3.405s
+goos: darwin
+goarch: arm64
+pkg: excbench/flagpkg
+cpu: Apple M1
+BenchmarkNormalPath-8     	100000000	         4.563 ns/op
+BenchmarkThrowShallow-8   	224533828	         2.142 ns/op
+BenchmarkDeepProp-8       	162528376	         3.003 ns/op
+PASS
+ok  	excbench/flagpkg	2.159s
+goos: darwin
+goarch: arm64
+pkg: excbench/flagpkg
+cpu: Apple M1
+BenchmarkNormalPath-8     	100000000	         4.553 ns/op
+BenchmarkThrowShallow-8   	224591742	         2.151 ns/op
+BenchmarkDeepProp-8       	157109383	         3.038 ns/op
+PASS
+ok  	excbench/flagpkg	2.168s
+goos: darwin
+goarch: arm64
+pkg: excbench/panicpkg
+cpu: Apple M1
+BenchmarkNormalPath-8             	34914169	        13.31 ns/op
+BenchmarkNormalPathNoHandlers-8   	100000000	         4.088 ns/op
+BenchmarkThrowShallow-8           	 2661230	       168.0 ns/op
+BenchmarkDeepPropFree-8           	 2411824	       198.3 ns/op
+BenchmarkDeepPropRethrow-8        	  307104	      1558 ns/op
+PASS
+ok  	excbench/panicpkg	2.917s
+goos: darwin
+goarch: arm64
+pkg: excbench/panicpkg
+cpu: Apple M1
+BenchmarkNormalPath-8             	34287460	        12.51 ns/op
+BenchmarkNormalPathNoHandlers-8   	134140191	         4.088 ns/op
+BenchmarkThrowShallow-8           	 2926898	       165.4 ns/op
+BenchmarkDeepPropFree-8           	 2421202	       198.6 ns/op
+BenchmarkDeepPropRethrow-8        	  307754	      1551 ns/op
+PASS
+ok  	excbench/panicpkg	3.642s
+goos: darwin
+goarch: arm64
+pkg: excbench/flagpkg
+cpu: Apple M1
+BenchmarkNormalPath-8     	94497469	         4.476 ns/op
+BenchmarkThrowShallow-8   	226003995	         2.268 ns/op
+BenchmarkDeepProp-8       	166744851	         2.878 ns/op
+PASS
+ok  	excbench/flagpkg	2.503s

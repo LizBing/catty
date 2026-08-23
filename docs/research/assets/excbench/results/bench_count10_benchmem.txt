@@ -1,0 +1,92 @@
+goos: darwin
+goarch: arm64
+pkg: excbench/panicpkg
+cpu: Apple M1
+BenchmarkNormalPath-8             	85480740	        13.50 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPath-8             	91742823	        13.05 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPath-8             	94034674	        14.02 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPath-8             	85848933	        13.02 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPath-8             	92810416	        13.01 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPath-8             	93664018	        13.54 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPath-8             	92147319	        13.51 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPath-8             	90902775	        13.41 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPath-8             	89624413	        12.81 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPath-8             	92758706	        12.69 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPathNoHandlers-8   	335538214	         3.582 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPathNoHandlers-8   	329392856	         3.581 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPathNoHandlers-8   	334260478	         3.587 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPathNoHandlers-8   	336177219	         3.595 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPathNoHandlers-8   	337936663	         4.038 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPathNoHandlers-8   	277612034	         4.240 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPathNoHandlers-8   	271440627	         3.799 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPathNoHandlers-8   	329647575	         3.620 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPathNoHandlers-8   	332657852	         3.607 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPathNoHandlers-8   	332295946	         3.630 ns/op	       0 B/op	       0 allocs/op
+BenchmarkThrowShallow-8           	 6966194	       190.1 ns/op	       0 B/op	       0 allocs/op
+BenchmarkThrowShallow-8           	 6588906	       168.0 ns/op	       0 B/op	       0 allocs/op
+BenchmarkThrowShallow-8           	 7266861	       165.7 ns/op	       0 B/op	       0 allocs/op
+BenchmarkThrowShallow-8           	 7202256	       166.9 ns/op	       0 B/op	       0 allocs/op
+BenchmarkThrowShallow-8           	 7422582	       163.0 ns/op	       0 B/op	       0 allocs/op
+BenchmarkThrowShallow-8           	 7289323	       168.8 ns/op	       0 B/op	       0 allocs/op
+BenchmarkThrowShallow-8           	 6834225	       172.1 ns/op	       0 B/op	       0 allocs/op
+BenchmarkThrowShallow-8           	 7021237	       170.1 ns/op	       0 B/op	       0 allocs/op
+BenchmarkThrowShallow-8           	 7124358	       171.2 ns/op	       0 B/op	       0 allocs/op
+BenchmarkThrowShallow-8           	 7084443	       180.9 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepPropFree-8           	 5523771	       225.4 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepPropFree-8           	 5110560	       239.0 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepPropFree-8           	 5512664	       227.7 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepPropFree-8           	 5838254	       205.5 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepPropFree-8           	 5817152	       206.4 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepPropFree-8           	 5765656	       206.6 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepPropFree-8           	 5888064	       210.6 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepPropFree-8           	 5870913	       208.3 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepPropFree-8           	 5739376	       209.8 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepPropFree-8           	 5573256	       211.9 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepPropRethrow-8        	  690271	      1628 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepPropRethrow-8        	  755486	      1601 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepPropRethrow-8        	  760563	      1602 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepPropRethrow-8        	  749548	      1595 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepPropRethrow-8        	  750159	      1610 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepPropRethrow-8        	  690532	      1650 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepPropRethrow-8        	  748464	      1614 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepPropRethrow-8        	  744195	      1598 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepPropRethrow-8        	  742285	      1599 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepPropRethrow-8        	  760216	      1588 ns/op	       0 B/op	       0 allocs/op
+PASS
+ok  	excbench/panicpkg	70.385s
+goos: darwin
+goarch: arm64
+pkg: excbench/flagpkg
+cpu: Apple M1
+BenchmarkNormalPath-8     	262659718	         4.578 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPath-8     	262021413	         4.572 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPath-8     	262287079	         4.602 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPath-8     	260325781	         4.577 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPath-8     	261796610	         4.549 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPath-8     	264073658	         4.541 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPath-8     	263931069	         4.648 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPath-8     	262312210	         4.846 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPath-8     	256017818	         4.571 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNormalPath-8     	264019310	         4.541 ns/op	       0 B/op	       0 allocs/op
+BenchmarkThrowShallow-8   	565119416	         2.125 ns/op	       0 B/op	       0 allocs/op
+BenchmarkThrowShallow-8   	564939279	         2.126 ns/op	       0 B/op	       0 allocs/op
+BenchmarkThrowShallow-8   	564635910	         2.258 ns/op	       0 B/op	       0 allocs/op
+BenchmarkThrowShallow-8   	565615412	         2.136 ns/op	       0 B/op	       0 allocs/op
+BenchmarkThrowShallow-8   	551603884	         2.129 ns/op	       0 B/op	       0 allocs/op
+BenchmarkThrowShallow-8   	565227332	         2.127 ns/op	       0 B/op	       0 allocs/op
+BenchmarkThrowShallow-8   	562766762	         2.126 ns/op	       0 B/op	       0 allocs/op
+BenchmarkThrowShallow-8   	565246635	         2.122 ns/op	       0 B/op	       0 allocs/op
+BenchmarkThrowShallow-8   	566004028	         2.126 ns/op	       0 B/op	       0 allocs/op
+BenchmarkThrowShallow-8   	564825603	         2.124 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepProp-8       	411407178	         2.919 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepProp-8       	411448731	         2.994 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepProp-8       	411561856	         3.085 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepProp-8       	375311586	         2.990 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepProp-8       	410003048	         2.922 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepProp-8       	410926419	         2.953 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepProp-8       	395888313	         2.939 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepProp-8       	402604177	         2.932 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepProp-8       	412055955	         2.938 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDeepProp-8       	411045534	         2.913 ns/op	       0 B/op	       0 allocs/op
+PASS
+ok  	excbench/flagpkg	47.326s

@@ -1,0 +1,125 @@
+# gcopt/q1_devirt
+q1_devirt/budget_gen.go:6:6: can inline (*C1).M00 with cost 2 as: method(*C1) func(int64) int64 { return x }
+q1_devirt/budget_gen.go:11:6: can inline (*C1).M01 with cost 9 as: method(*C1) func(int64) int64 { x = x * int64(2) + int64(1); return x }
+q1_devirt/budget_gen.go:17:6: can inline (*C1).M02 with cost 16 as: method(*C1) func(int64) int64 { x = x * int64(2) + int64(1); x = x * int64(2) + int64(2); return x }
+q1_devirt/budget_gen.go:24:6: can inline (*C1).M03 with cost 23 as: method(*C1) func(int64) int64 { x = x * int64(2) + int64(1); x = x * int64(2) + int64(2); x = x * int64(2) + int64(3); return x }
+q1_devirt/budget_gen.go:32:6: can inline (*C1).M04 with cost 30 as: method(*C1) func(int64) int64 { x = x * int64(2) + int64(1); x = x * int64(2) + int64(2); x = x * int64(2) + int64(3); x = x * int64(2) + int64(4); return x }
+q1_devirt/budget_gen.go:41:6: can inline (*C1).M05 with cost 37 as: method(*C1) func(int64) int64 { x = x * int64(2) + int64(1); x = x * int64(2) + int64(2); x = x * int64(2) + int64(3); x = x * int64(2) + int64(4); x = x * int64(2) + int64(5); return x }
+q1_devirt/budget_gen.go:51:6: can inline (*C1).M06 with cost 44 as: method(*C1) func(int64) int64 { x = x * int64(2) + int64(1); x = x * int64(2) + int64(2); x = x * int64(2) + int64(3); x = x * int64(2) + int64(4); x = x * int64(2) + int64(5); x = x * int64(2) + int64(6); return x }
+q1_devirt/budget_gen.go:62:6: can inline (*C1).M07 with cost 51 as: method(*C1) func(int64) int64 { x = x * int64(2) + int64(1); x = x * int64(2) + int64(2); x = x * int64(2) + int64(3); x = x * int64(2) + int64(4); x = x * int64(2) + int64(5); x = x * int64(2) + int64(6); x = x * int64(2) + int64(7); return x }
+q1_devirt/budget_gen.go:74:6: can inline (*C1).M08 with cost 58 as: method(*C1) func(int64) int64 { x = x * int64(2) + int64(1); x = x * int64(2) + int64(2); x = x * int64(2) + int64(3); x = x * int64(2) + int64(4); x = x * int64(2) + int64(5); x = x * int64(2) + int64(6); x = x * int64(2) + int64(7); x = x * int64(2) + int64(8); return x }
+q1_devirt/budget_gen.go:87:6: can inline (*C1).M09 with cost 65 as: method(*C1) func(int64) int64 { x = x * int64(2) + int64(1); x = x * int64(2) + int64(2); x = x * int64(2) + int64(3); x = x * int64(2) + int64(4); x = x * int64(2) + int64(5); x = x * int64(2) + int64(6); x = x * int64(2) + int64(7); x = x * int64(2) + int64(8); x = x * int64(2) + int64(9); return x }
+q1_devirt/budget_gen.go:101:6: can inline (*C1).M10 with cost 72 as: method(*C1) func(int64) int64 { x = x * int64(2) + int64(1); x = x * int64(2) + int64(2); x = x * int64(2) + int64(3); x = x * int64(2) + int64(4); x = x * int64(2) + int64(5); x = x * int64(2) + int64(6); x = x * int64(2) + int64(7); x = x * int64(2) + int64(8); x = x * int64(2) + int64(9); x = x * int64(2) + int64(10); return x }
+q1_devirt/budget_gen.go:116:6: can inline (*C1).M11 with cost 79 as: method(*C1) func(int64) int64 { x = x * int64(2) + int64(1); x = x * int64(2) + int64(2); x = x * int64(2) + int64(3); x = x * int64(2) + int64(4); x = x * int64(2) + int64(5); x = x * int64(2) + int64(6); x = x * int64(2) + int64(7); x = x * int64(2) + int64(8); x = x * int64(2) + int64(9); x = x * int64(2) + int64(10); x = x * int64(2) + int64(11); return x }
+q1_devirt/budget_gen.go:132:6: cannot inline (*C1).M12: function too complex: cost 86 exceeds budget 80
+q1_devirt/budget_gen.go:149:6: cannot inline (*C1).M13: function too complex: cost 93 exceeds budget 80
+q1_devirt/budget_gen.go:167:6: cannot inline (*C1).M14: function too complex: cost 100 exceeds budget 80
+q1_devirt/budget_gen.go:186:6: cannot inline (*C1).M15: function too complex: cost 107 exceeds budget 80
+q1_devirt/budget_gen.go:206:6: cannot inline (*C1).M16: function too complex: cost 114 exceeds budget 80
+q1_devirt/budget_gen.go:227:6: cannot inline (*C1).M17: function too complex: cost 121 exceeds budget 80
+q1_devirt/budget_gen.go:249:6: cannot inline (*C1).M18: function too complex: cost 128 exceeds budget 80
+q1_devirt/budget_gen.go:272:6: cannot inline (*C1).M19: function too complex: cost 135 exceeds budget 80
+q1_devirt/budget_gen.go:296:6: cannot inline (*C1).M20: function too complex: cost 142 exceeds budget 80
+q1_devirt/budget_gen.go:321:6: cannot inline (*C1).M21: function too complex: cost 149 exceeds budget 80
+q1_devirt/budget_gen.go:347:6: cannot inline (*C1).M22: function too complex: cost 156 exceeds budget 80
+q1_devirt/budget_gen.go:374:6: cannot inline (*C1).M23: function too complex: cost 163 exceeds budget 80
+q1_devirt/budget_gen.go:402:6: cannot inline (*C1).M24: function too complex: cost 170 exceeds budget 80
+q1_devirt/budget_gen.go:431:6: cannot inline (*C1).M25: function too complex: cost 177 exceeds budget 80
+q1_devirt/budget_gen.go:461:6: cannot inline (*C1).M26: function too complex: cost 184 exceeds budget 80
+q1_devirt/budget_gen.go:492:6: cannot inline (*C1).M27: function too complex: cost 191 exceeds budget 80
+q1_devirt/budget_gen.go:524:6: cannot inline (*C1).M28: function too complex: cost 198 exceeds budget 80
+q1_devirt/budget_gen.go:557:6: cannot inline (*C1).M29: function too complex: cost 205 exceeds budget 80
+q1_devirt/budget_gen.go:591:6: cannot inline (*C1).M30: function too complex: cost 212 exceeds budget 80
+q1_devirt/budget_gen.go:626:6: cannot inline (*C1).M31: function too complex: cost 219 exceeds budget 80
+q1_devirt/budget_gen.go:662:6: cannot inline (*C1).M32: function too complex: cost 226 exceeds budget 80
+q1_devirt/budget_gen.go:699:6: cannot inline (*C1).M33: function too complex: cost 233 exceeds budget 80
+q1_devirt/budget_gen.go:737:6: cannot inline (*C1).M34: function too complex: cost 240 exceeds budget 80
+q1_devirt/budget_gen.go:776:6: cannot inline (*C1).M35: function too complex: cost 247 exceeds budget 80
+q1_devirt/budget_gen.go:816:6: cannot inline (*C1).M36: function too complex: cost 254 exceeds budget 80
+q1_devirt/budget_gen.go:857:6: cannot inline (*C1).M37: function too complex: cost 261 exceeds budget 80
+q1_devirt/budget_gen.go:899:6: cannot inline (*C1).M38: function too complex: cost 268 exceeds budget 80
+q1_devirt/budget_gen.go:942:6: cannot inline (*C1).M39: function too complex: cost 275 exceeds budget 80
+q1_devirt/budget_gen.go:986:6: cannot inline (*C1).M40: function too complex: cost 282 exceeds budget 80
+q1_devirt/types.go:20:6: can inline (*C1).Add with cost 7 as: method(*C1) func(int64, int64) int64 { return a + b + c.n }
+q1_devirt/types.go:29:6: can inline (*C2).Add with cost 9 as: method(*C2) func(int64, int64) int64 { return a + b + c.n * int64(2) }
+q1_devirt/types.go:34:6: can inline ProbeDirect with cost 12 as: func(*C1, int64, int64) int64 { return (*C1).Add(c, a, b) }
+q1_devirt/types.go:40:6: can inline ProbeInterfaceLocal with cost 72 as: func(int64, int64) int64 { v := &C1{...}; return v.Add(a, b) }
+q1_devirt/types.go:47:6: can inline ProbeAssertThenCall with cost 25 as: func(Adder, int64, int64) int64 { if ok { return (*C1).Add(c, a, b) }; return int64(0) }
+q1_devirt/types.go:57:6: can inline ProbeOpaqueParam with cost 63 as: func(Adder, int64, int64) int64 { return v.Add(a, b) }
+q1_devirt/types.go:68:6: can inline ProbeField with cost 64 as: func(*Holder, int64, int64) int64 { return h.v.Add(a, b) }
+q1_devirt/types.go:76:6: cannot inline makeC1: marked go:noinline
+q1_devirt/types.go:83:6: cannot inline makeC2: marked go:noinline
+q1_devirt/types.go:42:14: devirtualizing v.Add to *C1
+q1_devirt/types.go:35:14: inlining call to (*C1).Add
+q1_devirt/types.go:42:14: inlining call to (*C1).Add
+q1_devirt/types.go:49:15: inlining call to (*C1).Add
+q1_devirt/budget_gen.go:6:7: c does not escape
+q1_devirt/budget_gen.go:11:7: c does not escape
+q1_devirt/budget_gen.go:17:7: c does not escape
+q1_devirt/budget_gen.go:24:7: c does not escape
+q1_devirt/budget_gen.go:32:7: c does not escape
+q1_devirt/budget_gen.go:41:7: c does not escape
+q1_devirt/budget_gen.go:51:7: c does not escape
+q1_devirt/budget_gen.go:62:7: c does not escape
+q1_devirt/budget_gen.go:74:7: c does not escape
+q1_devirt/budget_gen.go:87:7: c does not escape
+q1_devirt/budget_gen.go:101:7: c does not escape
+q1_devirt/budget_gen.go:116:7: c does not escape
+q1_devirt/budget_gen.go:132:7: c does not escape
+q1_devirt/budget_gen.go:149:7: c does not escape
+q1_devirt/budget_gen.go:167:7: c does not escape
+q1_devirt/budget_gen.go:186:7: c does not escape
+q1_devirt/budget_gen.go:206:7: c does not escape
+q1_devirt/budget_gen.go:227:7: c does not escape
+q1_devirt/budget_gen.go:249:7: c does not escape
+q1_devirt/budget_gen.go:272:7: c does not escape
+q1_devirt/budget_gen.go:296:7: c does not escape
+q1_devirt/budget_gen.go:321:7: c does not escape
+q1_devirt/budget_gen.go:347:7: c does not escape
+q1_devirt/budget_gen.go:374:7: c does not escape
+q1_devirt/budget_gen.go:402:7: c does not escape
+q1_devirt/budget_gen.go:431:7: c does not escape
+q1_devirt/budget_gen.go:461:7: c does not escape
+q1_devirt/budget_gen.go:492:7: c does not escape
+q1_devirt/budget_gen.go:524:7: c does not escape
+q1_devirt/budget_gen.go:557:7: c does not escape
+q1_devirt/budget_gen.go:591:7: c does not escape
+q1_devirt/budget_gen.go:626:7: c does not escape
+q1_devirt/budget_gen.go:662:7: c does not escape
+q1_devirt/budget_gen.go:699:7: c does not escape
+q1_devirt/budget_gen.go:737:7: c does not escape
+q1_devirt/budget_gen.go:776:7: c does not escape
+q1_devirt/budget_gen.go:816:7: c does not escape
+q1_devirt/budget_gen.go:857:7: c does not escape
+q1_devirt/budget_gen.go:899:7: c does not escape
+q1_devirt/budget_gen.go:942:7: c does not escape
+q1_devirt/budget_gen.go:986:7: c does not escape
+q1_devirt/types.go:20:7: c does not escape
+q1_devirt/types.go:29:7: c does not escape
+q1_devirt/types.go:34:18: c does not escape
+q1_devirt/types.go:41:16: &C1{...} does not escape
+q1_devirt/types.go:47:26: v does not escape
+q1_devirt/types.go:57:23: parameter v leaks to {heap} for ProbeOpaqueParam with derefs=0:
+q1_devirt/types.go:57:23:   flow: {heap} ← v:
+q1_devirt/types.go:57:23:     from v.Add(a, b) (call parameter) at q1_devirt/types.go:58:14
+q1_devirt/types.go:57:23: leaking param: v
+q1_devirt/types.go:68:17: parameter h leaks to {heap} for ProbeField with derefs=1:
+q1_devirt/types.go:68:17:   flow: {heap} ← *h:
+q1_devirt/types.go:68:17:     from h.v (dot of pointer) at q1_devirt/types.go:69:10
+q1_devirt/types.go:68:17:     from h.v.Add(a, b) (call parameter) at q1_devirt/types.go:69:16
+q1_devirt/types.go:68:17: leaking param content: h
+q1_devirt/types.go:77:9: &C1{...} escapes to heap in makeC1:
+q1_devirt/types.go:77:9:   flow: ~r0 ← &{storage for &C1{...}}:
+q1_devirt/types.go:77:9:     from &C1{...} (spill) at q1_devirt/types.go:77:9
+q1_devirt/types.go:77:9:     from &C1{...} (interface-converted) at q1_devirt/types.go:77:9
+q1_devirt/types.go:77:9:     from return &C1{...} (return) at q1_devirt/types.go:77:2
+q1_devirt/types.go:77:9: &C1{...} escapes to heap
+q1_devirt/types.go:84:9: &C2{...} escapes to heap in makeC2:
+q1_devirt/types.go:84:9:   flow: ~r0 ← &{storage for &C2{...}}:
+q1_devirt/types.go:84:9:     from &C2{...} (spill) at q1_devirt/types.go:84:9
+q1_devirt/types.go:84:9:     from &C2{...} (interface-converted) at q1_devirt/types.go:84:9
+q1_devirt/types.go:84:9:     from return &C2{...} (return) at q1_devirt/types.go:84:2
+q1_devirt/types.go:84:9: &C2{...} escapes to heap
+<autogenerated>:1: parameter ~p0 leaks to {heap} for Adder.Add with derefs=0:
+<autogenerated>:1:   flow: {heap} ← ~p0:
+<autogenerated>:1:     from ~p0.Add(a, b) (call parameter) at <autogenerated>:1

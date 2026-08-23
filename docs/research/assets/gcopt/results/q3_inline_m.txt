@@ -1,0 +1,21 @@
+# gcopt/q3_bigfunc
+q3_bigfunc/big_gen.go:5:6: cannot inline SmallChainA: function too complex: cost 302 exceeds budget 80
+q3_bigfunc/big_gen.go:34:6: cannot inline SmallChainB: function too complex: cost 302 exceeds budget 80
+q3_bigfunc/big_gen.go:63:6: cannot inline SmallChainC: function too complex: cost 302 exceeds budget 80
+q3_bigfunc/big_gen.go:92:6: cannot inline SmallChainD: function too complex: cost 302 exceeds budget 80
+q3_bigfunc/big_gen.go:121:6: cannot inline SmallChainE: function too complex: cost 302 exceeds budget 80
+q3_bigfunc/big_gen.go:150:6: cannot inline SmallChainF: function too complex: cost 302 exceeds budget 80
+q3_bigfunc/big_gen.go:179:6: cannot inline SmallChainG: function too complex: cost 302 exceeds budget 80
+q3_bigfunc/big_gen.go:208:6: cannot inline SmallChainH: function too complex: cost 302 exceeds budget 80
+q3_bigfunc/big_gen.go:238:6: cannot inline BigChain50: function too complex: cost 602 exceeds budget 80
+q3_bigfunc/big_gen.go:293:6: cannot inline BigChain100: function too complex: cost 1202 exceeds budget 80
+q3_bigfunc/big_gen.go:398:6: cannot inline BigChain200: function too complex: cost 2402 exceeds budget 80
+q3_bigfunc/big_gen.go:603:6: cannot inline BigChain500: function too complex: cost 6002 exceeds budget 80
+q3_bigfunc/big_gen.go:1108:6: cannot inline BigChain1000: function too complex: cost 12002 exceeds budget 80
+q3_bigfunc/big_gen.go:2113:6: cannot inline BigChain2000: function too complex: cost 24002 exceeds budget 80
+q3_bigfunc/big_gen.go:4118:6: cannot inline BigChain4000: function too complex: cost 48002 exceeds budget 80
+q3_bigfunc/big_gen.go:8122:6: cannot inline SplitChain200: function too complex: cost 474 exceeds budget 80
+q3_bigfunc/big_gen.go:603:6: function BigChain500 considered 'big'; reducing max cost of inlinees
+q3_bigfunc/big_gen.go:1108:6: function BigChain1000 considered 'big'; reducing max cost of inlinees
+q3_bigfunc/big_gen.go:2113:6: function BigChain2000 considered 'big'; reducing max cost of inlinees
+q3_bigfunc/big_gen.go:4118:6: function BigChain4000 considered 'big'; reducing max cost of inlinees
