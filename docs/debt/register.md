@@ -21,3 +21,4 @@ Orchestrator 在空闲期择"高收益/低成本"清偿；清偿后移入表格�
 ## 归档
 
 | ~~DEBT-0014~~ ✅ 已解决 | AOT 异常处理器路径槽位错位 | 线性发射器地址序遍历在 try→catch 切换处深度追踪偏移；CollectionsDemo/ThreadsDemo 首个 println 正确但 handler 内 StringBuilder 链的 recv 槽错位 | computeCanonicalDepths 地址序模拟未正确处理 goto→handler 转换后的 SM 帧重同步 | 中 | 下轮：per-basic-block 发射或从 verifier 数据流结果直接导出每 pc 规范深度 |
+| DEBT-0015 | AOT 路径 HashMap/HashSet 行为异常 | 解释器路径 WordCount 与 JVM 逐字节一致；AOT 路径 unique=11（应为 9）、所有 get 返回 null；HashMap natives 隔离测试通过 | genrt.CallVirtual/CallSpecial 对 Payload-backed 实例的分发与解释器不一致；或 <init> 未通过 AOT 路径正确触发 | 高 | 下轮：genrt.invokeChecked 对 Native 方法的调用路径对比解释器 InvokeAs |
