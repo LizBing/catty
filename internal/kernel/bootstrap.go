@@ -14,10 +14,10 @@ func bootstrap(k *Kernel) {
 			{Name: "hashCode", Desc: "()I", Flags: classfile.AccPublic, Native: natObjectHashCode},
 			{Name: "equals", Desc: "(Ljava/lang/Object;)Z", Flags: classfile.AccPublic, Native: natObjectEquals},
 			{Name: "toString", Desc: "()Ljava/lang/String;", Flags: classfile.AccPublic, Native: natObjectToString},
-			{Name: "wait", Desc: "(J)V", Flags: classfile.AccPublic|classfile.AccFinal, Native: natObjectWaitMillis},
-			{Name: "notify", Desc: "()V", Flags: classfile.AccPublic|classfile.AccFinal, Native: natObjectNotify},
-			{Name: "notifyAll", Desc: "()V", Flags: classfile.AccPublic|classfile.AccFinal, Native: natObjectNotifyAll},
-			{Name: "getClass", Desc: "()Ljava/lang/Class;", Flags: classfile.AccPublic|classfile.AccFinal, Native: natObjectGetClass},
+			{Name: "wait", Desc: "(J)V", Flags: classfile.AccPublic | classfile.AccFinal, Native: natObjectWaitMillis},
+			{Name: "notify", Desc: "()V", Flags: classfile.AccPublic | classfile.AccFinal, Native: natObjectNotify},
+			{Name: "notifyAll", Desc: "()V", Flags: classfile.AccPublic | classfile.AccFinal, Native: natObjectNotifyAll},
+			{Name: "getClass", Desc: "()Ljava/lang/Class;", Flags: classfile.AccPublic | classfile.AccFinal, Native: natObjectGetClass},
 		},
 	})
 
@@ -127,15 +127,15 @@ func bootstrap(k *Kernel) {
 	})
 
 	mustDefine(k, &ClassDef{
-		Name:   "java/lang/Runnable",
-		Super:  "",
-		Flags:  classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
+		Name:  "java/lang/Runnable",
+		Super: "",
+		Flags: classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
 	})
 
 	mustDefine(k, &ClassDef{
-		Name:  "java/lang/Thread",
-		Super: "java/lang/Object",
-		Flags: classfile.AccPublic,
+		Name:   "java/lang/Thread",
+		Super:  "java/lang/Object",
+		Flags:  classfile.AccPublic,
 		Ifaces: []string{"java/lang/Runnable"},
 		Fields: []FieldDef{
 			{Name: "name", Desc: "Ljava/lang/String;", Flags: classfile.AccPrivate},

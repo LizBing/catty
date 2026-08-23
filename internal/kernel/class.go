@@ -47,24 +47,24 @@ type Field struct {
 	Name       string
 	Desc       string
 	Flags      uint16
-	Slot       int  // instance slot (valid if !Static)
+	Slot       int // instance slot (valid if !Static)
 	Static     bool
-	StaticSlot int  // index into Holder.Statics (valid if Static)
+	StaticSlot int // index into Holder.Statics (valid if Static)
 }
 
 // Class is runtime class metadata.
 type Class struct {
-	Name  string
-	Super *Class
+	Name   string
+	Super  *Class
 	Ifaces []*Class
-	Flags uint16
+	Flags  uint16
 
-	Methods    []*Method
-	OwnFields  []*Field // fields declared by this class itself (non-static)
-	Statics    []Value  // static storage declared here
+	Methods   []*Method
+	OwnFields []*Field // fields declared by this class itself (non-static)
+	Statics   []Value  // static storage declared here
 
-	CF   *classfile.ClassFile // nil for synthesized classes
-	def  *ClassDef            // synthesized origin (nil for CF classes)
+	CF  *classfile.ClassFile // nil for synthesized classes
+	def *ClassDef            // synthesized origin (nil for CF classes)
 
 	state  atomic.Int32 // ClassState; fast-path reads are atomic
 	initMu sync.Mutex

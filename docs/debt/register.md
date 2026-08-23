@@ -21,4 +21,4 @@ Orchestrator 在空闲期择"高收益/低成本"清偿；清偿后移入表格�
 ## 归档
 
 | ~~DEBT-0014~~ ✅ 已解决 | AOT 异常处理器路径槽位错位 | 线性发射器地址序遍历在 try→catch 切换处深度追踪偏移；CollectionsDemo/ThreadsDemo 首个 println 正确但 handler 内 StringBuilder 链的 recv 槽错位 | computeCanonicalDepths 地址序模拟未正确处理 goto→handler 转换后的 SM 帧重同步 | 中 | 下轮：per-basic-block 发射或从 verifier 数据流结果直接导出每 pc 规范深度 |
-| DEBT-0015 | AOT 线性深度模拟在分支汇聚点偏移 | 根因已定位：computeCanonicalDepths 用单一 d 变量地址序遍历所有可达 pc，两条执行路径的净栈效果不同时汇聚点深度错位（aaload→astore 场景实证） | 线性模拟无法表达路径敏感的栈状态；需 per-basic-block 深度或从 verifier 数据流导出每 pc 规范值 | 高 | 下轮：将 verify 包的数据流分析结果（每 pc canonical stack depth）直接注入 emitter，替代独立模拟 |
+| DEBT-0015 | AOT 深度模拟与发射器槽位写入的一致性（收窄后根因） | WordCount AOT 已完整通过且与 JVM 逐字节一致（HashMap/cat2 全部修复：netStackEffect cat1/cat2 分表、invoke retSlots、popRefCat2）；回归发现 CollectionsDemo 第二 handler 区域整体槽位 +1 偏移——旧版"通过"实为 astore 双弹 bug 与其他偏移巧合抵消 | 地址序模拟在跨分支存活值（如 getstatic out 先于条件分支压栈）场景下，emitOne 实际写入槽位与 canonDepths 表值存在残余不一致 | 高 | 下轮专项：以 verify 数据流 checker 的 frame 状态为唯一事实源重构 canonDepths 导出；禁止 emitter 侧独立模拟 |

@@ -2,6 +2,7 @@ package emitter
 
 import (
 	"fmt"
+	"strings"
 
 	"catty/internal/classfile"
 )
@@ -15,6 +16,7 @@ func (e *methodEmitter) emitOne(pc int) error {
 		return fmt.Errorf("pc=%d: %s", pc, fmt.Sprintf(format, args...))
 	}
 	popRef := func() string { e.depth--; return fmt.Sprintf("s%d", e.depth) }
+	popRefCat2 := func() string { e.depth -= 2; return fmt.Sprintf("s%d", e.depth) }
 	pushV := func(expr string) { e.p("s%d = %s", e.depth, expr); e.depth++ }
 	excAfter := func() { e.excDispatch(pc) }
 	pushCat2 := func(expr string) {
@@ -99,6 +101,18 @@ func (e *methodEmitter) emitOne(pc int) error {
 			return fail("%v", err)
 		}
 		pushCat2(e.LocalName(n))
+	case 0x39: // dstore (indexed, cat2)
+		idx := int(code[pc+1])
+		if err := e.checkLocalIdx(idx); err != nil {
+			return fail("%v", err)
+		}
+		e.p("%s = %s", e.LocalName(idx), popRefCat2())
+	case 0x47, 0x48, 0x49, 0x4a: // dstore_0..3 (cat2)
+		n := int(op - 0x47)
+		if err := e.checkLocalIdx(n); err != nil {
+			return fail("%v", err)
+		}
+		e.p("%s = %s", e.LocalName(n), popRefCat2())
 	case 0x36, 0x3a: // istore / astore
 		idx := int(code[pc+1])
 		if err := e.checkLocalIdx(idx); err != nil {
@@ -111,20 +125,14 @@ func (e *methodEmitter) emitOne(pc int) error {
 			return fail("%v", err)
 		}
 		e.p("%s = %s", e.LocalName(n), popRef())
-	case 0x3f, 0x40, 0x41, 0x42: // lstore_0..3
+	case 0x3f, 0x40, 0x41, 0x42: // lstore_0..3 (cat2)
 		n := int(op - 0x3f)
 		if err := e.checkLocalIdx(n); err != nil {
 			return fail("%v", err)
 		}
-		e.p("%s = %s", e.LocalName(n), popRef())
+		e.p("%s = %s", e.LocalName(n), popRefCat2())
 	case 0x43, 0x44, 0x45, 0x46: // fstore_0..3
 		n := int(op - 0x43)
-		if err := e.checkLocalIdx(n); err != nil {
-			return fail("%v", err)
-		}
-		e.p("%s = %s", e.LocalName(n), popRef())
-	case 0x47, 0x48, 0x49, 0x4a: // dstore_0..3
-		n := int(op - 0x47)
 		if err := e.checkLocalIdx(n); err != nil {
 			return fail("%v", err)
 		}
@@ -136,12 +144,12 @@ func (e *methodEmitter) emitOne(pc int) error {
 		}
 		e.p("%s = %s", e.LocalName(n), popRef())
 
-	case 0x37: // lstore (indexed)
+	case 0x37: // lstore (indexed, cat2)
 		idx := int(code[pc+1])
 		if err := e.checkLocalIdx(idx); err != nil {
 			return fail("%v", err)
 		}
-		e.p("%s = %s", e.LocalName(idx), popRef())
+		e.p("%s = %s", e.LocalName(idx), popRefCat2())
 	case 0x57: // pop
 		e.depth--
 	case 0x59: // dup
@@ -292,6 +300,11 @@ func (e *methodEmitter) emitOne(pc int) error {
 		if rerr2 != nil {
 			return rerr2
 		}
+		retDesc := ""
+		if idx := strings.LastIndex(desc, ")"); idx >= 0 {
+			retDesc = desc[idx+1:]
+		}
+		retSlots := descSlots(retDesc) // 0 for void, 2 for J/D, else 1
 		dst := "_"
 		retSlot := -1
 		if hasRet {
@@ -309,7 +322,7 @@ func (e *methodEmitter) emitOne(pc int) error {
 		_ = fnName
 		excAfter()
 		if hasRet {
-			e.depth++
+			e.depth += retSlots
 		}
 
 	case 0xbb: // new

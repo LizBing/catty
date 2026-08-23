@@ -98,12 +98,12 @@ func (j *JThread) Terminate() {
 // Interrupt a path to wake Object.wait waiters and sleepers regardless of
 // which monitor they were parked on.
 type ThreadRegistry struct {
-	mu        sync.Mutex
-	byID      map[uint64]*JThread
-	main      *JThread
-	depths      map[uint64]int // interpreted+emitted frame depth per owner key
-	maxFrames   int
-	initStacks  map[uint64]map[string]bool
+	mu         sync.Mutex
+	byID       map[uint64]*JThread
+	main       *JThread
+	depths     map[uint64]int // interpreted+emitted frame depth per owner key
+	maxFrames  int
+	initStacks map[uint64]map[string]bool
 
 	waiting map[uint64][]*waitRec // key -> active Object.wait records
 }

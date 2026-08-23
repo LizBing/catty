@@ -15,9 +15,9 @@ import (
 // superclass and interfaces on demand, with a cycle guard. Verification
 // runs at link time when enabled (Options.Verify).
 type ClassPathLoader struct {
-	k       *Kernel
-	dirs    []string
-	cycle   map[string]bool // in-progress loads, guarded by k.mu
+	k     *Kernel
+	dirs  []string
+	cycle map[string]bool // in-progress loads, guarded by k.mu
 }
 
 // NewClassPathLoader attaches a directory-based loader to the kernel.

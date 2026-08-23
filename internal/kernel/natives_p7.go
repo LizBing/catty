@@ -156,11 +156,6 @@ func natHashMapInit(ctx *CallContext, recv Value, args []Value) (Value, error) {
 }
 
 func natHashMapGet(ctx *CallContext, recv Value, args []Value) (Value, error) {
-	if len(args) >= 1 {
-		if js, ok := args[0].(*JString); ok {
-			println("[DBG get] key=", js.String(), "recv.Payload=", fmt.Sprintf("%T", recv.(*Instance).Payload))
-		}
-	}
 	m := hashMapOf(recv)
 	val, ok := m.data[hashKey(args[0])]
 	if !ok {
@@ -170,13 +165,6 @@ func natHashMapGet(ctx *CallContext, recv Value, args []Value) (Value, error) {
 }
 
 func natHashMapPut(ctx *CallContext, recv Value, args []Value) (Value, error) {
-	if len(args) >= 1 {
-		if js, ok := args[0].(*JString); ok {
-			println("[DBG put] key=", js.String(), "recv.Payload=", fmt.Sprintf("%T", recv.(*Instance).Payload))
-		} else {
-			println("[DBG put] key type=", fmt.Sprintf("%T", args[0]))
-		}
-	}
 	m := hashMapOf(recv)
 	key := hashKey(args[0])
 	old, existed := m.data[key]

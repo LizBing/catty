@@ -37,7 +37,6 @@ type waitRec struct {
 	outcome atomic.Int32
 }
 
-
 // Enter acquires the monitor, reentrant for the given owner key.
 func (m *Monitor) Enter(key uint64) {
 	m.enterDepth(key, 1)

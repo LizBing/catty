@@ -436,7 +436,6 @@ func natArrayListContains(ctx *CallContext, recv Value, args []Value) (Value, er
 	return boolV(false), nil
 }
 
-
 // ---- java/lang/Object monitor operations (wait/notify) ----------------------
 
 // heapHeader extracts the common header of any heap value.

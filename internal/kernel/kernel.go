@@ -894,8 +894,6 @@ func (k *Kernel) arrayIsa(a *ArrayObj, target *Class) bool {
 
 // ---- Misc helpers ----------------------------------------------------------
 
-
-
 // constPoolPrimitive converts a constant-pool entry into a Value matching
 // the field descriptor desc (for ConstantValue attributes).
 func (k *Kernel) constPoolPrimitive(cf interface {
@@ -952,4 +950,3 @@ func bool32(b bool) int32 {
 	}
 	return 0
 }
-

@@ -62,7 +62,7 @@ func (e *methodEmitter) body() error {
 	debugOn := os.Getenv("CATTY_DEPTH") != ""
 
 	for _, pc := range pcs {
-		if debugOn && e.cf.ThisClass == "CollectionsDemo" && e.m.Name == "main" {
+		if debugOn && true && e.m.Name == "main" {
 			fmt.Fprintf(os.Stderr, "[dep] pc=%d canon=%d before\n", pc, func() int {
 				if d, ok := canonDepths[pc]; ok {
 					return d

@@ -77,7 +77,7 @@ func TestWaitNotifyHandshake(t *testing.T) {
 	go func() {
 		m.Enter(10)
 		out := m.Wait(nil, 10, -1) // indefinitely
-		done <- out           // reacquired on wake; ownership verified below
+		done <- out                // reacquired on wake; ownership verified below
 	}()
 
 	// A holds-and-waits → lock free; B acquires and notifies once the
