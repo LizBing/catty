@@ -2,6 +2,7 @@ package kernel
 
 import (
 	"errors"
+	"net"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -21,6 +22,11 @@ type JThread struct {
 	alive atomic.Bool
 
 	interrupted atomic.Bool
+
+	// netConn parks the connection this thread is currently blocked
+	// reading from, so Thread.interrupt can force-unblock the pending
+	// read via SetDeadline(now) (DEBT-0011 design).
+	netConn atomic.Pointer[net.Conn]
 
 	joinLatch chan struct{} // closed on termination
 	once      sync.Once
@@ -299,6 +305,12 @@ func (r *ThreadRegistry) Interrupt(key uint64) bool {
 	r.mu.Unlock()
 
 	if j.interruptSleeps() {
+		woken = true
+	}
+
+	// Unblock a pending socket read (SetDeadline-on-interrupt).
+	if nc := j.netConn.Load(); nc != nil {
+		_ = (*nc).SetDeadline(time.Now())
 		woken = true
 	}
 	return woken

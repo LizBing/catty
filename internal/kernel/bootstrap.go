@@ -78,6 +78,8 @@ func bootstrap(k *Kernel) {
 		{"java/lang/IllegalStateException", "java/lang/RuntimeException"},
 		{"java/lang/UnsupportedOperationException", "java/lang/RuntimeException"},
 		{"java/lang/IllegalMonitorStateException", "java/lang/RuntimeException"},
+		{"java/io/IOException", "java/lang/Exception"},
+		{"java/io/InterruptedIOException", "java/io/IOException"},
 		{"java/net/SocketException", "java/lang/Exception"},
 		{"java/net/BindException", "java/net/SocketException"},
 		{"java/lang/IllegalThreadStateException", "java/lang/IllegalArgumentException"},

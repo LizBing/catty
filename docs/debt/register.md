@@ -13,7 +13,7 @@ Orchestrator 在空闲期择"高收益/低成本"清偿；清偿后移入表格�
 | DEBT-0006 | ~~监视器不可重入、无 wait/notify/interrupt~~ 已完成（P-0003 Monitor 重写） | — | — | — | 关闭 |
 | DEBT-0007 | ~~SOE 深度计量~~ 已完成（P-0004，Options.MaxFrames） | — | — | — | 关闭；发射器侧序言计量待 AOT 后评估 |
 | DEBT-0010 | ~~Class 元对象缺失~~ 已完成（P-0005）：ldc-class/getClass/静态 synchronized 解锁 | — | — | — | 关闭；Class 反射 API（字段/方法）仍属远期反射面 |
-| DEBT-0011 | socket 读阻塞不可被中断唤醒（DEV-0008） | 线程中断完整性 | M | S | SetDeadline-on-interrupt：Interrupt 时对该线程登记的 conn 设置最近 deadline |
+| ~~DEBT-0011~~ ✅ 已关闭 | socket 读阻塞不可被中断唤醒 | JThread 增加 netConn 停靠槽；natStreamReadB 读前清 stale deadline 并登记 conn；Interrupt 路径 SetDeadline(now) 强制唤醒；超时+中断标志 → InterruptedIOException（新增 java/io/IOException 家族）；中断标志保持置位符合 JDK 语义 | — | — | — | 回归：TestSocketReadInterruptible（真实 loopback，断言 <1s 唤醒 + 异常类型 + 标志保持）|
 | DEBT-0012 | ~~数据流验证器三次顺延~~ 已闭环（P-0005 专项） | — | — | — | 关闭；教训记录：该类任务必须整段预算，前三次并行挤压均产出废稿 |
 | DEBT-0008 | ~~cmd/catty 未接线 main args 与 classpath~~ 已完成目录 -cp；args/JAR 仍缺 | 可用性 | L | S | JAR 支持随 ClassLoader 抽象（M2） |
 | DEBT-0009 | ~~验证器缺数据流类型检查~~ 已完成（P-0005 专项轮） | — | — | — | 关闭；残余保守点（未知引用类对放行）登记于 DEV-0001 |

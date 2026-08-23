@@ -1,17 +1,19 @@
 package kernel
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net"
+	"time"
 )
 
 // Minimal java.net / stream surface over Go's net package (M2).
 //
 // Blocking reads run on the Java thread's goroutine — the payoff of the
-// goroutine-backed thread model. Interrupt-wiring for socket reads
-// (SetDeadline-on-interrupt) is deliberately deferred and registered as a
-// deviation; see ledger DEV-0008.
+// goroutine-backed thread model. Thread.interrupt unblocks a pending read
+// via SetDeadline(now); the read then surfaces as InterruptedIOException
+// (DEBT-0011 / DEV-0008 closed).
 
 func netListenerOf(v Value) (net.Listener, error) {
 	in, ok := v.(*Instance)
@@ -164,6 +166,21 @@ func natStreamReadB(ctx *CallContext, recv Value, args []Value) (Value, error) {
 	}
 	arr := args[0].(*ArrayObj)
 	tmp := make([]byte, len(arr.Elems))
+
+	// DEBT-0011: clear any stale deadline left by an earlier interrupt
+	// wakeup, then park this conn on the current thread's record so a
+	// concurrent Thread.interrupt can SetDeadline(now) and force the
+	// pending Read to return.
+	jt := ctx.K.Threads.ByKey(ctx.ownerKey())
+	if jt != nil {
+		if nc, ok := h.r.(net.Conn); ok {
+			_ = nc.SetDeadline(time.Time{})
+			ncCopy := nc
+			jt.netConn.Store(&ncCopy)
+			defer jt.netConn.Store(nil)
+		}
+	}
+
 	n, rerr := h.r.Read(tmp)
 	for i := 0; i < n; i++ {
 		arr.Elems[i] = int32(tmp[i])
@@ -172,7 +189,13 @@ func natStreamReadB(ctx *CallContext, recv Value, args []Value) (Value, error) {
 		if n > 0 {
 			return int32(n), nil // partial read then error next call
 		}
-		return int32(-1), nil // EOF convention (IOException mapping deferred)
+		var ne net.Error
+		if errors.As(rerr, &ne) && ne.Timeout() &&
+			ctx.K.Threads.PeekInterrupted(ctx.ownerKey()) {
+			return nil, ctx.Throw("java/io/InterruptedIOException",
+				"read interrupted")
+		}
+		return int32(-1), nil // EOF convention (other errors unmapped)
 	}
 	return int32(n), nil
 }
