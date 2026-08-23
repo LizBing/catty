@@ -7,7 +7,6 @@ import (
 )
 
 // ---- Wrapper type natives (P-0007) ----
-// Boxed types store their primitive value in Fields[0].
 
 func natWrapperInit(primDesc string) NativeFunc {
 	return func(ctx *CallContext, recv Value, args []Value) (Value, error) {
@@ -122,7 +121,7 @@ func natBooleanParse(ctx *CallContext, recv Value, args []Value) (Value, error) 
 	return boolV(strings.EqualFold(js.String(), "true")), nil
 }
 
-// ---- HashMap natives (payload: mapBuf wrapping Go map) ----
+// ---- HashMap natives ----
 
 type mapBuf struct {
 	data map[string]Value
@@ -318,10 +317,7 @@ func natStringSplit(ctx *CallContext, recv Value, args []Value) (Value, error) {
 	sep := javaStr(args[0])
 	s := javaStr(recv)
 	parts := strings.Split(s, sep)
-
-	arr := &ArrayObj{
-		Elems: make([]Value, len(parts)),
-	}
+	arr := &ArrayObj{Elems: make([]Value, len(parts))}
 	for i, p := range parts {
 		arr.Elems[i] = ctx.K.InternGo(p)
 	}
@@ -347,5 +343,3 @@ func natStringStartsWith(ctx *CallContext, recv Value, args []Value) (Value, err
 func natStringEndsWith(ctx *CallContext, recv Value, args []Value) (Value, error) {
 	return boolV(strings.HasSuffix(javaStr(recv), javaStr(args[0]))), nil
 }
-
-
