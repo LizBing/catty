@@ -32,17 +32,17 @@ func (e *methodEmitter) emitOne(pc int) error {
 		pushV(fmt.Sprintf("int32(%d)", int32(op)-3))
 	case 0x10: // bipush
 		pushV(fmt.Sprintf("int32(%d)", int32(int8(code[pc+1]))))
-		case 0x11: // sipush
+	case 0x11: // sipush
 		v := int32(int16(uint16(code[pc+1])<<8 | uint16(code[pc+2])))
 		pushV(fmt.Sprintf("int32(%d)", v))
-	
+
 	case 0x12, 0x13: // ldc / ldc_w
 		var idx uint16
 		if op == 0x12 {
 			idx = uint16(code[pc+1])
-				} else {
+		} else {
 			idx = uint16(code[pc+1])<<8 | uint16(code[pc+2])
-				}
+		}
 		cnst := &e.cf.Constants[idx]
 		switch cnst.Tag {
 		case classfile.CInteger:
@@ -77,7 +77,7 @@ func (e *methodEmitter) emitOne(pc int) error {
 			return fail("%v", err)
 		}
 		pushV(e.LocalName(idx))
-		case 0x1a, 0x1b, 0x1c, 0x1d, 0x2a, 0x2b, 0x2c, 0x2d:
+	case 0x1a, 0x1b, 0x1c, 0x1d, 0x2a, 0x2b, 0x2c, 0x2d:
 		n := int(op - 0x1a)
 		if op >= 0x2a {
 			n = int(op - 0x2a)
@@ -86,14 +86,14 @@ func (e *methodEmitter) emitOne(pc int) error {
 			return fail("%v", err)
 		}
 		pushV(e.LocalName(n))
-	
+
 	case 0x36, 0x3a: // istore / astore
 		idx := int(code[pc+1])
 		if err := e.checkLocalIdx(idx); err != nil {
 			return fail("%v", err)
 		}
 		e.p("%s = %s", e.LocalName(idx), popRef())
-		case 0x3b, 0x3c, 0x3d, 0x3e, 0x4b, 0x4c, 0x4d, 0x4e:
+	case 0x3b, 0x3c, 0x3d, 0x3e, 0x4b, 0x4c, 0x4d, 0x4e:
 		n := int(op - 0x3b)
 		if op >= 0x4b {
 			n = int(op - 0x4b)
@@ -102,39 +102,39 @@ func (e *methodEmitter) emitOne(pc int) error {
 			return fail("%v", err)
 		}
 		e.p("%s = %s", e.LocalName(n), popRef())
-	
+
 	case 0x57: // pop
 		e.depth--
-		case 0x59: // dup
+	case 0x59: // dup
 		top := e.peekTop()
 		pushV(top)
-	
+
 	case 0x60: // iadd
 		b, a := popRef(), popRef()
 		pushV(fmt.Sprintf("(%s.(int32)) + (%s.(int32))", a, b))
-		case 0x64:
+	case 0x64:
 		b, a := popRef(), popRef()
 		pushV(fmt.Sprintf("(%s.(int32)) - (%s.(int32))", a, b))
-		case 0x68:
+	case 0x68:
 		b, a := popRef(), popRef()
 		pushV(fmt.Sprintf("(%s.(int32)) * (%s.(int32))", a, b))
-		case 0x74:
+	case 0x74:
 		v := popRef()
 		pushV(fmt.Sprintf("-(%s.(int32))", v))
-	
+
 	case 0x6c: // idiv
 		b, a := popRef(), popRef()
 		dst := fmt.Sprintf("s%d", e.depth)
 		e.p("%s, exc = genrt.IDiv(%s.(int32), %s.(int32))", dst, a, b)
 		excAfter()
 		e.depth++
-		case 0x70: // irem
+	case 0x70: // irem
 		b, a := popRef(), popRef()
 		dst := fmt.Sprintf("s%d", e.depth)
 		e.p("%s, exc = genrt.IRem(%s.(int32), %s.(int32))", dst, a, b)
 		excAfter()
 		e.depth++
-	
+
 	case 0x84: // iinc (non-wide: u1 index + s1 const)
 		idx := int(code[pc+1])
 		cst := int(int8(code[pc+2]))
@@ -142,7 +142,7 @@ func (e *methodEmitter) emitOne(pc int) error {
 			return fail("%v", err)
 		}
 		e.p("%s = %s.(int32) + %d", e.LocalName(idx), e.LocalName(idx), cst)
-	
+
 	case 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e: // ifeq..ifle
 		v := popRef()
 		tgt := branchTarget(pc, code)
@@ -151,7 +151,7 @@ func (e *methodEmitter) emitOne(pc int) error {
 			0x9c: ">= 0", 0x9d: "> 0", 0x9e: "<= 0",
 		}[op]
 		e.p("if %s.(int32) %s { goto L%d }", v, cond, tgt)
-		case 0x9f, 0xa0, 0xa1, 0xa2, 0xa3, 0xa4: // if_icmpXX
+	case 0x9f, 0xa0, 0xa1, 0xa2, 0xa3, 0xa4: // if_icmpXX
 		b, a := popRef(), popRef()
 		tgt := branchTarget(pc, code)
 		cond := map[byte]string{
@@ -159,7 +159,7 @@ func (e *methodEmitter) emitOne(pc int) error {
 			0xa2: ">=", 0xa3: ">", 0xa4: "<=",
 		}[op]
 		e.p("if %s.(int32) %s %s.(int32) { goto L%d }", a, cond, b, tgt)
-		case 0xa5, 0xa6: // if_acmpeq / ne
+	case 0xa5, 0xa6: // if_acmpeq / ne
 		b, a := popRef(), popRef()
 		tgt := branchTarget(pc, code)
 		opStr := "=="
@@ -167,35 +167,35 @@ func (e *methodEmitter) emitOne(pc int) error {
 			opStr = "!="
 		}
 		e.p("if genrt.RefEq(%s, %s) %s { goto L%d }", a, b, opStr, tgt)
-		case 0xc6, 0xc7: // ifnull / ifnonnull
+	case 0xc6, 0xc7: // ifnull / ifnonnull
 		v := popRef()
 		tgt := branchTarget(pc, code)
 		wantNil := op == 0xc6
 		e.p("if (%s == nil) == %v { goto L%d }", v, wantNil, tgt)
-		case 0xa7: // goto
+	case 0xa7: // goto
 		tgt := branchTarget(pc, code)
 		e.p("goto L%d", tgt)
 
 	case 0xac, 0xb0: // ireturn / areturn
 		v := popRef()
 		e.p("return %s, nil", v)
-		case 0xb1: // return
+	case 0xb1: // return
 		e.p("return nil, nil")
-	
+
 	case 0xb2: // getstatic
 		cls, name, desc, _, rerr := refAt(e.cf, code, pc)
 		if rerr != nil {
 			return rerr
 		}
 		pushV(fmt.Sprintf("genrt.GetStatic(thr, %q, %q, %q)", cls, name, desc))
-		case 0xb3: // putstatic
+	case 0xb3: // putstatic
 		cls, name, desc, _, rerr := refAt(e.cf, code, pc)
 		if rerr != nil {
 			return rerr
 		}
 		val := popRef()
 		e.p("genrt.SetStatic(thr, %q, %q, %q, %s)", cls, name, desc, val)
-		case 0xb4: // getfield
+	case 0xb4: // getfield
 		_, name, desc, _, rerr := refAt(e.cf, code, pc)
 		if rerr != nil {
 			return rerr
@@ -205,7 +205,7 @@ func (e *methodEmitter) emitOne(pc int) error {
 		e.p("%s, exc = genrt.GetFieldChecked(thr, %s, %q, %q)", dst, obj, name, desc)
 		excAfter()
 		e.depth++
-		case 0xb5: // putfield
+	case 0xb5: // putfield
 		_, name, desc, _, rerr := refAt(e.cf, code, pc)
 		if rerr != nil {
 			return rerr
@@ -214,14 +214,14 @@ func (e *methodEmitter) emitOne(pc int) error {
 		obj := popRef()
 		e.p("exc = genrt.SetFieldChecked(thr, %s, %q, %q, %s)", obj, name, desc, val)
 		excAfter()
-	
+
 	case 0xb6, 0xb7, 0xb8, 0xb9: // invokes
 		cls, name, desc, _, rerr := refAt(e.cf, code, pc)
 		if rerr != nil {
 			return rerr
 		}
 		if op == 0xb9 {
-			}
+		}
 		argDescs, _, derr := splitMethodDesc(desc)
 		if derr != nil {
 			return derr
@@ -279,7 +279,7 @@ func (e *methodEmitter) emitOne(pc int) error {
 			return cerr
 		}
 		pushV(fmt.Sprintf("genrt.New(%q)", clsName))
-		case 0xbc: // newarray
+	case 0xbc: // newarray
 		nm, ok := atypeName(int(code[pc+1]))
 		if !ok {
 			return fail("newarray bad atype %d", code[pc+1])
@@ -289,7 +289,7 @@ func (e *methodEmitter) emitOne(pc int) error {
 		e.p("%s, exc = genrt.NewPrimitiveArray(%q, %s.(int32))", dst, nm, sizeExpr)
 		excAfter()
 		e.depth++
-		case 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35: // array loads
+	case 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35: // array loads
 		idx := popRef()
 		arr := popRef()
 		dst := fmt.Sprintf("s%d", e.depth)
@@ -303,23 +303,23 @@ func (e *methodEmitter) emitOne(pc int) error {
 		case 0x35: // saload sign-extend
 			e.p("%s = int32(int16(%s.(int32)))", dst, dst)
 		}
-	
+
 	case 0x4f, 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56: // array stores
 		val := popRef()
 		idx := popRef()
 		arr := popRef()
 		e.p("exc = genrt.AStoreChecked(%s, %s.(int32), %s)", arr, idx, val)
 		excAfter()
-	
+
 	case 0xbe: // arraylength
 		arr := popRef()
 		pushV(fmt.Sprintf("genrt.ArrayLength(%s)", arr))
 		excAfter()
-		case 0xbf: // athrow
+	case 0xbf: // athrow
 		v := popRef()
 		e.p("exc = &kernel.Thrown{Obj: %s.(*kernel.Instance)}", v)
 		excAfter()
-		case 0xc0: // checkcast
+	case 0xc0: // checkcast
 		clsName, cerr := classAt(e.cf, code, pc)
 		if cerr != nil {
 			return cerr
@@ -327,14 +327,14 @@ func (e *methodEmitter) emitOne(pc int) error {
 		top := e.peekTop()
 		e.p("%s = genrt.CheckCast(thr, %s, %q)", top, top, clsName)
 		excAfter()
-		case 0xc1: // instanceof
+	case 0xc1: // instanceof
 		clsName, cerr := classAt(e.cf, code, pc)
 		if cerr != nil {
 			return cerr
 		}
 		v := popRef()
 		pushV(fmt.Sprintf("genrt.BoolValue(genrt.InstanceOf(%s, %q))", v, clsName))
-		case 0xc2, 0xc3: // monitorenter/exit
+	case 0xc2, 0xc3: // monitorenter/exit
 		obj := popRef()
 		helper := "genrt.MonitorEnter"
 		if op == 0xc3 {
@@ -342,7 +342,7 @@ func (e *methodEmitter) emitOne(pc int) error {
 		}
 		e.p("exc = %s(thr, %s)", helper, obj)
 		excAfter()
-	
+
 	default:
 		return fail("opcode %#x unsupported by emitter v1", op)
 	}

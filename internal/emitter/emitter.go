@@ -37,7 +37,7 @@ func Install(k *kernel.Kernel) {
 	for _, e := range installTable {
 		c, ok := k.ClassByName(e.cls)
 		if !ok {
-			panic("gen: class not loaded: " + e.cls)
+			continue // class not in this run
 		}
 		m, err := k.ResolveMethod(c, e.name, e.desc)
 		if err != nil {

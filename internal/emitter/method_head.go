@@ -180,35 +180,26 @@ func (e *methodEmitter) label(pc int) {
 // exc must hold the pending *kernel.Thrown. Falls through when unhandled
 // after propagating.
 func (e *methodEmitter) excDispatch(pc int) {
-	handled := false
+	// Only propagate when exc is actually non-nil.
+	e.p("if exc != nil {")
 	for _, h := range e.handlers {
 		if pc < int(h.StartPc) || pc >= int(h.EndPc) {
 			continue
 		}
-		handled = true
 		if h.CatchType == 0 {
-			e.p("if true {")
-		} else {
-			cn, err := e.cf.ClassName(h.CatchType)
-			if err != nil {
-				continue
-			}
-			e.p("if genrt.InstanceOf(exc.Obj, %q) {", cn)
+			e.p("\tgoto L%d", h.HandlerPc)
+			continue
 		}
-		e.p("\texc = nil")
-		e.p("\tgoto L%d", h.HandlerPc)
-		e.p("}")
+		cn, err := e.cf.ClassName(h.CatchType)
+		if err != nil {
+			continue
+		}
+		e.p("\tif genrt.InstanceOf(exc.Obj, %q) { goto L%d }", cn, h.HandlerPc)
 	}
-	if !handled {
-		e.p("return nil, exc")
-	} else {
-		e.p("return nil, exc // unreachable when matched above")
-	}
+	e.p("\treturn nil, exc // no handler matched")
+	e.p("}")
 }
 
-// callSite wraps a fallible helper invocation with dispatch.
-// stmt format must assign to `exc` and result slots via %s placeholders fed
-// with pop()'d names by the caller-provided argsExpr.
 func (e *methodEmitter) fallible(pc int, lhs string, call string) {
 	if lhs != "" {
 		e.p("%s = %s", lhs, call)
@@ -275,6 +266,9 @@ func sortInts(xs []int) {
 // mergeStackDepth lazily computes the canonical operand-stack depth for a
 // merge pc from its StackMapFrame (0 when absent).
 func (e *methodEmitter) mergeStackDepth(pc int) int {
+	if e.cf.ThisClass == "CollectionsDemo" {
+		fmt.Fprintf(os.Stderr, "[msd] %s.%s pc=%d frames=%d\n", e.cf.ThisClass, e.m.Name, pc, len(e.m.Code.StackMaps))
+	}
 	if e.mergeDepth == nil {
 		e.mergeDepth = make(map[int]int)
 	}

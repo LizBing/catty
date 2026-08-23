@@ -294,13 +294,13 @@ func ArrayLength(arr kernel.Value) int32 { return int32(len(arr.(*kernel.ArrayOb
 
 // --- monitors -----------------------------------------------------------------------------------
 
-func MonitorEnter(th kernel.OwnerKey, obj kernel.Value) kernel.Value {
+func MonitorEnter(th kernel.OwnerKey, obj kernel.Value) *kernel.Thrown {
 	h := headerOf(obj)
 	h.Monitor().Enter(thrKey(th))
 	return nil
 }
 
-func MonitorExit(th kernel.OwnerKey, obj kernel.Value) kernel.Value {
+func MonitorExit(th kernel.OwnerKey, obj kernel.Value) *kernel.Thrown {
 	h := headerOf(obj)
 	if err := h.Monitor().Exit(thrKey(th)); err != nil {
 		return Throw("java/lang/IllegalMonitorStateException",
@@ -398,4 +398,10 @@ func AStoreChecked(arr kernel.Value, idx int32, v kernel.Value) *kernel.Thrown {
 	}
 	a.Elems[idx] = v
 	return nil
+}
+
+
+// CallInterface resolves like invokevirtual (dynamic dispatch).
+func CallInterface(th kernel.OwnerKey, recv kernel.Value, cls, name, desc string, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	return CallVirtual(th, recv, cls, name, desc, args)
 }

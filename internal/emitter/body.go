@@ -32,6 +32,10 @@ func (e *methodEmitter) body() error {
 		jumpTargets[hp] = true
 	}
 	e.targets = jumpTargets
+	e.handlerAt = make(map[int]string)
+	for _, h := range e.handlers {
+		e.handlerAt[int(h.HandlerPc)] = catchName(e.cf, h.CatchType)
+	}
 
 	argDescs, _, err := splitMethodDesc(e.m.Desc)
 	if err != nil {
@@ -54,12 +58,15 @@ func (e *methodEmitter) body() error {
 	sortInts(pcs)
 
 	for _, pc := range pcs {
-		if _, isHandler := e.handlerAt[pc]; isHandler {
-			e.p("L%d:", pc)
+		isJumpTarget := jumpTargets[pc]
+		_, isHandler := e.handlerAt[pc]
+		if isJumpTarget || isHandler {
+			// Reset operand stack to canonical depth at merge points.
 			d := e.mergeStackDepth(pc)
 			e.depth = d
-			e.p("s%d = exc.Obj", d-1)
-		} else if jumpTargets[pc] {
+			if isHandler && d > 0 {
+				e.p("s%d = exc.Obj", d-1)
+			}
 			e.p("L%d:", pc)
 		}
 		if err := e.emitOne(pc); err != nil {
