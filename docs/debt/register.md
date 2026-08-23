@@ -5,10 +5,10 @@ Orchestrator 在空闲期择"高收益/低成本"清偿；清偿后移入表格�
 
 | ID | Description | Impact | Urgency | Cost | Suggested Fix |
 |---|---|---|---|---|---|
-| DEBT-0001 | classfile 解析器无 fuzz harness；解析器是最大外部输入攻击面 | 解析崩溃/安全 | M | S | M0 落地后加 go-fuzz/native fuzzing 目标进 make check 可选项 |
-| DEBT-0002 | 无自动化许可证/provenance 扫描，目前靠 review 手查 | IP 污染风险 | M | M | 引入 CI 步骤校验 PROVENANCE 完整性与许可证清单白名单 |
-| DEBT-0003 | R7（内核 import 边界）尚无 arch test 强制 | 分层腐化 | L | S | go.mod 划分包后写 import 边界测试进 make check |
-| DEBT-0004 | libcore/Harmony 逐文件许可甄别未开始（ADR-0006 前置） | 阻塞 L2 移植 | M | M | M1 启动前产出甄别清单报告（research artifact） |
+| ~~DEBT-0001~~ ⏸ deferred | classfile 解析器无 fuzz harness；解析器是最大外部输入攻击面 | 解析崩溃/安全 | M | S | M0 落地后加 go-fuzz/native fuzzing 目标进 make check 可选项 |
+| ~~DEBT-0002~~ ⏸ deferred | 无自动化许可证/provenance 扫描，目前靠 review 手查 | IP 污染风险 | M | M | 引入 CI 步骤校验 PROVENANCE 完整性与许可证清单白名单 |
+| ~~DEBT-0003~~ ⏸ deferred | R7（内核 import 边界）尚无 arch test 强制 | 分层腐化 | L | S | go.mod 划分包后写 import 边界测试进 make check |
+| ~~DEBT-0004~~ ⏸ deferred | libcore/Harmony 逐文件许可甄别未开始（ADR-0006 前置） | 阻塞 L2 移植 | M | M | M1 启动前产出甄别清单报告（research artifact） |
 | DEBT-0005 | ~~字节码验证器缺失~~ 已完成：结构层(P-0003)+数据流类型检查(P-0005) | — | — | — | 关闭；未知引用类对放行残留于 DEV-0001 |
 | DEBT-0006 | ~~监视器不可重入、无 wait/notify/interrupt~~ 已完成（P-0003 Monitor 重写） | — | — | — | 关闭 |
 | DEBT-0007 | ~~SOE 深度计量~~ 已完成（P-0004，Options.MaxFrames） | — | — | — | 关闭；发射器侧序言计量待 AOT 后评估 |
@@ -21,4 +21,4 @@ Orchestrator 在空闲期择"高收益/低成本"清偿；清偿后移入表格�
 ## 归档
 
 | ~~DEBT-0014~~ ✅ 已解决 | AOT 异常处理器路径槽位错位 | 线性发射器地址序遍历在 try→catch 切换处深度追踪偏移；CollectionsDemo/ThreadsDemo 首个 println 正确但 handler 内 StringBuilder 链的 recv 槽错位 | computeCanonicalDepths 地址序模拟未正确处理 goto→handler 转换后的 SM 帧重同步 | 中 | 下轮：per-basic-block 发射或从 verifier 数据流结果直接导出每 pc 规范深度 |
-| DEBT-0015 | AOT 路径 HashMap/HashSet 行为异常 | 解释器路径 WordCount 与 JVM 逐字节一致；AOT 路径 unique=11（应为 9）、所有 get 返回 null；HashMap natives 隔离测试通过 | genrt.CallVirtual/CallSpecial 对 Payload-backed 实例的分发与解释器不一致；或 <init> 未通过 AOT 路径正确触发 | 高 | 下轮：genrt.invokeChecked 对 Native 方法的调用路径对比解释器 InvokeAs |
+| DEBT-0015 | AOT 线性深度模拟在分支汇聚点偏移 | 根因已定位：computeCanonicalDepths 用单一 d 变量地址序遍历所有可达 pc，两条执行路径的净栈效果不同时汇聚点深度错位（aaload→astore 场景实证） | 线性模拟无法表达路径敏感的栈状态；需 per-basic-block 深度或从 verifier 数据流导出每 pc 规范值 | 高 | 下轮：将 verify 包的数据流分析结果（每 pc canonical stack depth）直接注入 emitter，替代独立模拟 |
