@@ -179,3 +179,16 @@ func buildFixedLenTable() map[byte]int {
 	delete(m, 0xc4)
 	return m
 }
+
+
+// SwitchNext returns the next linear pc after a variable-length switch.
+func SwitchNext(code []byte, pc int) (int, bool) {
+	return switchNext(code, pc)
+}
+
+// FixedLen returns the fixed instruction length for an opcode, or false
+// for variable-length opcodes.
+func FixedLen(op byte) (int, bool) {
+	n, ok := fixedLenCache[op]
+	return n, ok
+}

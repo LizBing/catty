@@ -36,6 +36,10 @@ func (e *methodEmitter) body() error {
 	for _, h := range e.handlers {
 		e.handlerAt[int(h.HandlerPc)] = catchName(e.cf, h.CatchType)
 	}
+	e.handlerAt = make(map[int]string)
+	for _, h := range e.handlers {
+		e.handlerAt[int(h.HandlerPc)] = catchName(e.cf, h.CatchType)
+	}
 
 	argDescs, _, err := splitMethodDesc(e.m.Desc)
 	if err != nil {
@@ -60,17 +64,6 @@ func (e *methodEmitter) body() error {
 	for _, pc := range pcs {
 		isJumpTarget := jumpTargets[pc]
 		_, isHandler := e.handlerAt[pc]
-		// Reset depth from StackMapFrame when available.
-		if fr := e.smFrameAt(pc); fr != nil {
-			n := 0
-			for _, it := range fr.Stack {
-				n++
-				if it.Tag == classfile.VItemLong || it.Tag == classfile.VItemDouble {
-					n++
-				}
-			}
-			e.depth = n
-		}
 		if isHandler {
 			// Exception handler entry (JVMS §2.6, §4.10.1.6): the operand
 			// stack is cleared and the caught exception pushed, so the

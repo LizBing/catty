@@ -334,14 +334,3 @@ func joinStrings(parts []string, sep string) string {
 	}
 	return out
 }
-
-// smFrameAt finds the StackMapFrame at a given pc, or nil.
-func (e *methodEmitter) smFrameAt(pc int) *classfile.StackMapFrame {
-	for i := range e.m.Code.StackMaps {
-		fr := &e.m.Code.StackMaps[i]
-		if int(fr.Offset) == pc {
-			return fr
-		}
-	}
-	return nil
-}
