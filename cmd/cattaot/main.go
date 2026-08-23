@@ -52,11 +52,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "cattaot:", err)
 		os.Exit(1)
 	}
-	argsArr, aerr := k.NewArray("Ljava/lang/String;", 0)
-	if aerr != nil {
-		fmt.Fprintln(os.Stderr, "cattaot:", aerr)
-		os.Exit(1)
-	}
+	argsArr := javaArgs(k, rest[2:])
 
 	if _, err := th.Call(main, nil, []kernel.Value{argsArr}); err != nil {
 		var t *kernel.Thrown
@@ -74,4 +70,15 @@ func main() {
 func usage() {
 	fmt.Fprintln(os.Stderr, "usage: cattaot [-cp <dir>] run <dotted.Main>")
 	os.Exit(2)
+}
+
+
+// javaArgs converts CLI arguments after the main class into a Java
+// String[] for main().
+func javaArgs(k *kernel.Kernel, cli []string) kernel.Value {
+	arr := &kernel.ArrayObj{Elems: make([]kernel.Value, len(cli))}
+	for i, a := range cli {
+		arr.Elems[i] = k.InternGo(a)
+	}
+	return arr
 }

@@ -163,6 +163,7 @@ func bootstrap(k *Kernel) {
 	bootstrapP7(k)
 	bootstrapCollectionsP7(k)
 	bootstrapStringP7(k)
+	bootstrapFileIO(k)
 
 	// ---- java.net / java.io streams (payload-backed, M2) ----
 	mustDefine(k, &ClassDef{

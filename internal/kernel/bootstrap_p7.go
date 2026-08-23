@@ -155,3 +155,54 @@ func addMethodToClass(k *Kernel, c *Class, def MethodDef) {
 	c.methodsByKey[key] = m
 	c.Methods = append(c.Methods, m)
 }
+
+// bootstrapFileIO adds the Route-A file surface: File metadata and the
+// line-oriented FileReader used by CLI-style fixtures.
+func bootstrapFileIO(k *Kernel) {
+	mustDefine(k, &ClassDef{
+		Name:  "java/io/File",
+		Super: "java/lang/Object",
+		Flags: classfile.AccPublic,
+		Methods: []MethodDef{
+			{Name: "<init>", Desc: "(Ljava/lang/String;)V", Flags: classfile.AccPublic, Native: natObjectInit},
+			{Name: "exists", Desc: "()Z", Flags: classfile.AccPublic, Native: natFileExists},
+			{Name: "length", Desc: "()J", Flags: classfile.AccPublic, Native: natFileLength},
+		},
+	})
+	mustDefine(k, &ClassDef{
+		Name:  "java/io/Reader",
+		Super: "java/lang/Object",
+		Flags: classfile.AccPublic | classfile.AccAbstract,
+		Methods: []MethodDef{
+			{Name: "close", Desc: "()V", Flags: classfile.AccPublic | classfile.AccAbstract},
+		},
+	})
+	mustDefine(k, &ClassDef{
+		Name:  "java/io/InputStreamReader",
+		Super: "java/io/Reader",
+		Flags: classfile.AccPublic,
+		Methods: []MethodDef{
+			{Name: "<init>", Desc: "(Ljava/io/InputStream;)V", Flags: classfile.AccPublic, Native: natObjectInit},
+			{Name: "close", Desc: "()V", Flags: classfile.AccPublic, Native: natFileClose},
+		},
+	})
+	mustDefine(k, &ClassDef{
+		Name:  "java/io/FileReader",
+		Super: "java/io/InputStreamReader",
+		Flags: classfile.AccPublic,
+		Methods: []MethodDef{
+			{Name: "<init>", Desc: "(Ljava/lang/String;)V", Flags: classfile.AccPublic, Native: natFileReaderInit},
+			{Name: "close", Desc: "()V", Flags: classfile.AccPublic, Native: natFileClose},
+		},
+	})
+	mustDefine(k, &ClassDef{
+		Name:  "java/io/BufferedReader",
+		Super: "java/io/Reader",
+		Flags: classfile.AccPublic,
+		Methods: []MethodDef{
+			{Name: "<init>", Desc: "(Ljava/io/Reader;)V", Flags: classfile.AccPublic, Native: natBufferedReaderInit},
+			{Name: "readLine", Desc: "()Ljava/lang/String;", Flags: classfile.AccPublic, Native: natBufferedReadLine},
+			{Name: "close", Desc: "()V", Flags: classfile.AccPublic, Native: natFileClose},
+		},
+	})
+}

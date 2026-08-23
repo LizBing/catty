@@ -2,6 +2,7 @@ package kernel
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -314,9 +315,16 @@ func natStringIsEmpty(ctx *CallContext, recv Value, args []Value) (Value, error)
 }
 
 func natStringSplit(ctx *CallContext, recv Value, args []Value) (Value, error) {
-	sep := javaStr(args[0])
+	pattern := javaStr(args[0])
 	s := javaStr(recv)
-	parts := strings.Split(s, sep)
+
+	var parts []string
+	if re, err := regexp.Compile(pattern); err == nil {
+		parts = re.Split(s, -1) // Java-regex subset via Go regexp
+	} else {
+		parts = strings.Split(s, pattern) // literal fallback
+	}
+
 	arr := &ArrayObj{Elems: make([]Value, len(parts))}
 	for i, p := range parts {
 		arr.Elems[i] = ctx.K.InternGo(p)
