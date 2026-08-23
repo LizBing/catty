@@ -1,6 +1,9 @@
 package emitter
 
 import (
+	"fmt"
+	"os"
+
 	"catty/internal/classfile"
 	"catty/internal/verify"
 )
@@ -23,6 +26,7 @@ func (e *methodEmitter) body() error {
 	if err != nil {
 		return err
 	}
+	e.reach = reach
 
 	jumpTargets, err := verify.BranchTargets(e.code)
 	if err != nil {
@@ -32,14 +36,8 @@ func (e *methodEmitter) body() error {
 		jumpTargets[hp] = true
 	}
 	e.targets = jumpTargets
-	e.handlerAt = make(map[int]string)
-	for _, h := range e.handlers {
-		e.handlerAt[int(h.HandlerPc)] = catchName(e.cf, h.CatchType)
-	}
-	e.handlerAt = make(map[int]string)
-	for _, h := range e.handlers {
-		e.handlerAt[int(h.HandlerPc)] = catchName(e.cf, h.CatchType)
-	}
+
+	canonDepths := e.canonDepths
 
 	argDescs, _, err := splitMethodDesc(e.m.Desc)
 	if err != nil {
@@ -61,24 +59,26 @@ func (e *methodEmitter) body() error {
 	}
 	sortInts(pcs)
 
+	debugOn := os.Getenv("CATTY_DEPTH") != ""
+
 	for _, pc := range pcs {
+		if debugOn && e.cf.ThisClass == "CollectionsDemo" && e.m.Name == "main" {
+			fmt.Fprintf(os.Stderr, "[dep] pc=%d canon=%d before\n", pc, func() int {
+				if d, ok := canonDepths[pc]; ok {
+					return d
+				}
+				return -999
+			}())
+		}
 		isJumpTarget := jumpTargets[pc]
 		_, isHandler := e.handlerAt[pc]
+		if d, ok := canonDepths[pc]; ok {
+			e.depth = d
+		}
 		if isHandler {
-			// Exception handler entry (JVMS §2.6, §4.10.1.6): the operand
-			// stack is cleared and the caught exception pushed, so the
-			// canonical depth is always 1 — no StackMapFrame lookup needed.
-			// The push must come AFTER the label: every arrival goes through
-			// excDispatch's `goto`, so a statement emitted before the label
-			// is dead code and the handler would observe a stale slot.
 			e.p("L%d:", pc)
-			e.p("s0 = exc.Obj")
-			e.depth = 1
+			e.p("s%d = exc.Obj", e.depth-1)
 		} else if isJumpTarget {
-			// Merge point: reset operand stack to the StackMapTable
-			// canonical depth so subsequent slots are named consistently
-			// with the verifier's frame.
-			e.depth = e.mergeStackDepth(pc)
 			e.p("L%d:", pc)
 		}
 		if err := e.emitOne(pc); err != nil {

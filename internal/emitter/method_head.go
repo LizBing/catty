@@ -51,14 +51,40 @@ func emitMethodBody(cf *classfile.ClassFile, m *classfile.MethodInfo) (string, e
 		return "", err
 	}
 
+	// Compute reachability + canonical depths before prologue so that
+	// stack slot allocation covers the maximum canonical depth.
+	var handlerPCs []int
+	for h := range code.Handlers {
+		handlerPCs = append(handlerPCs, int(code.Handlers[h].HandlerPc))
+	}
+	reach, rerr := verify.Reachable(code.Code, handlerPCs)
+	if rerr != nil {
+		return "", rerr
+	}
+	e.reach = reach
+	// Populate handlerAt BEFORE computing canonical depths so that
+	// handler-entry pins (depth=1) are visible to the simulator.
+	e.handlerAt = make(map[int]string)
+	for _, h := range code.Handlers {
+		e.handlerAt[int(h.HandlerPc)] = catchName(e.cf, h.CatchType)
+	}
+	e.canonDepths = e.computeCanonicalDepths(reach)
+
+	maxSlot := int(code.MaxStack) + 1
+	for _, d := range e.canonDepths {
+		if d+1 > maxSlot {
+			maxSlot = d + 1
+		}
+	}
+
 	// Prologue: exception carrier + locals + stack slots (blank-used).
 	e.p("var exc *kernel.Thrown")
 	if e.maxLocals > 0 {
 		e.p("var %s kernel.Value", slotList("l", e.maxLocals))
 		e.p("_ = []kernel.Value{%s}", slotList("l", e.maxLocals))
 	}
-	e.p("var %s kernel.Value", slotList("s", int(code.MaxStack)+1))
-	e.p("_ = []kernel.Value{%s}", slotList("s", int(code.MaxStack)+1))
+	e.p("var %s kernel.Value", slotList("s", maxSlot))
+	e.p("_ = []kernel.Value{%s}", slotList("s", maxSlot))
 
 	// Argument copying from args[] into locals.
 	slot := 0
@@ -132,6 +158,9 @@ func splitMethodDesc(desc string) ([]string, string, error) {
 }
 
 func descSlots(d string) int {
+	if d == "V" {
+		return 0
+	}
 	if d == "J" || d == "D" {
 		return 2
 	}
@@ -139,16 +168,20 @@ func descSlots(d string) int {
 }
 
 type methodEmitter struct {
-	cf         *classfile.ClassFile
-	m          *classfile.MethodInfo
-	code       []byte
-	w          strings.Builder
-	depth      int
-	maxLocals  int
-	handlers   []classfile.ExceptionHandler
-	targets    map[int]bool
-	mergeDepth map[int]int    // lazily computed stack depth per merge pc
-	handlerAt  map[int]string // pc -> catch class name (""=any)
+	cf          *classfile.ClassFile
+	m           *classfile.MethodInfo
+	code        []byte
+	w           strings.Builder
+	depth       int
+	maxLocals   int
+	handlers    []classfile.ExceptionHandler
+	targets     map[int]bool
+	mergeDepth  map[int]int    // lazily computed stack depth per merge pc
+	handlerAt   map[int]string // pc -> catch class name (""=any)
+	reach       map[int]bool   // reachable pcs
+	canonDepths map[int]int    // canonical depth per pc
+
+	// computeCanonicalDepths is defined as a method below.
 }
 
 var _ = fmt.Sprintf

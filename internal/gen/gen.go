@@ -17,12 +17,12 @@ func Catty_HelloWorld_init____V(thr kernel.OwnerKey, recv kernel.Value, args []k
 	var exc *kernel.Thrown
 	var l0 kernel.Value
 	_ = []kernel.Value{l0}
-	var s0, s1 kernel.Value
-	_ = []kernel.Value{s0, s1}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l0 = recv
-	s0 = l0
-	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	s1 = l0
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
@@ -36,13 +36,13 @@ func Catty_HelloWorld_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 	var exc *kernel.Thrown
 	var l0 kernel.Value
 	_ = []kernel.Value{l0}
-	var s0, s1, s2 kernel.Value
-	_ = []kernel.Value{s0, s1, s2}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
 	l0 = args[0]
 	l0 = args[0]
-	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
-	s1 = genrt.Str("Hello, Catty!")
-	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
+	s1 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s2 = genrt.Str("Hello, Catty!")
+	_, exc = genrt.CallVirtual(thr, s1, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s2})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
@@ -56,12 +56,12 @@ func Catty_CollectionsDemo_init____V(thr kernel.OwnerKey, recv kernel.Value, arg
 	var exc *kernel.Thrown
 	var l0 kernel.Value
 	_ = []kernel.Value{l0}
-	var s0, s1 kernel.Value
-	_ = []kernel.Value{s0, s1}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l0 = recv
-	s0 = l0
-	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	s1 = l0
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
@@ -75,32 +75,32 @@ func Catty_CollectionsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 	var exc *kernel.Thrown
 	var l0, l1, l2, l3 kernel.Value
 	_ = []kernel.Value{l0, l1, l2, l3}
-	var s0, s1, s2, s3 kernel.Value
-	_ = []kernel.Value{s0, s1, s2, s3}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
 	l0 = args[0]
 	l0 = args[0]
-	s0 = genrt.New("java/util/ArrayList")
-	s1 = s0
-	_, exc = genrt.CallSpecial(thr, s1, "java/util/ArrayList", "<init>", "()V", []kernel.Value{})
+	s1 = genrt.New("java/util/ArrayList")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/util/ArrayList", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	l1 = s0
-	s0 = int32(1)
-	l2 = s0
+	l1 = s1
+	s1 = int32(1)
+	l2 = s1
 	L10:
 	s0 = l2
 	s1 = int32(5)
 	if s0.(int32) > s1.(int32) { goto L33 }
-	s0 = l1
-	s1 = l2
-	s2 = int32(10)
-	s1 = (s1.(int32)) * (s2.(int32))
-	s1, exc = genrt.CallStatic(thr, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", []kernel.Value{s1})
+	s1 = l1
+	s2 = l2
+	s3 = int32(10)
+	s2 = (s2.(int32)) * (s3.(int32))
+	s2, exc = genrt.CallStatic(thr, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", []kernel.Value{s2})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s0, exc = genrt.CallVirtual(thr, s0, "java/util/ArrayList", "add", "(Ljava/lang/Object;)Z", []kernel.Value{s1})
+	s1, exc = genrt.CallVirtual(thr, s1, "java/util/ArrayList", "add", "(Ljava/lang/Object;)Z", []kernel.Value{s2})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
@@ -119,23 +119,23 @@ func Catty_CollectionsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) >= s1.(int32) { goto L65 }
-	s0 = l2
-	s1 = l1
-	s2 = l3
-	s1, exc = genrt.CallVirtual(thr, s1, "java/util/ArrayList", "get", "(I)Ljava/lang/Object;", []kernel.Value{s2})
+	s1 = l2
+	s2 = l1
+	s3 = l3
+	s2, exc = genrt.CallVirtual(thr, s2, "java/util/ArrayList", "get", "(I)Ljava/lang/Object;", []kernel.Value{s3})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s1 = genrt.CheckCast(thr, s1, "java/lang/Integer")
+	s2 = genrt.CheckCast(thr, s2, "java/lang/Integer")
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/Integer", "intValue", "()I", []kernel.Value{})
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/Integer", "intValue", "()I", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s0 = (s0.(int32)) + (s1.(int32))
-	l2 = s0
+	s1 = (s1.(int32)) + (s2.(int32))
+	l2 = s1
 	l3 = l3.(int32) + 1
 	goto L37
 	L65:
@@ -272,25 +272,366 @@ func Catty_CollectionsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 func init() { installTable = append(installTable,
 	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"CollectionsDemo", "main", "([Ljava/lang/String;)V", Catty_CollectionsDemo_main___ALjava_lang_String__V}) }
 
+// ThreadsDemo.<init>
+func Catty_ThreadsDemo_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s1 = l0
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"ThreadsDemo", "<init>", "()V", Catty_ThreadsDemo_init____V}) }
+
+// ThreadsDemo.bump
+func Catty_ThreadsDemo_bump___I_V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = args[0]
+	l0 = args[0]
+	s1 = int32(0)
+	l1 = s1
+	L2:
+	s0 = l1
+	s1 = l0
+	if s0.(int32) >= s1.(int32) { goto L37 }
+	s1 = genrt.GetStatic(thr, "ThreadsDemo", "lock", "Ljava/lang/Object;")
+	s2 = s1
+	l2 = s2
+	exc = genrt.MonitorEnter(thr, s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = genrt.GetStatic(thr, "ThreadsDemo", "count", "I")
+	s2 = int32(1)
+	s1 = (s1.(int32)) + (s2.(int32))
+	genrt.SetStatic(thr, "ThreadsDemo", "count", "I", s1)
+	s1 = l2
+	exc = genrt.MonitorExit(thr, s1)
+	if exc != nil {
+		goto L26
+		return nil, exc // no handler matched
+	}
+	goto L31
+	L26:
+	s0 = exc.Obj
+	l3 = s0
+	s0 = l2
+	exc = genrt.MonitorExit(thr, s0)
+	if exc != nil {
+		goto L26
+		return nil, exc // no handler matched
+	}
+	s0 = l3
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	L31:
+	l1 = l1.(int32) + 1
+	goto L2
+	L37:
+	return nil, nil
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"ThreadsDemo", "bump", "(I)V", Catty_ThreadsDemo_bump___I_V}) }
+
+// ThreadsDemo.main
+func Catty_ThreadsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2, s3, s4, s5 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5}
+	l0 = args[0]
+	l0 = args[0]
+	s1 = genrt.New("Worker")
+	s2 = s1
+	s3 = genrt.Str("w1")
+	s4 = int32(300)
+	_, exc = genrt.CallSpecial(thr, s2, "Worker", "<init>", "(Ljava/lang/String;I)V", []kernel.Value{s3, s4})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s1
+	s1 = genrt.New("Worker")
+	s2 = s1
+	s3 = genrt.Str("w2")
+	s4 = int32(200)
+	_, exc = genrt.CallSpecial(thr, s2, "Worker", "<init>", "(Ljava/lang/String;I)V", []kernel.Value{s3, s4})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s1
+	s1 = l1
+	_, exc = genrt.CallVirtual(thr, s1, "java/lang/Thread", "start", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l2
+	_, exc = genrt.CallVirtual(thr, s1, "java/lang/Thread", "start", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l1
+	_, exc = genrt.CallVirtual(thr, s1, "java/lang/Thread", "join", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l2
+	_, exc = genrt.CallVirtual(thr, s1, "java/lang/Thread", "join", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s2 = genrt.GetStatic(thr, "ThreadsDemo", "count", "I")
+	_, exc = genrt.CallVirtual(thr, s1, "java/io/PrintStream", "println", "(I)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = genrt.New("Sleeper")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "Sleeper", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l3 = s1
+	s1 = l3
+	_, exc = genrt.CallVirtual(thr, s1, "java/lang/Thread", "start", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = int64(50)
+	_, exc = genrt.CallStatic(thr, "java/lang/Thread", "sleep", "(J)V", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l3
+	_, exc = genrt.CallVirtual(thr, s1, "java/lang/Thread", "interrupt", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l3
+	_, exc = genrt.CallVirtual(thr, s1, "java/lang/Thread", "join", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s2 = genrt.New("java/lang/StringBuilder")
+	s3 = s2
+	_, exc = genrt.CallSpecial(thr, s3, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = genrt.Str("main done ")
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3, exc = genrt.CallStatic(thr, "java/lang/Thread", "currentThread", "()Ljava/lang/Thread;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3, exc = genrt.CallVirtual(thr, s3, "java/lang/Thread", "getName", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s1, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s2 = genrt.New("java/lang/StringBuilder")
+	s3 = s2
+	_, exc = genrt.CallSpecial(thr, s3, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l1
+	s3, exc = genrt.CallVirtual(thr, s3, "java/lang/Thread", "getName", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = genrt.Str(" alive=")
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l1
+	s3, exc = genrt.CallVirtual(thr, s3, "java/lang/Thread", "isAlive", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Z)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s1, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"ThreadsDemo", "main", "([Ljava/lang/String;)V", Catty_ThreadsDemo_main___ALjava_lang_String__V}) }
+
+// HttpEcho.<init>
+func Catty_HttpEcho_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s1 = l0
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"HttpEcho", "<init>", "()V", Catty_HttpEcho_init____V}) }
+
+// HttpEcho.main
+func Catty_HttpEcho_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	var l0, l1, l2, l3, l4 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3, l4}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = args[0]
+	l0 = args[0]
+	s1 = l0
+	s1 = genrt.ArrayLength(s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s1.(int32) <= 0 { goto L14 }
+	s1 = l0
+	s2 = int32(0)
+	s1, exc = genrt.ALoadChecked(s1, s2.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallStatic(thr, "java/lang/Integer", "parseInt", "(Ljava/lang/String;)I", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L17
+	L14:
+	s0 = int32(18080)
+	L17:
+	l1 = s0
+	s0 = genrt.New("java/net/ServerSocket")
+	s1 = s0
+	s2 = l1
+	_, exc = genrt.CallSpecial(thr, s1, "java/net/ServerSocket", "<init>", "(I)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s0
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.New("java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("listening ")
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l2
+	s2, exc = genrt.CallVirtual(thr, s2, "java/net/ServerSocket", "getLocalPort", "()I", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(I)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	L55:
+	s0 = l2
+	s0, exc = genrt.CallVirtual(thr, s0, "java/net/ServerSocket", "accept", "()Ljava/net/Socket;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l3 = s0
+	s0 = genrt.New("Conn")
+	s1 = s0
+	s2 = l3
+	_, exc = genrt.CallSpecial(thr, s1, "Conn", "<init>", "(Ljava/net/Socket;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l4 = s0
+	s0 = l4
+	_, exc = genrt.CallVirtual(thr, s0, "java/lang/Thread", "start", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L55
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"HttpEcho", "main", "([Ljava/lang/String;)V", Catty_HttpEcho_main___ALjava_lang_String__V}) }
+
 // Conn.<init>
 func Catty_Conn_init___Ljava_net_Socket__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
 	var l0, l1 kernel.Value
 	_ = []kernel.Value{l0, l1}
-	var s0, s1, s2 kernel.Value
-	_ = []kernel.Value{s0, s1, s2}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
 	l0 = recv
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
-	s0 = l0
-	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Thread", "<init>", "()V", []kernel.Value{})
+	s2 = l0
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/Thread", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s0 = l0
-	s1 = l1
-	exc = genrt.SetFieldChecked(thr, s0, "s", "Ljava/net/Socket;", s1)
+	s2 = l0
+	s3 = l1
+	exc = genrt.SetFieldChecked(thr, s2, "s", "Ljava/net/Socket;", s3)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
@@ -308,49 +649,49 @@ func Catty_Conn_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.V
 	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6}
 	l0 = recv
 	l0 = recv
-	s0 = l0
-	s0, exc = genrt.GetFieldChecked(thr, s0, "s", "Ljava/net/Socket;")
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "s", "Ljava/net/Socket;")
 	if exc != nil {
 		if genrt.InstanceOf(exc.Obj, "java/lang/Exception") { goto L135 }
 		return nil, exc // no handler matched
 	}
-	s0, exc = genrt.CallVirtual(thr, s0, "java/net/Socket", "getInputStream", "()Ljava/io/InputStream;", []kernel.Value{})
+	s2, exc = genrt.CallVirtual(thr, s2, "java/net/Socket", "getInputStream", "()Ljava/io/InputStream;", []kernel.Value{})
 	if exc != nil {
 		if genrt.InstanceOf(exc.Obj, "java/lang/Exception") { goto L135 }
 		return nil, exc // no handler matched
 	}
-	l1 = s0
-	s0 = l0
-	s0, exc = genrt.GetFieldChecked(thr, s0, "s", "Ljava/net/Socket;")
+	l1 = s2
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "s", "Ljava/net/Socket;")
 	if exc != nil {
 		if genrt.InstanceOf(exc.Obj, "java/lang/Exception") { goto L135 }
 		return nil, exc // no handler matched
 	}
-	s0, exc = genrt.CallVirtual(thr, s0, "java/net/Socket", "getOutputStream", "()Ljava/io/OutputStream;", []kernel.Value{})
+	s3, exc = genrt.CallVirtual(thr, s3, "java/net/Socket", "getOutputStream", "()Ljava/io/OutputStream;", []kernel.Value{})
 	if exc != nil {
 		if genrt.InstanceOf(exc.Obj, "java/lang/Exception") { goto L135 }
 		return nil, exc // no handler matched
 	}
-	l2 = s0
-	s0 = int32(2048)
-	s0, exc = genrt.NewPrimitiveArray("B", s0.(int32))
+	l2 = s3
+	s3 = int32(2048)
+	s3, exc = genrt.NewPrimitiveArray("B", s3.(int32))
 	if exc != nil {
 		if genrt.InstanceOf(exc.Obj, "java/lang/Exception") { goto L135 }
 		return nil, exc // no handler matched
 	}
-	l3 = s0
-	s0 = genrt.New("java/lang/StringBuilder")
-	s1 = s0
-	_, exc = genrt.CallSpecial(thr, s1, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	l3 = s3
+	s3 = genrt.New("java/lang/StringBuilder")
+	s4 = s3
+	_, exc = genrt.CallSpecial(thr, s4, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		if genrt.InstanceOf(exc.Obj, "java/lang/Exception") { goto L135 }
 		return nil, exc // no handler matched
 	}
-	l4 = s0
-	s0 = int32(0)
-	l5 = s0
-	s0 = int32(-1)
-	l6 = s0
+	l4 = s3
+	s3 = int32(0)
+	l5 = s3
+	s3 = int32(-1)
+	l6 = s3
 	L37:
 	s0 = l5
 	if s0.(int32) != 0 { goto L97 }
@@ -489,12 +830,12 @@ func Catty_Sleeper_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kern
 	var exc *kernel.Thrown
 	var l0 kernel.Value
 	_ = []kernel.Value{l0}
-	var s0, s1 kernel.Value
-	_ = []kernel.Value{s0, s1}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l0 = recv
-	s0 = l0
-	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Thread", "<init>", "()V", []kernel.Value{})
+	s1 = l0
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/Thread", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
@@ -508,19 +849,19 @@ func Catty_Sleeper_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kerne
 	var exc *kernel.Thrown
 	var l0, l1 kernel.Value
 	_ = []kernel.Value{l0, l1}
-	var s0, s1, s2 kernel.Value
-	_ = []kernel.Value{s0, s1, s2}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
 	l0 = recv
 	l0 = recv
-	s0 = int64(60000)
-	_, exc = genrt.CallStatic(thr, "java/lang/Thread", "sleep", "(J)V", []kernel.Value{s0})
+	s1 = int64(60000)
+	_, exc = genrt.CallStatic(thr, "java/lang/Thread", "sleep", "(J)V", []kernel.Value{s1})
 	if exc != nil {
 		if genrt.InstanceOf(exc.Obj, "java/lang/InterruptedException") { goto L17 }
 		return nil, exc // no handler matched
 	}
-	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
-	s1 = genrt.Str("BUG: not interrupted")
-	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
+	s1 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s2 = genrt.Str("BUG: not interrupted")
+	_, exc = genrt.CallVirtual(thr, s1, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s2})
 	if exc != nil {
 		if genrt.InstanceOf(exc.Obj, "java/lang/InterruptedException") { goto L17 }
 		return nil, exc // no handler matched
@@ -546,23 +887,23 @@ func Catty_Worker_init___Ljava_lang_String_I_V(thr kernel.OwnerKey, recv kernel.
 	var exc *kernel.Thrown
 	var l0, l1, l2 kernel.Value
 	_ = []kernel.Value{l0, l1, l2}
-	var s0, s1, s2 kernel.Value
-	_ = []kernel.Value{s0, s1, s2}
+	var s0, s1, s2, s3, s4, s5 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5}
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
-	s0 = l0
-	s1 = l1
-	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Thread", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s1})
+	s3 = l0
+	s4 = l1
+	_, exc = genrt.CallSpecial(thr, s3, "java/lang/Thread", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s4})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s0 = l0
-	s1 = l2
-	exc = genrt.SetFieldChecked(thr, s0, "n", "I", s1)
+	s3 = l0
+	s4 = l2
+	exc = genrt.SetFieldChecked(thr, s3, "n", "I", s4)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
@@ -576,16 +917,16 @@ func Catty_Worker_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel
 	var exc *kernel.Thrown
 	var l0 kernel.Value
 	_ = []kernel.Value{l0}
-	var s0, s1 kernel.Value
-	_ = []kernel.Value{s0, s1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
 	l0 = recv
 	l0 = recv
-	s0 = l0
-	s0, exc = genrt.GetFieldChecked(thr, s0, "n", "I")
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "n", "I")
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	_, exc = genrt.CallStatic(thr, "ThreadsDemo", "bump", "(I)V", []kernel.Value{s0})
+	_, exc = genrt.CallStatic(thr, "ThreadsDemo", "bump", "(I)V", []kernel.Value{s2})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
@@ -599,12 +940,12 @@ func Catty_app_Main_init____V(thr kernel.OwnerKey, recv kernel.Value, args []ker
 	var exc *kernel.Thrown
 	var l0 kernel.Value
 	_ = []kernel.Value{l0}
-	var s0, s1 kernel.Value
-	_ = []kernel.Value{s0, s1}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l0 = recv
-	s0 = l0
-	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	s1 = l0
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
@@ -618,66 +959,66 @@ func Catty_app_Main_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	var exc *kernel.Thrown
 	var l0, l1, l2, l3 kernel.Value
 	_ = []kernel.Value{l0, l1, l2, l3}
-	var s0, s1, s2, s3 kernel.Value
-	_ = []kernel.Value{s0, s1, s2, s3}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
 	l0 = args[0]
 	l0 = args[0]
-	s0 = genrt.New("app/Helper")
-	s1 = s0
-	_, exc = genrt.CallSpecial(thr, s1, "app/Helper", "<init>", "()V", []kernel.Value{})
+	s1 = genrt.New("app/Helper")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "app/Helper", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	l1 = s0
-	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
-	s1 = l1
-	s2 = genrt.Str("m1")
-	s1, exc = genrt.CallInterface(thr, s1, "app/Greeter", "greet", "(Ljava/lang/String;)Ljava/lang/String;", []kernel.Value{s2})
+	l1 = s1
+	s1 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s2 = l1
+	s3 = genrt.Str("m1")
+	s2, exc = genrt.CallInterface(thr, s2, "app/Greeter", "greet", "(Ljava/lang/String;)Ljava/lang/String;", []kernel.Value{s3})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
+	_, exc = genrt.CallVirtual(thr, s1, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s2})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
-	s1 = l1
-	s2 = genrt.Str("m2")
-	s1, exc = genrt.CallInterface(thr, s1, "app/Greeter", "greet", "(Ljava/lang/String;)Ljava/lang/String;", []kernel.Value{s2})
+	s1 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s2 = l1
+	s3 = genrt.Str("m2")
+	s2, exc = genrt.CallInterface(thr, s2, "app/Greeter", "greet", "(Ljava/lang/String;)Ljava/lang/String;", []kernel.Value{s3})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
+	_, exc = genrt.CallVirtual(thr, s1, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s2})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s0 = genrt.New("app/Helper")
-	s1 = s0
-	_, exc = genrt.CallSpecial(thr, s1, "app/Helper", "<init>", "()V", []kernel.Value{})
+	s1 = genrt.New("app/Helper")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "app/Helper", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	l2 = s0
-	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	l2 = s1
+	s1 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s2 = l2
+	s2 = genrt.BoolValue(genrt.InstanceOf(s2, "app/Greeter"))
+	_, exc = genrt.CallVirtual(thr, s1, "java/io/PrintStream", "println", "(Z)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
 	s1 = l2
-	s1 = genrt.BoolValue(genrt.InstanceOf(s1, "app/Greeter"))
-	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Z)V", []kernel.Value{s1})
+	s1 = genrt.CheckCast(thr, s1, "app/Helper")
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s0 = l2
-	s0 = genrt.CheckCast(thr, s0, "app/Helper")
+	l3 = s1
+	s1 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s2 = l3
+	s2, exc = genrt.CallVirtual(thr, s2, "app/Helper", "hits", "()I", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	l3 = s0
-	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
-	s1 = l3
-	s1, exc = genrt.CallVirtual(thr, s1, "app/Helper", "hits", "()I", []kernel.Value{})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(I)V", []kernel.Value{s1})
+	_, exc = genrt.CallVirtual(thr, s1, "java/io/PrintStream", "println", "(I)V", []kernel.Value{s2})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
@@ -691,12 +1032,12 @@ func Catty_app_Helper_init____V(thr kernel.OwnerKey, recv kernel.Value, args []k
 	var exc *kernel.Thrown
 	var l0 kernel.Value
 	_ = []kernel.Value{l0}
-	var s0, s1 kernel.Value
-	_ = []kernel.Value{s0, s1}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l0 = recv
-	s0 = l0
-	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	s1 = l0
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
@@ -710,45 +1051,45 @@ func Catty_app_Helper_greet___Ljava_lang_String__Ljava_lang_String_(thr kernel.O
 	var exc *kernel.Thrown
 	var l0, l1, l2, l3, l4, l5 kernel.Value
 	_ = []kernel.Value{l0, l1, l2, l3, l4, l5}
-	var s0, s1, s2, s3 kernel.Value
-	_ = []kernel.Value{s0, s1, s2, s3}
+	var s0, s1, s2, s3, s4, s5, s6 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6}
 	l0 = recv
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
-	s0 = l0
-	s1 = s0
-	l2 = s1
-	exc = genrt.MonitorEnter(thr, s0)
+	s2 = l0
+	s3 = s2
+	l2 = s3
+	exc = genrt.MonitorEnter(thr, s2)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s0 = l0
-	s1 = s0
-	l3 = s1
-	exc = genrt.MonitorEnter(thr, s0)
+	s2 = l0
+	s3 = s2
+	l3 = s3
+	exc = genrt.MonitorEnter(thr, s2)
 	if exc != nil {
 		goto L35
 		return nil, exc // no handler matched
 	}
-	s0 = l0
-	s1 = s0
-	s1, exc = genrt.GetFieldChecked(thr, s1, "hits", "I")
+	s2 = l0
+	s3 = s2
+	s3, exc = genrt.GetFieldChecked(thr, s3, "hits", "I")
 	if exc != nil {
 		goto L23
 		goto L35
 		return nil, exc // no handler matched
 	}
-	s2 = int32(1)
-	s1 = (s1.(int32)) + (s2.(int32))
-	exc = genrt.SetFieldChecked(thr, s0, "hits", "I", s1)
+	s5 = int32(1)
+	s4 = (s4.(int32)) + (s5.(int32))
+	exc = genrt.SetFieldChecked(thr, s3, "hits", "I", s4)
 	if exc != nil {
 		goto L23
 		goto L35
 		return nil, exc // no handler matched
 	}
-	s0 = l3
-	exc = genrt.MonitorExit(thr, s0)
+	s3 = l3
+	exc = genrt.MonitorExit(thr, s3)
 	if exc != nil {
 		goto L23
 		goto L35
@@ -820,15 +1161,15 @@ func Catty_app_Helper_greet___Ljava_lang_String__Ljava_lang_String_(thr kernel.O
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s0, exc = genrt.CallVirtual(thr, s0, "java/lang/StringBuilder", "append", "(I)Ljava/lang/StringBuilder;", []kernel.Value{s1})
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(I)Ljava/lang/StringBuilder;", []kernel.Value{s2})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s0, exc = genrt.CallVirtual(thr, s0, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	return s0, nil
+	return s1, nil
 }
 func init() { installTable = append(installTable,
 	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"app/Helper", "greet", "(Ljava/lang/String;)Ljava/lang/String;", Catty_app_Helper_greet___Ljava_lang_String__Ljava_lang_String_}) }
@@ -838,16 +1179,16 @@ func Catty_app_Helper_hits____I(thr kernel.OwnerKey, recv kernel.Value, args []k
 	var exc *kernel.Thrown
 	var l0 kernel.Value
 	_ = []kernel.Value{l0}
-	var s0, s1 kernel.Value
-	_ = []kernel.Value{s0, s1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
 	l0 = recv
 	l0 = recv
-	s0 = l0
-	s0, exc = genrt.GetFieldChecked(thr, s0, "hits", "I")
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "hits", "I")
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	return s0, nil
+	return s2, nil
 }
 func init() { installTable = append(installTable,
 	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"app/Helper", "hits", "()I", Catty_app_Helper_hits____I}) }
