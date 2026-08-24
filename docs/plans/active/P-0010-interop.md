@@ -13,14 +13,15 @@
 ## Tasks（DAG）
 
 ```
-M1 interop 包      Bind/BindSpec + reflect wrapper 构建 + 注册期 fail-fast；  ⬜
-                   类型映射全格钉扎（含边界：nil/空串/NaN/溢出 int）
-M2 错误与线程契约   error→RuntimeException 传播钉扎；阻塞不可中断登记          ⬜
-                   DEV 条目；异步 fire-and-forget 模式文档化
-M3 演示资产         cmd/demo：Go 程序内嵌 Catty，Java 规则调用 Go 函数         ⬜
-                   （md5/crypto 或 http fetch 类真实能力 ≥2 例）
-M4 文档与基准       docs/interop.md（映射表+线程契约+嵌入清单）；              ⬜
-                   调用税 82ns 进 R-0006 表族；deviation-ledger 登记
+M1 interop 包      Bind/BindSpec + reflect wrapper 构建 + 注册期 fail-fast；  ✅
+                   类型映射全格钉扎（nil 抛错/空串/NaN±Inf/Value 透传身份/
+                   (T,error) 两形态/fail-fast 不留半注册类）
+M2 错误与线程契约   error→RuntimeException 传播钉扎；DEV-0009 登记；           ✅
+                   异步 fire-and-forget 模式文档化
+M3 演示资产         cmd/embeddemo：Go 宿主起本地 HTTP + md5 + fetch，          ✅
+                   Java 规则消费三项能力（md5(catty)=b4edb5…实测通过）
+M4 文档与基准       docs/interop.md（映射表+契约+嵌入清单）；调用税 ~82ns      ✅
+                   已入 R-0008 §2 与 interop.md 头部；ledger DEV-0009
 ```
 
 ## Validation

@@ -14,3 +14,4 @@
 | DEV-0006 | Thread.setDaemon / 守护线程退出规则 | 未实现；所有线程等价非守护 | 范围未至 | 进程退出语义 | P-0005 |
 | DEV-0007 | JVMS §8.3.1.4 volatile 字段 | 字段访问忽略 volatile 标志（普通读写）；解释器下 Go 内存模型恰好覆盖多数场景，但语义上未兑现 | 发射器未上线，解释路径未接 atomic | 可见性敏感代码 | P-0005 评估：解释器接 atomic.Load/Store 或留待 AOT 发射 |
 | ~~DEV-0008~~ ✅ 已关闭 | R4 阻塞操作可中断（socket 读） | SetDeadline-on-interrupt 已落地：Interrupt 强制唤醒挂起 Read，抛 InterruptedIOException，标志不清除 | — | — | DEBT-0011 关闭提交 |
+| DEV-0009 | 线程契约：interop 绑定的 Go 函数内阻塞不可被 Thread.interrupt 唤醒 | Bind 函数同步运行于调用方 goroutine；interrupt 机制只覆盖内核阻塞原语（sleep/wait/socket） | v1 契约性限制（ADR-0011 §5）；异步模式由 embedder 自管 goroutine | 经 interop 调用且内部阻塞的嵌入函数 | P-0010 M2 文档化；v2 可评估 ctx 感知取消 |

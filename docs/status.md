@@ -11,7 +11,7 @@
 **2.4–3.0× 于解释器**、mapops 1.50×（R-0006）；goroutine 并发承载不随线程数
 劣化；pprof/-race 直接观测"Java"程序（卖点⑤双兑现）。解释器内核持续兜底。
 
-体量：生产 Go ≈33k 行（含生成代码），测试 50+ 例，`-race` 干净。
+体量：生产 Go ≈34k 行（含生成代码），测试 60+ 例，`-race` 干净。
 
 ## 能力矩阵
 
@@ -22,6 +22,7 @@
 | 执行引擎 | v52 指令集：解释执行 + **AOT 发射双路径**（invokedynamic 构建期脱糖；jsr/ret 非法） |
 | AOT 发射器 | genemit→gen.go 整体编译（48 类）；installTable+懒加载钩子混合执行零成本回退；异常通道=旗标返回（ADR-0009）；统一表示（ADR-0010） |
 | 分发与分配性能 | 内联缓存+免锁计量+EmitBody 直调（R-0006）；JString 缓存/jkey 键/CallContext 池/SB 折叠(增长链守卫)（R-0007）：vcall **2.86×**、mapops **2.49×** 于解释器 |
+| Java↔Go 互操作 | `interop.Bind` 反射绑定（ADR-0011）：一行注册 Go 函数为 Java 静态方法，类型映射全格钉扎，调用税 ~82ns；演示 cmd/embeddemo（Go 宿主内嵌 + 本地 HTTP + md5） |
 | 栈深正确性 | `classfile.StackEffect` 全 256 opcode 单一事实源 + 总分类哨兵测试；CFG 工作表深度传播 |
 | 堆栈回填 | Java 层 Throwable 堆栈：InvokeAs 统一帧追踪、构造点捕获、<init> 链裁剪、叶帧在前渲染（行号 Unknown Source 待 U3） |
 | 异常 | Throwable 家族、异常表分发、隐式抛出（NPE/越界/除零/负长/强转）、SOE（双路径计量）、uncaught 报告 |
