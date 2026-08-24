@@ -65,22 +65,33 @@ func bootstrapP7(k *Kernel) {
 }
 
 func bootstrapCollectionsP7(k *Kernel) {
+	// Dependency-ordered: interfaces before implementors.
 	mustDefine(k, &ClassDef{
-		Name:  "java/util/Map",
+		Name:  "java/lang/Iterable",
 		Flags: classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
+	})
+	mustDefine(k, &ClassDef{
+		Name:   "java/util/Collection",
+		Ifaces: []string{"java/lang/Iterable"},
+		Flags:  classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
 	})
 	mustDefine(k, &ClassDef{
 		Name:  "java/util/Iterator",
 		Flags: classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
 	})
 	mustDefine(k, &ClassDef{
-		Name:  "java/util/Collection",
-		Flags: classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
+		Name:   "java/util/List",
+		Ifaces: []string{"java/util/Collection"},
+		Flags:  classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
 	})
 	mustDefine(k, &ClassDef{
 		Name:   "java/util/Set",
 		Ifaces: []string{"java/util/Collection"},
 		Flags:  classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
+	})
+	mustDefine(k, &ClassDef{
+		Name:  "java/util/Map",
+		Flags: classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
 	})
 	mustDefine(k, &ClassDef{
 		Name:   "java/util/HashMap",
@@ -96,6 +107,7 @@ func bootstrapCollectionsP7(k *Kernel) {
 			{Name: "size", Desc: "()I", Flags: classfile.AccPublic, Native: natHashMapSize},
 			{Name: "isEmpty", Desc: "()Z", Flags: classfile.AccPublic, Native: natHashMapIsEmpty},
 			{Name: "clear", Desc: "()V", Flags: classfile.AccPublic, Native: natHashMapClear},
+			{Name: "iterator", Desc: "()Ljava/util/Iterator;", Flags: classfile.AccPublic, Native: natArrayListIterator},
 		},
 	})
 	mustDefine(k, &ClassDef{
@@ -110,6 +122,22 @@ func bootstrapCollectionsP7(k *Kernel) {
 			{Name: "remove", Desc: "(Ljava/lang/Object;)Z", Flags: classfile.AccPublic, Native: natHashSetRemove},
 			{Name: "size", Desc: "()I", Flags: classfile.AccPublic, Native: natHashSetSize},
 			{Name: "isEmpty", Desc: "()Z", Flags: classfile.AccPublic, Native: natHashSetIsEmpty},
+		},
+	})
+	mustDefine(k, &ClassDef{
+		Name:   "java/util/ArrayList",
+		Super:  "java/lang/Object",
+		Ifaces: []string{"java/util/List"},
+		Flags:  classfile.AccPublic,
+		Methods: []MethodDef{
+			{Name: "<init>", Desc: "()V", Flags: classfile.AccPublic, Native: natArrayListInit},
+			{Name: "add", Desc: "(Ljava/lang/Object;)Z", Flags: classfile.AccPublic, Native: natArrayListAdd},
+			{Name: "get", Desc: "(I)Ljava/lang/Object;", Flags: classfile.AccPublic, Native: natArrayListGet},
+			{Name: "set", Desc: "(ILjava/lang/Object;)Ljava/lang/Object;", Flags: classfile.AccPublic, Native: natArrayListSet},
+			{Name: "size", Desc: "()I", Flags: classfile.AccPublic, Native: natArrayListSize},
+			{Name: "isEmpty", Desc: "()Z", Flags: classfile.AccPublic, Native: natArrayListIsEmpty},
+			{Name: "contains", Desc: "(Ljava/lang/Object;)Z", Flags: classfile.AccPublic, Native: natArrayListContains},
+			{Name: "iterator", Desc: "()Ljava/util/Iterator;", Flags: classfile.AccPublic, Native: natArrayListIterator},
 		},
 	})
 }

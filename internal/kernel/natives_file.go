@@ -71,3 +71,97 @@ func natBufferedReadLine(ctx *CallContext, recv Value, args []Value) (Value, err
 	}
 	return ctx.K.InternGo(br.sc.Text()), nil
 }
+
+// ---- java.lang.Math (Route C surface) ----
+
+func natMathMaxInt(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	a, b := argI(args, 0), argI(args, 1)
+	if a > b {
+		return a, nil
+	}
+	return b, nil
+}
+
+func natMathMinInt(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	a, b := argI(args, 0), argI(args, 1)
+	if a < b {
+		return a, nil
+	}
+	return b, nil
+}
+
+func natMathMaxLong(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	a, b := args[0].(int64), args[1].(int64)
+	if a > b {
+		return a, nil
+	}
+	return b, nil
+}
+
+func natMathMinLong(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	a, b := args[0].(int64), args[1].(int64)
+	if a < b {
+		return a, nil
+	}
+	return b, nil
+}
+
+func natMathMaxDouble(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	a, b := args[0].(float64), args[1].(float64)
+	if a > b || b != b {
+		return a, nil
+	}
+	return b, nil
+}
+
+func natMathMinDouble(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	a, b := args[0].(float64), args[1].(float64)
+	if a < b || b != b {
+		return a, nil
+	}
+	return b, nil
+}
+
+func natMathAbsInt(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	v := argI(args, 0)
+	if v < 0 {
+		return -v, nil
+	}
+	return v, nil
+}
+
+func natMathAbsLong(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	v := args[0].(int64)
+	if v < 0 {
+		return -v, nil
+	}
+	return v, nil
+}
+
+func natMathAbsDouble(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	v := args[0].(float64)
+	if v < 0 || v != v {
+		return -v, nil
+	}
+	return v, nil
+}
+
+// ---- java.util.Arrays fills ----
+
+func natArraysFillChar(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	arr := args[0].(*ArrayObj)
+	fill := rune(args[1].(int32))
+	for i := range arr.Elems {
+		arr.Elems[i] = int32(fill)
+	}
+	return nil, nil
+}
+
+func natArraysFillInt(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	arr := args[0].(*ArrayObj)
+	fill := argI(args, 1)
+	for i := range arr.Elems {
+		arr.Elems[i] = fill
+	}
+	return nil, nil
+}

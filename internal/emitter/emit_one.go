@@ -157,6 +157,41 @@ func (e *methodEmitter) emitOne(pc int) error {
 	case 0x59: // dup
 		top := e.peekTop()
 		pushV(top)
+	case 0x5a: // dup_x1  [B,T] -> [T,B,T]
+		d := e.depth
+		e.p("s%d = s%d", d, d-1)
+		e.p("s%d = s%d", d-1, d-2)
+		e.p("s%d = s%d", d-2, d)
+		e.depth++
+	case 0x5b: // dup_x2 [C,B,T] -> [T,C,B,T]
+		d := e.depth
+		e.p("s%d = s%d", d, d-1)
+		e.p("s%d = s%d", d-1, d-2)
+		e.p("s%d = s%d", d-2, d-3)
+		e.p("s%d = s%d", d-3, d)
+		e.depth++
+	case 0x5c: // dup2 [B,T] -> [B,T,B,T]
+		d := e.depth
+		e.p("s%d = s%d", d, d-2)
+		e.p("s%d = s%d", d+1, d-1)
+		e.depth += 2
+	case 0x5d: // dup2_x1 [C,B,T] -> [B,T,C,B,T]
+		d := e.depth
+		e.p("s%d = s%d", d, d-2)
+		e.p("s%d = s%d", d+1, d-1)
+		e.p("s%d = s%d", d-1, d-3)
+		e.p("s%d = s%d", d-2, d)
+		e.p("s%d = s%d", d-3, d+1)
+		e.depth += 2
+	case 0x5e: // dup2_x2 [D,C,B,T] -> [B,T,D,C,B,T]
+		d := e.depth
+		e.p("s%d = s%d", d, d-2)
+		e.p("s%d = s%d", d+1, d-1)
+		e.p("s%d = s%d", d-1, d-4)
+		e.p("s%d = s%d", d-2, d-3)
+		e.p("s%d = s%d", d-3, d)
+		e.p("s%d = s%d", d-4, d+1)
+		e.depth += 2
 
 	case 0x60: // iadd
 		b, a := popRef(), popRef()

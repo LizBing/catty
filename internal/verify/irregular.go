@@ -1,6 +1,8 @@
 package verify
 
 import (
+	"os"
+	"strings"
 	"fmt"
 
 	"catty/internal/classfile"
@@ -44,6 +46,9 @@ func (c *checker) throwSuccs(m *classfile.MethodInfo, pc int, st *frame, exc vty
 // simulate routes to the table effect or an irregular handler.
 func (c *checker) simulate(m *classfile.MethodInfo, pc int, st *frame) ([]successor, error) {
 	op := m.Code.Code[pc]
+	if os.Getenv("CATTY_VDBG") != "" && strings.Contains(c.mn, "readArray") && pc >= 10 && pc <= 22 {
+		fmt.Fprintf(os.Stderr, "[stk] pc=%d op=%#x len=%d\n", pc, op, len(st.stack))
+	}
 	if f, ok := effects[op]; ok {
 		return f(c, m, pc, st)
 	}
@@ -255,7 +260,7 @@ func (c *checker) simulateIrregular(m *classfile.MethodInfo, pc int, st *frame, 
 		if _, err := st.popExpect(kInt, "array size"); err != nil {
 			return nil, fail("%v", err)
 		}
-		st.push(tObj("[" + compCls))
+		st.push(tObj(arrayDescOf(compCls)))
 		succs := c.throwSuccs(m, pc, st, tObj("java/lang/NegativeArraySizeException"))
 		return append(succs, fall(st, pc+3)...), nil
 
@@ -349,6 +354,9 @@ func (c *checker) simulateIrregular(m *classfile.MethodInfo, pc int, st *frame, 
 		if high < low {
 			return nil, fail("tableswitch low>high")
 		}
+		if _, err := st.popExpect(kInt, "switch operand"); err != nil {
+			return nil, fail("%v", err)
+		}
 		targets := []successor{}
 		addT := func(off int32) {
 			targets = append(targets, successor{pc: pc + int(off), st: st.clone()})
@@ -357,15 +365,15 @@ func (c *checker) simulateIrregular(m *classfile.MethodInfo, pc int, st *frame, 
 		for v := low; v <= high; v++ {
 			addT(cu.s4())
 		}
-		if _, err := st.popExpect(kInt, "switch operand"); err != nil {
-			return nil, fail("%v", err)
-		}
 		return targets, nil
 
 	case 0xab: // lookupswitch
 		cu.align4()
 		def := cu.s4()
 		npairs := int(cu.s4())
+		if _, err := st.popExpect(kInt, "switch operand"); err != nil {
+			return nil, fail("%v", err)
+		}
 		targets := []successor{}
 		addT := func(off int32) {
 			targets = append(targets, successor{pc: pc + int(off), st: st.clone()})
@@ -374,9 +382,6 @@ func (c *checker) simulateIrregular(m *classfile.MethodInfo, pc int, st *frame, 
 		for j := 0; j < npairs; j++ {
 			cu.s4() // match value
 			addT(cu.s4())
-		}
-		if _, err := st.popExpect(kInt, "switch operand"); err != nil {
-			return nil, fail("%v", err)
 		}
 		return targets, nil
 
@@ -484,3 +489,32 @@ func atypeName(at byte) (string, bool) {
 }
 
 var _ = fmt.Sprintf
+
+
+// arrayDescOf converts a component class name (slash form) to the array
+// descriptor: L...; for references, single [ for each dimension already
+// present, and primitive letters as-is.
+func arrayDescOf(comp string) string {
+	switch comp {
+	case "int":
+		return "[I"
+	case "long":
+		return "[J"
+	case "float":
+		return "[F"
+	case "double":
+		return "[D"
+	case "boolean":
+		return "[Z"
+	case "byte":
+		return "[B"
+	case "char":
+		return "[C"
+	case "short":
+		return "[S"
+	}
+	if len(comp) > 0 && comp[0] == '[' {
+		return "[" + comp // component is itself an array type descriptor
+	}
+	return "[L" + comp + ";"
+}

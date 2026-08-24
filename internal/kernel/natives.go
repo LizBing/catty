@@ -364,7 +364,16 @@ func natThrowableToString(ctx *CallContext, recv Value, args []Value) (Value, er
 	name := dotted(in.Class.Name)
 	var msg string
 	if m := in.fieldByName("detailMessage"); m != nil {
-		msg = ": " + m.(*JString).String()
+		switch v := m.(type) {
+		case *JString:
+			msg = ": " + v.String()
+		case *Instance:
+			if js, jsErr := AsJString(v); jsErr == nil {
+				msg = ": " + js.String()
+			}
+		default:
+			msg = fmt.Sprintf(": %v", v)
+		}
 	}
 	return ctx.K.MakeJStringFromGo(name + msg), nil
 }
@@ -886,4 +895,35 @@ var procStart = time.Now()
 // canonical-depth unification pending).
 func natStaticTickMillis(ctx *CallContext, recv Value, args []Value) (Value, error) {
 	return int32(time.Since(procStart).Milliseconds()), nil
+}
+
+func natSBLength(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	return int32(len(sbOf(recv).buf)), nil
+}
+
+func natStringInitChars(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	arr := args[0].(*ArrayObj)
+	rs := make([]rune, 0, len(arr.Elems))
+	for _, e := range arr.Elems {
+		if c, ok := e.(int32); ok {
+			rs = append(rs, rune(c))
+		}
+	}
+	js := ctx.K.MakeJString(utf16Encode(rs))
+	recv.(*JString).Chars = js.Chars
+	return nil, nil
+}
+
+func natStringInitCharsRange(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	arr := args[0].(*ArrayObj)
+	off, length := int(argI(args, 1)), int(argI(args, 2))
+	rs := make([]rune, 0, length)
+	for i := off; i < off+length && i < len(arr.Elems); i++ {
+		if c, ok := arr.Elems[i].(int32); ok {
+			rs = append(rs, rune(c))
+		}
+	}
+	js := ctx.K.MakeJString(utf16Encode(rs))
+	recv.(*JString).Chars = js.Chars
+	return nil, nil
 }

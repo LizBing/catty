@@ -42,6 +42,8 @@ func bootstrap(k *Kernel) {
 			{Name: "indexOf", Desc: "(Ljava/lang/String;)I", Flags: classfile.AccPublic, Native: natStringIndexOf},
 			{Name: "getBytes", Desc: "()[B", Flags: classfile.AccPublic, Native: natStringGetBytes},
 			{Name: "<init>", Desc: "([BII)V", Flags: classfile.AccPublic, Native: natStringInitBytesRange},
+			{Name: "<init>", Desc: "([C)V", Flags: classfile.AccPublic, Native: natStringInitChars},
+			{Name: "<init>", Desc: "([CII)V", Flags: classfile.AccPublic, Native: natStringInitCharsRange},
 			{Name: "toString", Desc: "()Ljava/lang/String;", Flags: classfile.AccPublic, Native: natStringToString},
 		},
 	})
@@ -59,6 +61,7 @@ func bootstrap(k *Kernel) {
 			appendSB("J", natSBAppendLong),
 			appendSB("C", natSBAppendChar),
 			appendSB("Z", natSBAppendBool),
+			{Name: "length", Desc: "()I", Flags: classfile.AccPublic, Native: natSBLength},
 			{Name: "toString", Desc: "()Ljava/lang/String;", Flags: classfile.AccPublic, Native: natSBToString},
 		},
 	})
@@ -217,20 +220,7 @@ func bootstrap(k *Kernel) {
 		},
 	})
 
-	mustDefine(k, &ClassDef{
-		Name:  "java/util/ArrayList",
-		Super: "java/lang/Object",
-		Flags: classfile.AccPublic,
-		Methods: []MethodDef{
-			{Name: "<init>", Desc: "()V", Flags: classfile.AccPublic, Native: natArrayListInit},
-			{Name: "add", Desc: "(Ljava/lang/Object;)Z", Flags: classfile.AccPublic, Native: natArrayListAdd},
-			{Name: "get", Desc: "(I)Ljava/lang/Object;", Flags: classfile.AccPublic, Native: natArrayListGet},
-			{Name: "set", Desc: "(ILjava/lang/Object;)Ljava/lang/Object;", Flags: classfile.AccPublic, Native: natArrayListSet},
-			{Name: "size", Desc: "()I", Flags: classfile.AccPublic, Native: natArrayListSize},
-			{Name: "isEmpty", Desc: "()Z", Flags: classfile.AccPublic, Native: natArrayListIsEmpty},
-			{Name: "contains", Desc: "(Ljava/lang/Object;)Z", Flags: classfile.AccPublic, Native: natArrayListContains},
-		},
-	})
+	// ArrayList moved to bootstrapCollectionsP7 (Route C consolidation).
 
 	mustDefine(k, &ClassDef{
 		Name:  "java/io/PrintStream",

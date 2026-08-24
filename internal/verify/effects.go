@@ -2,6 +2,7 @@ package verify
 
 import (
 	"fmt"
+	"os"
 
 	"catty/internal/classfile"
 )
@@ -395,21 +396,31 @@ func buildEffects() {
 		return func(c *checker, m *classfile.MethodInfo, pc int, st *frame) ([]successor, error) {
 			total := n + below
 			if len(st.stack) < total {
+				if os.Getenv("CATTY_VDBG") != "" {
+					fmt.Fprintf(os.Stderr, "[dupx] %s pc=%d need=%d have=%d stack=%v\n",
+						c.mn, pc, total, len(st.stack), st.stack)
+				}
 				return nil, verr(c.mn, pc, "dup underflow")
 			}
-			head := append([]vtype(nil), st.stack[len(st.stack)-total:len(st.stack)-below]...)
-			rest := append([]vtype(nil), st.stack[len(st.stack)-below:]...)
-			st.stack = append(st.stack[:len(st.stack)-total],
-				append(append(head, rest...), head...)...)
+			n2 := n + below
+		head := append([]vtype(nil), st.stack[len(st.stack)-n:len(st.stack)]...) // duplicated block
+			mid := append([]vtype(nil), st.stack[len(st.stack)-n2:len(st.stack)-n]...) // skipped slots
+			prefix := append([]vtype(nil), st.stack[:len(st.stack)-n2]...)
+			out := make([]vtype, 0, len(prefix)+n2+n)
+			out = append(out, prefix...)
+			out = append(out, head...)
+			out = append(out, mid...)
+			out = append(out, head...)
+			st.stack = out
 			return fall(st, pc+1), nil
 		}
 	}
-	set(0x59, dupRaw(1))
-	set(0x5a, dupBelow(1, 2))
-	set(0x5b, dupBelow(1, 3))
-	set(0x5c, dupRaw(2))
-	set(0x5d, dupBelow(2, 3))
-	set(0x5e, dupBelow(2, 4))
+	set(0x59, dupRaw(1))       //      -> v1
+	set(0x5a, dupBelow(1, 1)) // v2,v1 -> v1,v2,v1
+	set(0x5b, dupBelow(1, 2)) // v3,v2,v1 -> v1,v3,v2,v1
+	set(0x5c, dupRaw(2))      // v2,v1 -> v2,v1,v2,v1
+	set(0x5d, dupBelow(2, 1)) // v3,v2,v1 -> v2,v1,v3,v2,v1
+	set(0x5e, dupBelow(2, 2))
 	set(0x5f, func(c *checker, m *classfile.MethodInfo, pc int, st *frame) ([]successor, error) {
 		if len(st.stack) < 2 {
 			return nil, verr(c.mn, pc, "swap underflow")

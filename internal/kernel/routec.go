@@ -2,9 +2,8 @@ package kernel
 
 import (
 	"catty/internal/classfile"
-
-	"bufio"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -37,6 +36,8 @@ func bootstrapRouteC(k *Kernel) {
 		Methods: []MethodDef{
 			{Name: "<init>", Desc: "()V", Flags: classfile.AccPublic, Native: natStringWriterInit},
 			{Name: "write", Desc: "(Ljava/lang/String;)V", Flags: classfile.AccPublic, Native: natStringWriterWrite},
+			{Name: "write", Desc: "([CII)V", Flags: classfile.AccPublic, Native: natStringWriterWriteCII},
+			{Name: "write", Desc: "(I)V", Flags: classfile.AccPublic, Native: natStringWriterWriteChar},
 			{Name: "toString", Desc: "()Ljava/lang/String;", Flags: classfile.AccPublic, Native: natStringWriterToString},
 			{Name: "close", Desc: "()V", Flags: classfile.AccPublic, Native: natObjectInit},
 		},
@@ -47,6 +48,8 @@ func bootstrapRouteC(k *Kernel) {
 		Flags: classfile.AccPublic,
 		Methods: []MethodDef{
 			{Name: "<init>", Desc: "(Ljava/lang/String;)V", Flags: classfile.AccPublic, Native: natStringReaderInit},
+			{Name: "read", Desc: "([CII)I", Flags: classfile.AccPublic, Native: natStringReaderRead},
+			{Name: "read", Desc: "()I", Flags: classfile.AccPublic, Native: natStringReaderRead1},
 			{Name: "close", Desc: "()V", Flags: classfile.AccPublic, Native: natFileClose},
 		},
 	})
@@ -73,26 +76,6 @@ func bootstrapRouteC(k *Kernel) {
 
 	// List interface + iterator protocol on ArrayList.
 	mustDefine(k, &ClassDef{
-		Name:   "java/util/List",
-		Super:  "",
-		Ifaces: []string{"java/util/Collection"},
-		Flags:  classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
-	})
-
-	if al := k.lookupClass("java/util/ArrayList"); al != nil {
-		if lst := k.lookupClass("java/util/List"); lst != nil {
-			al.Ifaces = append(al.Ifaces, lst)
-		}
-		al.methodsByKey[memberKey("iterator", "()Ljava/util/Iterator;")] = &Method{
-			Holder: al,
-			Name:   "iterator",
-			Desc:   "()Ljava/util/Iterator;",
-			Flags:  classfile.AccPublic,
-			Native: natArrayListIterator,
-		}
-		al.Methods = append(al.Methods, al.methodsByKey[memberKey("iterator", "()Ljava/util/Iterator;")])
-	}
-	mustDefine(k, &ClassDef{
 		Name:   "java/util/ArrayList$Itr",
 		Super:  "java/lang/Object",
 		Ifaces: []string{"java/util/Iterator"},
@@ -110,6 +93,24 @@ func bootstrapRouteC(k *Kernel) {
 		Flags: classfile.AccPublic,
 		Methods: []MethodDef{
 			{Name: "asList", Desc: "([Ljava/lang/Object;)Ljava/util/List;", Flags: classfile.AccPublic | classfile.AccStatic, Native: natArraysAsList},
+			{Name: "fill", Desc: "([CC)V", Flags: classfile.AccPublic | classfile.AccStatic, Native: natArraysFillChar},
+			{Name: "fill", Desc: "([II)V", Flags: classfile.AccPublic | classfile.AccStatic, Native: natArraysFillInt},
+		},
+	})
+	mustDefine(k, &ClassDef{
+		Name:  "java/lang/Math",
+		Super: "java/lang/Object",
+		Flags: classfile.AccPublic | classfile.AccFinal,
+		Methods: []MethodDef{
+			{Name: "max", Desc: "(II)I", Flags: classfile.AccPublic | classfile.AccStatic, Native: natMathMaxInt},
+			{Name: "min", Desc: "(II)I", Flags: classfile.AccPublic | classfile.AccStatic, Native: natMathMinInt},
+			{Name: "max", Desc: "(JJ)J", Flags: classfile.AccPublic | classfile.AccStatic, Native: natMathMaxLong},
+			{Name: "min", Desc: "(JJ)J", Flags: classfile.AccPublic | classfile.AccStatic, Native: natMathMinLong},
+			{Name: "max", Desc: "(DD)D", Flags: classfile.AccPublic | classfile.AccStatic, Native: natMathMaxDouble},
+			{Name: "min", Desc: "(DD)D", Flags: classfile.AccPublic | classfile.AccStatic, Native: natMathMinDouble},
+			{Name: "abs", Desc: "(I)I", Flags: classfile.AccPublic | classfile.AccStatic, Native: natMathAbsInt},
+			{Name: "abs", Desc: "(J)J", Flags: classfile.AccPublic | classfile.AccStatic, Native: natMathAbsLong},
+			{Name: "abs", Desc: "(D)D", Flags: classfile.AccPublic | classfile.AccStatic, Native: natMathAbsDouble},
 		},
 	})
 	mustDefine(k, &ClassDef{
@@ -133,12 +134,32 @@ func natStringWriterWrite(ctx *CallContext, recv Value, args []Value) (Value, er
 	return nil, nil
 }
 
+func natStringWriterWriteCII(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	b := recv.(*Instance).Payload.(*strings.Builder)
+	arr := args[0].(*ArrayObj)
+	off, length := int(argI(args, 1)), int(argI(args, 2))
+	for i := off; i < off+length && i < len(arr.Elems); i++ {
+		if c, ok := arr.Elems[i].(int32); ok {
+			b.WriteRune(rune(c))
+		}
+	}
+	return nil, nil
+}
+
+func natStringWriterWriteChar(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	b := recv.(*Instance).Payload.(*strings.Builder)
+	if c, ok := args[0].(int32); ok {
+		b.WriteRune(rune(c))
+	}
+	return nil, nil
+}
+
 func natStringWriterToString(ctx *CallContext, recv Value, args []Value) (Value, error) {
 	return ctx.K.InternGo(recv.(*Instance).Payload.(*strings.Builder).String()), nil
 }
 
 type strRdr struct {
-	r    *bufio.Scanner
+	cur  int
 	s    string
 	done bool
 }
@@ -147,6 +168,56 @@ func natStringReaderInit(ctx *CallContext, recv Value, args []Value) (Value, err
 	js, _ := AsJString(args[0])
 	recv.(*Instance).Payload = &strRdr{s: js.String()}
 	return nil, nil
+}
+
+func (sr *strRdr) readOne() int {
+	if sr.done {
+		return -1
+	}
+	r := []rune(sr.s)
+	if sr.cur >= len(r) {
+		sr.done = true
+		return -1
+	}
+	ch := r[sr.cur]
+	sr.cur++
+	return int(ch)
+}
+
+func natStringReaderRead1(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	sr := recv.(*Instance).Payload.(*strRdr)
+	return int32(sr.readOne()), nil
+}
+
+func natStringReaderRead(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	sr := recv.(*Instance).Payload.(*strRdr)
+	arr := args[0].(*ArrayObj)
+	off := argI(args, 1)
+	length := argI(args, 2)
+	n := 0
+	if os.Getenv("CATTY_SRDBG") != "" {
+		js, _ := AsJString(args[0])
+		_ = js
+	}
+	for i := 0; i < int(length); i++ {
+		c := sr.readOne()
+		if c == -1 {
+			break
+		}
+		arr.Elems[off+int32(i)] = int32(c)
+		n++
+	}
+	if n == 0 {
+		return int32(-1), nil // JDK Reader contract: EOF is -1, never 0
+	}
+	if os.Getenv("CATTY_SRDBG") != "" {
+		first := ""
+		for i := 0; i < n && i < 12; i++ {
+			first += string(rune(arr.Elems[int(off)+i].(int32)))
+		}
+		println("[SR] read off=", int(off), "len=", int(length), "->n=", n, "first=12:", first)
+	}
+	return int32(n), nil
 }
 
 func natDoubleInit(ctx *CallContext, recv Value, args []Value) (Value, error) {
