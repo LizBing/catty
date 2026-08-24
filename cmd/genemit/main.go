@@ -7,8 +7,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strings"
 	"path/filepath"
+	"strings"
 
 	"catty/internal/classfile"
 	"catty/internal/emitter"

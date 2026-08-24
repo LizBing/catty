@@ -72,7 +72,6 @@ func usage() {
 	os.Exit(2)
 }
 
-
 // javaArgs converts CLI arguments after the main class into a Java
 // String[] for main().
 func javaArgs(k *kernel.Kernel, cli []string) kernel.Value {

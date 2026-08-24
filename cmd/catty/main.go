@@ -94,7 +94,6 @@ func asThrown(err error, target **kernel.Thrown) bool {
 	return ok
 }
 
-
 // javaArgs converts CLI arguments after the main class into a Java
 // String[] for main().
 func javaArgs(k *kernel.Kernel, cli []string) (kernel.Value, error) {

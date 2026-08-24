@@ -13,6 +13,7 @@ package genrt
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"catty/internal/kernel"
@@ -387,6 +388,9 @@ func ALoadChecked(arr kernel.Value, idx int32) (kernel.Value, *kernel.Thrown) {
 
 // AStoreChecked writes an array element with NPE/bounds semantics.
 func AStoreChecked(arr kernel.Value, idx int32, v kernel.Value) *kernel.Thrown {
+	if os.Getenv("CATTY_ASD") != "" {
+		fmt.Fprintf(os.Stderr, "[asd] arr_nil=%v idx=%d\n", arr == nil, idx)
+	}
 	a, ok := arr.(*kernel.ArrayObj)
 	if !ok {
 		return Throw("java/lang/NullPointerException", "array store into null")
@@ -424,7 +428,7 @@ func LRem(a, b int64) (int64, *kernel.Thrown) {
 func NewRefArray(compClass string, n int32) (kernel.Value, *kernel.Thrown) {
 	arrCls := K.ArrayClassOf("L" + compClass + ";")
 	if arrCls == nil {
-		return nil, Throw("java/lang/NullPointerException", "no array class")
+		panic("[nra-dbg] no array class for " + compClass)
 	}
 	a := &kernel.ArrayObj{CompDesc: "L" + compClass + ";", Elems: make([]kernel.Value, n)}
 	a.Class = arrCls

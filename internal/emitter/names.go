@@ -1,9 +1,13 @@
 package emitter
 
 import (
+	"os"
+
 	"fmt"
 	"strings"
 )
+
+const versionMarker = "mf-v3"
 
 // MangleClass maps an internal class name to a Go identifier fragment
 // (emitter-abi §1): '/'→'_', '$'→'_00036'.
@@ -13,7 +17,7 @@ func MangleClass(internal string) string {
 }
 
 // MangleDesc maps a method descriptor to its identifier fragment:
-// parentheses dropped, 'L…;'→'L…_', '['→'A', primitive letters kept.
+// parentheses dropped, 'L…;'→'L…_', '['→'A', '$'→'_00036', primitives kept.
 func MangleDesc(desc string) string {
 	var b strings.Builder
 	for i := 0; i < len(desc); i++ {
@@ -22,6 +26,8 @@ func MangleDesc(desc string) string {
 			b.WriteByte('_')
 		case '[':
 			b.WriteByte('A')
+		case '$':
+			b.WriteString("_00036")
 		default:
 			b.WriteByte(desc[i])
 		}
@@ -31,6 +37,10 @@ func MangleDesc(desc string) string {
 
 // MethodFunc renders the Go function identifier for a method.
 func MethodFunc(class, name, desc string) string {
+	if os.Getenv("X") == "1" {
+		println("MF-v3")
+	}
+	_ = versionMarker
 	return fmt.Sprintf("Catty_%s_%s__%s", MangleClass(class), sanitizeName(name), MangleDesc(desc))
 }
 
@@ -42,5 +52,5 @@ func sanitizeName(name string) string {
 	case "<clinit>":
 		return "clinit"
 	}
-	return name
+	return strings.ReplaceAll(name, "$", "_00036")
 }

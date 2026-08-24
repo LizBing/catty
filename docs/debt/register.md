@@ -27,4 +27,4 @@ Orchestrator 在空闲期择"高收益/低成本"清偿；清偿后移入表格�
 
 | DEBT-0018 | 同一进程内第二次 Json.parse(String) 返回 null | 六个渐进文档探针（含嵌套/浮点/科学计数法）全部经解释器解析正确；随后对同一文档再次 parse 得 null（"Not an object: null"）。JVM oracle 全部正常 | 初判 StringReader EOF 边界或 JsonParser fillBuffer 与 read() 返回约定的残余偏差；需最小二例复现（同 doc 连续两次 parse）逐 read 对照 | 中 | 下轮：新增双 parse 回归用例，instrument StringReader.read 序列 vs JDK |
 
-| DEBT-0019 | AOT 路径 anewarray→aastore 链 NPE | JsonDriver.main docs 数组：生成序列 NewRefArray+AStoreChecked 文本正确，运行时报 array store into null；解释器同文档正常 | NewRefArray 内 K.ArrayClassOf 可能返回 nil → Throw NPE；或 genrt.K 时序 | 高 | 下轮首项：edit 工具落地 [nra] 探针定位 |
+| DEBT-0019 | minimal-json JsonDriver AOT 端到端 NPE | 发射器已能生成全部 38 类（含内部类 $ 转义）且编译通过；JsonDriver.main AOT 进入并完成六探针；NPE "array store into null" 由库内部某方法抛出（无 Java 栈，需异常定位） | 可能：WritingBuffer/JsonObject 内部 char[] 数组在解释/AOT 混合执行中的引用为 nil，或 String.getChars/ SB 链边界 | 中 | 下轮：uncaught 处打印 Java 层堆栈（需实现 Throwable 堆栈回填）或对 minimal-json 各方法单独 installTable 开关二分 |
