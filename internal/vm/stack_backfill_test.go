@@ -128,6 +128,35 @@ func TestTwoParseDoubleParseBothPaths(t *testing.T) {
 	}
 }
 
+// TestAOTCat2NativeReturn pins DEBT-0017 closure: a static native with a
+// category-2 (J) return flows through an emitted call site with exact
+// operand-stack depth. Historically this forced Bench onto an int32
+// clock workaround; the unified opcode effect table removed the drift.
+func TestAOTCat2NativeReturn(t *testing.T) {
+	var out bytes.Buffer
+	k := kernel.New(kernel.Options{Stdout: &out})
+	loader := kernel.NewClassPathLoader(k, []string{"../../testdata/cp"})
+	k.SetResolver(loader.Load)
+	cls, err := loader.Load("JProbe")
+	if err != nil {
+		t.Fatalf("load JProbe: %v", err)
+	}
+	gen.Install(k)
+
+	th := New(k)
+	mainM, err := k.ResolveMethod(cls, "main", "([Ljava/lang/String;)V")
+	if err != nil {
+		t.Fatal(err)
+	}
+	argsArr, _ := k.NewArray("Ljava/lang/String;", 0)
+	if _, err := th.Call(mainM, nil, []kernel.Value{argsArr}); err != nil {
+		t.Fatalf("JProbe AOT failed: %v", err)
+	}
+	if out.String() != "42\n" {
+		t.Errorf("stdout = %q, want %q", out.String(), "42\n")
+	}
+}
+
 // TestAOTJsonDriverEndToEnd pins the minimal-json assault (DEBT-0019
 // closure): all six probes plus nested output, byte-identical to the
 // reference JVM oracle captured at fixture time.

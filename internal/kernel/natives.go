@@ -74,7 +74,11 @@ func natStringCharAt(ctx *CallContext, recv Value, args []Value) (Value, error) 
 		return nil, ctx.Throw("java/lang/StringIndexOutOfBoundsException",
 			"String index out of range: "+FormatInt(i))
 	}
-	return chars[i], nil
+	// Width discipline (DEBT-0016 residual): JVM values cross the
+	// native/Java boundary as canonical int32. Returning raw uint16 here
+	// survived the interpreter (frame.push normalizes) but panicked the
+	// AOT path's .(int32) assertions.
+	return int32(chars[i]), nil
 }
 
 func natStringEquals(ctx *CallContext, recv Value, args []Value) (Value, error) {

@@ -1,6 +1,6 @@
 # P-0006: M3 — AOT 发射器
 
-- 状态：active（本文件即 M3 规划基线；实现按 Phase 推进）
+- 状态：completed（2026-08-24 收口；正确性闭环 + 对照表两项完成定义均达成）
 - 风险评分：High（项目核心卖点；架构级不可逆决策集中地）
 - 决策纪律：调用约定与异常机制走 Research→Design→Critic→ADR 全流程（协议 §7）
 
@@ -85,14 +85,16 @@ T8 启动/首响对照表（AOT 二进制 vs 解释器 vs java），方法学按
 - [x] 计划建立（2026-08-23）
 - [x] R-0002 完成：推荐 F 方案（旗标返回），临界频率 0.6%
 - [x] R-0003 完成：10 条发射器形态建议，Confidence 0.82
-- [x] T1 emitter-abi.md v0.1 落盘
+- [x] T1 emitter-abi.md 落盘（v0.2 已与实现对齐）
 - [x] T2 ADR-0009 定稿（F 方案 v1；P 降级 v2）
-- [ ] T3 ADR-0010 表示法边界 → 下轮评审
-- [ ] T4..T8 发射器实现 → **下轮整段专注预算**
-      当前进度：genrt 桥 ✓ / 命名混淆 ✓ / 方法发射器骨架 ✓
-      handler-entry 深度缺口已关闭（2026-08-23）：异常接收者推送改到
-      handler 标签之后发射（JVMS §2.6 栈清空 + 异常入栈，规范深度恒 1，
-      不再依赖 StackMapFrame 命中）；CollectionsDemo AOT 输出与解释路径/
-      参考 JVM 一致（回归：internal/emitter/body_test.go、
-      internal/vm/aot_acceptance_test.go）
-      余项：T8 启动/首响对照表
+- [x] T3 ADR-0010 表示法边界定稿（2026-08-24，统一表示维持、混合表示转 v2 方法级方向）
+- [x] T4..T6 genrt 桥 / 命名混淆 / 方法发射器；38+ 类生成编译通过
+- [x] T7 双路径一致性：全既有 fixture 纯 AOT = 解释器 = JVM 逐字节；
+      minimal-json(JsonDriver) 39 类端到端 assault 收口（DEBT-0019 根修：
+      classfile.StackEffect 单一事实源 + Java 堆栈回填基建）
+- [x] T8 启动对照表落盘 docs/research/R-0004（冷启动快 92%）；
+      吞吐对照表 R-0005（算术密集 2.3×，调用密集持平→瓶颈在分发层，
+      优化路径排序完毕移交 M4）
+
+收口说明：吞吐优化属 M4 范畴（计划定义）；遗留 DEBT 仅剩低紧迫项
+（fuzz harness / provenance 扫描 / JAR 加载）。

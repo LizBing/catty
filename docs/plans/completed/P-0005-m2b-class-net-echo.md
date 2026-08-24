@@ -1,6 +1,6 @@
 # P-0005: M2 第二阶段 — Class 元对象 + 网络映射 + http echo
 
-- 状态：active
+- 状态：completed（里程碑验收通过，2026-08-24 归档）
 - 风险评分：Medium（Class 对象触及分派/监视器；网络为新增边界面）
 
 ## Goal

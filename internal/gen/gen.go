@@ -2513,6 +2513,60 @@ func Catty_TraceProbe2_fire___I_V(thr kernel.OwnerKey, recv kernel.Value, args [
 func init() { installTable = append(installTable,
 	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"TraceProbe2", "fire", "(I)V", Catty_TraceProbe2_fire___I_V}) }
 
+// JProbe.<init>
+func Catty_JProbe_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"JProbe", "<init>", "()V", Catty_JProbe_init____V}) }
+
+// JProbe.main
+func Catty_JProbe_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3, l4 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3, l4}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = args[0]
+	l0 = args[0]
+	s0, exc = genrt.CallStatic(thr, "java/lang/System", "nanoTime", "()J", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s0
+	s0 = l1
+	s2 = l1
+	s0 = (s0.(int64)) - (s2.(int64))
+	s2 = int64(42)
+	s0 = (s0.(int64)) + (s2.(int64))
+	l3 = s0
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = l3
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(J)V", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"JProbe", "main", "([Ljava/lang/String;)V", Catty_JProbe_main___ALjava_lang_String__V}) }
+
 // app/Main.<init>
 func Catty_app_Main_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
