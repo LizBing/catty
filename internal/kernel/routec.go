@@ -25,7 +25,9 @@ func bootstrapRouteC(k *Kernel) {
 		Super: "java/lang/Object",
 		Flags: classfile.AccPublic | classfile.AccAbstract,
 		Methods: []MethodDef{
-			{Name: "write", Desc: "(Ljava/lang/String;)V", Flags: classfile.AccPublic | classfile.AccAbstract},
+			{Name: "write", Desc: "(Ljava/lang/String;)V", Flags: classfile.AccPublic, Native: natWriterWriteString},
+			{Name: "write", Desc: "(I)V", Flags: classfile.AccPublic, Native: natWriterWriteCharDefault},
+			{Name: "append", Desc: "(Ljava/lang/CharSequence;)Ljava/io/Writer;", Flags: classfile.AccPublic, Native: natWriterAppendCS},
 			{Name: "close", Desc: "()V", Flags: classfile.AccPublic | classfile.AccAbstract},
 		},
 	})
@@ -308,4 +310,45 @@ func natCollectionsUnmodList(ctx *CallContext, recv Value, args []Value) (Value,
 	// Deviation (registered): returns the list itself — mutability not
 	// enforced; sufficient for read-only third-party consumers.
 	return args[0], nil
+}
+
+// natWriterWriteString mirrors java.io.Writer.write(String)'s concrete
+// default: convert to chars and delegate to the subclass write([CII).
+func natWriterWriteString(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	js, _ := AsJString(args[0])
+	rs := []rune(js.String())
+	arr := &ArrayObj{CompDesc: "C", Elems: make([]Value, len(rs))}
+	for i, r := range rs {
+		arr.Elems[i] = int32(r)
+	}
+	wm, err := ctx.K.ResolveMethod(recv.(*Instance).Class, "write", "([CII)V")
+	if err != nil {
+		return nil, err
+	}
+	_, terr := ctx.K.InvokeAs(ctx.Owner, wm, recv, []Value{arr, int32(0), int32(len(rs))})
+	if terr != nil {
+		return nil, terr
+	}
+	return nil, nil
+}
+
+func natWriterWriteCharDefault(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	arr := &ArrayObj{CompDesc: "C", Elems: []Value{args[0]}}
+	wm, err := ctx.K.ResolveMethod(recv.(*Instance).Class, "write", "([CII)V")
+	if err != nil {
+		return nil, err
+	}
+	_, terr := ctx.K.InvokeAs(ctx.Owner, wm, recv, []Value{arr, int32(0), int32(1)})
+	return nil, terr
+}
+
+func natWriterAppendCS(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	wm, err := ctx.K.ResolveMethod(recv.(*Instance).Class, "write", "(Ljava/lang/String;)V")
+	if err != nil {
+		return nil, err
+	}
+	if _, terr := ctx.K.InvokeAs(ctx.Owner, wm, recv, args); terr != nil {
+		return nil, terr
+	}
+	return recv, nil
 }

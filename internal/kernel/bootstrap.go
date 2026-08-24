@@ -42,6 +42,7 @@ func bootstrap(k *Kernel) {
 			{Name: "indexOf", Desc: "(Ljava/lang/String;)I", Flags: classfile.AccPublic, Native: natStringIndexOf},
 			{Name: "getBytes", Desc: "()[B", Flags: classfile.AccPublic, Native: natStringGetBytes},
 			{Name: "<init>", Desc: "([BII)V", Flags: classfile.AccPublic, Native: natStringInitBytesRange},
+			{Name: "getChars", Desc: "(II[CI)V", Flags: classfile.AccPublic, Native: natStringGetChars},
 			{Name: "<init>", Desc: "([C)V", Flags: classfile.AccPublic, Native: natStringInitChars},
 			{Name: "<init>", Desc: "([CII)V", Flags: classfile.AccPublic, Native: natStringInitCharsRange},
 			{Name: "toString", Desc: "()Ljava/lang/String;", Flags: classfile.AccPublic, Native: natStringToString},
@@ -62,6 +63,8 @@ func bootstrap(k *Kernel) {
 			appendSB("C", natSBAppendChar),
 			appendSB("Z", natSBAppendBool),
 			{Name: "length", Desc: "()I", Flags: classfile.AccPublic, Native: natSBLength},
+			{Name: "append", Desc: "([CII)Ljava/lang/StringBuilder;", Flags: classfile.AccPublic, Native: natSBAppendChars},
+			{Name: "setLength", Desc: "(I)V", Flags: classfile.AccPublic, Native: natSBSetLength},
 			{Name: "toString", Desc: "()Ljava/lang/String;", Flags: classfile.AccPublic, Native: natSBToString},
 		},
 	})

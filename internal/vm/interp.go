@@ -131,8 +131,14 @@ func (f *frame) s4pad() int32 { // switch padding to 4-byte alignment (relative 
 // branch sets pc relative to the branch opcode address.
 func (f *frame) branch(from int, offset int32) { f.pc = from + int(offset) }
 
-// push is category-aware (cat2 consumes two raw slots).
+// push is category-aware (cat2 consumes two raw slots). It also
+// normalizes stray numeric widths (e.g. uint16 leaked from a native
+// helper) into the canonical int32 so type switches downstream are
+// total.
 func (f *frame) push(v kernel.Value) {
+	if u, ok := v.(uint16); ok {
+		v = int32(u)
+	}
 	f.stack[f.sp] = v
 	f.sp++
 	if kernel.IsCat2(v) {

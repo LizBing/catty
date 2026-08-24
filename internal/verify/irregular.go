@@ -1,9 +1,9 @@
 package verify
 
 import (
+	"fmt"
 	"os"
 	"strings"
-	"fmt"
 
 	"catty/internal/classfile"
 )
@@ -489,7 +489,6 @@ func atypeName(at byte) (string, bool) {
 }
 
 var _ = fmt.Sprintf
-
 
 // arrayDescOf converts a component class name (slash form) to the array
 // descriptor: L...; for references, single [ for each dimension already

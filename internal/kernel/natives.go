@@ -927,3 +927,47 @@ func natStringInitCharsRange(ctx *CallContext, recv Value, args []Value) (Value,
 	recv.(*JString).Chars = js.Chars
 	return nil, nil
 }
+
+func natStringGetChars(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	js := recv.(*JString)
+	srcBegin := int(argI(args, 0))
+	srcEnd := int(argI(args, 1))
+	dst := args[2].(*ArrayObj)
+	dstOff := int(argI(args, 3))
+	if srcBegin < 0 || srcEnd > len(js.Chars) || srcBegin > srcEnd {
+		return nil, ctx.Throw("java/lang/StringIndexOutOfBoundsException",
+			fmt.Sprintf("begin %d, end %d, length %d", srcBegin, srcEnd, len(js.Chars)))
+	}
+	for i := srcBegin; i < srcEnd; i++ {
+		dst.Elems[dstOff+i-srcBegin] = int32(js.Chars[i])
+	}
+	return nil, nil
+}
+
+func natSBAppendChars(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	b := sbOf(recv)
+	arr := args[0].(*ArrayObj)
+	off, length := int(argI(args, 1)), int(argI(args, 2))
+	for i := off; i < off+length && i < len(arr.Elems); i++ {
+		if c, ok := arr.Elems[i].(int32); ok {
+			b.buf = append(b.buf, uint16(c))
+		}
+	}
+	return recv, nil
+}
+
+func natSBSetLength(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	b := sbOf(recv)
+	n := argI(args, 0)
+	switch {
+	case n < 0:
+		return nil, ctx.Throw("java/lang/StringIndexOutOfBoundsException", fmt.Sprintf("length %d", n))
+	case int(n) < len(b.buf):
+		b.buf = b.buf[:n]
+	default:
+		for i := len(b.buf); i < int(n); i++ {
+			b.buf = append(b.buf, 0)
+		}
+	}
+	return nil, nil
+}

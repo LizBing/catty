@@ -403,7 +403,7 @@ func buildEffects() {
 				return nil, verr(c.mn, pc, "dup underflow")
 			}
 			n2 := n + below
-		head := append([]vtype(nil), st.stack[len(st.stack)-n:len(st.stack)]...) // duplicated block
+			head := append([]vtype(nil), st.stack[len(st.stack)-n:len(st.stack)]...)   // duplicated block
 			mid := append([]vtype(nil), st.stack[len(st.stack)-n2:len(st.stack)-n]...) // skipped slots
 			prefix := append([]vtype(nil), st.stack[:len(st.stack)-n2]...)
 			out := make([]vtype, 0, len(prefix)+n2+n)
@@ -415,7 +415,7 @@ func buildEffects() {
 			return fall(st, pc+1), nil
 		}
 	}
-	set(0x59, dupRaw(1))       //      -> v1
+	set(0x59, dupRaw(1))      //      -> v1
 	set(0x5a, dupBelow(1, 1)) // v2,v1 -> v1,v2,v1
 	set(0x5b, dupBelow(1, 2)) // v3,v2,v1 -> v1,v3,v2,v1
 	set(0x5c, dupRaw(2))      // v2,v1 -> v2,v1,v2,v1
