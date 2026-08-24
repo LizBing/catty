@@ -303,6 +303,67 @@ func TestReflectionSuperclassAndCNFEType(t *testing.T) {
 	}
 }
 
+func wantThrow(t *testing.T, err error, msgPart string) {
+	t.Helper()
+	if err == nil {
+		t.Fatalf("expected throw containing %q, got none", msgPart)
+	}
+	if !strings.Contains(err.Error(), msgPart) {
+		t.Fatalf("throw %q missing %q", err.Error(), msgPart)
+	}
+}
+
+func TestReflectionEdgePins(t *testing.T) {
+	k, _ := reflectKernel(t)
+	clsObj := reflectNative(t, k, "java/lang/Class", "forName",
+		"(Ljava/lang/String;)Ljava/lang/Class;", nil, k.InternGo("Pojo"))
+
+	// primitive mirrors expose no superclass
+	intCls := reflectNative(t, k, "java/lang/Class", "forName",
+		"(Ljava/lang/String;)Ljava/lang/Class;", nil, k.InternGo("int"))
+	if got := reflectNative(t, k, "java/lang/Class", "getSuperclass",
+		"()Ljava/lang/Class;", intCls); got != nil {
+		t.Errorf("int.superclass = %v, want nil", got)
+	}
+
+	// setting an INSTANCE field with a null object must throw NPE
+	fArr := reflectNative(t, k, "java/lang/Class", "getDeclaredFields",
+		"()[Ljava/lang/reflect/Field;", clsObj).(*ArrayObj)
+	var ageF Value
+	for _, fv := range fArr.Elems {
+		if jstrOf(t, reflectNative(t, k, "java/lang/reflect/Field",
+			"getName", "()Ljava/lang/String;", fv)) == "age" {
+			ageF = fv
+		}
+	}
+	setDesc := "(Ljava/lang/Object;Ljava/lang/Object;)V"
+	_, err := reflectNativeErr(t, k, "java/lang/reflect/Field", "set",
+		setDesc, ageF, nil, k.IntegerOf(1))
+	wantThrow(t, err, "null instance")
+
+	// getDeclaredMethods is deterministic (sorted by name) — a documented
+	// v1 choice since the JVM leaves order unspecified.
+	var got []string
+	mArr := reflectNative(t, k, "java/lang/Class", "getDeclaredMethods",
+		"()[Ljava/lang/reflect/Method;", clsObj).(*ArrayObj)
+	for _, mv := range mArr.Elems {
+		got = append(got, jstrOf(t, reflectNative(t, k,
+			"java/lang/reflect/Method", "getName", "()Ljava/lang/String;", mv)))
+	}
+	if !sortStringsAreSorted(got) {
+		t.Errorf("methods not sorted: %v", got)
+	}
+}
+
+func sortStringsAreSorted(s []string) bool {
+	for i := 1; i < len(s); i++ {
+		if s[i-1] > s[i] {
+			return false
+		}
+	}
+	return true
+}
+
 func TestReflectionConstructorNewInstance(t *testing.T) {
 	k, _ := reflectKernel(t)
 	clsObj := reflectNative(t, k, "java/lang/Class", "forName",
