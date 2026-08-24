@@ -3603,6 +3603,693 @@ func Catty_ConcurrentBench_00036Worker_run____V(thr kernel.OwnerKey, recv kernel
 func init() { installTable = append(installTable,
 	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"ConcurrentBench$Worker", "run", "()V", Catty_ConcurrentBench_00036Worker_run____V}) }
 
+// P99Bench.<init>
+func Catty_P99Bench_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"P99Bench", "<init>", "()V", Catty_P99Bench_init____V}) }
+
+// P99Bench.sort
+func Catty_P99Bench_sort___AJI_V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3, l4 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3, l4}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	var abuf [3]kernel.Value
+	_ = abuf
+	l0 = args[0]
+	l1 = args[1]
+	l0 = args[0]
+	l1 = args[1]
+	s0 = l1
+	s1 = int32(2)
+	s0, exc = genrt.IDiv(thr, s0.(int32), s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = int32(1)
+	s0 = (s0.(int32)) - (s1.(int32))
+	l2 = s0
+	L6:
+	s0 = l2
+	if s0.(int32) < 0 { goto L22 }
+	s0 = l0
+	s1 = l2
+	s2 = l1
+	abuf[0] = s0
+	abuf[1] = s1
+	abuf[2] = s2
+	_, exc = genrt.CallStatic(thr, "P99Bench", "sift", "([JII)V", abuf[:3])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = l2.(int32) + -1
+	goto L6
+	L22:
+	s0 = l1
+	s1 = int32(1)
+	s0 = (s0.(int32)) - (s1.(int32))
+	l2 = s0
+	L26:
+	s0 = l2
+	if s0.(int32) <= 0 { goto L56 }
+	s0 = l0
+	s1 = int32(0)
+	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l3 = s0
+	s0 = l0
+	s1 = int32(0)
+	s2 = l0
+	s3 = l2
+	s2, exc = genrt.ALoadChecked(thr, s2, s3.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = genrt.AStoreChecked(thr, s0, s1.(int32), s2)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = l2
+	s2 = l3
+	exc = genrt.AStoreChecked(thr, s0, s1.(int32), s2)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = int32(0)
+	s2 = l2
+	abuf[0] = s0
+	abuf[1] = s1
+	abuf[2] = s2
+	_, exc = genrt.CallStatic(thr, "P99Bench", "sift", "([JII)V", abuf[:3])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = l2.(int32) + -1
+	goto L26
+	L56:
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"P99Bench", "sort", "([JI)V", Catty_P99Bench_sort___AJI_V}) }
+
+// P99Bench.sift
+func Catty_P99Bench_sift___AJII_V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3, l4, l5 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3, l4, l5}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = args[0]
+	l1 = args[1]
+	l2 = args[2]
+	l0 = args[0]
+	l1 = args[1]
+	l2 = args[2]
+	L0:
+	s0 = int32(2)
+	s1 = l1
+	s0 = (s0.(int32)) * (s1.(int32))
+	s1 = int32(1)
+	s0 = (s0.(int32)) + (s1.(int32))
+	s1 = l2
+	if s0.(int32) >= s1.(int32) { goto L69 }
+	s0 = int32(2)
+	s1 = l1
+	s0 = (s0.(int32)) * (s1.(int32))
+	s1 = int32(1)
+	s0 = (s0.(int32)) + (s1.(int32))
+	l3 = s0
+	s0 = l3
+	s1 = int32(1)
+	s0 = (s0.(int32)) + (s1.(int32))
+	s1 = l2
+	if s0.(int32) >= s1.(int32) { goto L37 }
+	s0 = l0
+	s1 = l3
+	s2 = int32(1)
+	s1 = (s1.(int32)) + (s2.(int32))
+	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s3 = l3
+	s2, exc = genrt.ALoadChecked(thr, s2, s3.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.LCmp(s0.(int64), s2.(int64))
+	if s0.(int32) <= 0 { goto L37 }
+	l3 = l3.(int32) + 1
+	L37:
+	s0 = l0
+	s1 = l1
+	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s3 = l3
+	s2, exc = genrt.ALoadChecked(thr, s2, s3.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.LCmp(s0.(int64), s2.(int64))
+	if s0.(int32) < 0 { goto L48 }
+	return nil, nil
+	L48:
+	s0 = l0
+	s1 = l1
+	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l4 = s0
+	s0 = l0
+	s1 = l1
+	s2 = l0
+	s3 = l3
+	s2, exc = genrt.ALoadChecked(thr, s2, s3.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = genrt.AStoreChecked(thr, s0, s1.(int32), s2)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = l3
+	s2 = l4
+	exc = genrt.AStoreChecked(thr, s0, s1.(int32), s2)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l3
+	l1 = s0
+	goto L0
+	L69:
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"P99Bench", "sift", "([JII)V", Catty_P99Bench_sift___AJII_V}) }
+
+// P99Bench.pct
+func Catty_P99Bench_pct___AJID_J(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3, l4 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3, l4}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	var abuf [1]kernel.Value
+	_ = abuf
+	l0 = args[0]
+	l1 = args[1]
+	l2 = args[2]
+	l0 = args[0]
+	l1 = args[1]
+	l2 = args[2]
+	s0 = l2
+	s2 = l1
+	s3 = int32(1)
+	s2 = (s2.(int32)) - (s3.(int32))
+	s2 = float64(s2.(int32))
+	s0 = (s0.(float64)) * (s2.(float64))
+	abuf[0] = s0
+	s0, exc = genrt.CallStatic(thr, "java/lang/Math", "floor", "(D)D", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = int32(s0.(float64))
+	l4 = s0
+	s0 = l0
+	s1 = l4
+	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"P99Bench", "pct", "([JID)J", Catty_P99Bench_pct___AJID_J}) }
+
+// P99Bench.main
+func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11}
+	var s0, s1, s2, s3, s4, s5, s6 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6}
+	var abuf [3]kernel.Value
+	_ = abuf
+	var _sb175, _sb47 string
+	_ = []any{_sb175, _sb47}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	s1 = int32(0)
+	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s0
+	s0, exc = genrt.CallStatic(thr, "java/lang/Integer", "parseInt", "(Ljava/lang/String;)I", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s0
+	s0 = l0
+	s1 = int32(1)
+	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s0
+	s0, exc = genrt.CallStatic(thr, "java/lang/Integer", "parseInt", "(Ljava/lang/String;)I", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s0
+	s0 = genrt.New(thr, "java/util/HashMap")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "java/util/HashMap", "<init>", "()V", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l3 = s0
+	s0 = genrt.New(thr, "P99Bench$Node")
+	s1 = s0
+	s2 = int32(7)
+	abuf[0] = s2
+	_, exc = genrt.CallSpecial(thr, s1, "P99Bench$Node", "<init>", "(I)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l4 = s0
+	s0 = l2
+	s0, exc = genrt.NewPrimitiveArray(thr, "J", s0.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l5 = s0
+	s0 = int32(0)
+	l6 = s0
+	L41:
+	s0 = l6
+	s1 = l1
+	if s0.(int32) >= s1.(int32) { goto L161 }
+	// sb-fold [47..70]
+	_sb47 = ""
+	_sb47 += "k"
+	_sb47 += genrt.ItoA((l6.(int32) % 1024))
+	s0 = genrt.MakeStr(_sb47)
+	l7 = s0
+	s0 = l3
+	s1 = l7
+	abuf[0] = s1
+	s0, exc = genrt.CallVirtualIC(962, thr, s0, "java/util/HashMap", "get", "(Ljava/lang/Object;)Ljava/lang/Object;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.CheckCast(thr, s0, "java/lang/Integer")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l8 = s0
+	s0 = l3
+	s1 = l7
+	s2 = l8
+	if (s2 == nil) == false { goto L96 }
+	s2 = int32(1)
+	goto L103
+	L96:
+	s2 = l8
+	s2, exc = genrt.CallVirtualIC(53, thr, s2, "java/lang/Integer", "intValue", "()I", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = int32(1)
+	s2 = (s2.(int32)) + (s3.(int32))
+	L103:
+	abuf[0] = s2
+	s2, exc = genrt.CallStatic(thr, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s1
+	abuf[1] = s2
+	s0, exc = genrt.CallVirtualIC(537, thr, s0, "java/util/HashMap", "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", abuf[:2])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.New(thr, "java/lang/StringBuilder")
+	s1 = s0
+	s2 = l7
+	abuf[0] = s2
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = int32(58)
+	abuf[0] = s1
+	s0, exc = genrt.CallVirtualIC(514, thr, s0, "java/lang/StringBuilder", "append", "(C)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l4
+	s1, exc = genrt.CallVirtualIC(313, thr, s1, "P99Bench$Node", "get", "()I", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s1
+	s0, exc = genrt.CallVirtualIC(172, thr, s0, "java/lang/StringBuilder", "append", "(I)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l9 = s0
+	s0 = l9
+	s0, exc = genrt.CallVirtualIC(342, thr, s0, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtualIC(208, thr, s0, "java/lang/String", "length", "()I", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = int32(99)
+	if s0.(int32) != s1.(int32) { goto L155 }
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.Str("impossible")
+	abuf[0] = s1
+	_, exc = genrt.CallVirtualIC(746, thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	L155:
+	l6 = l6.(int32) + 1
+	goto L41
+	L161:
+	s0 = int32(0)
+	l6 = s0
+	L164:
+	s0 = l6
+	s1 = l2
+	if s0.(int32) >= s1.(int32) { goto L300 }
+	s0, exc = genrt.CallStatic(thr, "java/lang/System", "nanoTime", "()J", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l7 = s0
+	// sb-fold [175..198]
+	_sb175 = ""
+	_sb175 += "k"
+	_sb175 += genrt.ItoA((l6.(int32) % 1024))
+	s0 = genrt.MakeStr(_sb175)
+	l9 = s0
+	s0 = l3
+	s1 = l9
+	abuf[0] = s1
+	s0, exc = genrt.CallVirtualIC(962, thr, s0, "java/util/HashMap", "get", "(Ljava/lang/Object;)Ljava/lang/Object;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.CheckCast(thr, s0, "java/lang/Integer")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l10 = s0
+	s0 = l3
+	s1 = l9
+	s2 = l10
+	if (s2 == nil) == false { goto L224 }
+	s2 = int32(1)
+	goto L231
+	L224:
+	s2 = l10
+	s2, exc = genrt.CallVirtualIC(53, thr, s2, "java/lang/Integer", "intValue", "()I", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = int32(1)
+	s2 = (s2.(int32)) + (s3.(int32))
+	L231:
+	abuf[0] = s2
+	s2, exc = genrt.CallStatic(thr, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s1
+	abuf[1] = s2
+	s0, exc = genrt.CallVirtualIC(537, thr, s0, "java/util/HashMap", "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", abuf[:2])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.New(thr, "java/lang/StringBuilder")
+	s1 = s0
+	s2 = l9
+	abuf[0] = s2
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = int32(58)
+	abuf[0] = s1
+	s0, exc = genrt.CallVirtualIC(514, thr, s0, "java/lang/StringBuilder", "append", "(C)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l4
+	s1, exc = genrt.CallVirtualIC(313, thr, s1, "P99Bench$Node", "get", "()I", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s1
+	s0, exc = genrt.CallVirtualIC(172, thr, s0, "java/lang/StringBuilder", "append", "(I)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l11 = s0
+	s0 = l11
+	s0, exc = genrt.CallVirtualIC(342, thr, s0, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtualIC(208, thr, s0, "java/lang/String", "length", "()I", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = int32(99)
+	if s0.(int32) != s1.(int32) { goto L283 }
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.Str("impossible")
+	abuf[0] = s1
+	_, exc = genrt.CallVirtualIC(746, thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	L283:
+	s0 = l5
+	s1 = l6
+	s2, exc = genrt.CallStatic(thr, "java/lang/System", "nanoTime", "()J", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = l7
+	s2 = (s2.(int64)) - (s4.(int64))
+	exc = genrt.AStoreChecked(thr, s0, s1.(int32), s2)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l6 = l6.(int32) + 1
+	goto L164
+	L300:
+	s0 = l5
+	s1 = l2
+	abuf[0] = s0
+	abuf[1] = s1
+	_, exc = genrt.CallStatic(thr, "P99Bench", "sort", "([JI)V", abuf[:2])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.New(thr, "java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("p50_ns=")
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(489, thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l5
+	s3 = l2
+	s4 = 0.5
+	abuf[0] = s2
+	abuf[1] = s3
+	abuf[2] = s4
+	s2, exc = genrt.CallStatic(thr, "P99Bench", "pct", "([JID)J", abuf[:3])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(897, thr, s1, "java/lang/StringBuilder", "append", "(J)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtualIC(342, thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s1
+	_, exc = genrt.CallVirtualIC(746, thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.New(thr, "java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("p90_ns=")
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(489, thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l5
+	s3 = l2
+	s4 = 0.9
+	abuf[0] = s2
+	abuf[1] = s3
+	abuf[2] = s4
+	s2, exc = genrt.CallStatic(thr, "P99Bench", "pct", "([JID)J", abuf[:3])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(897, thr, s1, "java/lang/StringBuilder", "append", "(J)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtualIC(342, thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s1
+	_, exc = genrt.CallVirtualIC(746, thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.New(thr, "java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("p99_ns=")
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(489, thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l5
+	s3 = l2
+	s4 = 0.99
+	abuf[0] = s2
+	abuf[1] = s3
+	abuf[2] = s4
+	s2, exc = genrt.CallStatic(thr, "P99Bench", "pct", "([JID)J", abuf[:3])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(897, thr, s1, "java/lang/StringBuilder", "append", "(J)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtualIC(342, thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s1
+	_, exc = genrt.CallVirtualIC(746, thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.New(thr, "java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("max_ns=")
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(489, thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l5
+	s3 = l2
+	s4 = int32(1)
+	s3 = (s3.(int32)) - (s4.(int32))
+	s2, exc = genrt.ALoadChecked(thr, s2, s3.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(897, thr, s1, "java/lang/StringBuilder", "append", "(J)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtualIC(342, thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s1
+	_, exc = genrt.CallVirtualIC(746, thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"P99Bench", "main", "([Ljava/lang/String;)V", Catty_P99Bench_main___ALjava_lang_String__V}) }
+
 // app/Main.<init>
 func Catty_app_Main_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown

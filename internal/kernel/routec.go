@@ -1,6 +1,7 @@
 package kernel
 
 import (
+	"math"
 	"catty/internal/classfile"
 	"fmt"
 	"os"
@@ -109,6 +110,11 @@ func bootstrapRouteC(k *Kernel) {
 			{Name: "abs", Desc: "(I)I", Flags: classfile.AccPublic | classfile.AccStatic, Native: natMathAbsInt},
 			{Name: "abs", Desc: "(J)J", Flags: classfile.AccPublic | classfile.AccStatic, Native: natMathAbsLong},
 			{Name: "abs", Desc: "(D)D", Flags: classfile.AccPublic | classfile.AccStatic, Native: natMathAbsDouble},
+			{Name: "floor", Desc: "(D)D", Flags: classfile.AccPublic | classfile.AccStatic, Native: natMathFloor},
+			{Name: "ceil", Desc: "(D)D", Flags: classfile.AccPublic | classfile.AccStatic, Native: natMathCeil},
+			{Name: "sqrt", Desc: "(D)D", Flags: classfile.AccPublic | classfile.AccStatic, Native: natMathSqrt},
+			{Name: "rint", Desc: "(D)D", Flags: classfile.AccPublic | classfile.AccStatic, Native: natMathRint},
+			{Name: "floor", Desc: "(F)F", Flags: classfile.AccPublic | classfile.AccStatic, Native: natMathFloorF},
 		},
 	})
 	mustDefine(k, &ClassDef{
@@ -347,4 +353,30 @@ func natWriterAppendCS(ctx *CallContext, recv Value, args []Value) (Value, error
 		return nil, terr
 	}
 	return recv, nil
+}
+
+// ---- java.lang.Math double surface (P-0009 U4 fixture needs) ----
+
+func natMathFloor(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	return math.Floor(argD(args, 0)), nil
+}
+
+func natMathCeil(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	return math.Ceil(argD(args, 0)), nil
+}
+
+func natMathSqrt(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	d := argD(args, 0)
+	if d < 0 || d != d {
+		return math.NaN(), nil
+	}
+	return math.Sqrt(d), nil
+}
+
+func natMathRint(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	return math.RoundToEven(argD(args, 0)), nil
+}
+
+func natMathFloorF(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	return float32(math.Floor(float64(argF(args, 0)))), nil
 }

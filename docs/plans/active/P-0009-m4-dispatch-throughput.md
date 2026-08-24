@@ -48,8 +48,11 @@ U1 分配侧组合拳      JString hashCode/UTF-8 惰性缓存、jkey 结构键�
                      → mapops -39.7%（2.49× 于解释器，R-0007）
 U2 strcat 波动归因   O(n²) 复制流量 × GC 相位；折叠 23× 回归反向印证        ✅(记录)
 U3 堆栈叶帧行号       发射期 LNT 烘焙进助手调用                              ⬜
-U4 p99 持续负载采样   卖点②正式证据形态                                      ⬜
+U4 p99 持续负载采样   P99Bench 分位数落地：Catty p99/p50≈3-4×（与 JIT 后          ✅
+                     HotSpot 同形），max 尾部更小、跨轮稳定
 U5 Integer 装箱削减   需逃逸分析级手段或 workload 层接受                      ⬜
+U6 float/double 算术组对调修复 + Math.floor/ceil/sqrt/rint 面                 ✅
+   （P99 fixture 首踩浮点 AOT 路径暴露）
 ```
 
 ## Risks（存档）

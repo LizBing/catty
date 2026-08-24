@@ -181,14 +181,14 @@ func (e *methodEmitter) emitOne(pc int) error {
 			return fail("%v", err)
 		}
 		e.p("%s = %s", e.LocalName(idx), popRef())
-	case 0x62, 0x66, 0x6a, 0x6e: // dadd,dsub,dmul,ddiv (cat2)
-		b, a := popRefCat2(), popRefCat2()
-		opStr := map[byte]string{0x62: "+", 0x66: "-", 0x6a: "*", 0x6e: "/"}[op]
-		pushCat2(fmt.Sprintf("(%s.(float64)) %s (%s.(float64))", a, opStr, b))
-	case 0x63, 0x67, 0x6b, 0x6f: // fastore? no: fadd,fsub,fmul,fdiv (cat1)
+	case 0x62, 0x66, 0x6a, 0x6e, 0x72: // fadd,fsub,fmul,fdiv,frem (cat1!)
 		b, a := popRef(), popRef()
-		opStr := map[byte]string{0x63: "+", 0x67: "-", 0x6b: "*", 0x6f: "/"}[op]
+		opStr := map[byte]string{0x62: "+", 0x66: "-", 0x6a: "*", 0x6e: "/", 0x72: "%"}[op]
 		pushV(fmt.Sprintf("(%s.(float32)) %s (%s.(float32))", a, opStr, b))
+	case 0x63, 0x67, 0x6b, 0x6f, 0x73: // dadd,dsub,dmul,ddiv,drem (cat2)
+		b, a := popRefCat2(), popRefCat2()
+		opStr := map[byte]string{0x63: "+", 0x67: "-", 0x6b: "*", 0x6f: "/", 0x73: "%"}[op]
+		pushCat2(fmt.Sprintf("(%s.(float64)) %s (%s.(float64))", a, opStr, b))
 	case 0x76: // fneg
 		a := popRef()
 		pushV(fmt.Sprintf("-(%s.(float32))", a))
