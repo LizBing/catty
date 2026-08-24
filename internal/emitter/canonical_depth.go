@@ -16,16 +16,16 @@ type qItem struct{ pc, depth int }
 func (e *methodEmitter) computeCanonicalDepths(reach map[int]bool) map[int]int {
 	depths := make(map[int]int)
 	code := e.code
+	if os.Getenv("CATTY_SIM") != "" {
+		fmt.Fprintf(os.Stderr, "[cc] %s.%s reach=%d\n", e.cf.ThisClass, e.m.Name, len(reach))
+	}
 
+	// JVMS: the operand stack is EMPTY at method entry; parameters live
+	// in locals. Counting them here inflated every depth by the arg
+	// footprint (the root cause of the Json.value(F) s-1 drift).
 	entryDepth := 0
-	argDescs, _, err := splitMethodDesc(e.m.Desc)
-	if err == nil {
-		for _, a := range argDescs {
-			entryDepth += descSlots(a)
-		}
-		if e.m.AccessFlags&classfile.AccStatic == 0 {
-			entryDepth++
-		}
+	if os.Getenv("CATTY_SIM") != "" {
+		fmt.Fprintf(os.Stderr, "[cc-v2] %s.%s entry=0\n", e.cf.ThisClass, e.m.Name)
 	}
 
 	// Build SM frame lookup.
@@ -81,6 +81,9 @@ func (e *methodEmitter) computeCanonicalDepths(reach map[int]bool) map[int]int {
 			// fallthrough handled by loop increment
 		}
 	}
+	if os.Getenv("CATTY_SIM") != "" && e.cf.ThisClass == "com/eclipsesource/json/Json" {
+		fmt.Fprintf(os.Stderr, "[cc-done] %s.%s depths=%v\n", e.cf.ThisClass, e.m.Name, depths)
+	}
 	return depths
 }
 
@@ -91,11 +94,15 @@ func netStackEffect(op byte) int {
 	case 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
 		0x10, 0x11, 0x12, 0x13, // bipush,sipush,ldc,ldc_w
 		0x15, 0x17, 0x19, // iload,fload,aload
-		0x1a, 0x1b, 0x1c, 0x1d, 0x2a, 0x2b, 0x2c, 0x2d:
+		0x1a, 0x1b, 0x1c, 0x1d, // iload_0..3
+		0x22, 0x23, 0x24, 0x25, // fload_0..3
+		0x2a, 0x2b, 0x2c, 0x2d: // aload_0..3
 		return 1
+	case 0x26, 0x27, 0x28, 0x29: // dload_0..3 (cat2)
+		return 2
 	case 0x09, 0x0a, 0x0e, 0x0f, 0x14, // lconst,dconst,ldc2_w
 		0x16, 0x18, // lload,dload
-		0x1e, 0x1f, 0x20, 0x21, 0x26, 0x27, 0x28, 0x29: // lload_n,dload_n
+		0x1e, 0x1f, 0x20, 0x21: // lload_0..3
 		return 2
 
 	// ---- pops (stores / pop) ----

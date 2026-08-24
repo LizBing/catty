@@ -20,19 +20,23 @@ func bootstrap(k *Kernel) {
 			{Name: "getClass", Desc: "()Ljava/lang/Class;", Flags: classfile.AccPublic | classfile.AccFinal, Native: natObjectGetClass},
 		},
 	})
-
 	mustDefine(k, &ClassDef{
-		Name:  "java/lang/Class",
-		Super: "java/lang/Object",
-		Flags: classfile.AccPublic | classfile.AccFinal,
-		Methods: []MethodDef{
-			{Name: "getName", Desc: "()Ljava/lang/String;", Flags: classfile.AccPublic, Native: natClassGetName},
-		},
+		Name:  "java/io/Serializable",
+		Flags: classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
 	})
-
+	mustDefine(k, &ClassDef{
+		Name:  "java/lang/CharSequence",
+		Flags: classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
+	})
+	mustDefine(k, &ClassDef{
+		Name:  "java/lang/Comparable",
+		Flags: classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
+	})
 	mustDefine(k, &ClassDef{
 		Name:  "java/lang/String",
 		Super: "java/lang/Object",
+		Ifaces: []string{"java/io/Serializable", "java/lang/CharSequence",
+			"java/lang/Comparable"},
 		Flags: classfile.AccPublic | classfile.AccFinal,
 		Methods: []MethodDef{
 			{Name: "length", Desc: "()I", Flags: classfile.AccPublic, Native: natStringLength},
@@ -64,6 +68,7 @@ func bootstrap(k *Kernel) {
 			appendSB("Z", natSBAppendBool),
 			{Name: "length", Desc: "()I", Flags: classfile.AccPublic, Native: natSBLength},
 			{Name: "append", Desc: "([CII)Ljava/lang/StringBuilder;", Flags: classfile.AccPublic, Native: natSBAppendChars},
+			{Name: "append", Desc: "(D)Ljava/lang/StringBuilder;", Flags: classfile.AccPublic, Native: natSBAppendDouble},
 			{Name: "setLength", Desc: "(I)V", Flags: classfile.AccPublic, Native: natSBSetLength},
 			{Name: "toString", Desc: "()Ljava/lang/String;", Flags: classfile.AccPublic, Native: natSBToString},
 		},
@@ -132,6 +137,8 @@ func bootstrap(k *Kernel) {
 			{Name: "valueOf", Desc: "(I)Ljava/lang/Integer;", Flags: classfile.AccPublic | classfile.AccStatic, Native: natStaticIntegerValueOf},
 			{Name: "toString", Desc: "(I)Ljava/lang/String;", Flags: classfile.AccPublic | classfile.AccStatic, Native: natStaticIntegerToString},
 			{Name: "parseInt", Desc: "(Ljava/lang/String;)I", Flags: classfile.AccPublic | classfile.AccStatic, Native: natStaticIntegerParseInt},
+			{Name: "parseInt", Desc: "(Ljava/lang/String;I)I", Flags: classfile.AccPublic | classfile.AccStatic, Native: natStaticIntegerParseIntRadix},
+			{Name: "toString", Desc: "(II)Ljava/lang/String;", Flags: classfile.AccPublic | classfile.AccStatic, Native: natStaticIntegerToStringRadix},
 		},
 	})
 

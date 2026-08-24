@@ -14,10 +14,6 @@ import (
 
 func bootstrapRouteC(k *Kernel) {
 	// Serializable: pure marker.
-	mustDefine(k, &ClassDef{
-		Name:  "java/io/Serializable",
-		Flags: classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
-	})
 
 	// Writer abstract + StringWriter (payload-backed *strings.Builder).
 	mustDefine(k, &ClassDef{

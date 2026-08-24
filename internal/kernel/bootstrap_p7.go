@@ -164,10 +164,6 @@ func bootstrapStringP7(k *Kernel) {
 		addMethodToClass(k, c, m)
 	}
 
-	mustDefine(k, &ClassDef{
-		Name:  "java/lang/CharSequence",
-		Flags: classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
-	})
 }
 
 // addMethodToClass appends a method to an already-defined kernel Class.

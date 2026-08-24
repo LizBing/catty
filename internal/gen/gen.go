@@ -16,18 +16,20 @@ var installTable []struct {
 // HelloWorld.<init>
 func Catty_HelloWorld_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0 kernel.Value
 	_ = []kernel.Value{l0}
-	var s0, s1, s2 kernel.Value
-	_ = []kernel.Value{s0, s1, s2}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
-	s1 = l0
-	_, exc = genrt.CallSpecial(thr, s1, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -40,19 +42,21 @@ func init() {
 // HelloWorld.main
 func Catty_HelloWorld_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0 kernel.Value
 	_ = []kernel.Value{l0}
-	var s0, s1, s2, s3 kernel.Value
-	_ = []kernel.Value{s0, s1, s2, s3}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
 	l0 = args[0]
 	l0 = args[0]
-	s1 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
-	s2 = genrt.Str("Hello, Catty!")
-	_, exc = genrt.CallVirtual(thr, s1, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.Str("Hello, Catty!")
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -65,18 +69,20 @@ func init() {
 // CollectionsDemo.<init>
 func Catty_CollectionsDemo_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0 kernel.Value
 	_ = []kernel.Value{l0}
-	var s0, s1, s2 kernel.Value
-	_ = []kernel.Value{s0, s1, s2}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
-	s1 = l0
-	_, exc = genrt.CallSpecial(thr, s1, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -89,21 +95,22 @@ func init() {
 // CollectionsDemo.main
 func Catty_CollectionsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0, l1, l2, l3 kernel.Value
 	_ = []kernel.Value{l0, l1, l2, l3}
 	var s0, s1, s2, s3 kernel.Value
 	_ = []kernel.Value{s0, s1, s2, s3}
 	l0 = args[0]
 	l0 = args[0]
-	s1 = genrt.New("java/util/ArrayList")
-	s2 = s1
-	_, exc = genrt.CallSpecial(thr, s2, "java/util/ArrayList", "<init>", "()V", []kernel.Value{})
+	s0 = genrt.New("java/util/ArrayList")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "java/util/ArrayList", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	l1 = s1
-	s1 = int32(1)
-	l2 = s1
+	l1 = s0
+	s0 = int32(1)
+	l2 = s0
 L10:
 	s0 = l2
 	s1 = int32(5)
@@ -298,6 +305,7 @@ L190:
 		return nil, exc // no handler matched
 	}
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -310,18 +318,20 @@ func init() {
 // ThreadsDemo.<init>
 func Catty_ThreadsDemo_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0 kernel.Value
 	_ = []kernel.Value{l0}
-	var s0, s1, s2 kernel.Value
-	_ = []kernel.Value{s0, s1, s2}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
-	s1 = l0
-	_, exc = genrt.CallSpecial(thr, s1, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -334,14 +344,15 @@ func init() {
 // ThreadsDemo.bump
 func Catty_ThreadsDemo_bump___I_V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0, l1, l2, l3 kernel.Value
 	_ = []kernel.Value{l0, l1, l2, l3}
 	var s0, s1, s2 kernel.Value
 	_ = []kernel.Value{s0, s1, s2}
 	l0 = args[0]
 	l0 = args[0]
-	s1 = int32(0)
-	l1 = s1
+	s0 = int32(0)
+	l1 = s0
 L2:
 	s0 = l1
 	s1 = l0
@@ -385,6 +396,7 @@ L31:
 	goto L2
 L37:
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -397,154 +409,156 @@ func init() {
 // ThreadsDemo.main
 func Catty_ThreadsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0, l1, l2, l3 kernel.Value
 	_ = []kernel.Value{l0, l1, l2, l3}
-	var s0, s1, s2, s3, s4, s5 kernel.Value
-	_ = []kernel.Value{s0, s1, s2, s3, s4, s5}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
 	l0 = args[0]
 	l0 = args[0]
-	s1 = genrt.New("Worker")
+	s0 = genrt.New("Worker")
+	s1 = s0
+	s2 = genrt.Str("w1")
+	s3 = int32(300)
+	_, exc = genrt.CallSpecial(thr, s1, "Worker", "<init>", "(Ljava/lang/String;I)V", []kernel.Value{s2, s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s0
+	s0 = genrt.New("Worker")
+	s1 = s0
+	s2 = genrt.Str("w2")
+	s3 = int32(200)
+	_, exc = genrt.CallSpecial(thr, s1, "Worker", "<init>", "(Ljava/lang/String;I)V", []kernel.Value{s2, s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s0
+	s0 = l1
+	_, exc = genrt.CallVirtual(thr, s0, "java/lang/Thread", "start", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l2
+	_, exc = genrt.CallVirtual(thr, s0, "java/lang/Thread", "start", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l1
+	_, exc = genrt.CallVirtual(thr, s0, "java/lang/Thread", "join", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l2
+	_, exc = genrt.CallVirtual(thr, s0, "java/lang/Thread", "join", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.GetStatic(thr, "ThreadsDemo", "count", "I")
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(I)V", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.New("Sleeper")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "Sleeper", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l3 = s0
+	s0 = l3
+	_, exc = genrt.CallVirtual(thr, s0, "java/lang/Thread", "start", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = int64(50)
+	_, exc = genrt.CallStatic(thr, "java/lang/Thread", "sleep", "(J)V", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l3
+	_, exc = genrt.CallVirtual(thr, s0, "java/lang/Thread", "interrupt", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l3
+	_, exc = genrt.CallVirtual(thr, s0, "java/lang/Thread", "join", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.New("java/lang/StringBuilder")
 	s2 = s1
-	s3 = genrt.Str("w1")
-	s4 = int32(300)
-	_, exc = genrt.CallSpecial(thr, s2, "Worker", "<init>", "(Ljava/lang/String;I)V", []kernel.Value{s3, s4})
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	l1 = s1
-	s1 = genrt.New("Worker")
+	s2 = genrt.Str("main done ")
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallStatic(thr, "java/lang/Thread", "currentThread", "()Ljava/lang/Thread;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/Thread", "getName", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.New("java/lang/StringBuilder")
 	s2 = s1
-	s3 = genrt.Str("w2")
-	s4 = int32(200)
-	_, exc = genrt.CallSpecial(thr, s2, "Worker", "<init>", "(Ljava/lang/String;I)V", []kernel.Value{s3, s4})
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	l2 = s1
-	s1 = l1
-	_, exc = genrt.CallVirtual(thr, s1, "java/lang/Thread", "start", "()V", []kernel.Value{})
+	s2 = l1
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/Thread", "getName", "()Ljava/lang/String;", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s1 = l2
-	_, exc = genrt.CallVirtual(thr, s1, "java/lang/Thread", "start", "()V", []kernel.Value{})
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s1 = l1
-	_, exc = genrt.CallVirtual(thr, s1, "java/lang/Thread", "join", "()V", []kernel.Value{})
+	s2 = genrt.Str(" alive=")
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s1 = l2
-	_, exc = genrt.CallVirtual(thr, s1, "java/lang/Thread", "join", "()V", []kernel.Value{})
+	s2 = l1
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/Thread", "isAlive", "()Z", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s1 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
-	s2 = genrt.GetStatic(thr, "ThreadsDemo", "count", "I")
-	_, exc = genrt.CallVirtual(thr, s1, "java/io/PrintStream", "println", "(I)V", []kernel.Value{s2})
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Z)Ljava/lang/StringBuilder;", []kernel.Value{s2})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s1 = genrt.New("Sleeper")
-	s2 = s1
-	_, exc = genrt.CallSpecial(thr, s2, "Sleeper", "<init>", "()V", []kernel.Value{})
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	l3 = s1
-	s1 = l3
-	_, exc = genrt.CallVirtual(thr, s1, "java/lang/Thread", "start", "()V", []kernel.Value{})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	s1 = int64(50)
-	_, exc = genrt.CallStatic(thr, "java/lang/Thread", "sleep", "(J)V", []kernel.Value{s1})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	s1 = l3
-	_, exc = genrt.CallVirtual(thr, s1, "java/lang/Thread", "interrupt", "()V", []kernel.Value{})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	s1 = l3
-	_, exc = genrt.CallVirtual(thr, s1, "java/lang/Thread", "join", "()V", []kernel.Value{})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	s1 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
-	s2 = genrt.New("java/lang/StringBuilder")
-	s3 = s2
-	_, exc = genrt.CallSpecial(thr, s3, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	s3 = genrt.Str("main done ")
-	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	s3, exc = genrt.CallStatic(thr, "java/lang/Thread", "currentThread", "()Ljava/lang/Thread;", []kernel.Value{})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	s3, exc = genrt.CallVirtual(thr, s3, "java/lang/Thread", "getName", "()Ljava/lang/String;", []kernel.Value{})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	_, exc = genrt.CallVirtual(thr, s1, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s2})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	s1 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
-	s2 = genrt.New("java/lang/StringBuilder")
-	s3 = s2
-	_, exc = genrt.CallSpecial(thr, s3, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	s3 = l1
-	s3, exc = genrt.CallVirtual(thr, s3, "java/lang/Thread", "getName", "()Ljava/lang/String;", []kernel.Value{})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	s3 = genrt.Str(" alive=")
-	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	s3 = l1
-	s3, exc = genrt.CallVirtual(thr, s3, "java/lang/Thread", "isAlive", "()Z", []kernel.Value{})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Z)Ljava/lang/StringBuilder;", []kernel.Value{s3})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	_, exc = genrt.CallVirtual(thr, s1, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -557,18 +571,20 @@ func init() {
 // WordCount.<init>
 func Catty_WordCount_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0 kernel.Value
 	_ = []kernel.Value{l0}
-	var s0, s1, s2 kernel.Value
-	_ = []kernel.Value{s0, s1, s2}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
-	s1 = l0
-	_, exc = genrt.CallSpecial(thr, s1, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -581,37 +597,38 @@ func init() {
 // WordCount.main
 func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10 kernel.Value
 	_ = []kernel.Value{l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10}
 	var s0, s1, s2, s3, s4, s5 kernel.Value
 	_ = []kernel.Value{s0, s1, s2, s3, s4, s5}
 	l0 = args[0]
 	l0 = args[0]
-	s1 = genrt.Str("the quick brown fox jumps over the lazy dog the end")
-	l1 = s1
-	s1 = l1
-	s2 = genrt.Str(" ")
-	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/String", "split", "(Ljava/lang/String;)[Ljava/lang/String;", []kernel.Value{s2})
+	s0 = genrt.Str("the quick brown fox jumps over the lazy dog the end")
+	l1 = s0
+	s0 = l1
+	s1 = genrt.Str(" ")
+	s0, exc = genrt.CallVirtual(thr, s0, "java/lang/String", "split", "(Ljava/lang/String;)[Ljava/lang/String;", []kernel.Value{s1})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	l2 = s1
-	s1 = genrt.New("java/util/HashMap")
-	s2 = s1
-	_, exc = genrt.CallSpecial(thr, s2, "java/util/HashMap", "<init>", "()V", []kernel.Value{})
+	l2 = s0
+	s0 = genrt.New("java/util/HashMap")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "java/util/HashMap", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	l3 = s1
-	s1 = genrt.New("java/util/HashSet")
-	s2 = s1
-	_, exc = genrt.CallSpecial(thr, s2, "java/util/HashSet", "<init>", "()V", []kernel.Value{})
+	l3 = s0
+	s0 = genrt.New("java/util/HashSet")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "java/util/HashSet", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	l4 = s1
-	s1 = int32(0)
-	l5 = s1
+	l4 = s0
+	s0 = int32(0)
+	l5 = s0
 L30:
 	s0 = l5
 	s1 = l2
@@ -1134,6 +1151,7 @@ L100:
 		return nil, exc // no handler matched
 	}
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -1146,18 +1164,20 @@ func init() {
 // WcFile.<init>
 func Catty_WcFile_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0 kernel.Value
 	_ = []kernel.Value{l0}
-	var s0, s1, s2 kernel.Value
-	_ = []kernel.Value{s0, s1, s2}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
-	s1 = l0
-	_, exc = genrt.CallSpecial(thr, s1, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -1170,23 +1190,24 @@ func init() {
 // WcFile.main
 func Catty_WcFile_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10 kernel.Value
 	_ = []kernel.Value{l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10}
 	var s0, s1, s2, s3, s4, s5, s6 kernel.Value
 	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6}
 	l0 = args[0]
 	l0 = args[0]
-	s1 = l0
-	s1 = genrt.ArrayLength(s1)
+	s0 = l0
+	s0 = genrt.ArrayLength(s0)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	if s1.(int32) != 0 {
+	if s0.(int32) != 0 {
 		goto L14
 	}
-	s1 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
-	s2 = genrt.Str("usage: wcfile <input.txt>")
-	_, exc = genrt.CallVirtual(thr, s1, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.Str("usage: wcfile <input.txt>")
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
@@ -1441,6 +1462,7 @@ L163:
 		return nil, exc // no handler matched
 	}
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -1453,18 +1475,20 @@ func init() {
 // Bench.<init>
 func Catty_Bench_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0 kernel.Value
 	_ = []kernel.Value{l0}
-	var s0, s1, s2 kernel.Value
-	_ = []kernel.Value{s0, s1, s2}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
-	s1 = l0
-	_, exc = genrt.CallSpecial(thr, s1, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -1477,6 +1501,7 @@ func init() {
 // Bench.now
 func Catty_Bench_now____J(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var s0, s1, s2 kernel.Value
 	_ = []kernel.Value{s0, s1, s2}
 	s0, exc = genrt.CallStatic(thr, "java/lang/System", "nanoTime", "()J", []kernel.Value{})
@@ -1484,6 +1509,7 @@ func Catty_Bench_now____J(thr kernel.OwnerKey, recv kernel.Value, args []kernel.
 		return nil, exc // no handler matched
 	}
 	return s0, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -1496,21 +1522,22 @@ func init() {
 // Bench.arith
 func Catty_Bench_arith___I_J(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0, l1, l2, l3, l4, l5 kernel.Value
 	_ = []kernel.Value{l0, l1, l2, l3, l4, l5}
 	var s0, s1, s2, s3, s4 kernel.Value
 	_ = []kernel.Value{s0, s1, s2, s3, s4}
 	l0 = args[0]
 	l0 = args[0]
-	s1, exc = genrt.CallStatic(thr, "Bench", "now", "()J", []kernel.Value{})
+	s0, exc = genrt.CallStatic(thr, "Bench", "now", "()J", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	l1 = s1
-	s1 = int32(0)
-	l3 = s1
-	s1 = int32(0)
-	l4 = s1
+	l1 = s0
+	s0 = int32(0)
+	l3 = s0
+	s0 = int32(0)
+	l4 = s0
 L9:
 	s0 = l4
 	s1 = l0
@@ -1551,6 +1578,7 @@ L52:
 	s2 = l1
 	s0 = (s0.(int64)) - (s2.(int64))
 	return s0, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -1563,29 +1591,30 @@ func init() {
 // Bench.vcall
 func Catty_Bench_vcall___I_J(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0, l1, l2, l3, l4, l5, l6 kernel.Value
 	_ = []kernel.Value{l0, l1, l2, l3, l4, l5, l6}
 	var s0, s1, s2, s3, s4 kernel.Value
 	_ = []kernel.Value{s0, s1, s2, s3, s4}
 	l0 = args[0]
 	l0 = args[0]
-	s1, exc = genrt.CallStatic(thr, "Bench", "now", "()J", []kernel.Value{})
+	s0, exc = genrt.CallStatic(thr, "Bench", "now", "()J", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	l1 = s1
-	s1 = genrt.New("Bench$Node")
-	s2 = s1
-	s3 = int32(7)
-	_, exc = genrt.CallSpecial(thr, s2, "Bench$Node", "<init>", "(I)V", []kernel.Value{s3})
+	l1 = s0
+	s0 = genrt.New("Bench$Node")
+	s1 = s0
+	s2 = int32(7)
+	_, exc = genrt.CallSpecial(thr, s1, "Bench$Node", "<init>", "(I)V", []kernel.Value{s2})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	l3 = s1
-	s1 = int32(0)
-	l4 = s1
-	s1 = int32(0)
-	l5 = s1
+	l3 = s0
+	s0 = int32(0)
+	l4 = s0
+	s0 = int32(0)
+	l5 = s0
 L20:
 	s0 = l5
 	s1 = l0
@@ -1624,6 +1653,7 @@ L61:
 	s2 = l1
 	s0 = (s0.(int64)) - (s2.(int64))
 	return s0, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -1636,26 +1666,27 @@ func init() {
 // Bench.mapops
 func Catty_Bench_mapops___I_J(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0, l1, l2, l3, l4, l5, l6 kernel.Value
 	_ = []kernel.Value{l0, l1, l2, l3, l4, l5, l6}
 	var s0, s1, s2, s3, s4 kernel.Value
 	_ = []kernel.Value{s0, s1, s2, s3, s4}
 	l0 = args[0]
 	l0 = args[0]
-	s1 = genrt.New("java/util/HashMap")
-	s2 = s1
-	_, exc = genrt.CallSpecial(thr, s2, "java/util/HashMap", "<init>", "()V", []kernel.Value{})
+	s0 = genrt.New("java/util/HashMap")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "java/util/HashMap", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	l1 = s1
-	s1, exc = genrt.CallStatic(thr, "Bench", "now", "()J", []kernel.Value{})
+	l1 = s0
+	s0, exc = genrt.CallStatic(thr, "Bench", "now", "()J", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	l2 = s1
-	s1 = int32(0)
-	l4 = s1
+	l2 = s0
+	s0 = int32(0)
+	l4 = s0
 L15:
 	s0 = l4
 	s1 = l0
@@ -1736,6 +1767,7 @@ L90:
 	s2 = l2
 	s0 = (s0.(int64)) - (s2.(int64))
 	return s0, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -1748,21 +1780,22 @@ func init() {
 // Bench.strcat
 func Catty_Bench_strcat___I_J(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0, l1, l2, l3, l4, l5 kernel.Value
 	_ = []kernel.Value{l0, l1, l2, l3, l4, l5}
 	var s0, s1, s2, s3, s4 kernel.Value
 	_ = []kernel.Value{s0, s1, s2, s3, s4}
 	l0 = args[0]
 	l0 = args[0]
-	s1, exc = genrt.CallStatic(thr, "Bench", "now", "()J", []kernel.Value{})
+	s0, exc = genrt.CallStatic(thr, "Bench", "now", "()J", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	l1 = s1
-	s1 = genrt.Str("")
-	l3 = s1
-	s1 = int32(0)
-	l4 = s1
+	l1 = s0
+	s0 = genrt.Str("")
+	l3 = s0
+	s0 = int32(0)
+	l4 = s0
 L10:
 	s0 = l4
 	s1 = l0
@@ -1808,6 +1841,7 @@ L47:
 	s2 = l1
 	s0 = (s0.(int64)) - (s2.(int64))
 	return s0, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -1820,47 +1854,48 @@ func init() {
 // Bench.main
 func Catty_Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0, l1, l2, l3 kernel.Value
 	_ = []kernel.Value{l0, l1, l2, l3}
 	var s0, s1, s2, s3, s4 kernel.Value
 	_ = []kernel.Value{s0, s1, s2, s3, s4}
 	l0 = args[0]
 	l0 = args[0]
-	s1 = l0
-	s2 = int32(0)
-	s1, exc = genrt.ALoadChecked(s1, s2.(int32))
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	s1, exc = genrt.CallStatic(thr, "java/lang/Integer", "parseInt", "(Ljava/lang/String;)I", []kernel.Value{s1})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	l1 = s1
-	s1 = l1
-	s2 = int32(5)
-	s1, exc = genrt.IDiv(s1.(int32), s2.(int32))
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	l2 = s1
-	s1 = l2
-	s1, exc = genrt.CallStatic(thr, "Bench", "arith", "(I)J", []kernel.Value{s1})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	s1 = l2
-	s1, exc = genrt.CallStatic(thr, "Bench", "vcall", "(I)J", []kernel.Value{s1})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
-	s1 = l2
-	s1, exc = genrt.CallStatic(thr, "Bench", "mapops", "(I)J", []kernel.Value{s1})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
+	s0 = l0
 	s1 = int32(0)
-	l3 = s1
+	s0, exc = genrt.ALoadChecked(s0, s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallStatic(thr, "java/lang/Integer", "parseInt", "(Ljava/lang/String;)I", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s0
+	s0 = l1
+	s1 = int32(5)
+	s0, exc = genrt.IDiv(s0.(int32), s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s0
+	s0 = l2
+	s0, exc = genrt.CallStatic(thr, "Bench", "arith", "(I)J", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l2
+	s0, exc = genrt.CallStatic(thr, "Bench", "vcall", "(I)J", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l2
+	s0, exc = genrt.CallStatic(thr, "Bench", "mapops", "(I)J", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = int32(0)
+	l3 = s0
 L28:
 	s0 = l3
 	s1 = int32(3)
@@ -1998,6 +2033,7 @@ L28:
 	goto L28
 L162:
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -2010,18 +2046,20 @@ func init() {
 // HttpEcho.<init>
 func Catty_HttpEcho_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0 kernel.Value
 	_ = []kernel.Value{l0}
-	var s0, s1, s2 kernel.Value
-	_ = []kernel.Value{s0, s1, s2}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
-	s1 = l0
-	_, exc = genrt.CallSpecial(thr, s1, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -2034,27 +2072,28 @@ func init() {
 // HttpEcho.main
 func Catty_HttpEcho_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0, l1, l2, l3, l4 kernel.Value
 	_ = []kernel.Value{l0, l1, l2, l3, l4}
 	var s0, s1, s2, s3 kernel.Value
 	_ = []kernel.Value{s0, s1, s2, s3}
 	l0 = args[0]
 	l0 = args[0]
-	s1 = l0
-	s1 = genrt.ArrayLength(s1)
+	s0 = l0
+	s0 = genrt.ArrayLength(s0)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	if s1.(int32) <= 0 {
+	if s0.(int32) <= 0 {
 		goto L14
 	}
-	s1 = l0
-	s2 = int32(0)
-	s1, exc = genrt.ALoadChecked(s1, s2.(int32))
+	s0 = l0
+	s1 = int32(0)
+	s0, exc = genrt.ALoadChecked(s0, s1.(int32))
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s1, exc = genrt.CallStatic(thr, "java/lang/Integer", "parseInt", "(Ljava/lang/String;)I", []kernel.Value{s1})
+	s0, exc = genrt.CallStatic(thr, "java/lang/Integer", "parseInt", "(Ljava/lang/String;)I", []kernel.Value{s0})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
@@ -2121,6 +2160,7 @@ L55:
 		return nil, exc // no handler matched
 	}
 	goto L55
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -2133,26 +2173,28 @@ func init() {
 // Conn.<init>
 func Catty_Conn_init___Ljava_net_Socket__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0, l1 kernel.Value
 	_ = []kernel.Value{l0, l1}
-	var s0, s1, s2, s3, s4 kernel.Value
-	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
-	s2 = l0
-	_, exc = genrt.CallSpecial(thr, s2, "java/lang/Thread", "<init>", "()V", []kernel.Value{})
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Thread", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s2 = l0
-	s3 = l1
-	exc = genrt.SetFieldChecked(thr, s2, "s", "Ljava/net/Socket;", s3)
+	s0 = l0
+	s1 = l1
+	exc = genrt.SetFieldChecked(thr, s0, "s", "Ljava/net/Socket;", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -2165,12 +2207,29 @@ func init() {
 // Conn.run
 func Catty_Conn_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0, l1, l2, l3, l4, l5, l6, l7 kernel.Value
 	_ = []kernel.Value{l0, l1, l2, l3, l4, l5, l6, l7}
 	var s0, s1, s2, s3, s4, s5, s6 kernel.Value
 	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6}
 	l0 = recv
 	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "s", "Ljava/net/Socket;")
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/lang/Exception") {
+			goto L135
+		}
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/net/Socket", "getInputStream", "()Ljava/io/InputStream;", []kernel.Value{})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/lang/Exception") {
+			goto L135
+		}
+		return nil, exc // no handler matched
+	}
+	l1 = s1
 	s1 = l0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "s", "Ljava/net/Socket;")
 	if exc != nil {
@@ -2179,53 +2238,37 @@ func Catty_Conn_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.V
 		}
 		return nil, exc // no handler matched
 	}
-	s2, exc = genrt.CallVirtual(thr, s2, "java/net/Socket", "getInputStream", "()Ljava/io/InputStream;", []kernel.Value{})
+	s2, exc = genrt.CallVirtual(thr, s2, "java/net/Socket", "getOutputStream", "()Ljava/io/OutputStream;", []kernel.Value{})
 	if exc != nil {
 		if genrt.InstanceOf(exc.Obj, "java/lang/Exception") {
 			goto L135
 		}
 		return nil, exc // no handler matched
 	}
-	l1 = s2
-	s2 = l0
-	s2, exc = genrt.GetFieldChecked(thr, s2, "s", "Ljava/net/Socket;")
+	l2 = s2
+	s2 = int32(2048)
+	s2, exc = genrt.NewPrimitiveArray("B", s2.(int32))
 	if exc != nil {
 		if genrt.InstanceOf(exc.Obj, "java/lang/Exception") {
 			goto L135
 		}
 		return nil, exc // no handler matched
 	}
-	s3, exc = genrt.CallVirtual(thr, s3, "java/net/Socket", "getOutputStream", "()Ljava/io/OutputStream;", []kernel.Value{})
+	l3 = s2
+	s2 = genrt.New("java/lang/StringBuilder")
+	s3 = s2
+	_, exc = genrt.CallSpecial(thr, s3, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		if genrt.InstanceOf(exc.Obj, "java/lang/Exception") {
 			goto L135
 		}
 		return nil, exc // no handler matched
 	}
-	l2 = s3
-	s3 = int32(2048)
-	s3, exc = genrt.NewPrimitiveArray("B", s3.(int32))
-	if exc != nil {
-		if genrt.InstanceOf(exc.Obj, "java/lang/Exception") {
-			goto L135
-		}
-		return nil, exc // no handler matched
-	}
-	l3 = s3
-	s3 = genrt.New("java/lang/StringBuilder")
-	s4 = s3
-	_, exc = genrt.CallSpecial(thr, s4, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
-	if exc != nil {
-		if genrt.InstanceOf(exc.Obj, "java/lang/Exception") {
-			goto L135
-		}
-		return nil, exc // no handler matched
-	}
-	l4 = s3
-	s3 = int32(0)
-	l5 = s3
-	s3 = int32(-1)
-	l6 = s3
+	l4 = s2
+	s2 = int32(0)
+	l5 = s2
+	s2 = int32(-1)
+	l6 = s2
 L37:
 	s0 = l5
 	if s0.(int32) != 0 {
@@ -2385,6 +2428,7 @@ L135:
 	}
 L164:
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -2397,18 +2441,20 @@ func init() {
 // Sleeper.<init>
 func Catty_Sleeper_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0 kernel.Value
 	_ = []kernel.Value{l0}
-	var s0, s1, s2 kernel.Value
-	_ = []kernel.Value{s0, s1, s2}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
-	s1 = l0
-	_, exc = genrt.CallSpecial(thr, s1, "java/lang/Thread", "<init>", "()V", []kernel.Value{})
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Thread", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -2421,23 +2467,24 @@ func init() {
 // Sleeper.run
 func Catty_Sleeper_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0, l1 kernel.Value
 	_ = []kernel.Value{l0, l1}
-	var s0, s1, s2, s3 kernel.Value
-	_ = []kernel.Value{s0, s1, s2, s3}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l0 = recv
-	s1 = int64(60000)
-	_, exc = genrt.CallStatic(thr, "java/lang/Thread", "sleep", "(J)V", []kernel.Value{s1})
+	s0 = int64(60000)
+	_, exc = genrt.CallStatic(thr, "java/lang/Thread", "sleep", "(J)V", []kernel.Value{s0})
 	if exc != nil {
 		if genrt.InstanceOf(exc.Obj, "java/lang/InterruptedException") {
 			goto L17
 		}
 		return nil, exc // no handler matched
 	}
-	s1 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
-	s2 = genrt.Str("BUG: not interrupted")
-	_, exc = genrt.CallVirtual(thr, s1, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.Str("BUG: not interrupted")
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
 	if exc != nil {
 		if genrt.InstanceOf(exc.Obj, "java/lang/InterruptedException") {
 			goto L17
@@ -2456,6 +2503,7 @@ L17:
 	}
 L26:
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -2468,29 +2516,31 @@ func init() {
 // Worker.<init>
 func Catty_Worker_init___Ljava_lang_String_I_V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0, l1, l2 kernel.Value
 	_ = []kernel.Value{l0, l1, l2}
-	var s0, s1, s2, s3, s4, s5 kernel.Value
-	_ = []kernel.Value{s0, s1, s2, s3, s4, s5}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
-	s3 = l0
-	s4 = l1
-	_, exc = genrt.CallSpecial(thr, s3, "java/lang/Thread", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s4})
+	s0 = l0
+	s1 = l1
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Thread", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s1})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s3 = l0
-	s4 = l2
-	exc = genrt.SetFieldChecked(thr, s3, "n", "I", s4)
+	s0 = l0
+	s1 = l2
+	exc = genrt.SetFieldChecked(thr, s0, "n", "I", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -2503,22 +2553,24 @@ func init() {
 // Worker.run
 func Catty_Worker_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0 kernel.Value
 	_ = []kernel.Value{l0}
-	var s0, s1, s2, s3 kernel.Value
-	_ = []kernel.Value{s0, s1, s2, s3}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l0 = recv
-	s1 = l0
-	s1, exc = genrt.GetFieldChecked(thr, s1, "n", "I")
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "n", "I")
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	_, exc = genrt.CallStatic(thr, "ThreadsDemo", "bump", "(I)V", []kernel.Value{s2})
+	_, exc = genrt.CallStatic(thr, "ThreadsDemo", "bump", "(I)V", []kernel.Value{s1})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -2531,18 +2583,20 @@ func init() {
 // app/Main.<init>
 func Catty_app_Main_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0 kernel.Value
 	_ = []kernel.Value{l0}
-	var s0, s1, s2 kernel.Value
-	_ = []kernel.Value{s0, s1, s2}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
-	s1 = l0
-	_, exc = genrt.CallSpecial(thr, s1, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -2555,72 +2609,74 @@ func init() {
 // app/Main.main
 func Catty_app_Main_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0, l1, l2, l3 kernel.Value
 	_ = []kernel.Value{l0, l1, l2, l3}
-	var s0, s1, s2, s3, s4 kernel.Value
-	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
 	l0 = args[0]
 	l0 = args[0]
-	s1 = genrt.New("app/Helper")
-	s2 = s1
-	_, exc = genrt.CallSpecial(thr, s2, "app/Helper", "<init>", "()V", []kernel.Value{})
+	s0 = genrt.New("app/Helper")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "app/Helper", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	l1 = s1
-	s1 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
-	s2 = l1
-	s3 = genrt.Str("m1")
-	s2, exc = genrt.CallInterface(thr, s2, "app/Greeter", "greet", "(Ljava/lang/String;)Ljava/lang/String;", []kernel.Value{s3})
+	l1 = s0
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = l1
+	s2 = genrt.Str("m1")
+	s1, exc = genrt.CallInterface(thr, s1, "app/Greeter", "greet", "(Ljava/lang/String;)Ljava/lang/String;", []kernel.Value{s2})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	_, exc = genrt.CallVirtual(thr, s1, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s1 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
-	s2 = l1
-	s3 = genrt.Str("m2")
-	s2, exc = genrt.CallInterface(thr, s2, "app/Greeter", "greet", "(Ljava/lang/String;)Ljava/lang/String;", []kernel.Value{s3})
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = l1
+	s2 = genrt.Str("m2")
+	s1, exc = genrt.CallInterface(thr, s1, "app/Greeter", "greet", "(Ljava/lang/String;)Ljava/lang/String;", []kernel.Value{s2})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	_, exc = genrt.CallVirtual(thr, s1, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s1 = genrt.New("app/Helper")
-	s2 = s1
-	_, exc = genrt.CallSpecial(thr, s2, "app/Helper", "<init>", "()V", []kernel.Value{})
+	s0 = genrt.New("app/Helper")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "app/Helper", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	l2 = s1
-	s1 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
-	s2 = l2
-	s2 = genrt.BoolValue(genrt.InstanceOf(s2, "app/Greeter"))
-	_, exc = genrt.CallVirtual(thr, s1, "java/io/PrintStream", "println", "(Z)V", []kernel.Value{s2})
-	if exc != nil {
-		return nil, exc // no handler matched
-	}
+	l2 = s0
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = l2
-	s1 = genrt.CheckCast(thr, s1, "app/Helper")
+	s1 = genrt.BoolValue(genrt.InstanceOf(s1, "app/Greeter"))
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Z)V", []kernel.Value{s1})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	l3 = s1
-	s1 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
-	s2 = l3
-	s2, exc = genrt.CallVirtual(thr, s2, "app/Helper", "hits", "()I", []kernel.Value{})
+	s0 = l2
+	s0 = genrt.CheckCast(thr, s0, "app/Helper")
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	_, exc = genrt.CallVirtual(thr, s1, "java/io/PrintStream", "println", "(I)V", []kernel.Value{s2})
+	l3 = s0
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = l3
+	s1, exc = genrt.CallVirtual(thr, s1, "app/Helper", "hits", "()I", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(I)V", []kernel.Value{s1})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -2633,18 +2689,20 @@ func init() {
 // app/Helper.<init>
 func Catty_app_Helper_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0 kernel.Value
 	_ = []kernel.Value{l0}
-	var s0, s1, s2 kernel.Value
-	_ = []kernel.Value{s0, s1, s2}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
-	s1 = l0
-	_, exc = genrt.CallSpecial(thr, s1, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	return nil, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -2657,47 +2715,48 @@ func init() {
 // app/Helper.greet
 func Catty_app_Helper_greet___Ljava_lang_String__Ljava_lang_String_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0, l1, l2, l3, l4, l5 kernel.Value
 	_ = []kernel.Value{l0, l1, l2, l3, l4, l5}
-	var s0, s1, s2, s3, s4, s5, s6 kernel.Value
-	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
 	l0 = recv
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
-	s2 = l0
-	s3 = s2
-	l2 = s3
-	exc = genrt.MonitorEnter(thr, s2)
+	s0 = l0
+	s1 = s0
+	l2 = s1
+	exc = genrt.MonitorEnter(thr, s0)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	s2 = l0
-	s3 = s2
-	l3 = s3
-	exc = genrt.MonitorEnter(thr, s2)
+	s0 = l0
+	s1 = s0
+	l3 = s1
+	exc = genrt.MonitorEnter(thr, s0)
 	if exc != nil {
 		goto L35
 		return nil, exc // no handler matched
 	}
-	s2 = l0
-	s3 = s2
-	s3, exc = genrt.GetFieldChecked(thr, s3, "hits", "I")
+	s0 = l0
+	s1 = s0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "hits", "I")
 	if exc != nil {
 		goto L23
 		goto L35
 		return nil, exc // no handler matched
 	}
-	s5 = int32(1)
-	s4 = (s4.(int32)) + (s5.(int32))
-	exc = genrt.SetFieldChecked(thr, s3, "hits", "I", s4)
+	s3 = int32(1)
+	s2 = (s2.(int32)) + (s3.(int32))
+	exc = genrt.SetFieldChecked(thr, s1, "hits", "I", s2)
 	if exc != nil {
 		goto L23
 		goto L35
 		return nil, exc // no handler matched
 	}
-	s3 = l3
-	exc = genrt.MonitorExit(thr, s3)
+	s1 = l3
+	exc = genrt.MonitorExit(thr, s1)
 	if exc != nil {
 		goto L23
 		goto L35
@@ -2778,6 +2837,7 @@ L42:
 		return nil, exc // no handler matched
 	}
 	return s1, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -2790,18 +2850,20 @@ func init() {
 // app/Helper.hits
 func Catty_app_Helper_hits____I(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
+	_ = exc
 	var l0 kernel.Value
 	_ = []kernel.Value{l0}
-	var s0, s1, s2, s3 kernel.Value
-	_ = []kernel.Value{s0, s1, s2, s3}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l0 = recv
-	s1 = l0
-	s1, exc = genrt.GetFieldChecked(thr, s1, "hits", "I")
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "hits", "I")
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
-	return s2, nil
+	return s1, nil
+	return nil, nil // unreachable terminal
 }
 func init() {
 	installTable = append(installTable,
@@ -2809,6 +2871,12039 @@ func init() {
 			cls, name, desc string
 			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
 		}{"app/Helper", "hits", "()I", Catty_app_Helper_hits____I})
+}
+
+// com/eclipsesource/json/Json.<init>
+func Catty_com_eclipsesource_json_Json_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/Json", "<init>", "()V", Catty_com_eclipsesource_json_Json_init____V})
+}
+
+// com/eclipsesource/json/Json.value
+func Catty_com_eclipsesource_json_Json_value___I_Lcom_eclipsesource_json_JsonValue_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = genrt.New("com/eclipsesource/json/JsonNumber")
+	s1 = s0
+	s2 = l0
+	s3 = int32(10)
+	s2, exc = genrt.CallStatic(thr, "java/lang/Integer", "toString", "(II)Ljava/lang/String;", []kernel.Value{s2, s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonNumber", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/Json", "value", "(I)Lcom/eclipsesource/json/JsonValue;", Catty_com_eclipsesource_json_Json_value___I_Lcom_eclipsesource_json_JsonValue_})
+}
+
+// com/eclipsesource/json/Json.value
+func Catty_com_eclipsesource_json_Json_value___J_Lcom_eclipsesource_json_JsonValue_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3, s4, s5 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = genrt.New("com/eclipsesource/json/JsonNumber")
+	s1 = s0
+	s2 = l0
+	s4 = int32(10)
+	s2, exc = genrt.CallStatic(thr, "java/lang/Long", "toString", "(JI)Ljava/lang/String;", []kernel.Value{s2, s4})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonNumber", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/Json", "value", "(J)Lcom/eclipsesource/json/JsonValue;", Catty_com_eclipsesource_json_Json_value___J_Lcom_eclipsesource_json_JsonValue_})
+}
+
+// com/eclipsesource/json/Json.value
+func Catty_com_eclipsesource_json_Json_value___F_Lcom_eclipsesource_json_JsonValue_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	s0, exc = genrt.CallStatic(thr, "java/lang/Float", "isInfinite", "(F)Z", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) != 0 {
+		goto L14
+	}
+	s0 = l0
+	s0, exc = genrt.CallStatic(thr, "java/lang/Float", "isNaN", "(F)Z", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) == 0 {
+		goto L24
+	}
+L14:
+	s0 = genrt.New("java/lang/IllegalArgumentException")
+	s1 = s0
+	s2 = genrt.Str("Infinite and NaN values not permitted in JSON")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L24:
+	s0 = genrt.New("com/eclipsesource/json/JsonNumber")
+	s1 = s0
+	s2 = l0
+	s2, exc = genrt.CallStatic(thr, "java/lang/Float", "toString", "(F)Ljava/lang/String;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "cutOffPointZero", "(Ljava/lang/String;)Ljava/lang/String;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonNumber", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/Json", "value", "(F)Lcom/eclipsesource/json/JsonValue;", Catty_com_eclipsesource_json_Json_value___F_Lcom_eclipsesource_json_JsonValue_})
+}
+
+// com/eclipsesource/json/Json.value
+func Catty_com_eclipsesource_json_Json_value___D_Lcom_eclipsesource_json_JsonValue_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	s0, exc = genrt.CallStatic(thr, "java/lang/Double", "isInfinite", "(D)Z", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) != 0 {
+		goto L14
+	}
+	s0 = l0
+	s0, exc = genrt.CallStatic(thr, "java/lang/Double", "isNaN", "(D)Z", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) == 0 {
+		goto L24
+	}
+L14:
+	s0 = genrt.New("java/lang/IllegalArgumentException")
+	s1 = s0
+	s2 = genrt.Str("Infinite and NaN values not permitted in JSON")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L24:
+	s0 = genrt.New("com/eclipsesource/json/JsonNumber")
+	s1 = s0
+	s2 = l0
+	s2, exc = genrt.CallStatic(thr, "java/lang/Double", "toString", "(D)Ljava/lang/String;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "cutOffPointZero", "(Ljava/lang/String;)Ljava/lang/String;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonNumber", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/Json", "value", "(D)Lcom/eclipsesource/json/JsonValue;", Catty_com_eclipsesource_json_Json_value___D_Lcom_eclipsesource_json_JsonValue_})
+}
+
+// com/eclipsesource/json/Json.value
+func Catty_com_eclipsesource_json_Json_value___Ljava_lang_String__Lcom_eclipsesource_json_JsonValue_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	if (s0 == nil) == false {
+		goto L10
+	}
+	s0 = genrt.GetStatic(thr, "com/eclipsesource/json/Json", "NULL", "Lcom/eclipsesource/json/JsonValue;")
+	goto L18
+L10:
+	s0 = genrt.New("com/eclipsesource/json/JsonString")
+	s1 = s0
+	s2 = l0
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonString", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L18:
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/Json", "value", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", Catty_com_eclipsesource_json_Json_value___Ljava_lang_String__Lcom_eclipsesource_json_JsonValue_})
+}
+
+// com/eclipsesource/json/Json.value
+func Catty_com_eclipsesource_json_Json_value___Z_Lcom_eclipsesource_json_JsonValue_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	if s0.(int32) == 0 {
+		goto L10
+	}
+	s0 = genrt.GetStatic(thr, "com/eclipsesource/json/Json", "TRUE", "Lcom/eclipsesource/json/JsonValue;")
+	goto L13
+L10:
+	s0 = genrt.GetStatic(thr, "com/eclipsesource/json/Json", "FALSE", "Lcom/eclipsesource/json/JsonValue;")
+L13:
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/Json", "value", "(Z)Lcom/eclipsesource/json/JsonValue;", Catty_com_eclipsesource_json_Json_value___Z_Lcom_eclipsesource_json_JsonValue_})
+}
+
+// com/eclipsesource/json/Json.array
+func Catty_com_eclipsesource_json_Json_array____Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	s0 = genrt.New("com/eclipsesource/json/JsonArray")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonArray", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/Json", "array", "()Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_Json_array____Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/Json.array
+func Catty_com_eclipsesource_json_Json_array___AI_Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3, l4, l5 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3, l4, l5}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	if (s0 == nil) == false {
+		goto L14
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("values is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L14:
+	s0 = genrt.New("com/eclipsesource/json/JsonArray")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonArray", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s0
+	s0 = l0
+	l2 = s0
+	s0 = l2
+	s0 = genrt.ArrayLength(s0)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l3 = s0
+	s0 = int32(0)
+	l4 = s0
+L30:
+	s0 = l4
+	s1 = l3
+	if s0.(int32) >= s1.(int32) {
+		goto L55
+	}
+	s0 = l2
+	s1 = l4
+	s0, exc = genrt.ALoadChecked(s0, s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l5 = s0
+	s0 = l1
+	s1 = l5
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonArray", "add", "(I)Lcom/eclipsesource/json/JsonArray;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l4 = l4.(int32) + 1
+	goto L30
+L55:
+	s0 = l1
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/Json", "array", "([I)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_Json_array___AI_Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/Json.array
+func Catty_com_eclipsesource_json_Json_array___AJ_Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3, l4, l5, l6 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3, l4, l5, l6}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	if (s0 == nil) == false {
+		goto L14
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("values is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L14:
+	s0 = genrt.New("com/eclipsesource/json/JsonArray")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonArray", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s0
+	s0 = l0
+	l2 = s0
+	s0 = l2
+	s0 = genrt.ArrayLength(s0)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l3 = s0
+	s0 = int32(0)
+	l4 = s0
+L30:
+	s0 = l4
+	s1 = l3
+	if s0.(int32) >= s1.(int32) {
+		goto L55
+	}
+	s0 = l2
+	s1 = l4
+	s0, exc = genrt.ALoadChecked(s0, s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l5 = s0
+	s0 = l1
+	s1 = l5
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonArray", "add", "(J)Lcom/eclipsesource/json/JsonArray;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l4 = l4.(int32) + 1
+	goto L30
+L55:
+	s0 = l1
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/Json", "array", "([J)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_Json_array___AJ_Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/Json.array
+func Catty_com_eclipsesource_json_Json_array___AF_Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3, l4, l5 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3, l4, l5}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	if (s0 == nil) == false {
+		goto L14
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("values is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L14:
+	s0 = genrt.New("com/eclipsesource/json/JsonArray")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonArray", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s0
+	s0 = l0
+	l2 = s0
+	s0 = l2
+	s0 = genrt.ArrayLength(s0)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l3 = s0
+	s0 = int32(0)
+	l4 = s0
+L30:
+	s0 = l4
+	s1 = l3
+	if s0.(int32) >= s1.(int32) {
+		goto L55
+	}
+	s0 = l2
+	s1 = l4
+	s0, exc = genrt.ALoadChecked(s0, s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l5 = s0
+	s0 = l1
+	s1 = l5
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonArray", "add", "(F)Lcom/eclipsesource/json/JsonArray;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l4 = l4.(int32) + 1
+	goto L30
+L55:
+	s0 = l1
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/Json", "array", "([F)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_Json_array___AF_Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/Json.array
+func Catty_com_eclipsesource_json_Json_array___AD_Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3, l4, l5, l6 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3, l4, l5, l6}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	if (s0 == nil) == false {
+		goto L14
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("values is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L14:
+	s0 = genrt.New("com/eclipsesource/json/JsonArray")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonArray", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s0
+	s0 = l0
+	l2 = s0
+	s0 = l2
+	s0 = genrt.ArrayLength(s0)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l3 = s0
+	s0 = int32(0)
+	l4 = s0
+L30:
+	s0 = l4
+	s1 = l3
+	if s0.(int32) >= s1.(int32) {
+		goto L55
+	}
+	s0 = l2
+	s1 = l4
+	s0, exc = genrt.ALoadChecked(s0, s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l5 = s0
+	s0 = l1
+	s1 = l5
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonArray", "add", "(D)Lcom/eclipsesource/json/JsonArray;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l4 = l4.(int32) + 1
+	goto L30
+L55:
+	s0 = l1
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/Json", "array", "([D)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_Json_array___AD_Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/Json.array
+func Catty_com_eclipsesource_json_Json_array___AZ_Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3, l4, l5 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3, l4, l5}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	if (s0 == nil) == false {
+		goto L14
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("values is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L14:
+	s0 = genrt.New("com/eclipsesource/json/JsonArray")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonArray", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s0
+	s0 = l0
+	l2 = s0
+	s0 = l2
+	s0 = genrt.ArrayLength(s0)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l3 = s0
+	s0 = int32(0)
+	l4 = s0
+L30:
+	s0 = l4
+	s1 = l3
+	if s0.(int32) >= s1.(int32) {
+		goto L55
+	}
+	s0 = l2
+	s1 = l4
+	s0, exc = genrt.ALoadChecked(s0, s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = int32(int8(s0.(int32)))
+	l5 = s0
+	s0 = l1
+	s1 = l5
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonArray", "add", "(Z)Lcom/eclipsesource/json/JsonArray;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l4 = l4.(int32) + 1
+	goto L30
+L55:
+	s0 = l1
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/Json", "array", "([Z)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_Json_array___AZ_Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/Json.array
+func Catty_com_eclipsesource_json_Json_array___ALjava_lang_String__Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3, l4, l5 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3, l4, l5}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	if (s0 == nil) == false {
+		goto L14
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("values is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L14:
+	s0 = genrt.New("com/eclipsesource/json/JsonArray")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonArray", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s0
+	s0 = l0
+	l2 = s0
+	s0 = l2
+	s0 = genrt.ArrayLength(s0)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l3 = s0
+	s0 = int32(0)
+	l4 = s0
+L30:
+	s0 = l4
+	s1 = l3
+	if s0.(int32) >= s1.(int32) {
+		goto L55
+	}
+	s0 = l2
+	s1 = l4
+	s0, exc = genrt.ALoadChecked(s0, s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l5 = s0
+	s0 = l1
+	s1 = l5
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonArray", "add", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonArray;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l4 = l4.(int32) + 1
+	goto L30
+L55:
+	s0 = l1
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/Json", "array", "([Ljava/lang/String;)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_Json_array___ALjava_lang_String__Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/Json.object
+func Catty_com_eclipsesource_json_Json_object____Lcom_eclipsesource_json_JsonObject_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	s0 = genrt.New("com/eclipsesource/json/JsonObject")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonObject", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/Json", "object", "()Lcom/eclipsesource/json/JsonObject;", Catty_com_eclipsesource_json_Json_object____Lcom_eclipsesource_json_JsonObject_})
+}
+
+// com/eclipsesource/json/Json.parse
+func Catty_com_eclipsesource_json_Json_parse___Ljava_lang_String__Lcom_eclipsesource_json_JsonValue_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	if (s0 == nil) == false {
+		goto L14
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("string is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L14:
+	s0 = genrt.New("com/eclipsesource/json/Json$DefaultHandler")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/Json$DefaultHandler", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s0
+	s0 = genrt.New("com/eclipsesource/json/JsonParser")
+	s1 = s0
+	s2 = l1
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "<init>", "(Lcom/eclipsesource/json/JsonHandler;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	_, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonParser", "parse", "(Ljava/lang/String;)V", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l1
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/Json$DefaultHandler", "getValue", "()Lcom/eclipsesource/json/JsonValue;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/Json", "parse", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", Catty_com_eclipsesource_json_Json_parse___Ljava_lang_String__Lcom_eclipsesource_json_JsonValue_})
+}
+
+// com/eclipsesource/json/Json.parse
+func Catty_com_eclipsesource_json_Json_parse___Ljava_io_Reader__Lcom_eclipsesource_json_JsonValue_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	if (s0 == nil) == false {
+		goto L14
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("reader is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L14:
+	s0 = genrt.New("com/eclipsesource/json/Json$DefaultHandler")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/Json$DefaultHandler", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s0
+	s0 = genrt.New("com/eclipsesource/json/JsonParser")
+	s1 = s0
+	s2 = l1
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "<init>", "(Lcom/eclipsesource/json/JsonHandler;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	_, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonParser", "parse", "(Ljava/io/Reader;)V", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l1
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/Json$DefaultHandler", "getValue", "()Lcom/eclipsesource/json/JsonValue;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/Json", "parse", "(Ljava/io/Reader;)Lcom/eclipsesource/json/JsonValue;", Catty_com_eclipsesource_json_Json_parse___Ljava_io_Reader__Lcom_eclipsesource_json_JsonValue_})
+}
+
+// com/eclipsesource/json/Json.cutOffPointZero
+func Catty_com_eclipsesource_json_Json_cutOffPointZero___Ljava_lang_String__Ljava_lang_String_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	s1 = genrt.Str(".0")
+	s0, exc = genrt.CallVirtual(thr, s0, "java/lang/String", "endsWith", "(Ljava/lang/String;)Z", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) == 0 {
+		goto L21
+	}
+	s0 = l0
+	s1 = int32(0)
+	s2 = l0
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/String", "length", "()I", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = int32(2)
+	s2 = (s2.(int32)) - (s3.(int32))
+	s0, exc = genrt.CallVirtual(thr, s0, "java/lang/String", "substring", "(II)Ljava/lang/String;", []kernel.Value{s1, s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+L21:
+	s0 = l0
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/Json", "cutOffPointZero", "(Ljava/lang/String;)Ljava/lang/String;", Catty_com_eclipsesource_json_Json_cutOffPointZero___Ljava_lang_String__Ljava_lang_String_})
+}
+
+// com/eclipsesource/json/JsonArray.<init>
+func Catty_com_eclipsesource_json_JsonArray_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonValue", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = genrt.New("java/util/ArrayList")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/util/ArrayList", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = genrt.SetFieldChecked(thr, s0, "values", "Ljava/util/List;", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "<init>", "()V", Catty_com_eclipsesource_json_JsonArray_init____V})
+}
+
+// com/eclipsesource/json/JsonArray.<init>
+func Catty_com_eclipsesource_json_JsonArray_init___Lcom_eclipsesource_json_JsonArray__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s1 = l1
+	s2 = int32(0)
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonArray", "<init>", "(Lcom/eclipsesource/json/JsonArray;Z)V", []kernel.Value{s1, s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "<init>", "(Lcom/eclipsesource/json/JsonArray;)V", Catty_com_eclipsesource_json_JsonArray_init___Lcom_eclipsesource_json_JsonArray__V})
+}
+
+// com/eclipsesource/json/JsonArray.<init>
+func Catty_com_eclipsesource_json_JsonArray_init___Lcom_eclipsesource_json_JsonArray_Z_V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4, s5 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonValue", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l1
+	if (s0 == nil) == false {
+		goto L18
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("array is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L18:
+	s0 = l2
+	if s0.(int32) == 0 {
+		goto L36
+	}
+	s0 = l0
+	s1 = l1
+	s1, exc = genrt.GetFieldChecked(thr, s1, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallStatic(thr, "java/util/Collections", "unmodifiableList", "(Ljava/util/List;)Ljava/util/List;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = genrt.SetFieldChecked(thr, s1, "values", "Ljava/util/List;", s2)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L51
+L36:
+	s0 = l0
+	s1 = genrt.New("java/util/ArrayList")
+	s2 = s1
+	s3 = l1
+	s3, exc = genrt.GetFieldChecked(thr, s3, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallSpecial(thr, s3, "java/util/ArrayList", "<init>", "(Ljava/util/Collection;)V", []kernel.Value{s4})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = genrt.SetFieldChecked(thr, s1, "values", "Ljava/util/List;", s2)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L51:
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "<init>", "(Lcom/eclipsesource/json/JsonArray;Z)V", Catty_com_eclipsesource_json_JsonArray_init___Lcom_eclipsesource_json_JsonArray_Z_V})
+}
+
+// com/eclipsesource/json/JsonArray.readFrom
+func Catty_com_eclipsesource_json_JsonArray_readFrom___Ljava_io_Reader__Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/JsonValue", "readFrom", "(Ljava/io/Reader;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonValue", "asArray", "()Lcom/eclipsesource/json/JsonArray;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "readFrom", "(Ljava/io/Reader;)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_JsonArray_readFrom___Ljava_io_Reader__Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/JsonArray.readFrom
+func Catty_com_eclipsesource_json_JsonArray_readFrom___Ljava_lang_String__Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/JsonValue", "readFrom", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonValue", "asArray", "()Lcom/eclipsesource/json/JsonArray;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "readFrom", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_JsonArray_readFrom___Ljava_lang_String__Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/JsonArray.unmodifiableArray
+func Catty_com_eclipsesource_json_JsonArray_unmodifiableArray___Lcom_eclipsesource_json_JsonArray__Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = genrt.New("com/eclipsesource/json/JsonArray")
+	s1 = s0
+	s2 = l0
+	s3 = int32(1)
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonArray", "<init>", "(Lcom/eclipsesource/json/JsonArray;Z)V", []kernel.Value{s2, s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "unmodifiableArray", "(Lcom/eclipsesource/json/JsonArray;)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_JsonArray_unmodifiableArray___Lcom_eclipsesource_json_JsonArray__Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/JsonArray.add
+func Catty_com_eclipsesource_json_JsonArray_add___I_Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s2, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(I)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "add", "(Ljava/lang/Object;)Z", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "add", "(I)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_JsonArray_add___I_Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/JsonArray.add
+func Catty_com_eclipsesource_json_JsonArray_add___J_Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s2, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(J)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "add", "(Ljava/lang/Object;)Z", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "add", "(J)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_JsonArray_add___J_Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/JsonArray.add
+func Catty_com_eclipsesource_json_JsonArray_add___F_Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s2, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(F)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "add", "(Ljava/lang/Object;)Z", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "add", "(F)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_JsonArray_add___F_Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/JsonArray.add
+func Catty_com_eclipsesource_json_JsonArray_add___D_Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s2, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(D)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "add", "(Ljava/lang/Object;)Z", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "add", "(D)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_JsonArray_add___D_Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/JsonArray.add
+func Catty_com_eclipsesource_json_JsonArray_add___Z_Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s2, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(Z)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "add", "(Ljava/lang/Object;)Z", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "add", "(Z)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_JsonArray_add___Z_Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/JsonArray.add
+func Catty_com_eclipsesource_json_JsonArray_add___Ljava_lang_String__Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s2, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "add", "(Ljava/lang/Object;)Z", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "add", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_JsonArray_add___Ljava_lang_String__Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/JsonArray.add
+func Catty_com_eclipsesource_json_JsonArray_add___Lcom_eclipsesource_json_JsonValue__Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l1
+	if (s0 == nil) == false {
+		goto L14
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("value is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L14:
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "add", "(Ljava/lang/Object;)Z", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "add", "(Lcom/eclipsesource/json/JsonValue;)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_JsonArray_add___Lcom_eclipsesource_json_JsonValue__Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/JsonArray.set
+func Catty_com_eclipsesource_json_JsonArray_set___II_Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s3 = l2
+	s3, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(I)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "set", "(ILjava/lang/Object;)Ljava/lang/Object;", []kernel.Value{s2, s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "set", "(II)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_JsonArray_set___II_Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/JsonArray.set
+func Catty_com_eclipsesource_json_JsonArray_set___IJ_Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2, s3, s4, s5 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s3 = l2
+	s3, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(J)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "set", "(ILjava/lang/Object;)Ljava/lang/Object;", []kernel.Value{s2, s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "set", "(IJ)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_JsonArray_set___IJ_Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/JsonArray.set
+func Catty_com_eclipsesource_json_JsonArray_set___IF_Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s3 = l2
+	s3, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(F)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "set", "(ILjava/lang/Object;)Ljava/lang/Object;", []kernel.Value{s2, s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "set", "(IF)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_JsonArray_set___IF_Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/JsonArray.set
+func Catty_com_eclipsesource_json_JsonArray_set___ID_Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2, s3, s4, s5 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s3 = l2
+	s3, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(D)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "set", "(ILjava/lang/Object;)Ljava/lang/Object;", []kernel.Value{s2, s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "set", "(ID)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_JsonArray_set___ID_Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/JsonArray.set
+func Catty_com_eclipsesource_json_JsonArray_set___IZ_Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s3 = l2
+	s3, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(Z)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "set", "(ILjava/lang/Object;)Ljava/lang/Object;", []kernel.Value{s2, s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "set", "(IZ)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_JsonArray_set___IZ_Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/JsonArray.set
+func Catty_com_eclipsesource_json_JsonArray_set___ILjava_lang_String__Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s3 = l2
+	s3, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "set", "(ILjava/lang/Object;)Ljava/lang/Object;", []kernel.Value{s2, s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "set", "(ILjava/lang/String;)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_JsonArray_set___ILjava_lang_String__Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/JsonArray.set
+func Catty_com_eclipsesource_json_JsonArray_set___ILcom_eclipsesource_json_JsonValue__Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l2
+	if (s0 == nil) == false {
+		goto L14
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("value is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L14:
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s3 = l2
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "set", "(ILjava/lang/Object;)Ljava/lang/Object;", []kernel.Value{s2, s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "set", "(ILcom/eclipsesource/json/JsonValue;)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_JsonArray_set___ILcom_eclipsesource_json_JsonValue__Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/JsonArray.remove
+func Catty_com_eclipsesource_json_JsonArray_remove___I_Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "remove", "(I)Ljava/lang/Object;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "remove", "(I)Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_JsonArray_remove___I_Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/JsonArray.size
+func Catty_com_eclipsesource_json_JsonArray_size____I(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "size", "()I", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "size", "()I", Catty_com_eclipsesource_json_JsonArray_size____I})
+}
+
+// com/eclipsesource/json/JsonArray.isEmpty
+func Catty_com_eclipsesource_json_JsonArray_isEmpty____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "isEmpty", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "isEmpty", "()Z", Catty_com_eclipsesource_json_JsonArray_isEmpty____Z})
+}
+
+// com/eclipsesource/json/JsonArray.get
+func Catty_com_eclipsesource_json_JsonArray_get___I_Lcom_eclipsesource_json_JsonValue_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "get", "(I)Ljava/lang/Object;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = genrt.CheckCast(thr, s1, "com/eclipsesource/json/JsonValue")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "get", "(I)Lcom/eclipsesource/json/JsonValue;", Catty_com_eclipsesource_json_JsonArray_get___I_Lcom_eclipsesource_json_JsonValue_})
+}
+
+// com/eclipsesource/json/JsonArray.values
+func Catty_com_eclipsesource_json_JsonArray_values____Ljava_util_List_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallStatic(thr, "java/util/Collections", "unmodifiableList", "(Ljava/util/List;)Ljava/util/List;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "values", "()Ljava/util/List;", Catty_com_eclipsesource_json_JsonArray_values____Ljava_util_List_})
+}
+
+// com/eclipsesource/json/JsonArray.iterator
+func Catty_com_eclipsesource_json_JsonArray_iterator____Ljava_util_Iterator_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3, s4, s5 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "iterator", "()Ljava/util/Iterator;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s1
+	s1 = genrt.New("com/eclipsesource/json/JsonArray$1")
+	s2 = s1
+	s3 = l0
+	s4 = l1
+	_, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonArray$1", "<init>", "(Lcom/eclipsesource/json/JsonArray;Ljava/util/Iterator;)V", []kernel.Value{s3, s4})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "iterator", "()Ljava/util/Iterator;", Catty_com_eclipsesource_json_JsonArray_iterator____Ljava_util_Iterator_})
+}
+
+// com/eclipsesource/json/JsonArray.write
+func Catty_com_eclipsesource_json_JsonArray_write___Lcom_eclipsesource_json_JsonWriter__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l1
+	_, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonWriter", "writeArrayOpen", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonArray", "iterator", "()Ljava/util/Iterator;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s0
+	s0 = l2
+	s0, exc = genrt.CallInterface(thr, s0, "java/util/Iterator", "hasNext", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) == 0 {
+		goto L60
+	}
+	s0 = l2
+	s0, exc = genrt.CallInterface(thr, s0, "java/util/Iterator", "next", "()Ljava/lang/Object;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.CheckCast(thr, s0, "com/eclipsesource/json/JsonValue")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l1
+	_, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonValue", "write", "(Lcom/eclipsesource/json/JsonWriter;)V", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L31:
+	s0 = l2
+	s0, exc = genrt.CallInterface(thr, s0, "java/util/Iterator", "hasNext", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) == 0 {
+		goto L60
+	}
+	s0 = l1
+	_, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonWriter", "writeArraySeparator", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l2
+	s0, exc = genrt.CallInterface(thr, s0, "java/util/Iterator", "next", "()Ljava/lang/Object;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.CheckCast(thr, s0, "com/eclipsesource/json/JsonValue")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l1
+	_, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonValue", "write", "(Lcom/eclipsesource/json/JsonWriter;)V", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L31
+L60:
+	s0 = l1
+	_, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonWriter", "writeArrayClose", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "write", "(Lcom/eclipsesource/json/JsonWriter;)V", Catty_com_eclipsesource_json_JsonArray_write___Lcom_eclipsesource_json_JsonWriter__V})
+}
+
+// com/eclipsesource/json/JsonArray.isArray
+func Catty_com_eclipsesource_json_JsonArray_isArray____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = int32(1)
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "isArray", "()Z", Catty_com_eclipsesource_json_JsonArray_isArray____Z})
+}
+
+// com/eclipsesource/json/JsonArray.asArray
+func Catty_com_eclipsesource_json_JsonArray_asArray____Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "asArray", "()Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_JsonArray_asArray____Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/JsonArray.hashCode
+func Catty_com_eclipsesource_json_JsonArray_hashCode____I(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "hashCode", "()I", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "hashCode", "()I", Catty_com_eclipsesource_json_JsonArray_hashCode____I})
+}
+
+// com/eclipsesource/json/JsonArray.equals
+func Catty_com_eclipsesource_json_JsonArray_equals___Ljava_lang_Object__Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s1 = l1
+	if !genrt.RefEq(s0, s1) {
+		goto L7
+	}
+	s0 = int32(1)
+	return s0, nil
+L7:
+	s0 = l1
+	if (s0 == nil) == false {
+		goto L13
+	}
+	s0 = int32(0)
+	return s0, nil
+L13:
+	s0 = l0
+	s0, exc = genrt.CallVirtual(thr, s0, "java/lang/Object", "getClass", "()Ljava/lang/Class;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l1
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/Object", "getClass", "()Ljava/lang/Class;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if genrt.RefEq(s0, s1) {
+		goto L26
+	}
+	s0 = int32(0)
+	return s0, nil
+L26:
+	s0 = l1
+	s0 = genrt.CheckCast(thr, s0, "com/eclipsesource/json/JsonArray")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s0
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l2
+	s2, exc = genrt.GetFieldChecked(thr, s2, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallInterface(thr, s2, "java/util/List", "equals", "(Ljava/lang/Object;)Z", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s2, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonArray", "equals", "(Ljava/lang/Object;)Z", Catty_com_eclipsesource_json_JsonArray_equals___Ljava_lang_Object__Z})
+}
+
+// com/eclipsesource/json/JsonHandler.<init>
+func Catty_com_eclipsesource_json_JsonHandler_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonHandler", "<init>", "()V", Catty_com_eclipsesource_json_JsonHandler_init____V})
+}
+
+// com/eclipsesource/json/JsonHandler.getLocation
+func Catty_com_eclipsesource_json_JsonHandler_getLocation____Lcom_eclipsesource_json_Location_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "parser", "Lcom/eclipsesource/json/JsonParser;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "com/eclipsesource/json/JsonParser", "getLocation", "()Lcom/eclipsesource/json/Location;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonHandler", "getLocation", "()Lcom/eclipsesource/json/Location;", Catty_com_eclipsesource_json_JsonHandler_getLocation____Lcom_eclipsesource_json_Location_})
+}
+
+// com/eclipsesource/json/JsonHandler.startNull
+func Catty_com_eclipsesource_json_JsonHandler_startNull____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0 kernel.Value
+	_ = []kernel.Value{s0}
+	l0 = recv
+	l0 = recv
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonHandler", "startNull", "()V", Catty_com_eclipsesource_json_JsonHandler_startNull____V})
+}
+
+// com/eclipsesource/json/JsonHandler.endNull
+func Catty_com_eclipsesource_json_JsonHandler_endNull____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0 kernel.Value
+	_ = []kernel.Value{s0}
+	l0 = recv
+	l0 = recv
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonHandler", "endNull", "()V", Catty_com_eclipsesource_json_JsonHandler_endNull____V})
+}
+
+// com/eclipsesource/json/JsonHandler.startBoolean
+func Catty_com_eclipsesource_json_JsonHandler_startBoolean____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0 kernel.Value
+	_ = []kernel.Value{s0}
+	l0 = recv
+	l0 = recv
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonHandler", "startBoolean", "()V", Catty_com_eclipsesource_json_JsonHandler_startBoolean____V})
+}
+
+// com/eclipsesource/json/JsonHandler.endBoolean
+func Catty_com_eclipsesource_json_JsonHandler_endBoolean___Z_V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0 kernel.Value
+	_ = []kernel.Value{s0}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonHandler", "endBoolean", "(Z)V", Catty_com_eclipsesource_json_JsonHandler_endBoolean___Z_V})
+}
+
+// com/eclipsesource/json/JsonHandler.startString
+func Catty_com_eclipsesource_json_JsonHandler_startString____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0 kernel.Value
+	_ = []kernel.Value{s0}
+	l0 = recv
+	l0 = recv
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonHandler", "startString", "()V", Catty_com_eclipsesource_json_JsonHandler_startString____V})
+}
+
+// com/eclipsesource/json/JsonHandler.endString
+func Catty_com_eclipsesource_json_JsonHandler_endString___Ljava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0 kernel.Value
+	_ = []kernel.Value{s0}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonHandler", "endString", "(Ljava/lang/String;)V", Catty_com_eclipsesource_json_JsonHandler_endString___Ljava_lang_String__V})
+}
+
+// com/eclipsesource/json/JsonHandler.startNumber
+func Catty_com_eclipsesource_json_JsonHandler_startNumber____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0 kernel.Value
+	_ = []kernel.Value{s0}
+	l0 = recv
+	l0 = recv
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonHandler", "startNumber", "()V", Catty_com_eclipsesource_json_JsonHandler_startNumber____V})
+}
+
+// com/eclipsesource/json/JsonHandler.endNumber
+func Catty_com_eclipsesource_json_JsonHandler_endNumber___Ljava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0 kernel.Value
+	_ = []kernel.Value{s0}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonHandler", "endNumber", "(Ljava/lang/String;)V", Catty_com_eclipsesource_json_JsonHandler_endNumber___Ljava_lang_String__V})
+}
+
+// com/eclipsesource/json/JsonHandler.startArray
+func Catty_com_eclipsesource_json_JsonHandler_startArray____Ljava_lang_Object_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = nil
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonHandler", "startArray", "()Ljava/lang/Object;", Catty_com_eclipsesource_json_JsonHandler_startArray____Ljava_lang_Object_})
+}
+
+// com/eclipsesource/json/JsonHandler.endArray
+func Catty_com_eclipsesource_json_JsonHandler_endArray___Ljava_lang_Object__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0 kernel.Value
+	_ = []kernel.Value{s0}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonHandler", "endArray", "(Ljava/lang/Object;)V", Catty_com_eclipsesource_json_JsonHandler_endArray___Ljava_lang_Object__V})
+}
+
+// com/eclipsesource/json/JsonHandler.startArrayValue
+func Catty_com_eclipsesource_json_JsonHandler_startArrayValue___Ljava_lang_Object__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0 kernel.Value
+	_ = []kernel.Value{s0}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonHandler", "startArrayValue", "(Ljava/lang/Object;)V", Catty_com_eclipsesource_json_JsonHandler_startArrayValue___Ljava_lang_Object__V})
+}
+
+// com/eclipsesource/json/JsonHandler.endArrayValue
+func Catty_com_eclipsesource_json_JsonHandler_endArrayValue___Ljava_lang_Object__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0 kernel.Value
+	_ = []kernel.Value{s0}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonHandler", "endArrayValue", "(Ljava/lang/Object;)V", Catty_com_eclipsesource_json_JsonHandler_endArrayValue___Ljava_lang_Object__V})
+}
+
+// com/eclipsesource/json/JsonHandler.startObject
+func Catty_com_eclipsesource_json_JsonHandler_startObject____Ljava_lang_Object_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = nil
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonHandler", "startObject", "()Ljava/lang/Object;", Catty_com_eclipsesource_json_JsonHandler_startObject____Ljava_lang_Object_})
+}
+
+// com/eclipsesource/json/JsonHandler.endObject
+func Catty_com_eclipsesource_json_JsonHandler_endObject___Ljava_lang_Object__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0 kernel.Value
+	_ = []kernel.Value{s0}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonHandler", "endObject", "(Ljava/lang/Object;)V", Catty_com_eclipsesource_json_JsonHandler_endObject___Ljava_lang_Object__V})
+}
+
+// com/eclipsesource/json/JsonHandler.startObjectName
+func Catty_com_eclipsesource_json_JsonHandler_startObjectName___Ljava_lang_Object__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0 kernel.Value
+	_ = []kernel.Value{s0}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonHandler", "startObjectName", "(Ljava/lang/Object;)V", Catty_com_eclipsesource_json_JsonHandler_startObjectName___Ljava_lang_Object__V})
+}
+
+// com/eclipsesource/json/JsonHandler.endObjectName
+func Catty_com_eclipsesource_json_JsonHandler_endObjectName___Ljava_lang_Object_Ljava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0 kernel.Value
+	_ = []kernel.Value{s0}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonHandler", "endObjectName", "(Ljava/lang/Object;Ljava/lang/String;)V", Catty_com_eclipsesource_json_JsonHandler_endObjectName___Ljava_lang_Object_Ljava_lang_String__V})
+}
+
+// com/eclipsesource/json/JsonHandler.startObjectValue
+func Catty_com_eclipsesource_json_JsonHandler_startObjectValue___Ljava_lang_Object_Ljava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0 kernel.Value
+	_ = []kernel.Value{s0}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonHandler", "startObjectValue", "(Ljava/lang/Object;Ljava/lang/String;)V", Catty_com_eclipsesource_json_JsonHandler_startObjectValue___Ljava_lang_Object_Ljava_lang_String__V})
+}
+
+// com/eclipsesource/json/JsonHandler.endObjectValue
+func Catty_com_eclipsesource_json_JsonHandler_endObjectValue___Ljava_lang_Object_Ljava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0 kernel.Value
+	_ = []kernel.Value{s0}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonHandler", "endObjectValue", "(Ljava/lang/Object;Ljava/lang/String;)V", Catty_com_eclipsesource_json_JsonHandler_endObjectValue___Ljava_lang_Object_Ljava_lang_String__V})
+}
+
+// com/eclipsesource/json/JsonLiteral.<init>
+func Catty_com_eclipsesource_json_JsonLiteral_init___Ljava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonValue", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = l1
+	exc = genrt.SetFieldChecked(thr, s0, "value", "Ljava/lang/String;", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = genrt.Str("null")
+	s2 = l1
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = genrt.SetFieldChecked(thr, s0, "isNull", "Z", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = genrt.Str("true")
+	s2 = l1
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = genrt.SetFieldChecked(thr, s0, "isTrue", "Z", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = genrt.Str("false")
+	s2 = l1
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = genrt.SetFieldChecked(thr, s0, "isFalse", "Z", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonLiteral", "<init>", "(Ljava/lang/String;)V", Catty_com_eclipsesource_json_JsonLiteral_init___Ljava_lang_String__V})
+}
+
+// com/eclipsesource/json/JsonLiteral.write
+func Catty_com_eclipsesource_json_JsonLiteral_write___Lcom_eclipsesource_json_JsonWriter__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l1
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "value", "Ljava/lang/String;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s1, "com/eclipsesource/json/JsonWriter", "writeLiteral", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonLiteral", "write", "(Lcom/eclipsesource/json/JsonWriter;)V", Catty_com_eclipsesource_json_JsonLiteral_write___Lcom_eclipsesource_json_JsonWriter__V})
+}
+
+// com/eclipsesource/json/JsonLiteral.toString
+func Catty_com_eclipsesource_json_JsonLiteral_toString____Ljava_lang_String_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "value", "Ljava/lang/String;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonLiteral", "toString", "()Ljava/lang/String;", Catty_com_eclipsesource_json_JsonLiteral_toString____Ljava_lang_String_})
+}
+
+// com/eclipsesource/json/JsonLiteral.hashCode
+func Catty_com_eclipsesource_json_JsonLiteral_hashCode____I(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "value", "Ljava/lang/String;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/String", "hashCode", "()I", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonLiteral", "hashCode", "()I", Catty_com_eclipsesource_json_JsonLiteral_hashCode____I})
+}
+
+// com/eclipsesource/json/JsonLiteral.isNull
+func Catty_com_eclipsesource_json_JsonLiteral_isNull____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "isNull", "Z")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonLiteral", "isNull", "()Z", Catty_com_eclipsesource_json_JsonLiteral_isNull____Z})
+}
+
+// com/eclipsesource/json/JsonLiteral.isTrue
+func Catty_com_eclipsesource_json_JsonLiteral_isTrue____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "isTrue", "Z")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonLiteral", "isTrue", "()Z", Catty_com_eclipsesource_json_JsonLiteral_isTrue____Z})
+}
+
+// com/eclipsesource/json/JsonLiteral.isFalse
+func Catty_com_eclipsesource_json_JsonLiteral_isFalse____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "isFalse", "Z")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonLiteral", "isFalse", "()Z", Catty_com_eclipsesource_json_JsonLiteral_isFalse____Z})
+}
+
+// com/eclipsesource/json/JsonLiteral.isBoolean
+func Catty_com_eclipsesource_json_JsonLiteral_isBoolean____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "isTrue", "Z")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s1.(int32) != 0 {
+		goto L14
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "isFalse", "Z")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s2.(int32) == 0 {
+		goto L18
+	}
+L14:
+	s0 = int32(1)
+	goto L19
+L18:
+	s0 = int32(0)
+L19:
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonLiteral", "isBoolean", "()Z", Catty_com_eclipsesource_json_JsonLiteral_isBoolean____Z})
+}
+
+// com/eclipsesource/json/JsonLiteral.asBoolean
+func Catty_com_eclipsesource_json_JsonLiteral_asBoolean____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "isNull", "Z")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s1.(int32) == 0 {
+		goto L14
+	}
+	s1 = l0
+	s1, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonValue", "asBoolean", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L18
+L14:
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "isTrue", "Z")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L18:
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonLiteral", "asBoolean", "()Z", Catty_com_eclipsesource_json_JsonLiteral_asBoolean____Z})
+}
+
+// com/eclipsesource/json/JsonLiteral.equals
+func Catty_com_eclipsesource_json_JsonLiteral_equals___Ljava_lang_Object__Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s1 = l1
+	if !genrt.RefEq(s0, s1) {
+		goto L7
+	}
+	s0 = int32(1)
+	return s0, nil
+L7:
+	s0 = l1
+	if (s0 == nil) == false {
+		goto L13
+	}
+	s0 = int32(0)
+	return s0, nil
+L13:
+	s0 = l0
+	s0, exc = genrt.CallVirtual(thr, s0, "java/lang/Object", "getClass", "()Ljava/lang/Class;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l1
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/Object", "getClass", "()Ljava/lang/Class;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if genrt.RefEq(s0, s1) {
+		goto L26
+	}
+	s0 = int32(0)
+	return s0, nil
+L26:
+	s0 = l1
+	s0 = genrt.CheckCast(thr, s0, "com/eclipsesource/json/JsonLiteral")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s0
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "value", "Ljava/lang/String;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l2
+	s2, exc = genrt.GetFieldChecked(thr, s2, "value", "Ljava/lang/String;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s2, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonLiteral", "equals", "(Ljava/lang/Object;)Z", Catty_com_eclipsesource_json_JsonLiteral_equals___Ljava_lang_Object__Z})
+}
+
+// com/eclipsesource/json/JsonNumber.<init>
+func Catty_com_eclipsesource_json_JsonNumber_init___Ljava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonValue", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l1
+	if (s0 == nil) == false {
+		goto L18
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("string is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L18:
+	s0 = l0
+	s1 = l1
+	exc = genrt.SetFieldChecked(thr, s0, "string", "Ljava/lang/String;", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonNumber", "<init>", "(Ljava/lang/String;)V", Catty_com_eclipsesource_json_JsonNumber_init___Ljava_lang_String__V})
+}
+
+// com/eclipsesource/json/JsonNumber.toString
+func Catty_com_eclipsesource_json_JsonNumber_toString____Ljava_lang_String_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "string", "Ljava/lang/String;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonNumber", "toString", "()Ljava/lang/String;", Catty_com_eclipsesource_json_JsonNumber_toString____Ljava_lang_String_})
+}
+
+// com/eclipsesource/json/JsonNumber.write
+func Catty_com_eclipsesource_json_JsonNumber_write___Lcom_eclipsesource_json_JsonWriter__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l1
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "string", "Ljava/lang/String;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s1, "com/eclipsesource/json/JsonWriter", "writeNumber", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonNumber", "write", "(Lcom/eclipsesource/json/JsonWriter;)V", Catty_com_eclipsesource_json_JsonNumber_write___Lcom_eclipsesource_json_JsonWriter__V})
+}
+
+// com/eclipsesource/json/JsonNumber.isNumber
+func Catty_com_eclipsesource_json_JsonNumber_isNumber____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = int32(1)
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonNumber", "isNumber", "()Z", Catty_com_eclipsesource_json_JsonNumber_isNumber____Z})
+}
+
+// com/eclipsesource/json/JsonNumber.asInt
+func Catty_com_eclipsesource_json_JsonNumber_asInt____I(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "string", "Ljava/lang/String;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(10)
+	s1, exc = genrt.CallStatic(thr, "java/lang/Integer", "parseInt", "(Ljava/lang/String;I)I", []kernel.Value{s1, s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonNumber", "asInt", "()I", Catty_com_eclipsesource_json_JsonNumber_asInt____I})
+}
+
+// com/eclipsesource/json/JsonNumber.asLong
+func Catty_com_eclipsesource_json_JsonNumber_asLong____J(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "string", "Ljava/lang/String;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(10)
+	s1, exc = genrt.CallStatic(thr, "java/lang/Long", "parseLong", "(Ljava/lang/String;I)J", []kernel.Value{s1, s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonNumber", "asLong", "()J", Catty_com_eclipsesource_json_JsonNumber_asLong____J})
+}
+
+// com/eclipsesource/json/JsonNumber.asFloat
+func Catty_com_eclipsesource_json_JsonNumber_asFloat____F(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "string", "Ljava/lang/String;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallStatic(thr, "java/lang/Float", "parseFloat", "(Ljava/lang/String;)F", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonNumber", "asFloat", "()F", Catty_com_eclipsesource_json_JsonNumber_asFloat____F})
+}
+
+// com/eclipsesource/json/JsonNumber.asDouble
+func Catty_com_eclipsesource_json_JsonNumber_asDouble____D(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "string", "Ljava/lang/String;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallStatic(thr, "java/lang/Double", "parseDouble", "(Ljava/lang/String;)D", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s2, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonNumber", "asDouble", "()D", Catty_com_eclipsesource_json_JsonNumber_asDouble____D})
+}
+
+// com/eclipsesource/json/JsonNumber.hashCode
+func Catty_com_eclipsesource_json_JsonNumber_hashCode____I(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "string", "Ljava/lang/String;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/String", "hashCode", "()I", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonNumber", "hashCode", "()I", Catty_com_eclipsesource_json_JsonNumber_hashCode____I})
+}
+
+// com/eclipsesource/json/JsonNumber.equals
+func Catty_com_eclipsesource_json_JsonNumber_equals___Ljava_lang_Object__Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s1 = l1
+	if !genrt.RefEq(s0, s1) {
+		goto L7
+	}
+	s0 = int32(1)
+	return s0, nil
+L7:
+	s0 = l1
+	if (s0 == nil) == false {
+		goto L13
+	}
+	s0 = int32(0)
+	return s0, nil
+L13:
+	s0 = l0
+	s0, exc = genrt.CallVirtual(thr, s0, "java/lang/Object", "getClass", "()Ljava/lang/Class;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l1
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/Object", "getClass", "()Ljava/lang/Class;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if genrt.RefEq(s0, s1) {
+		goto L26
+	}
+	s0 = int32(0)
+	return s0, nil
+L26:
+	s0 = l1
+	s0 = genrt.CheckCast(thr, s0, "com/eclipsesource/json/JsonNumber")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s0
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "string", "Ljava/lang/String;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l2
+	s2, exc = genrt.GetFieldChecked(thr, s2, "string", "Ljava/lang/String;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s2, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonNumber", "equals", "(Ljava/lang/Object;)Z", Catty_com_eclipsesource_json_JsonNumber_equals___Ljava_lang_Object__Z})
+}
+
+// com/eclipsesource/json/JsonObject.<init>
+func Catty_com_eclipsesource_json_JsonObject_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonValue", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = genrt.New("java/util/ArrayList")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/util/ArrayList", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = genrt.SetFieldChecked(thr, s0, "names", "Ljava/util/List;", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = genrt.New("java/util/ArrayList")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/util/ArrayList", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = genrt.SetFieldChecked(thr, s0, "values", "Ljava/util/List;", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = genrt.New("com/eclipsesource/json/JsonObject$HashIndexTable")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonObject$HashIndexTable", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = genrt.SetFieldChecked(thr, s0, "table", "Lcom/eclipsesource/json/JsonObject$HashIndexTable;", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "<init>", "()V", Catty_com_eclipsesource_json_JsonObject_init____V})
+}
+
+// com/eclipsesource/json/JsonObject.<init>
+func Catty_com_eclipsesource_json_JsonObject_init___Lcom_eclipsesource_json_JsonObject__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s1 = l1
+	s2 = int32(0)
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonObject", "<init>", "(Lcom/eclipsesource/json/JsonObject;Z)V", []kernel.Value{s1, s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "<init>", "(Lcom/eclipsesource/json/JsonObject;)V", Catty_com_eclipsesource_json_JsonObject_init___Lcom_eclipsesource_json_JsonObject__V})
+}
+
+// com/eclipsesource/json/JsonObject.<init>
+func Catty_com_eclipsesource_json_JsonObject_init___Lcom_eclipsesource_json_JsonObject_Z_V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4, s5, s6 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonValue", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l1
+	if (s0 == nil) == false {
+		goto L18
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("object is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L18:
+	s0 = l2
+	if s0.(int32) == 0 {
+		goto L47
+	}
+	s0 = l0
+	s1 = l1
+	s1, exc = genrt.GetFieldChecked(thr, s1, "names", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallStatic(thr, "java/util/Collections", "unmodifiableList", "(Ljava/util/List;)Ljava/util/List;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = genrt.SetFieldChecked(thr, s1, "names", "Ljava/util/List;", s2)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s2 = l1
+	s2, exc = genrt.GetFieldChecked(thr, s2, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3, exc = genrt.CallStatic(thr, "java/util/Collections", "unmodifiableList", "(Ljava/util/List;)Ljava/util/List;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = genrt.SetFieldChecked(thr, s2, "values", "Ljava/util/List;", s3)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L77
+L47:
+	s0 = l0
+	s1 = genrt.New("java/util/ArrayList")
+	s2 = s1
+	s3 = l1
+	s3, exc = genrt.GetFieldChecked(thr, s3, "names", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallSpecial(thr, s3, "java/util/ArrayList", "<init>", "(Ljava/util/Collection;)V", []kernel.Value{s4})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = genrt.SetFieldChecked(thr, s1, "names", "Ljava/util/List;", s2)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s2 = genrt.New("java/util/ArrayList")
+	s3 = s2
+	s4 = l1
+	s4, exc = genrt.GetFieldChecked(thr, s4, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallSpecial(thr, s4, "java/util/ArrayList", "<init>", "(Ljava/util/Collection;)V", []kernel.Value{s5})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = genrt.SetFieldChecked(thr, s2, "values", "Ljava/util/List;", s3)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L77:
+	s0 = l0
+	s1 = genrt.New("com/eclipsesource/json/JsonObject$HashIndexTable")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonObject$HashIndexTable", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = genrt.SetFieldChecked(thr, s0, "table", "Lcom/eclipsesource/json/JsonObject$HashIndexTable;", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonObject", "updateHashIndex", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "<init>", "(Lcom/eclipsesource/json/JsonObject;Z)V", Catty_com_eclipsesource_json_JsonObject_init___Lcom_eclipsesource_json_JsonObject_Z_V})
+}
+
+// com/eclipsesource/json/JsonObject.readFrom
+func Catty_com_eclipsesource_json_JsonObject_readFrom___Ljava_io_Reader__Lcom_eclipsesource_json_JsonObject_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/JsonValue", "readFrom", "(Ljava/io/Reader;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonValue", "asObject", "()Lcom/eclipsesource/json/JsonObject;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "readFrom", "(Ljava/io/Reader;)Lcom/eclipsesource/json/JsonObject;", Catty_com_eclipsesource_json_JsonObject_readFrom___Ljava_io_Reader__Lcom_eclipsesource_json_JsonObject_})
+}
+
+// com/eclipsesource/json/JsonObject.readFrom
+func Catty_com_eclipsesource_json_JsonObject_readFrom___Ljava_lang_String__Lcom_eclipsesource_json_JsonObject_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/JsonValue", "readFrom", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonValue", "asObject", "()Lcom/eclipsesource/json/JsonObject;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "readFrom", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonObject;", Catty_com_eclipsesource_json_JsonObject_readFrom___Ljava_lang_String__Lcom_eclipsesource_json_JsonObject_})
+}
+
+// com/eclipsesource/json/JsonObject.unmodifiableObject
+func Catty_com_eclipsesource_json_JsonObject_unmodifiableObject___Lcom_eclipsesource_json_JsonObject__Lcom_eclipsesource_json_JsonObject_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = genrt.New("com/eclipsesource/json/JsonObject")
+	s1 = s0
+	s2 = l0
+	s3 = int32(1)
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonObject", "<init>", "(Lcom/eclipsesource/json/JsonObject;Z)V", []kernel.Value{s2, s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "unmodifiableObject", "(Lcom/eclipsesource/json/JsonObject;)Lcom/eclipsesource/json/JsonObject;", Catty_com_eclipsesource_json_JsonObject_unmodifiableObject___Lcom_eclipsesource_json_JsonObject__Lcom_eclipsesource_json_JsonObject_})
+}
+
+// com/eclipsesource/json/JsonObject.add
+func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_I_Lcom_eclipsesource_json_JsonObject_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s1 = l1
+	s2 = l2
+	s2, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(I)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "add", "(Ljava/lang/String;Lcom/eclipsesource/json/JsonValue;)Lcom/eclipsesource/json/JsonObject;", []kernel.Value{s1, s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "add", "(Ljava/lang/String;I)Lcom/eclipsesource/json/JsonObject;", Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_I_Lcom_eclipsesource_json_JsonObject_})
+}
+
+// com/eclipsesource/json/JsonObject.add
+func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_J_Lcom_eclipsesource_json_JsonObject_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s1 = l1
+	s2 = l2
+	s2, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(J)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "add", "(Ljava/lang/String;Lcom/eclipsesource/json/JsonValue;)Lcom/eclipsesource/json/JsonObject;", []kernel.Value{s1, s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "add", "(Ljava/lang/String;J)Lcom/eclipsesource/json/JsonObject;", Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_J_Lcom_eclipsesource_json_JsonObject_})
+}
+
+// com/eclipsesource/json/JsonObject.add
+func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_F_Lcom_eclipsesource_json_JsonObject_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s1 = l1
+	s2 = l2
+	s2, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(F)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "add", "(Ljava/lang/String;Lcom/eclipsesource/json/JsonValue;)Lcom/eclipsesource/json/JsonObject;", []kernel.Value{s1, s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "add", "(Ljava/lang/String;F)Lcom/eclipsesource/json/JsonObject;", Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_F_Lcom_eclipsesource_json_JsonObject_})
+}
+
+// com/eclipsesource/json/JsonObject.add
+func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_D_Lcom_eclipsesource_json_JsonObject_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s1 = l1
+	s2 = l2
+	s2, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(D)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "add", "(Ljava/lang/String;Lcom/eclipsesource/json/JsonValue;)Lcom/eclipsesource/json/JsonObject;", []kernel.Value{s1, s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "add", "(Ljava/lang/String;D)Lcom/eclipsesource/json/JsonObject;", Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_D_Lcom_eclipsesource_json_JsonObject_})
+}
+
+// com/eclipsesource/json/JsonObject.add
+func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_Z_Lcom_eclipsesource_json_JsonObject_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s1 = l1
+	s2 = l2
+	s2, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(Z)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "add", "(Ljava/lang/String;Lcom/eclipsesource/json/JsonValue;)Lcom/eclipsesource/json/JsonObject;", []kernel.Value{s1, s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "add", "(Ljava/lang/String;Z)Lcom/eclipsesource/json/JsonObject;", Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_Z_Lcom_eclipsesource_json_JsonObject_})
+}
+
+// com/eclipsesource/json/JsonObject.add
+func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_Ljava_lang_String__Lcom_eclipsesource_json_JsonObject_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s1 = l1
+	s2 = l2
+	s2, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "add", "(Ljava/lang/String;Lcom/eclipsesource/json/JsonValue;)Lcom/eclipsesource/json/JsonObject;", []kernel.Value{s1, s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "add", "(Ljava/lang/String;Ljava/lang/String;)Lcom/eclipsesource/json/JsonObject;", Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_Ljava_lang_String__Lcom_eclipsesource_json_JsonObject_})
+}
+
+// com/eclipsesource/json/JsonObject.add
+func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_Lcom_eclipsesource_json_JsonValue__Lcom_eclipsesource_json_JsonObject_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4, s5, s6 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l1
+	if (s0 == nil) == false {
+		goto L14
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("name is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L14:
+	s0 = l2
+	if (s0 == nil) == false {
+		goto L28
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("value is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L28:
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "table", "Lcom/eclipsesource/json/JsonObject$HashIndexTable;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s3 = l0
+	s3, exc = genrt.GetFieldChecked(thr, s3, "names", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4, exc = genrt.CallInterface(thr, s4, "java/util/List", "size", "()I", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonObject$HashIndexTable", "add", "(Ljava/lang/String;I)V", []kernel.Value{s3, s4})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "names", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = l1
+	s3, exc = genrt.CallInterface(thr, s3, "java/util/List", "add", "(Ljava/lang/Object;)Z", []kernel.Value{s4})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l0
+	s3, exc = genrt.GetFieldChecked(thr, s3, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s5 = l2
+	s4, exc = genrt.CallInterface(thr, s4, "java/util/List", "add", "(Ljava/lang/Object;)Z", []kernel.Value{s5})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = l0
+	return s4, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "add", "(Ljava/lang/String;Lcom/eclipsesource/json/JsonValue;)Lcom/eclipsesource/json/JsonObject;", Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_Lcom_eclipsesource_json_JsonValue__Lcom_eclipsesource_json_JsonObject_})
+}
+
+// com/eclipsesource/json/JsonObject.set
+func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_I_Lcom_eclipsesource_json_JsonObject_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s1 = l1
+	s2 = l2
+	s2, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(I)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "set", "(Ljava/lang/String;Lcom/eclipsesource/json/JsonValue;)Lcom/eclipsesource/json/JsonObject;", []kernel.Value{s1, s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "set", "(Ljava/lang/String;I)Lcom/eclipsesource/json/JsonObject;", Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_I_Lcom_eclipsesource_json_JsonObject_})
+}
+
+// com/eclipsesource/json/JsonObject.set
+func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_J_Lcom_eclipsesource_json_JsonObject_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s1 = l1
+	s2 = l2
+	s2, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(J)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "set", "(Ljava/lang/String;Lcom/eclipsesource/json/JsonValue;)Lcom/eclipsesource/json/JsonObject;", []kernel.Value{s1, s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "set", "(Ljava/lang/String;J)Lcom/eclipsesource/json/JsonObject;", Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_J_Lcom_eclipsesource_json_JsonObject_})
+}
+
+// com/eclipsesource/json/JsonObject.set
+func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_F_Lcom_eclipsesource_json_JsonObject_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s1 = l1
+	s2 = l2
+	s2, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(F)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "set", "(Ljava/lang/String;Lcom/eclipsesource/json/JsonValue;)Lcom/eclipsesource/json/JsonObject;", []kernel.Value{s1, s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "set", "(Ljava/lang/String;F)Lcom/eclipsesource/json/JsonObject;", Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_F_Lcom_eclipsesource_json_JsonObject_})
+}
+
+// com/eclipsesource/json/JsonObject.set
+func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_D_Lcom_eclipsesource_json_JsonObject_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s1 = l1
+	s2 = l2
+	s2, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(D)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "set", "(Ljava/lang/String;Lcom/eclipsesource/json/JsonValue;)Lcom/eclipsesource/json/JsonObject;", []kernel.Value{s1, s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "set", "(Ljava/lang/String;D)Lcom/eclipsesource/json/JsonObject;", Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_D_Lcom_eclipsesource_json_JsonObject_})
+}
+
+// com/eclipsesource/json/JsonObject.set
+func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_Z_Lcom_eclipsesource_json_JsonObject_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s1 = l1
+	s2 = l2
+	s2, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(Z)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "set", "(Ljava/lang/String;Lcom/eclipsesource/json/JsonValue;)Lcom/eclipsesource/json/JsonObject;", []kernel.Value{s1, s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "set", "(Ljava/lang/String;Z)Lcom/eclipsesource/json/JsonObject;", Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_Z_Lcom_eclipsesource_json_JsonObject_})
+}
+
+// com/eclipsesource/json/JsonObject.set
+func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_Ljava_lang_String__Lcom_eclipsesource_json_JsonObject_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s1 = l1
+	s2 = l2
+	s2, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "set", "(Ljava/lang/String;Lcom/eclipsesource/json/JsonValue;)Lcom/eclipsesource/json/JsonObject;", []kernel.Value{s1, s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "set", "(Ljava/lang/String;Ljava/lang/String;)Lcom/eclipsesource/json/JsonObject;", Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_Ljava_lang_String__Lcom_eclipsesource_json_JsonObject_})
+}
+
+// com/eclipsesource/json/JsonObject.set
+func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_Lcom_eclipsesource_json_JsonValue__Lcom_eclipsesource_json_JsonObject_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2, s3, s4, s5, s6 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l1
+	if (s0 == nil) == false {
+		goto L14
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("name is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L14:
+	s0 = l2
+	if (s0 == nil) == false {
+		goto L28
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("value is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L28:
+	s0 = l0
+	s1 = l1
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "indexOf", "(Ljava/lang/String;)I", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l3 = s0
+	s0 = l3
+	s1 = int32(-1)
+	if s0.(int32) == s1.(int32) {
+		goto L54
+	}
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l3
+	s3 = l2
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "set", "(ILjava/lang/Object;)Ljava/lang/Object;", []kernel.Value{s2, s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L93
+L54:
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "table", "Lcom/eclipsesource/json/JsonObject$HashIndexTable;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s3 = l0
+	s3, exc = genrt.GetFieldChecked(thr, s3, "names", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4, exc = genrt.CallInterface(thr, s4, "java/util/List", "size", "()I", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonObject$HashIndexTable", "add", "(Ljava/lang/String;I)V", []kernel.Value{s3, s4})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "names", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = l1
+	s3, exc = genrt.CallInterface(thr, s3, "java/util/List", "add", "(Ljava/lang/Object;)Z", []kernel.Value{s4})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l0
+	s3, exc = genrt.GetFieldChecked(thr, s3, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s5 = l2
+	s4, exc = genrt.CallInterface(thr, s4, "java/util/List", "add", "(Ljava/lang/Object;)Z", []kernel.Value{s5})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L93:
+	s0 = l0
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "set", "(Ljava/lang/String;Lcom/eclipsesource/json/JsonValue;)Lcom/eclipsesource/json/JsonObject;", Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_Lcom_eclipsesource_json_JsonValue__Lcom_eclipsesource_json_JsonObject_})
+}
+
+// com/eclipsesource/json/JsonObject.remove
+func Catty_com_eclipsesource_json_JsonObject_remove___Ljava_lang_String__Lcom_eclipsesource_json_JsonObject_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4, s5 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l1
+	if (s0 == nil) == false {
+		goto L14
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("name is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L14:
+	s0 = l0
+	s1 = l1
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "indexOf", "(Ljava/lang/String;)I", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s0
+	s0 = l2
+	s1 = int32(-1)
+	if s0.(int32) == s1.(int32) {
+		goto L55
+	}
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "table", "Lcom/eclipsesource/json/JsonObject$HashIndexTable;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l2
+	_, exc = genrt.CallVirtual(thr, s1, "com/eclipsesource/json/JsonObject$HashIndexTable", "remove", "(I)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "names", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l2
+	s2, exc = genrt.CallInterface(thr, s2, "java/util/List", "remove", "(I)Ljava/lang/Object;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = l2
+	s3, exc = genrt.CallInterface(thr, s3, "java/util/List", "remove", "(I)Ljava/lang/Object;", []kernel.Value{s4})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L55:
+	s0 = l0
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "remove", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonObject;", Catty_com_eclipsesource_json_JsonObject_remove___Ljava_lang_String__Lcom_eclipsesource_json_JsonObject_})
+}
+
+// com/eclipsesource/json/JsonObject.merge
+func Catty_com_eclipsesource_json_JsonObject_merge___Lcom_eclipsesource_json_JsonObject__Lcom_eclipsesource_json_JsonObject_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l1
+	if (s0 == nil) == false {
+		goto L14
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("object is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L14:
+	s0 = l1
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "iterator", "()Ljava/util/Iterator;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s0
+L19:
+	s0 = l2
+	s0, exc = genrt.CallInterface(thr, s0, "java/util/Iterator", "hasNext", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) == 0 {
+		goto L54
+	}
+	s0 = l2
+	s0, exc = genrt.CallInterface(thr, s0, "java/util/Iterator", "next", "()Ljava/lang/Object;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.CheckCast(thr, s0, "com/eclipsesource/json/JsonObject$Member")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l3 = s0
+	s0 = l0
+	s1 = l3
+	s1, exc = genrt.CallStatic(thr, "com/eclipsesource/json/JsonObject$Member", "access$000", "(Lcom/eclipsesource/json/JsonObject$Member;)Ljava/lang/String;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l3
+	s2, exc = genrt.CallStatic(thr, "com/eclipsesource/json/JsonObject$Member", "access$100", "(Lcom/eclipsesource/json/JsonObject$Member;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "set", "(Ljava/lang/String;Lcom/eclipsesource/json/JsonValue;)Lcom/eclipsesource/json/JsonObject;", []kernel.Value{s1, s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L19
+L54:
+	s0 = l0
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "merge", "(Lcom/eclipsesource/json/JsonObject;)Lcom/eclipsesource/json/JsonObject;", Catty_com_eclipsesource_json_JsonObject_merge___Lcom_eclipsesource_json_JsonObject__Lcom_eclipsesource_json_JsonObject_})
+}
+
+// com/eclipsesource/json/JsonObject.get
+func Catty_com_eclipsesource_json_JsonObject_get___Ljava_lang_String__Lcom_eclipsesource_json_JsonValue_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l1
+	if (s0 == nil) == false {
+		goto L14
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("name is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L14:
+	s0 = l0
+	s1 = l1
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "indexOf", "(Ljava/lang/String;)I", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s0
+	s0 = l2
+	s1 = int32(-1)
+	if s0.(int32) == s1.(int32) {
+		goto L41
+	}
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l2
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "get", "(I)Ljava/lang/Object;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = genrt.CheckCast(thr, s1, "com/eclipsesource/json/JsonValue")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L42
+L41:
+	s0 = nil
+L42:
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "get", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", Catty_com_eclipsesource_json_JsonObject_get___Ljava_lang_String__Lcom_eclipsesource_json_JsonValue_})
+}
+
+// com/eclipsesource/json/JsonObject.getInt
+func Catty_com_eclipsesource_json_JsonObject_getInt___Ljava_lang_String_I_I(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s1 = l1
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "get", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l3 = s0
+	s0 = l3
+	if (s0 == nil) == true {
+		goto L17
+	}
+	s0 = l3
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonValue", "asInt", "()I", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L18
+L17:
+	s0 = l2
+L18:
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "getInt", "(Ljava/lang/String;I)I", Catty_com_eclipsesource_json_JsonObject_getInt___Ljava_lang_String_I_I})
+}
+
+// com/eclipsesource/json/JsonObject.getLong
+func Catty_com_eclipsesource_json_JsonObject_getLong___Ljava_lang_String_J_J(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3, l4 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3, l4}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s1 = l1
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "get", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l4 = s0
+	s0 = l4
+	if (s0 == nil) == true {
+		goto L20
+	}
+	s0 = l4
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonValue", "asLong", "()J", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L21
+L20:
+	s0 = l2
+L21:
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "getLong", "(Ljava/lang/String;J)J", Catty_com_eclipsesource_json_JsonObject_getLong___Ljava_lang_String_J_J})
+}
+
+// com/eclipsesource/json/JsonObject.getFloat
+func Catty_com_eclipsesource_json_JsonObject_getFloat___Ljava_lang_String_F_F(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s1 = l1
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "get", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l3 = s0
+	s0 = l3
+	if (s0 == nil) == true {
+		goto L17
+	}
+	s0 = l3
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonValue", "asFloat", "()F", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L18
+L17:
+	s0 = l2
+L18:
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "getFloat", "(Ljava/lang/String;F)F", Catty_com_eclipsesource_json_JsonObject_getFloat___Ljava_lang_String_F_F})
+}
+
+// com/eclipsesource/json/JsonObject.getDouble
+func Catty_com_eclipsesource_json_JsonObject_getDouble___Ljava_lang_String_D_D(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3, l4 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3, l4}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s1 = l1
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "get", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l4 = s0
+	s0 = l4
+	if (s0 == nil) == true {
+		goto L20
+	}
+	s0 = l4
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonValue", "asDouble", "()D", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L21
+L20:
+	s0 = l2
+L21:
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "getDouble", "(Ljava/lang/String;D)D", Catty_com_eclipsesource_json_JsonObject_getDouble___Ljava_lang_String_D_D})
+}
+
+// com/eclipsesource/json/JsonObject.getBoolean
+func Catty_com_eclipsesource_json_JsonObject_getBoolean___Ljava_lang_String_Z_Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s1 = l1
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "get", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l3 = s0
+	s0 = l3
+	if (s0 == nil) == true {
+		goto L17
+	}
+	s0 = l3
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonValue", "asBoolean", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L18
+L17:
+	s0 = l2
+L18:
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "getBoolean", "(Ljava/lang/String;Z)Z", Catty_com_eclipsesource_json_JsonObject_getBoolean___Ljava_lang_String_Z_Z})
+}
+
+// com/eclipsesource/json/JsonObject.getString
+func Catty_com_eclipsesource_json_JsonObject_getString___Ljava_lang_String_Ljava_lang_String__Ljava_lang_String_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s1 = l1
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonObject", "get", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l3 = s0
+	s0 = l3
+	if (s0 == nil) == true {
+		goto L17
+	}
+	s0 = l3
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonValue", "asString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L18
+L17:
+	s0 = l2
+L18:
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "getString", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;", Catty_com_eclipsesource_json_JsonObject_getString___Ljava_lang_String_Ljava_lang_String__Ljava_lang_String_})
+}
+
+// com/eclipsesource/json/JsonObject.size
+func Catty_com_eclipsesource_json_JsonObject_size____I(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "names", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "size", "()I", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "size", "()I", Catty_com_eclipsesource_json_JsonObject_size____I})
+}
+
+// com/eclipsesource/json/JsonObject.isEmpty
+func Catty_com_eclipsesource_json_JsonObject_isEmpty____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "names", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "isEmpty", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "isEmpty", "()Z", Catty_com_eclipsesource_json_JsonObject_isEmpty____Z})
+}
+
+// com/eclipsesource/json/JsonObject.names
+func Catty_com_eclipsesource_json_JsonObject_names____Ljava_util_List_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "names", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallStatic(thr, "java/util/Collections", "unmodifiableList", "(Ljava/util/List;)Ljava/util/List;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "names", "()Ljava/util/List;", Catty_com_eclipsesource_json_JsonObject_names____Ljava_util_List_})
+}
+
+// com/eclipsesource/json/JsonObject.iterator
+func Catty_com_eclipsesource_json_JsonObject_iterator____Ljava_util_Iterator_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4, s5, s6, s7 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6, s7}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "names", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "iterator", "()Ljava/util/Iterator;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s1
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallInterface(thr, s2, "java/util/List", "iterator", "()Ljava/util/Iterator;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s2
+	s2 = genrt.New("com/eclipsesource/json/JsonObject$1")
+	s3 = s2
+	s4 = l0
+	s5 = l1
+	s6 = l2
+	_, exc = genrt.CallSpecial(thr, s3, "com/eclipsesource/json/JsonObject$1", "<init>", "(Lcom/eclipsesource/json/JsonObject;Ljava/util/Iterator;Ljava/util/Iterator;)V", []kernel.Value{s4, s5, s6})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s2, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "iterator", "()Ljava/util/Iterator;", Catty_com_eclipsesource_json_JsonObject_iterator____Ljava_util_Iterator_})
+}
+
+// com/eclipsesource/json/JsonObject.write
+func Catty_com_eclipsesource_json_JsonObject_write___Lcom_eclipsesource_json_JsonWriter__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l1
+	_, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonWriter", "writeObjectOpen", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "names", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "iterator", "()Ljava/util/Iterator;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s1
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallInterface(thr, s2, "java/util/List", "iterator", "()Ljava/util/Iterator;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l3 = s2
+	s2 = l2
+	s2, exc = genrt.CallInterface(thr, s2, "java/util/Iterator", "hasNext", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s2.(int32) == 0 {
+		goto L109
+	}
+	s2 = l1
+	s3 = l2
+	s3, exc = genrt.CallInterface(thr, s3, "java/util/Iterator", "next", "()Ljava/lang/Object;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = genrt.CheckCast(thr, s3, "java/lang/String")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonWriter", "writeMemberName", "(Ljava/lang/String;)V", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	_, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonWriter", "writeMemberSeparator", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l3
+	s2, exc = genrt.CallInterface(thr, s2, "java/util/Iterator", "next", "()Ljava/lang/Object;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.CheckCast(thr, s2, "com/eclipsesource/json/JsonValue")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l1
+	_, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonValue", "write", "(Lcom/eclipsesource/json/JsonWriter;)V", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L63:
+	s0 = l2
+	s0, exc = genrt.CallInterface(thr, s0, "java/util/Iterator", "hasNext", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) == 0 {
+		goto L109
+	}
+	s0 = l1
+	_, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonWriter", "writeObjectSeparator", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l1
+	s1 = l2
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/Iterator", "next", "()Ljava/lang/Object;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = genrt.CheckCast(thr, s1, "java/lang/String")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonWriter", "writeMemberName", "(Ljava/lang/String;)V", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l1
+	_, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonWriter", "writeMemberSeparator", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l3
+	s0, exc = genrt.CallInterface(thr, s0, "java/util/Iterator", "next", "()Ljava/lang/Object;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.CheckCast(thr, s0, "com/eclipsesource/json/JsonValue")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l1
+	_, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonValue", "write", "(Lcom/eclipsesource/json/JsonWriter;)V", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L63
+L109:
+	s0 = l1
+	_, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonWriter", "writeObjectClose", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "write", "(Lcom/eclipsesource/json/JsonWriter;)V", Catty_com_eclipsesource_json_JsonObject_write___Lcom_eclipsesource_json_JsonWriter__V})
+}
+
+// com/eclipsesource/json/JsonObject.isObject
+func Catty_com_eclipsesource_json_JsonObject_isObject____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = int32(1)
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "isObject", "()Z", Catty_com_eclipsesource_json_JsonObject_isObject____Z})
+}
+
+// com/eclipsesource/json/JsonObject.asObject
+func Catty_com_eclipsesource_json_JsonObject_asObject____Lcom_eclipsesource_json_JsonObject_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "asObject", "()Lcom/eclipsesource/json/JsonObject;", Catty_com_eclipsesource_json_JsonObject_asObject____Lcom_eclipsesource_json_JsonObject_})
+}
+
+// com/eclipsesource/json/JsonObject.hashCode
+func Catty_com_eclipsesource_json_JsonObject_hashCode____I(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l0 = recv
+	s0 = int32(1)
+	l1 = s0
+	s0 = int32(31)
+	s1 = l1
+	s0 = (s0.(int32)) * (s1.(int32))
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "names", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallInterface(thr, s2, "java/util/List", "hashCode", "()I", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = (s1.(int32)) + (s2.(int32))
+	l1 = s1
+	s1 = int32(31)
+	s2 = l1
+	s1 = (s1.(int32)) * (s2.(int32))
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3, exc = genrt.CallInterface(thr, s3, "java/util/List", "hashCode", "()I", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = (s2.(int32)) + (s3.(int32))
+	l1 = s2
+	s2 = l1
+	return s2, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "hashCode", "()I", Catty_com_eclipsesource_json_JsonObject_hashCode____I})
+}
+
+// com/eclipsesource/json/JsonObject.equals
+func Catty_com_eclipsesource_json_JsonObject_equals___Ljava_lang_Object__Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4, s5, s6 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s1 = l1
+	if !genrt.RefEq(s0, s1) {
+		goto L7
+	}
+	s0 = int32(1)
+	return s0, nil
+L7:
+	s0 = l1
+	if (s0 == nil) == false {
+		goto L13
+	}
+	s0 = int32(0)
+	return s0, nil
+L13:
+	s0 = l0
+	s0, exc = genrt.CallVirtual(thr, s0, "java/lang/Object", "getClass", "()Ljava/lang/Class;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l1
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/Object", "getClass", "()Ljava/lang/Class;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if genrt.RefEq(s0, s1) {
+		goto L26
+	}
+	s0 = int32(0)
+	return s0, nil
+L26:
+	s0 = l1
+	s0 = genrt.CheckCast(thr, s0, "com/eclipsesource/json/JsonObject")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s0
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "names", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l2
+	s2, exc = genrt.GetFieldChecked(thr, s2, "names", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallInterface(thr, s2, "java/util/List", "equals", "(Ljava/lang/Object;)Z", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s2.(int32) == 0 {
+		goto L67
+	}
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = l2
+	s4, exc = genrt.GetFieldChecked(thr, s4, "values", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4, exc = genrt.CallInterface(thr, s4, "java/util/List", "equals", "(Ljava/lang/Object;)Z", []kernel.Value{s5})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s4.(int32) == 0 {
+		goto L67
+	}
+	s4 = int32(1)
+	goto L68
+L67:
+	s0 = int32(0)
+L68:
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "equals", "(Ljava/lang/Object;)Z", Catty_com_eclipsesource_json_JsonObject_equals___Ljava_lang_Object__Z})
+}
+
+// com/eclipsesource/json/JsonObject.indexOf
+func Catty_com_eclipsesource_json_JsonObject_indexOf___Ljava_lang_String__I(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4, s5 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "table", "Lcom/eclipsesource/json/JsonObject$HashIndexTable;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s1, exc = genrt.CallVirtual(thr, s1, "com/eclipsesource/json/JsonObject$HashIndexTable", "get", "(Ljava/lang/Object;)I", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s1
+	s1 = l2
+	s2 = int32(-1)
+	if s1.(int32) == s2.(int32) {
+		goto L33
+	}
+	s1 = l1
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "names", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = l2
+	s3, exc = genrt.CallInterface(thr, s3, "java/util/List", "get", "(I)Ljava/lang/Object;", []kernel.Value{s4})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s2.(int32) == 0 {
+		goto L33
+	}
+	s2 = l2
+	return s2, nil
+L33:
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "names", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "lastIndexOf", "(Ljava/lang/Object;)I", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "indexOf", "(Ljava/lang/String;)I", Catty_com_eclipsesource_json_JsonObject_indexOf___Ljava_lang_String__I})
+}
+
+// com/eclipsesource/json/JsonObject.readObject
+func Catty_com_eclipsesource_json_JsonObject_readObject___Ljava_io_ObjectInputStream__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l1
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/ObjectInputStream", "defaultReadObject", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = genrt.New("com/eclipsesource/json/JsonObject$HashIndexTable")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonObject$HashIndexTable", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = genrt.SetFieldChecked(thr, s0, "table", "Lcom/eclipsesource/json/JsonObject$HashIndexTable;", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonObject", "updateHashIndex", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "readObject", "(Ljava/io/ObjectInputStream;)V", Catty_com_eclipsesource_json_JsonObject_readObject___Ljava_io_ObjectInputStream__V})
+}
+
+// com/eclipsesource/json/JsonObject.updateHashIndex
+func Catty_com_eclipsesource_json_JsonObject_updateHashIndex____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4, s5 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "names", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallInterface(thr, s1, "java/util/List", "size", "()I", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s1
+	s1 = int32(0)
+	l2 = s1
+L12:
+	s0 = l2
+	s1 = l1
+	if s0.(int32) >= s1.(int32) {
+		goto L44
+	}
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "table", "Lcom/eclipsesource/json/JsonObject$HashIndexTable;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "names", "Ljava/util/List;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = l2
+	s3, exc = genrt.CallInterface(thr, s3, "java/util/List", "get", "(I)Ljava/lang/Object;", []kernel.Value{s4})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = genrt.CheckCast(thr, s3, "java/lang/String")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = l2
+	_, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonObject$HashIndexTable", "add", "(Ljava/lang/String;I)V", []kernel.Value{s3, s4})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = l2.(int32) + 1
+	goto L12
+L44:
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonObject", "updateHashIndex", "()V", Catty_com_eclipsesource_json_JsonObject_updateHashIndex____V})
+}
+
+// com/eclipsesource/json/JsonParser.<init>
+func Catty_com_eclipsesource_json_JsonParser_init___Lcom_eclipsesource_json_JsonHandler__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l1
+	if (s0 == nil) == false {
+		goto L18
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("handler is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L18:
+	s0 = l0
+	s1 = l1
+	exc = genrt.SetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l1
+	s1 = l0
+	exc = genrt.SetFieldChecked(thr, s0, "parser", "Lcom/eclipsesource/json/JsonParser;", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "<init>", "(Lcom/eclipsesource/json/JsonHandler;)V", Catty_com_eclipsesource_json_JsonParser_init___Lcom_eclipsesource_json_JsonHandler__V})
+}
+
+// com/eclipsesource/json/JsonParser.parse
+func Catty_com_eclipsesource_json_JsonParser_parse___Ljava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l1
+	if (s0 == nil) == false {
+		goto L14
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("string is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L14:
+	s0 = int32(10)
+	s1 = int32(1024)
+	s2 = l1
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/String", "length", "()I", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallStatic(thr, "java/lang/Math", "min", "(II)I", []kernel.Value{s1, s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallStatic(thr, "java/lang/Math", "max", "(II)I", []kernel.Value{s0, s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s0
+	s0 = l0
+	s1 = genrt.New("java/io/StringReader")
+	s2 = s1
+	s3 = l1
+	_, exc = genrt.CallSpecial(thr, s2, "java/io/StringReader", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s3})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/io/IOException") {
+			goto L46
+		}
+		return nil, exc // no handler matched
+	}
+	s2 = l2
+	_, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonParser", "parse", "(Ljava/io/Reader;I)V", []kernel.Value{s1, s2})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/io/IOException") {
+			goto L46
+		}
+		return nil, exc // no handler matched
+	}
+	goto L56
+L46:
+	s0 = exc.Obj
+	l3 = s0
+	s0 = genrt.New("java/lang/RuntimeException")
+	s1 = s0
+	s2 = l3
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/RuntimeException", "<init>", "(Ljava/lang/Throwable;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L56:
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "parse", "(Ljava/lang/String;)V", Catty_com_eclipsesource_json_JsonParser_parse___Ljava_lang_String__V})
+}
+
+// com/eclipsesource/json/JsonParser.parse
+func Catty_com_eclipsesource_json_JsonParser_parse___Ljava_io_Reader__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s1 = l1
+	s2 = int32(1024)
+	_, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonParser", "parse", "(Ljava/io/Reader;I)V", []kernel.Value{s1, s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "parse", "(Ljava/io/Reader;)V", Catty_com_eclipsesource_json_JsonParser_parse___Ljava_io_Reader__V})
+}
+
+// com/eclipsesource/json/JsonParser.parse
+func Catty_com_eclipsesource_json_JsonParser_parse___Ljava_io_Reader_I_V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l1
+	if (s0 == nil) == false {
+		goto L14
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("reader is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L14:
+	s0 = l2
+	if s0.(int32) > 0 {
+		goto L28
+	}
+	s0 = genrt.New("java/lang/IllegalArgumentException")
+	s1 = s0
+	s2 = genrt.Str("buffersize is zero or negative")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L28:
+	s0 = l0
+	s1 = l1
+	exc = genrt.SetFieldChecked(thr, s0, "reader", "Ljava/io/Reader;", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = l2
+	s1, exc = genrt.NewPrimitiveArray("C", s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = genrt.SetFieldChecked(thr, s0, "buffer", "[C", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = int32(0)
+	exc = genrt.SetFieldChecked(thr, s0, "bufferOffset", "I", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = int32(0)
+	exc = genrt.SetFieldChecked(thr, s0, "index", "I", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = int32(0)
+	exc = genrt.SetFieldChecked(thr, s0, "fill", "I", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = int32(1)
+	exc = genrt.SetFieldChecked(thr, s0, "line", "I", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = int32(0)
+	exc = genrt.SetFieldChecked(thr, s0, "lineOffset", "I", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = int32(0)
+	exc = genrt.SetFieldChecked(thr, s0, "current", "I", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = int32(-1)
+	exc = genrt.SetFieldChecked(thr, s0, "captureStart", "I", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "skipWhiteSpace", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readValue", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "skipWhiteSpace", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "isEndOfText", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) != 0 {
+		goto L105
+	}
+	s0 = l0
+	s1 = genrt.Str("Unexpected character")
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "error", "(Ljava/lang/String;)Lcom/eclipsesource/json/ParseException;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L105:
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "parse", "(Ljava/io/Reader;I)V", Catty_com_eclipsesource_json_JsonParser_parse___Ljava_io_Reader_I_V})
+}
+
+// com/eclipsesource/json/JsonParser.readValue
+func Catty_com_eclipsesource_json_JsonParser_readValue____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	switch s1.(int32) {
+	case 34:
+		goto L173
+	case 45:
+		goto L194
+	case 48:
+		goto L194
+	case 49:
+		goto L194
+	case 50:
+		goto L194
+	case 51:
+		goto L194
+	case 52:
+		goto L194
+	case 53:
+		goto L194
+	case 54:
+		goto L194
+	case 55:
+		goto L194
+	case 56:
+		goto L194
+	case 57:
+		goto L194
+	case 91:
+		goto L180
+	case 102:
+		goto L166
+	case 110:
+		goto L152
+	case 116:
+		goto L159
+	case 123:
+		goto L187
+	default:
+		goto L201
+	}
+L152:
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readNull", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L208
+L159:
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readTrue", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L208
+L166:
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readFalse", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L208
+L173:
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readString", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L208
+L180:
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readArray", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L208
+L187:
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readObject", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L208
+L194:
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readNumber", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L208
+L201:
+	s0 = l0
+	s1 = genrt.Str("value")
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "expected", "(Ljava/lang/String;)Lcom/eclipsesource/json/ParseException;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L208:
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "readValue", "()V", Catty_com_eclipsesource_json_JsonParser_readValue____V})
+}
+
+// com/eclipsesource/json/JsonParser.readArray
+func Catty_com_eclipsesource_json_JsonParser_readArray____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3, s4, s5 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "com/eclipsesource/json/JsonHandler", "startArray", "()Ljava/lang/Object;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s1
+	s1 = l0
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "read", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s2 = s1
+	s2, exc = genrt.GetFieldChecked(thr, s2, "nestingLevel", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = int32(1)
+	s3 = (s3.(int32)) + (s4.(int32))
+	s4 = s3
+	s3 = s2
+	s2 = s4
+	exc = genrt.SetFieldChecked(thr, s3, "nestingLevel", "I", s4)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = int32(1000)
+	if s2.(int32) <= s3.(int32) {
+		goto L36
+	}
+	s2 = l0
+	s3 = genrt.Str("Nesting too deep")
+	s2, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonParser", "error", "(Ljava/lang/String;)Lcom/eclipsesource/json/ParseException;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s2.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L36:
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "skipWhiteSpace", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = int32(93)
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readChar", "(C)Z", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) == 0 {
+		goto L68
+	}
+	s0 = l0
+	s1 = s0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "nestingLevel", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = int32(1)
+	s2 = (s2.(int32)) - (s3.(int32))
+	exc = genrt.SetFieldChecked(thr, s1, "nestingLevel", "I", s2)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "handler", "Lcom/eclipsesource/json/JsonHandler;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l1
+	_, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonHandler", "endArray", "(Ljava/lang/Object;)V", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+L68:
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "skipWhiteSpace", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	_, exc = genrt.CallVirtual(thr, s1, "com/eclipsesource/json/JsonHandler", "startArrayValue", "(Ljava/lang/Object;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "readValue", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "handler", "Lcom/eclipsesource/json/JsonHandler;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l1
+	_, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonHandler", "endArrayValue", "(Ljava/lang/Object;)V", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	_, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonParser", "skipWhiteSpace", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s3 = int32(44)
+	s2, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonParser", "readChar", "(C)Z", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s2.(int32) != 0 {
+		goto L68
+	}
+	s2 = l0
+	s3 = int32(93)
+	s2, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonParser", "readChar", "(C)Z", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s2.(int32) != 0 {
+		goto L121
+	}
+	s2 = l0
+	s3 = genrt.Str("',' or ']'")
+	s2, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonParser", "expected", "(Ljava/lang/String;)Lcom/eclipsesource/json/ParseException;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s2.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L121:
+	s0 = l0
+	s1 = s0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "nestingLevel", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = int32(1)
+	s2 = (s2.(int32)) - (s3.(int32))
+	exc = genrt.SetFieldChecked(thr, s1, "nestingLevel", "I", s2)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "handler", "Lcom/eclipsesource/json/JsonHandler;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l1
+	_, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonHandler", "endArray", "(Ljava/lang/Object;)V", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "readArray", "()V", Catty_com_eclipsesource_json_JsonParser_readArray____V})
+}
+
+// com/eclipsesource/json/JsonParser.readObject
+func Catty_com_eclipsesource_json_JsonParser_readObject____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4, s5 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "com/eclipsesource/json/JsonHandler", "startObject", "()Ljava/lang/Object;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s1
+	s1 = l0
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "read", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s2 = s1
+	s2, exc = genrt.GetFieldChecked(thr, s2, "nestingLevel", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = int32(1)
+	s3 = (s3.(int32)) + (s4.(int32))
+	s4 = s3
+	s3 = s2
+	s2 = s4
+	exc = genrt.SetFieldChecked(thr, s3, "nestingLevel", "I", s4)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = int32(1000)
+	if s2.(int32) <= s3.(int32) {
+		goto L36
+	}
+	s2 = l0
+	s3 = genrt.Str("Nesting too deep")
+	s2, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonParser", "error", "(Ljava/lang/String;)Lcom/eclipsesource/json/ParseException;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s2.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L36:
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "skipWhiteSpace", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = int32(125)
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readChar", "(C)Z", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) == 0 {
+		goto L68
+	}
+	s0 = l0
+	s1 = s0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "nestingLevel", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = int32(1)
+	s2 = (s2.(int32)) - (s3.(int32))
+	exc = genrt.SetFieldChecked(thr, s1, "nestingLevel", "I", s2)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "handler", "Lcom/eclipsesource/json/JsonHandler;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l1
+	_, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonHandler", "endObject", "(Ljava/lang/Object;)V", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+L68:
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "skipWhiteSpace", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	_, exc = genrt.CallVirtual(thr, s1, "com/eclipsesource/json/JsonHandler", "startObjectName", "(Ljava/lang/Object;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s1, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "readName", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s1
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "handler", "Lcom/eclipsesource/json/JsonHandler;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l1
+	s4 = l2
+	_, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonHandler", "endObjectName", "(Ljava/lang/Object;Ljava/lang/String;)V", []kernel.Value{s3, s4})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	_, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonParser", "skipWhiteSpace", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s3 = int32(58)
+	s2, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonParser", "readChar", "(C)Z", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s2.(int32) != 0 {
+		goto L114
+	}
+	s2 = l0
+	s3 = genrt.Str("':'")
+	s2, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonParser", "expected", "(Ljava/lang/String;)Lcom/eclipsesource/json/ParseException;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s2.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L114:
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "skipWhiteSpace", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s3 = l2
+	_, exc = genrt.CallVirtual(thr, s1, "com/eclipsesource/json/JsonHandler", "startObjectValue", "(Ljava/lang/Object;Ljava/lang/String;)V", []kernel.Value{s2, s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "readValue", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "handler", "Lcom/eclipsesource/json/JsonHandler;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l1
+	s4 = l2
+	_, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonHandler", "endObjectValue", "(Ljava/lang/Object;Ljava/lang/String;)V", []kernel.Value{s3, s4})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	_, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonParser", "skipWhiteSpace", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s3 = int32(44)
+	s2, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonParser", "readChar", "(C)Z", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s2.(int32) != 0 {
+		goto L68
+	}
+	s2 = l0
+	s3 = int32(125)
+	s2, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonParser", "readChar", "(C)Z", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s2.(int32) != 0 {
+		goto L169
+	}
+	s2 = l0
+	s3 = genrt.Str("',' or '}'")
+	s2, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonParser", "expected", "(Ljava/lang/String;)Lcom/eclipsesource/json/ParseException;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s2.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L169:
+	s0 = l0
+	s1 = s0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "nestingLevel", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = int32(1)
+	s2 = (s2.(int32)) - (s3.(int32))
+	exc = genrt.SetFieldChecked(thr, s1, "nestingLevel", "I", s2)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "handler", "Lcom/eclipsesource/json/JsonHandler;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l1
+	_, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonHandler", "endObject", "(Ljava/lang/Object;)V", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "readObject", "()V", Catty_com_eclipsesource_json_JsonParser_readObject____V})
+}
+
+// com/eclipsesource/json/JsonParser.readName
+func Catty_com_eclipsesource_json_JsonParser_readName____Ljava_lang_String_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(34)
+	if s1.(int32) == s2.(int32) {
+		goto L16
+	}
+	s1 = l0
+	s2 = genrt.Str("name")
+	s1, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "expected", "(Ljava/lang/String;)Lcom/eclipsesource/json/ParseException;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s1.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L16:
+	s0 = l0
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readStringInternal", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "readName", "()Ljava/lang/String;", Catty_com_eclipsesource_json_JsonParser_readName____Ljava_lang_String_})
+}
+
+// com/eclipsesource/json/JsonParser.readNull
+func Catty_com_eclipsesource_json_JsonParser_readNull____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s1, "com/eclipsesource/json/JsonHandler", "startNull", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "read", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s2 = int32(117)
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "readRequiredChar", "(C)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s2 = int32(108)
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "readRequiredChar", "(C)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s2 = int32(108)
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "readRequiredChar", "(C)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "handler", "Lcom/eclipsesource/json/JsonHandler;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonHandler", "endNull", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "readNull", "()V", Catty_com_eclipsesource_json_JsonParser_readNull____V})
+}
+
+// com/eclipsesource/json/JsonParser.readTrue
+func Catty_com_eclipsesource_json_JsonParser_readTrue____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s1, "com/eclipsesource/json/JsonHandler", "startBoolean", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "read", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s2 = int32(114)
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "readRequiredChar", "(C)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s2 = int32(117)
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "readRequiredChar", "(C)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s2 = int32(101)
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "readRequiredChar", "(C)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "handler", "Lcom/eclipsesource/json/JsonHandler;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = int32(1)
+	_, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonHandler", "endBoolean", "(Z)V", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "readTrue", "()V", Catty_com_eclipsesource_json_JsonParser_readTrue____V})
+}
+
+// com/eclipsesource/json/JsonParser.readFalse
+func Catty_com_eclipsesource_json_JsonParser_readFalse____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s1, "com/eclipsesource/json/JsonHandler", "startBoolean", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "read", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s2 = int32(97)
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "readRequiredChar", "(C)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s2 = int32(108)
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "readRequiredChar", "(C)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s2 = int32(115)
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "readRequiredChar", "(C)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s2 = int32(101)
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "readRequiredChar", "(C)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "handler", "Lcom/eclipsesource/json/JsonHandler;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = int32(0)
+	_, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonHandler", "endBoolean", "(Z)V", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "readFalse", "()V", Catty_com_eclipsesource_json_JsonParser_readFalse____V})
+}
+
+// com/eclipsesource/json/JsonParser.readRequiredChar
+func Catty_com_eclipsesource_json_JsonParser_readRequiredChar___C_V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s1 = l1
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readChar", "(C)Z", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) != 0 {
+		goto L37
+	}
+	s0 = l0
+	s1 = genrt.New("java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("'")
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(C)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("'")
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "expected", "(Ljava/lang/String;)Lcom/eclipsesource/json/ParseException;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L37:
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "readRequiredChar", "(C)V", Catty_com_eclipsesource_json_JsonParser_readRequiredChar___C_V})
+}
+
+// com/eclipsesource/json/JsonParser.readString
+func Catty_com_eclipsesource_json_JsonParser_readString____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s1, "com/eclipsesource/json/JsonHandler", "startString", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "handler", "Lcom/eclipsesource/json/JsonHandler;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l0
+	s3, exc = genrt.CallSpecial(thr, s3, "com/eclipsesource/json/JsonParser", "readStringInternal", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonHandler", "endString", "(Ljava/lang/String;)V", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "readString", "()V", Catty_com_eclipsesource_json_JsonParser_readString____V})
+}
+
+// com/eclipsesource/json/JsonParser.readStringInternal
+func Catty_com_eclipsesource_json_JsonParser_readStringInternal____Ljava_lang_String_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "startCapture", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L8:
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(34)
+	if s1.(int32) == s2.(int32) {
+		goto L64
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = int32(92)
+	if s2.(int32) != s3.(int32) {
+		goto L41
+	}
+	s2 = l0
+	_, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonParser", "pauseCapture", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	_, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonParser", "readEscape", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	_, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonParser", "startCapture", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L8
+L41:
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(32)
+	if s1.(int32) >= s2.(int32) {
+		goto L57
+	}
+	s1 = l0
+	s2 = genrt.Str("valid string character")
+	s1, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "expected", "(Ljava/lang/String;)Lcom/eclipsesource/json/ParseException;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s1.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L57:
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L8
+L64:
+	s0 = l0
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "endCapture", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s0
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l1
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "readStringInternal", "()Ljava/lang/String;", Catty_com_eclipsesource_json_JsonParser_readStringInternal____Ljava_lang_String_})
+}
+
+// com/eclipsesource/json/JsonParser.readEscape
+func Catty_com_eclipsesource_json_JsonParser_readEscape____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4, s5 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	switch s1.(int32) {
+	case 34:
+		goto L92
+	case 47:
+		goto L92
+	case 92:
+		goto L92
+	case 98:
+		goto L108
+	case 102:
+		goto L121
+	case 110:
+		goto L134
+	case 114:
+		goto L147
+	case 116:
+		goto L160
+	case 117:
+		goto L173
+	default:
+		goto L241
+	}
+L92:
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = s3.(int32) & 0xFFFF
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(C)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L249
+L108:
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(8)
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(C)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L249
+L121:
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(12)
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(C)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L249
+L134:
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(10)
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(C)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L249
+L147:
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(13)
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(C)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L249
+L160:
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(9)
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(C)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L249
+L173:
+	s0 = int32(4)
+	s0, exc = genrt.NewPrimitiveArray("C", s0.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s0
+	s0 = int32(0)
+	l2 = s0
+L179:
+	s0 = l2
+	s1 = int32(4)
+	if s0.(int32) >= s1.(int32) {
+		goto L216
+	}
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "isHexDigit", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) != 0 {
+		goto L202
+	}
+	s0 = l0
+	s1 = genrt.Str("hexadecimal digit")
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "expected", "(Ljava/lang/String;)Lcom/eclipsesource/json/ParseException;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L202:
+	s0 = l1
+	s1 = l2
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = s3.(int32) & 0xFFFF
+	exc = genrt.AStoreChecked(s1, s2.(int32), s3)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = l2.(int32) + 1
+	goto L179
+L216:
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.New("java/lang/String")
+	s3 = s2
+	s4 = l1
+	_, exc = genrt.CallSpecial(thr, s3, "java/lang/String", "<init>", "([C)V", []kernel.Value{s4})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = int32(16)
+	s2, exc = genrt.CallStatic(thr, "java/lang/Integer", "parseInt", "(Ljava/lang/String;I)I", []kernel.Value{s2, s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = s2.(int32) & 0xFFFF
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(C)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L249
+L241:
+	s0 = l0
+	s1 = genrt.Str("valid escape sequence")
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "expected", "(Ljava/lang/String;)Lcom/eclipsesource/json/ParseException;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L249:
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "readEscape", "()V", Catty_com_eclipsesource_json_JsonParser_readEscape____V})
+}
+
+// com/eclipsesource/json/JsonParser.readNumber
+func Catty_com_eclipsesource_json_JsonParser_readNumber____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s1, "com/eclipsesource/json/JsonHandler", "startNumber", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "startCapture", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s2 = int32(45)
+	s1, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonParser", "readChar", "(C)Z", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s2
+	s2 = l0
+	s2, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonParser", "readDigit", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s2.(int32) != 0 {
+		goto L38
+	}
+	s2 = l0
+	s3 = genrt.Str("digit")
+	s2, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonParser", "expected", "(Ljava/lang/String;)Lcom/eclipsesource/json/ParseException;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s2.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L38:
+	s0 = l1
+	s1 = int32(48)
+	if s0.(int32) == s1.(int32) {
+		goto L54
+	}
+L44:
+	s0 = l0
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readDigit", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) == 0 {
+		goto L54
+	}
+	goto L44
+L54:
+	s0 = l0
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readFraction", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readExponent", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s2, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/JsonParser", "endCapture", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s1, "com/eclipsesource/json/JsonHandler", "endNumber", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "readNumber", "()V", Catty_com_eclipsesource_json_JsonParser_readNumber____V})
+}
+
+// com/eclipsesource/json/JsonParser.readFraction
+func Catty_com_eclipsesource_json_JsonParser_readFraction____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s1 = int32(46)
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readChar", "(C)Z", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) != 0 {
+		goto L11
+	}
+	s0 = int32(0)
+	return s0, nil
+L11:
+	s0 = l0
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readDigit", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) != 0 {
+		goto L26
+	}
+	s0 = l0
+	s1 = genrt.Str("digit")
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "expected", "(Ljava/lang/String;)Lcom/eclipsesource/json/ParseException;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L26:
+	s0 = l0
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readDigit", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) == 0 {
+		goto L36
+	}
+	goto L26
+L36:
+	s0 = int32(1)
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "readFraction", "()Z", Catty_com_eclipsesource_json_JsonParser_readFraction____Z})
+}
+
+// com/eclipsesource/json/JsonParser.readExponent
+func Catty_com_eclipsesource_json_JsonParser_readExponent____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s1 = int32(101)
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readChar", "(C)Z", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) != 0 {
+		goto L20
+	}
+	s0 = l0
+	s1 = int32(69)
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readChar", "(C)Z", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) != 0 {
+		goto L20
+	}
+	s0 = int32(0)
+	return s0, nil
+L20:
+	s0 = l0
+	s1 = int32(43)
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readChar", "(C)Z", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) != 0 {
+		goto L36
+	}
+	s0 = l0
+	s1 = int32(45)
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readChar", "(C)Z", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L36:
+	s0 = l0
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readDigit", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) != 0 {
+		goto L51
+	}
+	s0 = l0
+	s1 = genrt.Str("digit")
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "expected", "(Ljava/lang/String;)Lcom/eclipsesource/json/ParseException;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L51:
+	s0 = l0
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readDigit", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) == 0 {
+		goto L61
+	}
+	goto L51
+L61:
+	s0 = int32(1)
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "readExponent", "()Z", Catty_com_eclipsesource_json_JsonParser_readExponent____Z})
+}
+
+// com/eclipsesource/json/JsonParser.readChar
+func Catty_com_eclipsesource_json_JsonParser_readChar___C_Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	if s1.(int32) == s2.(int32) {
+		goto L10
+	}
+	s1 = int32(0)
+	return s1, nil
+L10:
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = int32(1)
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "readChar", "(C)Z", Catty_com_eclipsesource_json_JsonParser_readChar___C_Z})
+}
+
+// com/eclipsesource/json/JsonParser.readDigit
+func Catty_com_eclipsesource_json_JsonParser_readDigit____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "isDigit", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) != 0 {
+		goto L9
+	}
+	s0 = int32(0)
+	return s0, nil
+L9:
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = int32(1)
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "readDigit", "()Z", Catty_com_eclipsesource_json_JsonParser_readDigit____Z})
+}
+
+// com/eclipsesource/json/JsonParser.skipWhiteSpace
+func Catty_com_eclipsesource_json_JsonParser_skipWhiteSpace____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+L0:
+	s0 = l0
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "isWhiteSpace", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) == 0 {
+		goto L14
+	}
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L0
+L14:
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "skipWhiteSpace", "()V", Catty_com_eclipsesource_json_JsonParser_skipWhiteSpace____V})
+}
+
+// com/eclipsesource/json/JsonParser.read
+func Catty_com_eclipsesource_json_JsonParser_read____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "index", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "fill", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s2.(int32) != s3.(int32) {
+		goto L112
+	}
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "captureStart", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = int32(-1)
+	if s3.(int32) == s4.(int32) {
+		goto L49
+	}
+	s3 = l0
+	s3, exc = genrt.GetFieldChecked(thr, s3, "captureBuffer", "Ljava/lang/StringBuilder;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s5 = l0
+	s5, exc = genrt.GetFieldChecked(thr, s5, "buffer", "[C")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s7 = l0
+	s7, exc = genrt.GetFieldChecked(thr, s7, "captureStart", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s9 = l0
+	s9, exc = genrt.GetFieldChecked(thr, s9, "fill", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s11 = l0
+	s11, exc = genrt.GetFieldChecked(thr, s11, "captureStart", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s11 = (s11.(int32)) - (s12.(int32))
+	s8, exc = genrt.CallVirtual(thr, s8, "java/lang/StringBuilder", "append", "([CII)Ljava/lang/StringBuilder;", []kernel.Value{s9, s10, s11})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s8 = l0
+	s9 = int32(0)
+	exc = genrt.SetFieldChecked(thr, s8, "captureStart", "I", s9)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L49:
+	s0 = l0
+	s1 = s0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "bufferOffset", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l0
+	s3, exc = genrt.GetFieldChecked(thr, s3, "fill", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = (s3.(int32)) + (s4.(int32))
+	exc = genrt.SetFieldChecked(thr, s2, "bufferOffset", "I", s3)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s3 = l0
+	s3, exc = genrt.GetFieldChecked(thr, s3, "reader", "Ljava/io/Reader;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s5 = l0
+	s5, exc = genrt.GetFieldChecked(thr, s5, "buffer", "[C")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s7 = int32(0)
+	s8 = l0
+	s8, exc = genrt.GetFieldChecked(thr, s8, "buffer", "[C")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s9 = genrt.ArrayLength(s9)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s6, exc = genrt.CallVirtual(thr, s6, "java/io/Reader", "read", "([CII)I", []kernel.Value{s7, s8, s9})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = genrt.SetFieldChecked(thr, s5, "fill", "I", s6)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s5 = l0
+	s6 = int32(0)
+	exc = genrt.SetFieldChecked(thr, s5, "index", "I", s6)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s5 = l0
+	s5, exc = genrt.GetFieldChecked(thr, s5, "fill", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s7 = int32(-1)
+	if s6.(int32) != s7.(int32) {
+		goto L112
+	}
+	s6 = l0
+	s7 = int32(-1)
+	exc = genrt.SetFieldChecked(thr, s6, "current", "I", s7)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s6 = l0
+	s7 = s6
+	s7, exc = genrt.GetFieldChecked(thr, s7, "index", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s9 = int32(1)
+	s8 = (s8.(int32)) + (s9.(int32))
+	exc = genrt.SetFieldChecked(thr, s7, "index", "I", s8)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+L112:
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(10)
+	if s1.(int32) != s2.(int32) {
+		goto L144
+	}
+	s1 = l0
+	s2 = s1
+	s2, exc = genrt.GetFieldChecked(thr, s2, "line", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = int32(1)
+	s3 = (s3.(int32)) + (s4.(int32))
+	exc = genrt.SetFieldChecked(thr, s2, "line", "I", s3)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s3 = l0
+	s3, exc = genrt.GetFieldChecked(thr, s3, "bufferOffset", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s5 = l0
+	s5, exc = genrt.GetFieldChecked(thr, s5, "index", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s5 = (s5.(int32)) + (s6.(int32))
+	exc = genrt.SetFieldChecked(thr, s4, "lineOffset", "I", s5)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L144:
+	s0 = l0
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "buffer", "[C")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l0
+	s4 = s3
+	s4, exc = genrt.GetFieldChecked(thr, s4, "index", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s6 = s5
+	s5 = s4
+	s4 = s6
+	s7 = int32(1)
+	s6 = (s6.(int32)) + (s7.(int32))
+	exc = genrt.SetFieldChecked(thr, s5, "index", "I", s6)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3, exc = genrt.ALoadChecked(s3, s4.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = s3.(int32) & 0xFFFF
+	exc = genrt.SetFieldChecked(thr, s2, "current", "I", s3)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "read", "()V", Catty_com_eclipsesource_json_JsonParser_read____V})
+}
+
+// com/eclipsesource/json/JsonParser.startCapture
+func Catty_com_eclipsesource_json_JsonParser_startCapture____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if (s1 == nil) == false {
+		goto L18
+	}
+	s1 = l0
+	s2 = genrt.New("java/lang/StringBuilder")
+	s3 = s2
+	_, exc = genrt.CallSpecial(thr, s3, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = genrt.SetFieldChecked(thr, s1, "captureBuffer", "Ljava/lang/StringBuilder;", s2)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L18:
+	s0 = l0
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "index", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = int32(1)
+	s2 = (s2.(int32)) - (s3.(int32))
+	exc = genrt.SetFieldChecked(thr, s1, "captureStart", "I", s2)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "startCapture", "()V", Catty_com_eclipsesource_json_JsonParser_startCapture____V})
+}
+
+// com/eclipsesource/json/JsonParser.pauseCapture
+func Catty_com_eclipsesource_json_JsonParser_pauseCapture____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3, s4, s5, s6, s7, s8, s9 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6, s7, s8, s9}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(-1)
+	if s1.(int32) != s2.(int32) {
+		goto L15
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "index", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L21
+L15:
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "index", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(1)
+	s1 = (s1.(int32)) - (s2.(int32))
+L21:
+	l1 = s0
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "buffer", "[C")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = l0
+	s4, exc = genrt.GetFieldChecked(thr, s4, "captureStart", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s6 = l1
+	s7 = l0
+	s7, exc = genrt.GetFieldChecked(thr, s7, "captureStart", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s7 = (s7.(int32)) - (s8.(int32))
+	s4, exc = genrt.CallVirtual(thr, s4, "java/lang/StringBuilder", "append", "([CII)Ljava/lang/StringBuilder;", []kernel.Value{s5, s6, s7})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = l0
+	s5 = int32(-1)
+	exc = genrt.SetFieldChecked(thr, s4, "captureStart", "I", s5)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "pauseCapture", "()V", Catty_com_eclipsesource_json_JsonParser_pauseCapture____V})
+}
+
+// com/eclipsesource/json/JsonParser.endCapture
+func Catty_com_eclipsesource_json_JsonParser_endCapture____Ljava_lang_String_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "captureStart", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s1
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "index", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = int32(1)
+	s2 = (s2.(int32)) - (s3.(int32))
+	l2 = s2
+	s2 = l0
+	s3 = int32(-1)
+	exc = genrt.SetFieldChecked(thr, s2, "captureStart", "I", s3)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "captureBuffer", "Ljava/lang/StringBuilder;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3, exc = genrt.CallVirtual(thr, s3, "java/lang/StringBuilder", "length", "()I", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s3.(int32) <= 0 {
+		goto L61
+	}
+	s3 = l0
+	s3, exc = genrt.GetFieldChecked(thr, s3, "captureBuffer", "Ljava/lang/StringBuilder;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s5 = l0
+	s5, exc = genrt.GetFieldChecked(thr, s5, "buffer", "[C")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s7 = l1
+	s8 = l2
+	s9 = l1
+	s8 = (s8.(int32)) - (s9.(int32))
+	s5, exc = genrt.CallVirtual(thr, s5, "java/lang/StringBuilder", "append", "([CII)Ljava/lang/StringBuilder;", []kernel.Value{s6, s7, s8})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s5 = l0
+	s5, exc = genrt.GetFieldChecked(thr, s5, "captureBuffer", "Ljava/lang/StringBuilder;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s6, exc = genrt.CallVirtual(thr, s6, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l3 = s6
+	s6 = l0
+	s6, exc = genrt.GetFieldChecked(thr, s6, "captureBuffer", "Ljava/lang/StringBuilder;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s8 = int32(0)
+	_, exc = genrt.CallVirtual(thr, s7, "java/lang/StringBuilder", "setLength", "(I)V", []kernel.Value{s8})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s7 = l3
+	return s7, nil
+L61:
+	s0 = genrt.New("java/lang/String")
+	s1 = s0
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "buffer", "[C")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = l1
+	s5 = l2
+	s6 = l1
+	s5 = (s5.(int32)) - (s6.(int32))
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/String", "<init>", "([CII)V", []kernel.Value{s3, s4, s5})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "endCapture", "()Ljava/lang/String;", Catty_com_eclipsesource_json_JsonParser_endCapture____Ljava_lang_String_})
+}
+
+// com/eclipsesource/json/JsonParser.getLocation
+func Catty_com_eclipsesource_json_JsonParser_getLocation____Lcom_eclipsesource_json_Location_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4, s5, s6, s7, s8, s9 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6, s7, s8, s9}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "bufferOffset", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "index", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = (s2.(int32)) + (s3.(int32))
+	s3 = int32(1)
+	s2 = (s2.(int32)) - (s3.(int32))
+	l1 = s2
+	s2 = l1
+	s3 = l0
+	s3, exc = genrt.GetFieldChecked(thr, s3, "lineOffset", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = (s3.(int32)) - (s4.(int32))
+	s4 = int32(1)
+	s3 = (s3.(int32)) + (s4.(int32))
+	l2 = s3
+	s3 = genrt.New("com/eclipsesource/json/Location")
+	s4 = s3
+	s5 = l1
+	s6 = l0
+	s6, exc = genrt.GetFieldChecked(thr, s6, "line", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s8 = l2
+	_, exc = genrt.CallSpecial(thr, s5, "com/eclipsesource/json/Location", "<init>", "(III)V", []kernel.Value{s6, s7, s8})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s4, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "getLocation", "()Lcom/eclipsesource/json/Location;", Catty_com_eclipsesource_json_JsonParser_getLocation____Lcom_eclipsesource_json_Location_})
+}
+
+// com/eclipsesource/json/JsonParser.expected
+func Catty_com_eclipsesource_json_JsonParser_expected___Ljava_lang_String__Lcom_eclipsesource_json_ParseException_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "isEndOfText", "()Z", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s0.(int32) == 0 {
+		goto L15
+	}
+	s0 = l0
+	s1 = genrt.Str("Unexpected end of input")
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "error", "(Ljava/lang/String;)Lcom/eclipsesource/json/ParseException;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+L15:
+	s0 = l0
+	s1 = genrt.New("java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("Expected ")
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "error", "(Ljava/lang/String;)Lcom/eclipsesource/json/ParseException;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "expected", "(Ljava/lang/String;)Lcom/eclipsesource/json/ParseException;", Catty_com_eclipsesource_json_JsonParser_expected___Ljava_lang_String__Lcom_eclipsesource_json_ParseException_})
+}
+
+// com/eclipsesource/json/JsonParser.error
+func Catty_com_eclipsesource_json_JsonParser_error___Ljava_lang_String__Lcom_eclipsesource_json_ParseException_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = genrt.New("com/eclipsesource/json/ParseException")
+	s1 = s0
+	s2 = l1
+	s3 = l0
+	s3, exc = genrt.CallVirtual(thr, s3, "com/eclipsesource/json/JsonParser", "getLocation", "()Lcom/eclipsesource/json/Location;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/ParseException", "<init>", "(Ljava/lang/String;Lcom/eclipsesource/json/Location;)V", []kernel.Value{s2, s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "error", "(Ljava/lang/String;)Lcom/eclipsesource/json/ParseException;", Catty_com_eclipsesource_json_JsonParser_error___Ljava_lang_String__Lcom_eclipsesource_json_ParseException_})
+}
+
+// com/eclipsesource/json/JsonParser.isWhiteSpace
+func Catty_com_eclipsesource_json_JsonParser_isWhiteSpace____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4, s5, s6 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(32)
+	if s1.(int32) == s2.(int32) {
+		goto L36
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = int32(9)
+	if s2.(int32) == s3.(int32) {
+		goto L36
+	}
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = int32(10)
+	if s3.(int32) == s4.(int32) {
+		goto L36
+	}
+	s3 = l0
+	s3, exc = genrt.GetFieldChecked(thr, s3, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s5 = int32(13)
+	if s4.(int32) != s5.(int32) {
+		goto L40
+	}
+L36:
+	s0 = int32(1)
+	goto L41
+L40:
+	s0 = int32(0)
+L41:
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "isWhiteSpace", "()Z", Catty_com_eclipsesource_json_JsonParser_isWhiteSpace____Z})
+}
+
+// com/eclipsesource/json/JsonParser.isDigit
+func Catty_com_eclipsesource_json_JsonParser_isDigit____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(48)
+	if s1.(int32) < s2.(int32) {
+		goto L22
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = int32(57)
+	if s2.(int32) > s3.(int32) {
+		goto L22
+	}
+	s2 = int32(1)
+	goto L23
+L22:
+	s0 = int32(0)
+L23:
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "isDigit", "()Z", Catty_com_eclipsesource_json_JsonParser_isDigit____Z})
+}
+
+// com/eclipsesource/json/JsonParser.isHexDigit
+func Catty_com_eclipsesource_json_JsonParser_isHexDigit____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(48)
+	if s1.(int32) < s2.(int32) {
+		goto L18
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = int32(57)
+	if s2.(int32) <= s3.(int32) {
+		goto L54
+	}
+L18:
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(97)
+	if s1.(int32) < s2.(int32) {
+		goto L36
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = int32(102)
+	if s2.(int32) <= s3.(int32) {
+		goto L54
+	}
+L36:
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(65)
+	if s1.(int32) < s2.(int32) {
+		goto L58
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = int32(70)
+	if s2.(int32) > s3.(int32) {
+		goto L58
+	}
+L54:
+	s0 = int32(1)
+	goto L59
+L58:
+	s0 = int32(0)
+L59:
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "isHexDigit", "()Z", Catty_com_eclipsesource_json_JsonParser_isHexDigit____Z})
+}
+
+// com/eclipsesource/json/JsonParser.isEndOfText
+func Catty_com_eclipsesource_json_JsonParser_isEndOfText____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(-1)
+	if s1.(int32) != s2.(int32) {
+		goto L12
+	}
+	s1 = int32(1)
+	goto L13
+L12:
+	s0 = int32(0)
+L13:
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonParser", "isEndOfText", "()Z", Catty_com_eclipsesource_json_JsonParser_isEndOfText____Z})
+}
+
+// com/eclipsesource/json/JsonString.<init>
+func Catty_com_eclipsesource_json_JsonString_init___Ljava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonValue", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l1
+	if (s0 == nil) == false {
+		goto L18
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("string is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L18:
+	s0 = l0
+	s1 = l1
+	exc = genrt.SetFieldChecked(thr, s0, "string", "Ljava/lang/String;", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonString", "<init>", "(Ljava/lang/String;)V", Catty_com_eclipsesource_json_JsonString_init___Ljava_lang_String__V})
+}
+
+// com/eclipsesource/json/JsonString.write
+func Catty_com_eclipsesource_json_JsonString_write___Lcom_eclipsesource_json_JsonWriter__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l1
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "string", "Ljava/lang/String;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s1, "com/eclipsesource/json/JsonWriter", "writeString", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonString", "write", "(Lcom/eclipsesource/json/JsonWriter;)V", Catty_com_eclipsesource_json_JsonString_write___Lcom_eclipsesource_json_JsonWriter__V})
+}
+
+// com/eclipsesource/json/JsonString.isString
+func Catty_com_eclipsesource_json_JsonString_isString____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = int32(1)
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonString", "isString", "()Z", Catty_com_eclipsesource_json_JsonString_isString____Z})
+}
+
+// com/eclipsesource/json/JsonString.asString
+func Catty_com_eclipsesource_json_JsonString_asString____Ljava_lang_String_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "string", "Ljava/lang/String;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonString", "asString", "()Ljava/lang/String;", Catty_com_eclipsesource_json_JsonString_asString____Ljava_lang_String_})
+}
+
+// com/eclipsesource/json/JsonString.hashCode
+func Catty_com_eclipsesource_json_JsonString_hashCode____I(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "string", "Ljava/lang/String;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/String", "hashCode", "()I", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonString", "hashCode", "()I", Catty_com_eclipsesource_json_JsonString_hashCode____I})
+}
+
+// com/eclipsesource/json/JsonString.equals
+func Catty_com_eclipsesource_json_JsonString_equals___Ljava_lang_Object__Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s1 = l1
+	if !genrt.RefEq(s0, s1) {
+		goto L7
+	}
+	s0 = int32(1)
+	return s0, nil
+L7:
+	s0 = l1
+	if (s0 == nil) == false {
+		goto L13
+	}
+	s0 = int32(0)
+	return s0, nil
+L13:
+	s0 = l0
+	s0, exc = genrt.CallVirtual(thr, s0, "java/lang/Object", "getClass", "()Ljava/lang/Class;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l1
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/Object", "getClass", "()Ljava/lang/Class;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if genrt.RefEq(s0, s1) {
+		goto L26
+	}
+	s0 = int32(0)
+	return s0, nil
+L26:
+	s0 = l1
+	s0 = genrt.CheckCast(thr, s0, "com/eclipsesource/json/JsonString")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s0
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "string", "Ljava/lang/String;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l2
+	s2, exc = genrt.GetFieldChecked(thr, s2, "string", "Ljava/lang/String;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s2, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonString", "equals", "(Ljava/lang/Object;)Z", Catty_com_eclipsesource_json_JsonString_equals___Ljava_lang_Object__Z})
+}
+
+// com/eclipsesource/json/JsonValue.<init>
+func Catty_com_eclipsesource_json_JsonValue_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "<init>", "()V", Catty_com_eclipsesource_json_JsonValue_init____V})
+}
+
+// com/eclipsesource/json/JsonValue.readFrom
+func Catty_com_eclipsesource_json_JsonValue_readFrom___Ljava_io_Reader__Lcom_eclipsesource_json_JsonValue_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "parse", "(Ljava/io/Reader;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "readFrom", "(Ljava/io/Reader;)Lcom/eclipsesource/json/JsonValue;", Catty_com_eclipsesource_json_JsonValue_readFrom___Ljava_io_Reader__Lcom_eclipsesource_json_JsonValue_})
+}
+
+// com/eclipsesource/json/JsonValue.readFrom
+func Catty_com_eclipsesource_json_JsonValue_readFrom___Ljava_lang_String__Lcom_eclipsesource_json_JsonValue_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "parse", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "readFrom", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", Catty_com_eclipsesource_json_JsonValue_readFrom___Ljava_lang_String__Lcom_eclipsesource_json_JsonValue_})
+}
+
+// com/eclipsesource/json/JsonValue.valueOf
+func Catty_com_eclipsesource_json_JsonValue_valueOf___I_Lcom_eclipsesource_json_JsonValue_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(I)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "valueOf", "(I)Lcom/eclipsesource/json/JsonValue;", Catty_com_eclipsesource_json_JsonValue_valueOf___I_Lcom_eclipsesource_json_JsonValue_})
+}
+
+// com/eclipsesource/json/JsonValue.valueOf
+func Catty_com_eclipsesource_json_JsonValue_valueOf___J_Lcom_eclipsesource_json_JsonValue_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(J)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "valueOf", "(J)Lcom/eclipsesource/json/JsonValue;", Catty_com_eclipsesource_json_JsonValue_valueOf___J_Lcom_eclipsesource_json_JsonValue_})
+}
+
+// com/eclipsesource/json/JsonValue.valueOf
+func Catty_com_eclipsesource_json_JsonValue_valueOf___F_Lcom_eclipsesource_json_JsonValue_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(F)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "valueOf", "(F)Lcom/eclipsesource/json/JsonValue;", Catty_com_eclipsesource_json_JsonValue_valueOf___F_Lcom_eclipsesource_json_JsonValue_})
+}
+
+// com/eclipsesource/json/JsonValue.valueOf
+func Catty_com_eclipsesource_json_JsonValue_valueOf___D_Lcom_eclipsesource_json_JsonValue_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(D)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "valueOf", "(D)Lcom/eclipsesource/json/JsonValue;", Catty_com_eclipsesource_json_JsonValue_valueOf___D_Lcom_eclipsesource_json_JsonValue_})
+}
+
+// com/eclipsesource/json/JsonValue.valueOf
+func Catty_com_eclipsesource_json_JsonValue_valueOf___Ljava_lang_String__Lcom_eclipsesource_json_JsonValue_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "valueOf", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", Catty_com_eclipsesource_json_JsonValue_valueOf___Ljava_lang_String__Lcom_eclipsesource_json_JsonValue_})
+}
+
+// com/eclipsesource/json/JsonValue.valueOf
+func Catty_com_eclipsesource_json_JsonValue_valueOf___Z_Lcom_eclipsesource_json_JsonValue_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(Z)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "valueOf", "(Z)Lcom/eclipsesource/json/JsonValue;", Catty_com_eclipsesource_json_JsonValue_valueOf___Z_Lcom_eclipsesource_json_JsonValue_})
+}
+
+// com/eclipsesource/json/JsonValue.isObject
+func Catty_com_eclipsesource_json_JsonValue_isObject____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = int32(0)
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "isObject", "()Z", Catty_com_eclipsesource_json_JsonValue_isObject____Z})
+}
+
+// com/eclipsesource/json/JsonValue.isArray
+func Catty_com_eclipsesource_json_JsonValue_isArray____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = int32(0)
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "isArray", "()Z", Catty_com_eclipsesource_json_JsonValue_isArray____Z})
+}
+
+// com/eclipsesource/json/JsonValue.isNumber
+func Catty_com_eclipsesource_json_JsonValue_isNumber____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = int32(0)
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "isNumber", "()Z", Catty_com_eclipsesource_json_JsonValue_isNumber____Z})
+}
+
+// com/eclipsesource/json/JsonValue.isString
+func Catty_com_eclipsesource_json_JsonValue_isString____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = int32(0)
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "isString", "()Z", Catty_com_eclipsesource_json_JsonValue_isString____Z})
+}
+
+// com/eclipsesource/json/JsonValue.isBoolean
+func Catty_com_eclipsesource_json_JsonValue_isBoolean____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = int32(0)
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "isBoolean", "()Z", Catty_com_eclipsesource_json_JsonValue_isBoolean____Z})
+}
+
+// com/eclipsesource/json/JsonValue.isTrue
+func Catty_com_eclipsesource_json_JsonValue_isTrue____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = int32(0)
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "isTrue", "()Z", Catty_com_eclipsesource_json_JsonValue_isTrue____Z})
+}
+
+// com/eclipsesource/json/JsonValue.isFalse
+func Catty_com_eclipsesource_json_JsonValue_isFalse____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = int32(0)
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "isFalse", "()Z", Catty_com_eclipsesource_json_JsonValue_isFalse____Z})
+}
+
+// com/eclipsesource/json/JsonValue.isNull
+func Catty_com_eclipsesource_json_JsonValue_isNull____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = int32(0)
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "isNull", "()Z", Catty_com_eclipsesource_json_JsonValue_isNull____Z})
+}
+
+// com/eclipsesource/json/JsonValue.asObject
+func Catty_com_eclipsesource_json_JsonValue_asObject____Lcom_eclipsesource_json_JsonObject_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l0 = recv
+	s0 = genrt.New("java/lang/UnsupportedOperationException")
+	s1 = s0
+	s2 = genrt.New("java/lang/StringBuilder")
+	s3 = s2
+	_, exc = genrt.CallSpecial(thr, s3, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = genrt.Str("Not an object: ")
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l0
+	s3, exc = genrt.CallVirtual(thr, s3, "com/eclipsesource/json/JsonValue", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/UnsupportedOperationException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "asObject", "()Lcom/eclipsesource/json/JsonObject;", Catty_com_eclipsesource_json_JsonValue_asObject____Lcom_eclipsesource_json_JsonObject_})
+}
+
+// com/eclipsesource/json/JsonValue.asArray
+func Catty_com_eclipsesource_json_JsonValue_asArray____Lcom_eclipsesource_json_JsonArray_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l0 = recv
+	s0 = genrt.New("java/lang/UnsupportedOperationException")
+	s1 = s0
+	s2 = genrt.New("java/lang/StringBuilder")
+	s3 = s2
+	_, exc = genrt.CallSpecial(thr, s3, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = genrt.Str("Not an array: ")
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l0
+	s3, exc = genrt.CallVirtual(thr, s3, "com/eclipsesource/json/JsonValue", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/UnsupportedOperationException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "asArray", "()Lcom/eclipsesource/json/JsonArray;", Catty_com_eclipsesource_json_JsonValue_asArray____Lcom_eclipsesource_json_JsonArray_})
+}
+
+// com/eclipsesource/json/JsonValue.asInt
+func Catty_com_eclipsesource_json_JsonValue_asInt____I(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l0 = recv
+	s0 = genrt.New("java/lang/UnsupportedOperationException")
+	s1 = s0
+	s2 = genrt.New("java/lang/StringBuilder")
+	s3 = s2
+	_, exc = genrt.CallSpecial(thr, s3, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = genrt.Str("Not a number: ")
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l0
+	s3, exc = genrt.CallVirtual(thr, s3, "com/eclipsesource/json/JsonValue", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/UnsupportedOperationException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "asInt", "()I", Catty_com_eclipsesource_json_JsonValue_asInt____I})
+}
+
+// com/eclipsesource/json/JsonValue.asLong
+func Catty_com_eclipsesource_json_JsonValue_asLong____J(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l0 = recv
+	s0 = genrt.New("java/lang/UnsupportedOperationException")
+	s1 = s0
+	s2 = genrt.New("java/lang/StringBuilder")
+	s3 = s2
+	_, exc = genrt.CallSpecial(thr, s3, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = genrt.Str("Not a number: ")
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l0
+	s3, exc = genrt.CallVirtual(thr, s3, "com/eclipsesource/json/JsonValue", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/UnsupportedOperationException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "asLong", "()J", Catty_com_eclipsesource_json_JsonValue_asLong____J})
+}
+
+// com/eclipsesource/json/JsonValue.asFloat
+func Catty_com_eclipsesource_json_JsonValue_asFloat____F(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l0 = recv
+	s0 = genrt.New("java/lang/UnsupportedOperationException")
+	s1 = s0
+	s2 = genrt.New("java/lang/StringBuilder")
+	s3 = s2
+	_, exc = genrt.CallSpecial(thr, s3, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = genrt.Str("Not a number: ")
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l0
+	s3, exc = genrt.CallVirtual(thr, s3, "com/eclipsesource/json/JsonValue", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/UnsupportedOperationException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "asFloat", "()F", Catty_com_eclipsesource_json_JsonValue_asFloat____F})
+}
+
+// com/eclipsesource/json/JsonValue.asDouble
+func Catty_com_eclipsesource_json_JsonValue_asDouble____D(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l0 = recv
+	s0 = genrt.New("java/lang/UnsupportedOperationException")
+	s1 = s0
+	s2 = genrt.New("java/lang/StringBuilder")
+	s3 = s2
+	_, exc = genrt.CallSpecial(thr, s3, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = genrt.Str("Not a number: ")
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l0
+	s3, exc = genrt.CallVirtual(thr, s3, "com/eclipsesource/json/JsonValue", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/UnsupportedOperationException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "asDouble", "()D", Catty_com_eclipsesource_json_JsonValue_asDouble____D})
+}
+
+// com/eclipsesource/json/JsonValue.asString
+func Catty_com_eclipsesource_json_JsonValue_asString____Ljava_lang_String_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l0 = recv
+	s0 = genrt.New("java/lang/UnsupportedOperationException")
+	s1 = s0
+	s2 = genrt.New("java/lang/StringBuilder")
+	s3 = s2
+	_, exc = genrt.CallSpecial(thr, s3, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = genrt.Str("Not a string: ")
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l0
+	s3, exc = genrt.CallVirtual(thr, s3, "com/eclipsesource/json/JsonValue", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/UnsupportedOperationException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "asString", "()Ljava/lang/String;", Catty_com_eclipsesource_json_JsonValue_asString____Ljava_lang_String_})
+}
+
+// com/eclipsesource/json/JsonValue.asBoolean
+func Catty_com_eclipsesource_json_JsonValue_asBoolean____Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l0 = recv
+	s0 = genrt.New("java/lang/UnsupportedOperationException")
+	s1 = s0
+	s2 = genrt.New("java/lang/StringBuilder")
+	s3 = s2
+	_, exc = genrt.CallSpecial(thr, s3, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = genrt.Str("Not a boolean: ")
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l0
+	s3, exc = genrt.CallVirtual(thr, s3, "com/eclipsesource/json/JsonValue", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/UnsupportedOperationException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "asBoolean", "()Z", Catty_com_eclipsesource_json_JsonValue_asBoolean____Z})
+}
+
+// com/eclipsesource/json/JsonValue.writeTo
+func Catty_com_eclipsesource_json_JsonValue_writeTo___Ljava_io_Writer__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s1 = l1
+	s2 = genrt.GetStatic(thr, "com/eclipsesource/json/WriterConfig", "MINIMAL", "Lcom/eclipsesource/json/WriterConfig;")
+	_, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonValue", "writeTo", "(Ljava/io/Writer;Lcom/eclipsesource/json/WriterConfig;)V", []kernel.Value{s1, s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "writeTo", "(Ljava/io/Writer;)V", Catty_com_eclipsesource_json_JsonValue_writeTo___Ljava_io_Writer__V})
+}
+
+// com/eclipsesource/json/JsonValue.writeTo
+func Catty_com_eclipsesource_json_JsonValue_writeTo___Ljava_io_Writer_Lcom_eclipsesource_json_WriterConfig__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l1
+	if (s0 == nil) == false {
+		goto L14
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("writer is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L14:
+	s0 = l2
+	if (s0 == nil) == false {
+		goto L28
+	}
+	s0 = genrt.New("java/lang/NullPointerException")
+	s1 = s0
+	s2 = genrt.Str("config is null")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L28:
+	s0 = genrt.New("com/eclipsesource/json/WritingBuffer")
+	s1 = s0
+	s2 = l1
+	s3 = int32(128)
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/WritingBuffer", "<init>", "(Ljava/io/Writer;I)V", []kernel.Value{s2, s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l3 = s0
+	s0 = l0
+	s1 = l2
+	s2 = l3
+	s1, exc = genrt.CallVirtual(thr, s1, "com/eclipsesource/json/WriterConfig", "createWriter", "(Ljava/io/Writer;)Lcom/eclipsesource/json/JsonWriter;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonValue", "write", "(Lcom/eclipsesource/json/JsonWriter;)V", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l3
+	_, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/WritingBuffer", "flush", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "writeTo", "(Ljava/io/Writer;Lcom/eclipsesource/json/WriterConfig;)V", Catty_com_eclipsesource_json_JsonValue_writeTo___Ljava_io_Writer_Lcom_eclipsesource_json_WriterConfig__V})
+}
+
+// com/eclipsesource/json/JsonValue.toString
+func Catty_com_eclipsesource_json_JsonValue_toString____Ljava_lang_String_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s1 = genrt.GetStatic(thr, "com/eclipsesource/json/WriterConfig", "MINIMAL", "Lcom/eclipsesource/json/WriterConfig;")
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonValue", "toString", "(Lcom/eclipsesource/json/WriterConfig;)Ljava/lang/String;", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "toString", "()Ljava/lang/String;", Catty_com_eclipsesource_json_JsonValue_toString____Ljava_lang_String_})
+}
+
+// com/eclipsesource/json/JsonValue.toString
+func Catty_com_eclipsesource_json_JsonValue_toString___Lcom_eclipsesource_json_WriterConfig__Ljava_lang_String_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = genrt.New("java/io/StringWriter")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "java/io/StringWriter", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s0
+	s0 = l0
+	s1 = l2
+	s2 = l1
+	_, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonValue", "writeTo", "(Ljava/io/Writer;Lcom/eclipsesource/json/WriterConfig;)V", []kernel.Value{s1, s2})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/io/IOException") {
+			goto L17
+		}
+		return nil, exc // no handler matched
+	}
+	goto L27
+L17:
+	s0 = exc.Obj
+	l3 = s0
+	s0 = genrt.New("java/lang/RuntimeException")
+	s1 = s0
+	s2 = l3
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/RuntimeException", "<init>", "(Ljava/lang/Throwable;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L27:
+	s0 = l2
+	s0, exc = genrt.CallVirtual(thr, s0, "java/io/StringWriter", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "toString", "(Lcom/eclipsesource/json/WriterConfig;)Ljava/lang/String;", Catty_com_eclipsesource_json_JsonValue_toString___Lcom_eclipsesource_json_WriterConfig__Ljava_lang_String_})
+}
+
+// com/eclipsesource/json/JsonValue.equals
+func Catty_com_eclipsesource_json_JsonValue_equals___Ljava_lang_Object__Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s1 = l1
+	s0, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "equals", "(Ljava/lang/Object;)Z", Catty_com_eclipsesource_json_JsonValue_equals___Ljava_lang_Object__Z})
+}
+
+// com/eclipsesource/json/JsonValue.hashCode
+func Catty_com_eclipsesource_json_JsonValue_hashCode____I(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "hashCode", "()I", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonValue", "hashCode", "()I", Catty_com_eclipsesource_json_JsonValue_hashCode____I})
+}
+
+// com/eclipsesource/json/JsonWriter.<init>
+func Catty_com_eclipsesource_json_JsonWriter_init___Ljava_io_Writer__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = l1
+	exc = genrt.SetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonWriter", "<init>", "(Ljava/io/Writer;)V", Catty_com_eclipsesource_json_JsonWriter_init___Ljava_io_Writer__V})
+}
+
+// com/eclipsesource/json/JsonWriter.writeLiteral
+func Catty_com_eclipsesource_json_JsonWriter_writeLiteral___Ljava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	_, exc = genrt.CallVirtual(thr, s1, "java/io/Writer", "write", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonWriter", "writeLiteral", "(Ljava/lang/String;)V", Catty_com_eclipsesource_json_JsonWriter_writeLiteral___Ljava_lang_String__V})
+}
+
+// com/eclipsesource/json/JsonWriter.writeNumber
+func Catty_com_eclipsesource_json_JsonWriter_writeNumber___Ljava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	_, exc = genrt.CallVirtual(thr, s1, "java/io/Writer", "write", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonWriter", "writeNumber", "(Ljava/lang/String;)V", Catty_com_eclipsesource_json_JsonWriter_writeNumber___Ljava_lang_String__V})
+}
+
+// com/eclipsesource/json/JsonWriter.writeString
+func Catty_com_eclipsesource_json_JsonWriter_writeString___Ljava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(34)
+	_, exc = genrt.CallVirtual(thr, s1, "java/io/Writer", "write", "(I)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s2 = l1
+	_, exc = genrt.CallVirtual(thr, s1, "com/eclipsesource/json/JsonWriter", "writeJsonString", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "writer", "Ljava/io/Writer;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = int32(34)
+	_, exc = genrt.CallVirtual(thr, s2, "java/io/Writer", "write", "(I)V", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonWriter", "writeString", "(Ljava/lang/String;)V", Catty_com_eclipsesource_json_JsonWriter_writeString___Ljava_lang_String__V})
+}
+
+// com/eclipsesource/json/JsonWriter.writeArrayOpen
+func Catty_com_eclipsesource_json_JsonWriter_writeArrayOpen____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(91)
+	_, exc = genrt.CallVirtual(thr, s1, "java/io/Writer", "write", "(I)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonWriter", "writeArrayOpen", "()V", Catty_com_eclipsesource_json_JsonWriter_writeArrayOpen____V})
+}
+
+// com/eclipsesource/json/JsonWriter.writeArrayClose
+func Catty_com_eclipsesource_json_JsonWriter_writeArrayClose____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(93)
+	_, exc = genrt.CallVirtual(thr, s1, "java/io/Writer", "write", "(I)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonWriter", "writeArrayClose", "()V", Catty_com_eclipsesource_json_JsonWriter_writeArrayClose____V})
+}
+
+// com/eclipsesource/json/JsonWriter.writeArraySeparator
+func Catty_com_eclipsesource_json_JsonWriter_writeArraySeparator____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(44)
+	_, exc = genrt.CallVirtual(thr, s1, "java/io/Writer", "write", "(I)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonWriter", "writeArraySeparator", "()V", Catty_com_eclipsesource_json_JsonWriter_writeArraySeparator____V})
+}
+
+// com/eclipsesource/json/JsonWriter.writeObjectOpen
+func Catty_com_eclipsesource_json_JsonWriter_writeObjectOpen____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(123)
+	_, exc = genrt.CallVirtual(thr, s1, "java/io/Writer", "write", "(I)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonWriter", "writeObjectOpen", "()V", Catty_com_eclipsesource_json_JsonWriter_writeObjectOpen____V})
+}
+
+// com/eclipsesource/json/JsonWriter.writeObjectClose
+func Catty_com_eclipsesource_json_JsonWriter_writeObjectClose____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(125)
+	_, exc = genrt.CallVirtual(thr, s1, "java/io/Writer", "write", "(I)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonWriter", "writeObjectClose", "()V", Catty_com_eclipsesource_json_JsonWriter_writeObjectClose____V})
+}
+
+// com/eclipsesource/json/JsonWriter.writeMemberName
+func Catty_com_eclipsesource_json_JsonWriter_writeMemberName___Ljava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(34)
+	_, exc = genrt.CallVirtual(thr, s1, "java/io/Writer", "write", "(I)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s2 = l1
+	_, exc = genrt.CallVirtual(thr, s1, "com/eclipsesource/json/JsonWriter", "writeJsonString", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "writer", "Ljava/io/Writer;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = int32(34)
+	_, exc = genrt.CallVirtual(thr, s2, "java/io/Writer", "write", "(I)V", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonWriter", "writeMemberName", "(Ljava/lang/String;)V", Catty_com_eclipsesource_json_JsonWriter_writeMemberName___Ljava_lang_String__V})
+}
+
+// com/eclipsesource/json/JsonWriter.writeMemberSeparator
+func Catty_com_eclipsesource_json_JsonWriter_writeMemberSeparator____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(58)
+	_, exc = genrt.CallVirtual(thr, s1, "java/io/Writer", "write", "(I)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonWriter", "writeMemberSeparator", "()V", Catty_com_eclipsesource_json_JsonWriter_writeMemberSeparator____V})
+}
+
+// com/eclipsesource/json/JsonWriter.writeObjectSeparator
+func Catty_com_eclipsesource_json_JsonWriter_writeObjectSeparator____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = int32(44)
+	_, exc = genrt.CallVirtual(thr, s1, "java/io/Writer", "write", "(I)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonWriter", "writeObjectSeparator", "()V", Catty_com_eclipsesource_json_JsonWriter_writeObjectSeparator____V})
+}
+
+// com/eclipsesource/json/JsonWriter.writeJsonString
+func Catty_com_eclipsesource_json_JsonWriter_writeJsonString___Ljava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3, l4, l5 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3, l4, l5}
+	var s0, s1, s2, s3, s4, s5, s6 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l1
+	s0, exc = genrt.CallVirtual(thr, s0, "java/lang/String", "length", "()I", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s0
+	s0 = int32(0)
+	l3 = s0
+	s0 = int32(0)
+	l4 = s0
+L10:
+	s0 = l4
+	s1 = l2
+	if s0.(int32) >= s1.(int32) {
+		goto L65
+	}
+	s0 = l1
+	s1 = l4
+	s0, exc = genrt.CallVirtual(thr, s0, "java/lang/String", "charAt", "(I)C", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/JsonWriter", "getReplacementChars", "(C)[C", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l5 = s0
+	s0 = l5
+	if (s0 == nil) == true {
+		goto L59
+	}
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s3 = l3
+	s4 = l4
+	s5 = l3
+	s4 = (s4.(int32)) - (s5.(int32))
+	_, exc = genrt.CallVirtual(thr, s1, "java/io/Writer", "write", "(Ljava/lang/String;II)V", []kernel.Value{s2, s3, s4})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "writer", "Ljava/io/Writer;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l5
+	_, exc = genrt.CallVirtual(thr, s2, "java/io/Writer", "write", "([C)V", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l4
+	s3 = int32(1)
+	s2 = (s2.(int32)) + (s3.(int32))
+	l3 = s2
+L59:
+	l4 = l4.(int32) + 1
+	goto L10
+L65:
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s3 = l3
+	s4 = l2
+	s5 = l3
+	s4 = (s4.(int32)) - (s5.(int32))
+	_, exc = genrt.CallVirtual(thr, s1, "java/io/Writer", "write", "(Ljava/lang/String;II)V", []kernel.Value{s2, s3, s4})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonWriter", "writeJsonString", "(Ljava/lang/String;)V", Catty_com_eclipsesource_json_JsonWriter_writeJsonString___Ljava_lang_String__V})
+}
+
+// com/eclipsesource/json/JsonWriter.getReplacementChars
+func Catty_com_eclipsesource_json_JsonWriter_getReplacementChars___C_AC(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16, s17, s18, s19, s20, s21 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16, s17, s18, s19, s20, s21}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	s1 = int32(92)
+	if s0.(int32) <= s1.(int32) {
+		goto L39
+	}
+	s0 = l0
+	s1 = int32(8232)
+	if s0.(int32) < s1.(int32) {
+		goto L20
+	}
+	s0 = l0
+	s1 = int32(8233)
+	if s0.(int32) <= s1.(int32) {
+		goto L22
+	}
+L20:
+	s0 = nil
+	return s0, nil
+L22:
+	s0 = l0
+	s1 = int32(8232)
+	if s0.(int32) != s1.(int32) {
+		goto L35
+	}
+	s0 = genrt.GetStatic(thr, "com/eclipsesource/json/JsonWriter", "UNICODE_2028_CHARS", "[C")
+	goto L38
+L35:
+	s0 = genrt.GetStatic(thr, "com/eclipsesource/json/JsonWriter", "UNICODE_2029_CHARS", "[C")
+L38:
+	return s0, nil
+L39:
+	s0 = l0
+	s1 = int32(92)
+	if s0.(int32) != s1.(int32) {
+		goto L49
+	}
+	s0 = genrt.GetStatic(thr, "com/eclipsesource/json/JsonWriter", "BS_CHARS", "[C")
+	return s0, nil
+L49:
+	s0 = l0
+	s1 = int32(34)
+	if s0.(int32) <= s1.(int32) {
+		goto L57
+	}
+	s0 = nil
+	return s0, nil
+L57:
+	s0 = l0
+	s1 = int32(34)
+	if s0.(int32) != s1.(int32) {
+		goto L67
+	}
+	s0 = genrt.GetStatic(thr, "com/eclipsesource/json/JsonWriter", "QUOT_CHARS", "[C")
+	return s0, nil
+L67:
+	s0 = l0
+	s1 = int32(31)
+	if s0.(int32) <= s1.(int32) {
+		goto L75
+	}
+	s0 = nil
+	return s0, nil
+L75:
+	s0 = l0
+	s1 = int32(10)
+	if s0.(int32) != s1.(int32) {
+		goto L85
+	}
+	s0 = genrt.GetStatic(thr, "com/eclipsesource/json/JsonWriter", "LF_CHARS", "[C")
+	return s0, nil
+L85:
+	s0 = l0
+	s1 = int32(13)
+	if s0.(int32) != s1.(int32) {
+		goto L95
+	}
+	s0 = genrt.GetStatic(thr, "com/eclipsesource/json/JsonWriter", "CR_CHARS", "[C")
+	return s0, nil
+L95:
+	s0 = l0
+	s1 = int32(9)
+	if s0.(int32) != s1.(int32) {
+		goto L105
+	}
+	s0 = genrt.GetStatic(thr, "com/eclipsesource/json/JsonWriter", "TAB_CHARS", "[C")
+	return s0, nil
+L105:
+	s0 = int32(6)
+	s0, exc = genrt.NewPrimitiveArray("C", s0.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = s0
+	s2 = int32(0)
+	s3 = int32(92)
+	exc = genrt.AStoreChecked(s1, s2.(int32), s3)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = s3
+	s5 = int32(1)
+	s6 = int32(117)
+	exc = genrt.AStoreChecked(s4, s5.(int32), s6)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s7 = s6
+	s8 = int32(2)
+	s9 = int32(48)
+	exc = genrt.AStoreChecked(s7, s8.(int32), s9)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s10 = s9
+	s11 = int32(3)
+	s12 = int32(48)
+	exc = genrt.AStoreChecked(s10, s11.(int32), s12)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s13 = s12
+	s14 = int32(4)
+	s15 = genrt.GetStatic(thr, "com/eclipsesource/json/JsonWriter", "HEX_DIGITS", "[C")
+	s16 = l0
+	s17 = int32(4)
+	s16 = (s16.(int32) >> (s17.(int32) & 31))
+	s17 = int32(15)
+	s16 = (s16.(int32)) & (s17.(int32))
+	s15, exc = genrt.ALoadChecked(s15, s16.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s15 = s15.(int32) & 0xFFFF
+	exc = genrt.AStoreChecked(s13, s14.(int32), s15)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s16 = s15
+	s17 = int32(5)
+	s18 = genrt.GetStatic(thr, "com/eclipsesource/json/JsonWriter", "HEX_DIGITS", "[C")
+	s19 = l0
+	s20 = int32(15)
+	s19 = (s19.(int32)) & (s20.(int32))
+	s18, exc = genrt.ALoadChecked(s18, s19.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s18 = s18.(int32) & 0xFFFF
+	exc = genrt.AStoreChecked(s16, s17.(int32), s18)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s18, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/JsonWriter", "getReplacementChars", "(C)[C", Catty_com_eclipsesource_json_JsonWriter_getReplacementChars___C_AC})
+}
+
+// com/eclipsesource/json/Location.<init>
+func Catty_com_eclipsesource_json_Location_init___III_V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l3 = args[2]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l3 = args[2]
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = l1
+	exc = genrt.SetFieldChecked(thr, s0, "offset", "I", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = l3
+	exc = genrt.SetFieldChecked(thr, s0, "column", "I", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = l2
+	exc = genrt.SetFieldChecked(thr, s0, "line", "I", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/Location", "<init>", "(III)V", Catty_com_eclipsesource_json_Location_init___III_V})
+}
+
+// com/eclipsesource/json/Location.toString
+func Catty_com_eclipsesource_json_Location_toString____Ljava_lang_String_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	l0 = recv
+	l0 = recv
+	s0 = genrt.New("java/lang/StringBuilder")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "line", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(I)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str(":")
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "column", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "append", "(I)Ljava/lang/StringBuilder;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s2, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/Location", "toString", "()Ljava/lang/String;", Catty_com_eclipsesource_json_Location_toString____Ljava_lang_String_})
+}
+
+// com/eclipsesource/json/Location.hashCode
+func Catty_com_eclipsesource_json_Location_hashCode____I(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "offset", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/Location", "hashCode", "()I", Catty_com_eclipsesource_json_Location_hashCode____I})
+}
+
+// com/eclipsesource/json/Location.equals
+func Catty_com_eclipsesource_json_Location_equals___Ljava_lang_Object__Z(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4, s5, s6, s7, s8 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6, s7, s8}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s1 = l1
+	if !genrt.RefEq(s0, s1) {
+		goto L7
+	}
+	s0 = int32(1)
+	return s0, nil
+L7:
+	s0 = l1
+	if (s0 == nil) == false {
+		goto L13
+	}
+	s0 = int32(0)
+	return s0, nil
+L13:
+	s0 = l0
+	s0, exc = genrt.CallVirtual(thr, s0, "java/lang/Object", "getClass", "()Ljava/lang/Class;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l1
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/Object", "getClass", "()Ljava/lang/Class;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if genrt.RefEq(s0, s1) {
+		goto L26
+	}
+	s0 = int32(0)
+	return s0, nil
+L26:
+	s0 = l1
+	s0 = genrt.CheckCast(thr, s0, "com/eclipsesource/json/Location")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s0
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "offset", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l2
+	s2, exc = genrt.GetFieldChecked(thr, s2, "offset", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s2.(int32) != s3.(int32) {
+		goto L68
+	}
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "column", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = l2
+	s4, exc = genrt.GetFieldChecked(thr, s4, "column", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s4.(int32) != s5.(int32) {
+		goto L68
+	}
+	s4 = l0
+	s4, exc = genrt.GetFieldChecked(thr, s4, "line", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s6 = l2
+	s6, exc = genrt.GetFieldChecked(thr, s6, "line", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s6.(int32) != s7.(int32) {
+		goto L68
+	}
+	s6 = int32(1)
+	goto L69
+L68:
+	s0 = int32(0)
+L69:
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/Location", "equals", "(Ljava/lang/Object;)Z", Catty_com_eclipsesource_json_Location_equals___Ljava_lang_Object__Z})
+}
+
+// com/eclipsesource/json/ParseException.<init>
+func Catty_com_eclipsesource_json_ParseException_init___Ljava_lang_String_Lcom_eclipsesource_json_Location__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	s1 = genrt.New("java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str(" at ")
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l2
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/Object;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/RuntimeException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = l2
+	exc = genrt.SetFieldChecked(thr, s0, "location", "Lcom/eclipsesource/json/Location;", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/ParseException", "<init>", "(Ljava/lang/String;Lcom/eclipsesource/json/Location;)V", Catty_com_eclipsesource_json_ParseException_init___Ljava_lang_String_Lcom_eclipsesource_json_Location__V})
+}
+
+// com/eclipsesource/json/ParseException.getLocation
+func Catty_com_eclipsesource_json_ParseException_getLocation____Lcom_eclipsesource_json_Location_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "location", "Lcom/eclipsesource/json/Location;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/ParseException", "getLocation", "()Lcom/eclipsesource/json/Location;", Catty_com_eclipsesource_json_ParseException_getLocation____Lcom_eclipsesource_json_Location_})
+}
+
+// com/eclipsesource/json/ParseException.getOffset
+func Catty_com_eclipsesource_json_ParseException_getOffset____I(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "location", "Lcom/eclipsesource/json/Location;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.GetFieldChecked(thr, s1, "offset", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s2, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/ParseException", "getOffset", "()I", Catty_com_eclipsesource_json_ParseException_getOffset____I})
+}
+
+// com/eclipsesource/json/ParseException.getLine
+func Catty_com_eclipsesource_json_ParseException_getLine____I(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "location", "Lcom/eclipsesource/json/Location;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.GetFieldChecked(thr, s1, "line", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s2, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/ParseException", "getLine", "()I", Catty_com_eclipsesource_json_ParseException_getLine____I})
+}
+
+// com/eclipsesource/json/ParseException.getColumn
+func Catty_com_eclipsesource_json_ParseException_getColumn____I(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "location", "Lcom/eclipsesource/json/Location;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.GetFieldChecked(thr, s1, "column", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s2, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/ParseException", "getColumn", "()I", Catty_com_eclipsesource_json_ParseException_getColumn____I})
+}
+
+// com/eclipsesource/json/PrettyPrint.<init>
+func Catty_com_eclipsesource_json_PrettyPrint_init___AC_V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/WriterConfig", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = l1
+	exc = genrt.SetFieldChecked(thr, s0, "indentChars", "[C", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/PrettyPrint", "<init>", "([C)V", Catty_com_eclipsesource_json_PrettyPrint_init___AC_V})
+}
+
+// com/eclipsesource/json/PrettyPrint.singleLine
+func Catty_com_eclipsesource_json_PrettyPrint_singleLine____Lcom_eclipsesource_json_PrettyPrint_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	s0 = genrt.New("com/eclipsesource/json/PrettyPrint")
+	s1 = s0
+	s2 = nil
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/PrettyPrint", "<init>", "([C)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/PrettyPrint", "singleLine", "()Lcom/eclipsesource/json/PrettyPrint;", Catty_com_eclipsesource_json_PrettyPrint_singleLine____Lcom_eclipsesource_json_PrettyPrint_})
+}
+
+// com/eclipsesource/json/PrettyPrint.indentWithSpaces
+func Catty_com_eclipsesource_json_PrettyPrint_indentWithSpaces___I_Lcom_eclipsesource_json_PrettyPrint_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	if s0.(int32) >= 0 {
+		goto L14
+	}
+	s0 = genrt.New("java/lang/IllegalArgumentException")
+	s1 = s0
+	s2 = genrt.Str("number is negative")
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = &kernel.Thrown{Obj: s0.(*kernel.Instance)}
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L14:
+	s0 = l0
+	s0, exc = genrt.NewPrimitiveArray("C", s0.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s0
+	s0 = l1
+	s1 = int32(32)
+	_, exc = genrt.CallStatic(thr, "java/util/Arrays", "fill", "([CC)V", []kernel.Value{s0, s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.New("com/eclipsesource/json/PrettyPrint")
+	s1 = s0
+	s2 = l1
+	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/PrettyPrint", "<init>", "([C)V", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/PrettyPrint", "indentWithSpaces", "(I)Lcom/eclipsesource/json/PrettyPrint;", Catty_com_eclipsesource_json_PrettyPrint_indentWithSpaces___I_Lcom_eclipsesource_json_PrettyPrint_})
+}
+
+// com/eclipsesource/json/PrettyPrint.indentWithTabs
+func Catty_com_eclipsesource_json_PrettyPrint_indentWithTabs____Lcom_eclipsesource_json_PrettyPrint_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var s0, s1, s2, s3, s4, s5, s6 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6}
+	s0 = genrt.New("com/eclipsesource/json/PrettyPrint")
+	s1 = s0
+	s2 = int32(1)
+	s2, exc = genrt.NewPrimitiveArray("C", s2.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = s2
+	s4 = int32(0)
+	s5 = int32(9)
+	exc = genrt.AStoreChecked(s3, s4.(int32), s5)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallSpecial(thr, s4, "com/eclipsesource/json/PrettyPrint", "<init>", "([C)V", []kernel.Value{s5})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s3, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/PrettyPrint", "indentWithTabs", "()Lcom/eclipsesource/json/PrettyPrint;", Catty_com_eclipsesource_json_PrettyPrint_indentWithTabs____Lcom_eclipsesource_json_PrettyPrint_})
+}
+
+// com/eclipsesource/json/PrettyPrint.createWriter
+func Catty_com_eclipsesource_json_PrettyPrint_createWriter___Ljava_io_Writer__Lcom_eclipsesource_json_JsonWriter_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3, s4, s5, s6 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = genrt.New("com/eclipsesource/json/PrettyPrint$PrettyPrintWriter")
+	s1 = s0
+	s2 = l1
+	s3 = l0
+	s3, exc = genrt.GetFieldChecked(thr, s3, "indentChars", "[C")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s5 = nil
+	_, exc = genrt.CallSpecial(thr, s2, "com/eclipsesource/json/PrettyPrint$PrettyPrintWriter", "<init>", "(Ljava/io/Writer;[CLcom/eclipsesource/json/PrettyPrint$1;)V", []kernel.Value{s3, s4, s5})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s1, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/PrettyPrint", "createWriter", "(Ljava/io/Writer;)Lcom/eclipsesource/json/JsonWriter;", Catty_com_eclipsesource_json_PrettyPrint_createWriter___Ljava_io_Writer__Lcom_eclipsesource_json_JsonWriter_})
+}
+
+// com/eclipsesource/json/WriterConfig.<init>
+func Catty_com_eclipsesource_json_WriterConfig_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/WriterConfig", "<init>", "()V", Catty_com_eclipsesource_json_WriterConfig_init____V})
+}
+
+// com/eclipsesource/json/WritingBuffer.<init>
+func Catty_com_eclipsesource_json_WritingBuffer_init___Ljava_io_Writer__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s1 = l1
+	s2 = int32(16)
+	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/WritingBuffer", "<init>", "(Ljava/io/Writer;I)V", []kernel.Value{s1, s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/WritingBuffer", "<init>", "(Ljava/io/Writer;)V", Catty_com_eclipsesource_json_WritingBuffer_init___Ljava_io_Writer__V})
+}
+
+// com/eclipsesource/json/WritingBuffer.<init>
+func Catty_com_eclipsesource_json_WritingBuffer_init___Ljava_io_Writer_I_V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/io/Writer", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = int32(0)
+	exc = genrt.SetFieldChecked(thr, s0, "fill", "I", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = l1
+	exc = genrt.SetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l0
+	s1 = l2
+	s1, exc = genrt.NewPrimitiveArray("C", s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	exc = genrt.SetFieldChecked(thr, s0, "buffer", "[C", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/WritingBuffer", "<init>", "(Ljava/io/Writer;I)V", Catty_com_eclipsesource_json_WritingBuffer_init___Ljava_io_Writer_I_V})
+}
+
+// com/eclipsesource/json/WritingBuffer.write
+func Catty_com_eclipsesource_json_WritingBuffer_write___I_V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3, s4, s5, s6, s7 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6, s7}
+	l0 = recv
+	l1 = args[0]
+	l0 = recv
+	l1 = args[0]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "fill", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "buffer", "[C")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = genrt.ArrayLength(s3)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = int32(1)
+	s3 = (s3.(int32)) - (s4.(int32))
+	if s2.(int32) <= s3.(int32) {
+		goto L18
+	}
+	s2 = l0
+	_, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/WritingBuffer", "flush", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L18:
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "buffer", "[C")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s3 = s2
+	s3, exc = genrt.GetFieldChecked(thr, s3, "fill", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s5 = s4
+	s4 = s3
+	s3 = s5
+	s6 = int32(1)
+	s5 = (s5.(int32)) + (s6.(int32))
+	exc = genrt.SetFieldChecked(thr, s4, "fill", "I", s5)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = l1
+	s4 = s4.(int32) & 0xFFFF
+	exc = genrt.AStoreChecked(s2, s3.(int32), s4)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/WritingBuffer", "write", "(I)V", Catty_com_eclipsesource_json_WritingBuffer_write___I_V})
+}
+
+// com/eclipsesource/json/WritingBuffer.write
+func Catty_com_eclipsesource_json_WritingBuffer_write___ACII_V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2, s3, s4, s5, s6, s7, s8 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6, s7, s8}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l3 = args[2]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l3 = args[2]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "fill", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "buffer", "[C")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = genrt.ArrayLength(s3)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = l3
+	s3 = (s3.(int32)) - (s4.(int32))
+	if s2.(int32) <= s3.(int32) {
+		goto L38
+	}
+	s2 = l0
+	_, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/WritingBuffer", "flush", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l3
+	s3 = l0
+	s3, exc = genrt.GetFieldChecked(thr, s3, "buffer", "[C")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = genrt.ArrayLength(s4)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s3.(int32) <= s4.(int32) {
+		goto L38
+	}
+	s3 = l0
+	s3, exc = genrt.GetFieldChecked(thr, s3, "writer", "Ljava/io/Writer;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s5 = l1
+	s6 = l2
+	s7 = l3
+	_, exc = genrt.CallVirtual(thr, s4, "java/io/Writer", "write", "([CII)V", []kernel.Value{s5, s6, s7})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+L38:
+	s0 = l1
+	s1 = l2
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "buffer", "[C")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = l0
+	s4, exc = genrt.GetFieldChecked(thr, s4, "fill", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s6 = l3
+	_, exc = genrt.CallStatic(thr, "java/lang/System", "arraycopy", "(Ljava/lang/Object;ILjava/lang/Object;II)V", []kernel.Value{s2, s3, s4, s5, s6})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s3 = s2
+	s3, exc = genrt.GetFieldChecked(thr, s3, "fill", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s5 = l3
+	s4 = (s4.(int32)) + (s5.(int32))
+	exc = genrt.SetFieldChecked(thr, s3, "fill", "I", s4)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/WritingBuffer", "write", "([CII)V", Catty_com_eclipsesource_json_WritingBuffer_write___ACII_V})
+}
+
+// com/eclipsesource/json/WritingBuffer.write
+func Catty_com_eclipsesource_json_WritingBuffer_write___Ljava_lang_String_II_V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2, s3, s4, s5, s6, s7, s8 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6, s7, s8}
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l3 = args[2]
+	l0 = recv
+	l1 = args[0]
+	l2 = args[1]
+	l3 = args[2]
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "fill", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "buffer", "[C")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = genrt.ArrayLength(s3)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = l3
+	s3 = (s3.(int32)) - (s4.(int32))
+	if s2.(int32) <= s3.(int32) {
+		goto L38
+	}
+	s2 = l0
+	_, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/WritingBuffer", "flush", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l3
+	s3 = l0
+	s3, exc = genrt.GetFieldChecked(thr, s3, "buffer", "[C")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = genrt.ArrayLength(s4)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	if s3.(int32) <= s4.(int32) {
+		goto L38
+	}
+	s3 = l0
+	s3, exc = genrt.GetFieldChecked(thr, s3, "writer", "Ljava/io/Writer;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s5 = l1
+	s6 = l2
+	s7 = l3
+	_, exc = genrt.CallVirtual(thr, s4, "java/io/Writer", "write", "(Ljava/lang/String;II)V", []kernel.Value{s5, s6, s7})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+L38:
+	s0 = l1
+	s1 = l2
+	s2 = l2
+	s3 = l3
+	s2 = (s2.(int32)) + (s3.(int32))
+	s3 = l0
+	s3, exc = genrt.GetFieldChecked(thr, s3, "buffer", "[C")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s5 = l0
+	s5, exc = genrt.GetFieldChecked(thr, s5, "fill", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s2, "java/lang/String", "getChars", "(II[CI)V", []kernel.Value{s3, s4, s5, s6})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s3 = s2
+	s3, exc = genrt.GetFieldChecked(thr, s3, "fill", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s5 = l3
+	s4 = (s4.(int32)) + (s5.(int32))
+	exc = genrt.SetFieldChecked(thr, s3, "fill", "I", s4)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/WritingBuffer", "write", "(Ljava/lang/String;II)V", Catty_com_eclipsesource_json_WritingBuffer_write___Ljava_lang_String_II_V})
+}
+
+// com/eclipsesource/json/WritingBuffer.flush
+func Catty_com_eclipsesource_json_WritingBuffer_flush____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2, s3, s4, s5, s6, s7 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6, s7}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l0
+	s2, exc = genrt.GetFieldChecked(thr, s2, "buffer", "[C")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = int32(0)
+	s5 = l0
+	s5, exc = genrt.GetFieldChecked(thr, s5, "fill", "I")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s3, "java/io/Writer", "write", "([CII)V", []kernel.Value{s4, s5, s6})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = l0
+	s4 = int32(0)
+	exc = genrt.SetFieldChecked(thr, s3, "fill", "I", s4)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/WritingBuffer", "flush", "()V", Catty_com_eclipsesource_json_WritingBuffer_flush____V})
+}
+
+// com/eclipsesource/json/WritingBuffer.close
+func Catty_com_eclipsesource_json_WritingBuffer_close____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0 kernel.Value
+	_ = []kernel.Value{s0}
+	l0 = recv
+	l0 = recv
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"com/eclipsesource/json/WritingBuffer", "close", "()V", Catty_com_eclipsesource_json_WritingBuffer_close____V})
+}
+
+// JsonDriver.<init>
+func Catty_JsonDriver_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"JsonDriver", "<init>", "()V", Catty_JsonDriver_init____V})
+}
+
+// JsonDriver.main
+func Catty_JsonDriver_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3, l4, l5, l6 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3, l4, l5, l6}
+	var s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16, s17, s18, s19 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16, s17, s18, s19}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = int32(6)
+	s0, exc = genrt.NewRefArray("java/lang/String", s0.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = s0
+	s2 = int32(0)
+	s3 = genrt.Str("{\"a\":1}")
+	exc = genrt.AStoreChecked(s1, s2.(int32), s3)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s4 = s3
+	s5 = int32(1)
+	s6 = genrt.Str("{\"a\":\"s\",\"b\":true}")
+	exc = genrt.AStoreChecked(s4, s5.(int32), s6)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s7 = s6
+	s8 = int32(2)
+	s9 = genrt.Str("[1,2,3]")
+	exc = genrt.AStoreChecked(s7, s8.(int32), s9)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s10 = s9
+	s11 = int32(3)
+	s12 = genrt.Str("{\"n\":{\"m\":[]}}")
+	exc = genrt.AStoreChecked(s10, s11.(int32), s12)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s13 = s12
+	s14 = int32(4)
+	s15 = genrt.Str("{\"d\":3.5,\"e\":-0.5,\"f\":1e2}")
+	exc = genrt.AStoreChecked(s13, s14.(int32), s15)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s16 = s15
+	s17 = int32(5)
+	s18 = genrt.Str("{\"name\":\"catty\",\"year\":2026,\"tags\":[\"aot\",\"fast\",17],\"nested\":{\"pi\":3.5,\"ok\":true,\"nil\":null}}")
+	exc = genrt.AStoreChecked(s16, s17.(int32), s18)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s18
+	s18 = l1
+	l2 = s18
+	s18 = l2
+	s18 = genrt.ArrayLength(s18)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l3 = s18
+	s18 = int32(0)
+	l4 = s18
+L44:
+	s0 = l4
+	s1 = l3
+	if s0.(int32) >= s1.(int32) {
+		goto L129
+	}
+	s0 = l2
+	s1 = l4
+	s0, exc = genrt.ALoadChecked(s0, s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l5 = s0
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.New("java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/lang/Throwable") {
+			goto L94
+		}
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("PROBE-OK len=")
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/lang/Throwable") {
+			goto L94
+		}
+		return nil, exc // no handler matched
+	}
+	s2 = l5
+	s2, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "parse", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s2})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/lang/Throwable") {
+			goto L94
+		}
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonValue", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/lang/Throwable") {
+			goto L94
+		}
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/String", "length", "()I", []kernel.Value{})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/lang/Throwable") {
+			goto L94
+		}
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(I)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/lang/Throwable") {
+			goto L94
+		}
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/lang/Throwable") {
+			goto L94
+		}
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/lang/Throwable") {
+			goto L94
+		}
+		return nil, exc // no handler matched
+	}
+	goto L123
+L94:
+	s0 = exc.Obj
+	l6 = s0
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.New("java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("PROBE-ERR ")
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l6
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/Object;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+L123:
+	l4 = l4.(int32) + 1
+	goto L44
+L129:
+	s0 = l1
+	s1 = int32(5)
+	s0, exc = genrt.ALoadChecked(s0, s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "parse", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s0})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtual(thr, s0, "com/eclipsesource/json/JsonValue", "asObject", "()Lcom/eclipsesource/json/JsonObject;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s0
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.New("java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("name=")
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l2
+	s3 = genrt.Str("name")
+	s2, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonObject", "get", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonValue", "asString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.New("java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("year=")
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l2
+	s3 = genrt.Str("year")
+	s4 = int32(0)
+	s2, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonObject", "getInt", "(Ljava/lang/String;I)I", []kernel.Value{s3, s4})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(I)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.New("java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("tags=")
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l2
+	s3 = genrt.Str("tags")
+	s2, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonObject", "get", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonValue", "asArray", "()Lcom/eclipsesource/json/JsonArray;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonArray", "size", "()I", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(I)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.New("java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("pi=")
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l2
+	s3 = genrt.Str("nested")
+	s2, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonObject", "get", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s3})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonValue", "asObject", "()Lcom/eclipsesource/json/JsonObject;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s3 = genrt.Str("pi")
+	s4 = float64(0)
+	s2, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonObject", "getDouble", "(Ljava/lang/String;D)D", []kernel.Value{s3, s4})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(D)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.Str("{\"bad")
+	l3 = s0
+	s0 = l3
+	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "parse", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s0})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "com/eclipsesource/json/ParseException") {
+			goto L297
+		}
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.Str("no-throw=BAD")
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "com/eclipsesource/json/ParseException") {
+			goto L297
+		}
+		return nil, exc // no handler matched
+	}
+	goto L307
+L297:
+	s0 = exc.Obj
+	l4 = s0
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.Str("parse-err caught ok")
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L307:
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.Str("done")
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"JsonDriver", "main", "([Ljava/lang/String;)V", Catty_JsonDriver_main___ALjava_lang_String__V})
+}
+
+// TwoParse.<init>
+func Catty_TwoParse_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"TwoParse", "<init>", "()V", Catty_TwoParse_init____V})
+}
+
+// TwoParse.main
+func Catty_TwoParse_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	l0 = args[0]
+	l0 = args[0]
+	s0 = genrt.Str("{\"name\":\"catty\",\"year\":2026,\"tags\":[\"aot\",\"fast\",17],\"nested\":{\"pi\":3.5,\"ok\":true,\"nil\":null}}")
+	l1 = s0
+	s0 = int32(1)
+	l2 = s0
+L5:
+	s0 = l2
+	s1 = int32(2)
+	if s0.(int32) > s1.(int32) {
+		goto L99
+	}
+	s0 = l1
+	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "parse", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", []kernel.Value{s0})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/lang/Throwable") {
+			goto L58
+		}
+		return nil, exc // no handler matched
+	}
+	l3 = s0
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.New("java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/lang/Throwable") {
+			goto L58
+		}
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("parse#")
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/lang/Throwable") {
+			goto L58
+		}
+		return nil, exc // no handler matched
+	}
+	s2 = l2
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(I)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/lang/Throwable") {
+			goto L58
+		}
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str(" len=")
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/lang/Throwable") {
+			goto L58
+		}
+		return nil, exc // no handler matched
+	}
+	s2 = l3
+	s2, exc = genrt.CallVirtual(thr, s2, "com/eclipsesource/json/JsonValue", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/lang/Throwable") {
+			goto L58
+		}
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtual(thr, s2, "java/lang/String", "length", "()I", []kernel.Value{})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/lang/Throwable") {
+			goto L58
+		}
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(I)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/lang/Throwable") {
+			goto L58
+		}
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/lang/Throwable") {
+			goto L58
+		}
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/lang/Throwable") {
+			goto L58
+		}
+		return nil, exc // no handler matched
+	}
+	goto L93
+L58:
+	s0 = exc.Obj
+	l3 = s0
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.New("java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("parse#")
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l2
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(I)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str(" ERR: ")
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l3
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/Object;)Ljava/lang/StringBuilder;", []kernel.Value{s2})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtual(thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallVirtual(thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", []kernel.Value{s1})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+L93:
+	l2 = l2.(int32) + 1
+	goto L5
+L99:
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() {
+	installTable = append(installTable,
+		struct {
+			cls, name, desc string
+			fn              func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown)
+		}{"TwoParse", "main", "([Ljava/lang/String;)V", Catty_TwoParse_main___ALjava_lang_String__V})
 }
 
 // Install wires emitted bodies into the kernel (call once after loading).

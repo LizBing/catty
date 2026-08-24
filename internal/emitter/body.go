@@ -39,6 +39,10 @@ func (e *methodEmitter) body() error {
 	e.targets = jumpTargets
 
 	canonDepths := e.canonDepths
+	if os.Getenv("CATTY_BODYDBG") != "" && e.cf.ThisClass == "com/eclipsesource/json/Json" &&
+		e.m.Desc == "(F)Lcom/eclipsesource/json/JsonValue;" {
+		fmt.Fprintf(os.Stderr, "[body-map] len=%d v1=%v ptr=%p\n", len(canonDepths), canonDepths[1], canonDepths)
+	}
 
 	argDescs, _, err := splitMethodDesc(e.m.Desc)
 	if err != nil {
@@ -65,6 +69,10 @@ func (e *methodEmitter) body() error {
 		_, isHandler := e.handlerAt[pc]
 		if d, ok := canonDepths[pc]; ok {
 			e.depth = d
+			if os.Getenv("CATTY_BODYDBG") != "" && e.cf.ThisClass == "com/eclipsesource/json/Json" &&
+				e.m.Desc == "(F)Lcom/eclipsesource/json/JsonValue;" {
+				fmt.Fprintf(os.Stderr, "[bd] pc=%d canon=%d depth_now=%d\n", pc, d, e.depth)
+			}
 		}
 		if isHandler {
 			e.p("L%d:", pc)
@@ -93,5 +101,6 @@ func (e *methodEmitter) body() error {
 			}
 		}
 	}
+	e.p("return nil, nil // unreachable terminal")
 	return nil
 }

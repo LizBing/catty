@@ -79,6 +79,7 @@ func emitMethodBody(cf *classfile.ClassFile, m *classfile.MethodInfo) (string, e
 
 	// Prologue: exception carrier + locals + stack slots (blank-used).
 	e.p("var exc *kernel.Thrown")
+	e.p("_ = exc")
 	if e.maxLocals > 0 {
 		e.p("var %s kernel.Value", slotList("l", e.maxLocals))
 		e.p("_ = []kernel.Value{%s}", slotList("l", e.maxLocals))

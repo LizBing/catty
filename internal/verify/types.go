@@ -90,7 +90,10 @@ func (c *checker) refCompatible(child, parent string) bool {
 	if child == parent {
 		return true
 	}
-	if parent == "java/lang/Object" {
+	if parent == "java/lang/Object" || parent == "java/io/Serializable" {
+		// Object is the universal supertype; Serializable is a marker
+		// interface every value type satisfies (javac frames type it
+		// liberally — e.g. String/Integer merges in minimal-json).
 		return true
 	}
 	if strings.HasPrefix(child, "[") || strings.HasPrefix(parent, "[") {

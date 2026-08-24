@@ -2,6 +2,7 @@ package emitter
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"catty/internal/classfile"
@@ -28,6 +29,8 @@ func (e *methodEmitter) emitOne(pc int) error {
 
 	case 0x00: // nop
 
+	case 0x0e, 0x0f: // dconst_0, dconst_1
+		pushCat2(fmt.Sprintf("float64(%d)", int(op)-0x0e))
 	case 0x01:
 		pushV("nil")
 	case 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08:
@@ -89,6 +92,30 @@ func (e *methodEmitter) emitOne(pc int) error {
 		}
 		pushV(e.LocalName(n))
 
+	case 0x17: // fload (indexed)
+		idx := int(code[pc+1])
+		if err := e.checkLocalIdx(idx); err != nil {
+			return fail("%v", err)
+		}
+		pushV(e.LocalName(idx))
+	case 0x18: // dload (indexed, cat2)
+		idx := int(code[pc+1])
+		if err := e.checkLocalIdx(idx); err != nil {
+			return fail("%v", err)
+		}
+		pushCat2(e.LocalName(idx))
+	case 0x22, 0x23, 0x24, 0x25: // fload_0..3
+		n := int(op - 0x22)
+		if err := e.checkLocalIdx(n); err != nil {
+			return fail("%v", err)
+		}
+		pushV(e.LocalName(n))
+	case 0x26, 0x27, 0x28, 0x29: // dload_0..3 (cat2)
+		n := int(op - 0x26)
+		if err := e.checkLocalIdx(n); err != nil {
+			return fail("%v", err)
+		}
+		pushCat2(e.LocalName(n))
 	case 0x16: // lload
 		idx := int(code[pc+1])
 		if err := e.checkLocalIdx(idx); err != nil {
@@ -143,6 +170,27 @@ func (e *methodEmitter) emitOne(pc int) error {
 			return fail("%v", err)
 		}
 		e.p("%s = %s", e.LocalName(n), popRef())
+
+	case 0x38: // fstore (indexed)
+		idx := int(code[pc+1])
+		if err := e.checkLocalIdx(idx); err != nil {
+			return fail("%v", err)
+		}
+		e.p("%s = %s", e.LocalName(idx), popRef())
+	case 0x62, 0x66, 0x6a, 0x6e: // dadd,dsub,dmul,ddiv (cat2)
+		b, a := popRefCat2(), popRefCat2()
+		opStr := map[byte]string{0x62: "+", 0x66: "-", 0x6a: "*", 0x6e: "/"}[op]
+		pushCat2(fmt.Sprintf("(%s.(float64)) %s (%s.(float64))", a, opStr, b))
+	case 0x63, 0x67, 0x6b, 0x6f: // fastore? no: fadd,fsub,fmul,fdiv (cat1)
+		b, a := popRef(), popRef()
+		opStr := map[byte]string{0x63: "+", 0x67: "-", 0x6b: "*", 0x6f: "/"}[op]
+		pushV(fmt.Sprintf("(%s.(float32)) %s (%s.(float32))", a, opStr, b))
+	case 0x76: // fneg
+		a := popRef()
+		pushV(fmt.Sprintf("-(%s.(float32))", a))
+	case 0x77: // dneg
+		a := popRefCat2()
+		pushCat2(fmt.Sprintf("-(%s.(float64))", a))
 
 	case 0x37: // lstore (indexed, cat2)
 		idx := int(code[pc+1])
@@ -302,25 +350,101 @@ func (e *methodEmitter) emitOne(pc int) error {
 	case 0xa5, 0xa6: // if_acmpeq / ne
 		b, a := popRef(), popRef()
 		tgt := branchTarget(pc, code)
-		opStr := "=="
 		if op == 0xa6 {
-			opStr = "!="
+			e.p("if !genrt.RefEq(%s, %s) { goto L%d }", a, b, tgt)
+		} else {
+			e.p("if genrt.RefEq(%s, %s) { goto L%d }", a, b, tgt)
 		}
-		e.p("if genrt.RefEq(%s, %s) %s { goto L%d }", a, b, opStr, tgt)
 	case 0xc6, 0xc7: // ifnull / ifnonnull
 		v := popRef()
 		tgt := branchTarget(pc, code)
 		wantNil := op == 0xc6
 		e.p("if (%s == nil) == %v { goto L%d }", v, wantNil, tgt)
+
 	case 0xa7: // goto
 		tgt := branchTarget(pc, code)
 		e.p("goto L%d", tgt)
 
-	case 0xad, 0xaf: // lreturn / dreturn (cat2)
-		e.p("return %s, nil", popRefCat2())
-	case 0xac, 0xb0: // ireturn / areturn
+	case 0xaa: // tableswitch
+		p := pc + 1
+		for p%4 != 0 {
+			p++
+		}
+		rd32 := func(i int) int32 {
+			return int32(uint32(code[i])<<24 | uint32(code[i+1])<<16 |
+				uint32(code[i+2])<<8 | uint32(code[i+3]))
+		}
+		def := int(rd32(p))
+		low := int(rd32(p + 4))
+		high := int(rd32(p + 8))
+		p += 12
+		k := popRef()
+		e.p("switch %s.(int32) {", k)
+		for v := low; v <= high; v++ {
+			tgt := pc + int(rd32(p))
+			e.p("case %d:", v)
+			e.p("	goto L%d", tgt)
+			p += 4
+		}
+		e.p("default:")
+		e.p("	goto L%d", pc+def)
+		e.p("}")
+	case 0xab: // lookupswitch
+		p := pc + 1
+		for p%4 != 0 {
+			p++
+		}
+		rd32 := func(i int) int32 {
+			return int32(uint32(code[i])<<24 | uint32(code[i+1])<<16 |
+				uint32(code[i+2])<<8 | uint32(code[i+3]))
+		}
+		def := int(rd32(p))
+		npairs := int(rd32(p + 4))
+		p += 8
+		k := popRef()
+		e.p("switch %s.(int32) {", k)
+		for j := 0; j < npairs; j++ {
+			match := int(rd32(p))
+			tgt := pc + int(rd32(p+4))
+			e.p("case %d:", match)
+			e.p("	goto L%d", tgt)
+			p += 8
+		}
+		e.p("default:")
+		e.p("	goto L%d", pc+def)
+		e.p("}")
+
+	case 0x7e: // iand
+		b, a := popRef(), popRef()
+		pushV(fmt.Sprintf("(%s.(int32)) & (%s.(int32))", a, b))
+	case 0x80: // ior
+		b, a := popRef(), popRef()
+		pushV(fmt.Sprintf("(%s.(int32)) | (%s.(int32))", a, b))
+	case 0x82: // ixor
+		b, a := popRef(), popRef()
+		pushV(fmt.Sprintf("(%s.(int32)) ^ (%s.(int32))", a, b))
+
+	case 0x85: // i2l
+		a := popRef()
+		pushCat2(fmt.Sprintf("int64(%s.(int32))", a))
+	case 0x88: // l2i
+		a := popRefCat2()
+		pushV(fmt.Sprintf("int32(%s.(int64))", a))
+	case 0x91: // i2b
+		a := popRef()
+		pushV(fmt.Sprintf("int32(int8(%s.(int32)))", a))
+	case 0x92: // i2c
+		a := popRef()
+		pushV(fmt.Sprintf("%s.(int32) & 0xFFFF", a))
+	case 0x93: // i2s
+		a := popRef()
+		pushV(fmt.Sprintf("int32(int16(%s.(int32)))", a))
+
+	case 0xac, 0xae, 0xaf, 0xb0: // ireturn/freturn/dreturn/areturn (cat1)
 		v := popRef()
 		e.p("return %s, nil", v)
+	case 0xad: // lreturn (cat2)
+		e.p("return %s, nil", popRefCat2())
 	case 0xb1: // return
 		e.p("return nil, nil")
 
@@ -413,6 +537,9 @@ func (e *methodEmitter) emitOne(pc int) error {
 			call = fmt.Sprintf("genrt.Call%s(thr, %s, %q, %q, %q, %s)",
 				invokeKindName(op), recv, cls, name, desc, argsExpr)
 		}
+		if os.Getenv("CATTY_EMITDBG") != "" && strings.Contains(name, "isNaN") {
+			fmt.Fprintf(os.Stderr, "[emit-isa] depth=%d base=%d argNames=%v\n", e.depth, base, argNames)
+		}
 		e.p("%s, exc = %s", dst, call)
 		_ = fnName
 		excAfter()
@@ -457,6 +584,17 @@ func (e *methodEmitter) emitOne(pc int) error {
 		arr := popRef()
 		e.p("exc = genrt.AStoreChecked(%s, %s.(int32), %s)", arr, idx, val)
 		excAfter()
+
+	case 0xbd: // anewarray
+		clsName, cerr := classAt(e.cf, code, pc)
+		if cerr != nil {
+			return cerr
+		}
+		sizeExpr := popRef()
+		dst := fmt.Sprintf("s%d", e.depth)
+		e.p("%s, exc = genrt.NewRefArray(%q, %s.(int32))", dst, clsName, sizeExpr)
+		excAfter()
+		e.depth++
 
 	case 0xbe: // arraylength
 		arr := popRef()

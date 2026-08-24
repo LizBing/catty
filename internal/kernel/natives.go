@@ -971,3 +971,29 @@ func natSBSetLength(ctx *CallContext, recv Value, args []Value) (Value, error) {
 	}
 	return nil, nil
 }
+
+func natStaticIntegerParseIntRadix(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	js, _ := AsJString(args[0])
+	radix := argI(args, 1)
+	v, err := strconv.ParseInt(js.String(), int(radix), 32)
+	if err != nil {
+		return nil, ctx.Throw("java/lang/NumberFormatException", js.String())
+	}
+	return int32(v), nil
+}
+
+func natStaticIntegerToStringRadix(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	v := argI(args, 0)
+	radix := int(argI(args, 1))
+	return ctx.K.InternGo(strconv.FormatInt(int64(v), radix)), nil
+}
+
+func natSBAppendDouble(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	b := sbOf(recv)
+	d := args[0].(float64)
+	s := strconv.FormatFloat(d, 'g', -1, 64)
+	for _, r := range s {
+		b.buf = append(b.buf, uint16(r))
+	}
+	return recv, nil
+}

@@ -82,7 +82,11 @@ func (c *checker) simulateIrregular(m *classfile.MethodInfo, pc int, st *frame, 
 		case classfile.CString:
 			st.push(tObj("java/lang/String"))
 		case classfile.CClass:
-			st.push(tObj("java/lang/Class"))
+			cn, cnerr := c.cf.ClassName(idx)
+			if cnerr != nil {
+				return nil, fail("%v", cnerr)
+			}
+			st.push(tObj(cn)) // array-class constants carry their descriptor
 		default:
 			return nil, fail("ldc on %s", e.Tag)
 		}

@@ -419,3 +419,14 @@ func LRem(a, b int64) (int64, *kernel.Thrown) {
 	}
 	return a % b, nil
 }
+
+// NewRefArray allocates a reference-component array with nil elements.
+func NewRefArray(compClass string, n int32) (kernel.Value, *kernel.Thrown) {
+	arrCls := K.ArrayClassOf("L" + compClass + ";")
+	if arrCls == nil {
+		return nil, Throw("java/lang/NullPointerException", "no array class")
+	}
+	a := &kernel.ArrayObj{CompDesc: "L" + compClass + ";", Elems: make([]kernel.Value, n)}
+	a.Class = arrCls
+	return a, nil
+}

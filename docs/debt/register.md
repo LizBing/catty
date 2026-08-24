@@ -26,3 +26,5 @@ Orchestrator 在空闲期择"高收益/低成本"清偿；清偿后移入表格�
 | DEBT-0017 | invoke 返回 cat2 时发射器深度与 canonDepths 一致性未完全统一 | Bench 用 tickMillis(int) 绕行后全部基准可 AOT；nanoTime(J) 路径仍受限 | 与 0015 同源：需单一事实源 | 中 | 并入 0015 收尾方案 |
 
 | DEBT-0018 | 同一进程内第二次 Json.parse(String) 返回 null | 六个渐进文档探针（含嵌套/浮点/科学计数法）全部经解释器解析正确；随后对同一文档再次 parse 得 null（"Not an object: null"）。JVM oracle 全部正常 | 初判 StringReader EOF 边界或 JsonParser fillBuffer 与 read() 返回约定的残余偏差；需最小二例复现（同 doc 连续两次 parse）逐 read 对照 | 中 | 下轮：新增双 parse 回归用例，instrument StringReader.read 序列 vs JDK |
+
+| DEBT-0019 | AOT 路径 anewarray→aastore 链 NPE | JsonDriver.main docs 数组：生成序列 NewRefArray+AStoreChecked 文本正确，运行时报 array store into null；解释器同文档正常 | NewRefArray 内 K.ArrayClassOf 可能返回 nil → Throw NPE；或 genrt.K 时序 | 高 | 下轮首项：edit 工具落地 [nra] 探针定位 |

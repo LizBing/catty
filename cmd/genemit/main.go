@@ -7,6 +7,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 	"path/filepath"
 
 	"catty/internal/classfile"
@@ -27,9 +28,10 @@ func main() {
 	for _, name := range flag.Args() {
 		var data []byte
 		var err error
+		rel := filepath.FromSlash(strings.ReplaceAll(name, ".", "/") + ".class")
 		for _, dir := range dirs {
 			var d []byte
-			d, err = os.ReadFile(filepath.Join(dir, filepath.FromSlash(name)+".class"))
+			d, err = os.ReadFile(filepath.Join(dir, rel))
 			if err == nil {
 				data = d
 				break
