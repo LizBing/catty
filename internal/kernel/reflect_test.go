@@ -313,6 +313,49 @@ func wantThrow(t *testing.T, err error, msgPart string) {
 	}
 }
 
+func TestReflectionArrayClassAndStaticInvoke(t *testing.T) {
+	k, _ := reflectKernel(t)
+	arrCls := reflectNative(t, k, "java/lang/Class", "forName",
+		"(Ljava/lang/String;)Ljava/lang/Class;", nil, k.InternGo("[Ljava.lang.String;"))
+	if arrCls == nil {
+		t.Fatal("array forName returned nil")
+	}
+	name := jstrOf(t, reflectNative(t, k, "java/lang/Class", "getName",
+		"()Ljava/lang/String;", arrCls))
+	if name != "[Ljava.lang.String;" {
+		t.Errorf("array getName = %q", name)
+	}
+	if again := reflectNative(t, k, "java/lang/Class", "forName",
+		"(Ljava/lang/String;)Ljava/lang/Class;", nil, k.InternGo("[Ljava.lang.String;")); again != arrCls {
+		t.Error("array forName identity broken")
+	}
+
+	// static method invoked with an EMPTY args array (non-null)
+	if _, err := k.DefineClass(&ClassDef{
+		Name: "go/S",
+		Methods: []MethodDef{{Name: "seven", Desc: "()I", Flags: 0x0009,
+			Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+				return int32(7), nil
+			}}},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	m, err := k.ResolveMethod(mustLookup(k, "go/S"), "seven", "()I")
+	if err != nil {
+		t.Fatal(err)
+	}
+	empty, _ := k.NewArray("Ljava/lang/Object;", 0)
+	out, ierr := k.InvokeAs(nil, m, nil, []Value{empty}) // invoke(Object,[Object) shape
+	if ierr != nil {
+		t.Fatalf("static invoke failed: %v", ierr)
+	}
+	if v, ok := out.(int32); !ok || v != 7 {
+		t.Errorf("static seven = %#v", out)
+	}
+	_ = empty
+	_ = err
+}
+
 func TestReflectionEdgePins(t *testing.T) {
 	k, _ := reflectKernel(t)
 	clsObj := reflectNative(t, k, "java/lang/Class", "forName",

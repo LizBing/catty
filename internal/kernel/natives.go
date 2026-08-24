@@ -679,7 +679,8 @@ func natClassGetName(ctx *CallContext, recv Value, args []Value) (Value, error) 
 		return nil, fmt.Errorf("Class instance lacks class payload")
 	}
 	if strings.HasPrefix(c.Name, "[") {
-		return ctx.K.MakeJStringFromGo(c.Name), nil // arrays keep descriptor form
+		// JVM binary-name form for arrays: [Ljava.lang.String;
+		return ctx.K.MakeJStringFromGo(dotted(c.Name)), nil
 	}
 	return ctx.K.MakeJStringFromGo(dotted(c.Name)), nil
 }
