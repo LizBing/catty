@@ -38,14 +38,18 @@ T6 捎带            make fuzz（DEBT-0001 缓解：30s 401 万次无 panic）�
 - [x] make check 绿 / 全仓 -race 绿 / 钉扎零回退
 - [x] vcall ≥1.5×（实测 **2.95×**）；mapops ≥1.5×（实测 **1.50×**，压线）
 - [x] R-0006 落盘（docs/research/R-0006-dispatch-throughput.md）
+- [x] U1 达标：mapops 再降 ≥20%（实测 -39.7%，R-0007）
 
 ## 下轮余项
 
 ```
-U1 SB 五连模式折叠 + Integer 装箱分配削减（mapops 新首位瓶颈）
-U2 strcat 波动归因（逃逸分析敏感，R-0003 建议 #5 关联）
-U3 堆栈叶帧行号（发射期 LNT 烘焙进助手调用）
-U4 p99 持续负载采样（卖点②的正式证据形态）
+U1 分配侧组合拳      JString hashCode/UTF-8 惰性缓存、jkey 结构键、          ✅
+                     CallContext 池化、SB 折叠(增长链守卫)、abuf 参数缓冲
+                     → mapops -39.7%（2.49× 于解释器，R-0007）
+U2 strcat 波动归因   O(n²) 复制流量 × GC 相位；折叠 23× 回归反向印证        ✅(记录)
+U3 堆栈叶帧行号       发射期 LNT 烘焙进助手调用                              ⬜
+U4 p99 持续负载采样   卖点②正式证据形态                                      ⬜
+U5 Integer 装箱削减   需逃逸分析级手段或 workload 层接受                      ⬜
 ```
 
 ## Risks（存档）

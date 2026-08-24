@@ -10,6 +10,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"runtime/pprof"
 	"strings"
 
@@ -33,6 +34,18 @@ func main() {
 			os.Exit(1)
 		}
 		defer pprof.StopCPUProfile()
+	}
+	// CATTY_MEMPROF=<file> captures a heap (alloc_space) profile at exit.
+	if path := os.Getenv("CATTY_MEMPROF"); path != "" {
+		defer func() {
+			f, err := os.Create(path)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, "cattaot memprof:", err)
+				return
+			}
+			runtime.GC()
+			_ = pprof.Lookup("allocs").WriteTo(f, 0)
+		}()
 	}
 
 	cp := ""

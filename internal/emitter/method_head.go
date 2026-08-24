@@ -69,6 +69,23 @@ func emitMethodBody(cf *classfile.ClassFile, m *classfile.MethodInfo) (string, e
 		e.handlerAt[int(h.HandlerPc)] = catchName(e.cf, h.CatchType)
 	}
 	e.canonDepths = e.computeCanonicalDepths(reach)
+	e.reach = reach
+	e.sbFolds = e.findSBFolds()
+
+	// Arg-buffer sizing: widest invoke argument list among reachable
+	// call sites (bounded; beyond the cap we fall back to heap literals).
+	for pc := range reach {
+		switch code.Code[pc] {
+		case 0xb6, 0xb7, 0xb8, 0xb9:
+			if _, _, desc, _, err := refAt(e.cf, code.Code, pc); err == nil {
+				if argDescs, _, derr := splitMethodDesc(desc); derr == nil && len(argDescs) > e.maxArgs {
+					if n := len(argDescs); n <= 32 {
+						e.maxArgs = n
+					}
+				}
+			}
+		}
+	}
 
 	maxSlot := int(code.MaxStack) + 1
 	for _, d := range e.canonDepths {
@@ -86,6 +103,24 @@ func emitMethodBody(cf *classfile.ClassFile, m *classfile.MethodInfo) (string, e
 	}
 	e.p("var %s kernel.Value", slotList("s", maxSlot))
 	e.p("_ = []kernel.Value{%s}", slotList("s", maxSlot))
+	if e.maxArgs > 0 {
+		// Reusable per-frame argument buffer (P-0009 U1): kills the
+		// []kernel.Value{…} heap literal at every invoke site. Safe
+		// because the callee copies args into its own locals before any
+		// nested call refills this frame's buffer.
+		e.p("var abuf [%d]kernel.Value", e.maxArgs)
+		e.p("_ = abuf") // folds may retire every call site that used it
+	}
+	if len(e.sbFolds) > 0 {
+		names := make([]string, 0, len(e.sbFolds))
+		for start := range e.sbFolds {
+			names = append(names, fmt.Sprintf("_sb%d", start))
+		}
+		sort.Strings(names)
+		decl := strings.Join(names, ", ")
+		e.p("var %s string", decl)
+		e.p("%s", "_ = []any{"+decl+"}")
+	}
 
 	// Argument copying from args[] into locals.
 	slot := 0
@@ -175,6 +210,8 @@ type methodEmitter struct {
 	w           strings.Builder
 	depth       int
 	maxLocals   int
+	maxArgs     int             // arg-buffer capacity; 0 = heap-literal fallback
+	sbFolds     map[int]*sbFold // StringBuilder chain windows keyed by `new` pc
 	handlers    []classfile.ExceptionHandler
 	targets     map[int]bool
 	mergeDepth  map[int]int    // lazily computed stack depth per merge pc

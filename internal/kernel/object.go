@@ -77,15 +77,45 @@ type ArrayObj struct {
 
 // JString is a java/lang.String: UTF-16 code units (JDK 8 semantics,
 // no compact strings). Always interned-eligible via Kernel.
+//
+// Lazy materializations mirror HotSpot's String layout philosophy: the
+// Java-spec hashCode is computed once (String.hashCode spec), and a UTF-8
+// view backs natives needing Go text — both amortized over all downstream
+// uses (map keys, hashing, diagnostics).
 type JString struct {
 	Header
 	Chars []uint16
+
+	goStr atomic.Pointer[string] // lazily built UTF-8 form
+	hash  atomic.Pointer[int32]  // lazily computed Java hashCode
 }
 
-// String converts to a Go string (allocation; natives use sparingly).
-func (s *JString) String() string {
-	return string(utf16Decode(s.Chars))
+// Go returns the shared UTF-8 form (built at most once).
+func (s *JString) Go() string {
+	if p := s.goStr.Load(); p != nil {
+		return *p
+	}
+	str := string(utf16Decode(s.Chars))
+	s.goStr.Store(&str)
+	return str
 }
+
+// JavaHash computes (once) and returns String.hashCode per the JDK spec:
+// h = 31*h + c over UTF-16 units.
+func (s *JString) JavaHash() int32 {
+	if p := s.hash.Load(); p != nil {
+		return *p
+	}
+	h := int32(0)
+	for _, c := range s.Chars {
+		h = 31*h + int32(c)
+	}
+	s.hash.Store(&h)
+	return h
+}
+
+// String converts to a Go string (shared lazy form; strings are immutable).
+func (s *JString) String() string { return s.Go() }
 
 // AsJString extracts the chars of a Value that must be a String.
 func AsJString(v Value) (*JString, error) {

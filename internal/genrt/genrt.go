@@ -14,6 +14,7 @@ package genrt
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -426,6 +427,25 @@ func MonitorExit(th kernel.OwnerKey, obj kernel.Value) *kernel.Thrown {
 			"monitorexit without ownership")
 	}
 	return nil
+}
+
+// --- string helpers for folded StringBuilder chains (P-0009 U1) -----------
+
+// MakeStr allocates a fresh (non-interned) JString — toString semantics.
+func MakeStr(s string) kernel.Value { return K.MakeJStringFromGo(s) }
+
+// StrOf extracts Go text from a value known to be a String.
+func StrOf(v kernel.Value) string { return v.(*kernel.JString).Go() }
+
+// ItoA/JtoA render integral appends; CtoA renders a UTF-16 unit; ZtoA a bool.
+func ItoA(v int32) string { return strconv.Itoa(int(v)) }
+func JtoA(v int64) string { return strconv.FormatInt(v, 10) }
+func CtoA(u int32) string { return string(rune(u)) }
+func ZtoA(v int32) string {
+	if v != 0 {
+		return "true"
+	}
+	return "false"
 }
 
 // --- throw helper ----------------------------------------------------------------------------------

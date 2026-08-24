@@ -124,34 +124,51 @@ func natBooleanParse(ctx *CallContext, recv Value, args []Value) (Value, error) 
 
 // ---- HashMap natives ----
 
+// jkey is the content/identity key for map/set backing stores. Strings key
+// by their shared UTF-8 form (no per-op allocation); boxed numerics by
+// class+value (Java equals semantics); everything else by identity.
+type jkey struct {
+	kind byte   // 'S' string-content, 'N' numeric, 'R' identity, 'X' fallback, 'Z' null
+	s    string // shared UTF-8 for strings / rendered form for fallback
+	cls  string // declaring class for numerics
+	num  int64  // numeric payload
+	p    any    // identity pointer
+}
+
+func hashKey(v Value) jkey {
+	switch x := v.(type) {
+	case nil:
+		return jkey{kind: 'Z'}
+	case *JString:
+		return jkey{kind: 'S', s: x.Go()}
+	case *Instance:
+		f := x.Fields[0]
+		switch n := f.(type) {
+		case int32:
+			return jkey{kind: 'N', cls: x.Class.Name, num: int64(n)}
+		case int64:
+			return jkey{kind: 'N', cls: x.Class.Name, num: n}
+		default:
+			return jkey{kind: 'R', p: x}
+		}
+	case *ArrayObj:
+		return jkey{kind: 'R', p: x}
+	default:
+		return jkey{kind: 'X', s: fmt.Sprintf("%v", v)}
+	}
+}
+
 type mapBuf struct {
-	data map[string]Value
-	keys map[string]Value
+	data map[jkey]Value
+	keys map[jkey]Value
 }
 
 func hashMapOf(recv Value) *mapBuf { return recv.(*Instance).Payload.(*mapBuf) }
 
-func hashKey(v Value) string {
-	switch x := v.(type) {
-	case *JString:
-		return "S\x00" + x.String()
-	case *Instance:
-		f := x.Fields[0]
-		switch f.(type) {
-		case int32, int64:
-			return fmt.Sprintf("%s\x00%v", x.Class.Name, f)
-		default:
-			return fmt.Sprintf("I\x00%p", x)
-		}
-	default:
-		return fmt.Sprintf("R\x00%v", v)
-	}
-}
-
 func natHashMapInit(ctx *CallContext, recv Value, args []Value) (Value, error) {
 	recv.(*Instance).Payload = &mapBuf{
-		data: make(map[string]Value),
-		keys: make(map[string]Value),
+		data: make(map[jkey]Value),
+		keys: make(map[jkey]Value),
 	}
 	return nil, nil
 }
@@ -207,24 +224,24 @@ func natHashMapIsEmpty(ctx *CallContext, recv Value, args []Value) (Value, error
 
 func natHashMapClear(ctx *CallContext, recv Value, args []Value) (Value, error) {
 	m := hashMapOf(recv)
-	m.data = make(map[string]Value)
-	m.keys = make(map[string]Value)
+	m.data = make(map[jkey]Value)
+	m.keys = make(map[jkey]Value)
 	return nil, nil
 }
 
 // ---- HashSet natives ----
 
 type setBuf struct {
-	data map[string]bool
-	keys map[string]Value
+	data map[jkey]bool
+	keys map[jkey]Value
 }
 
 func setOf(recv Value) *setBuf { return recv.(*Instance).Payload.(*setBuf) }
 
 func natHashSetInit(ctx *CallContext, recv Value, args []Value) (Value, error) {
 	recv.(*Instance).Payload = &setBuf{
-		data: make(map[string]bool),
-		keys: make(map[string]Value),
+		data: make(map[jkey]bool),
+		keys: make(map[jkey]Value),
 	}
 	return nil, nil
 }

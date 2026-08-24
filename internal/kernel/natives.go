@@ -99,11 +99,7 @@ func natStringEquals(ctx *CallContext, recv Value, args []Value) (Value, error) 
 }
 
 func natStringHashCode(ctx *CallContext, recv Value, args []Value) (Value, error) {
-	h := int32(0)
-	for _, c := range recv.(*JString).Chars {
-		h = 31*h + int32(c)
-	}
-	return h, nil
+	return recv.(*JString).JavaHash(), nil
 }
 
 func natStringToString(ctx *CallContext, recv Value, args []Value) (Value, error) {

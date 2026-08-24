@@ -23,11 +23,14 @@ func (e *methodEmitter) body() error {
 		handlerPCs = append(handlerPCs, int(h.HandlerPc))
 	}
 
-	reach, err := verify.Reachable(e.code, handlerPCs)
-	if err != nil {
-		return err
+	if e.reach == nil {
+		reach, err := verify.Reachable(e.code, handlerPCs)
+		if err != nil {
+			return err
+		}
+		e.reach = reach
 	}
-	e.reach = reach
+	reach := e.reach
 
 	jumpTargets, err := verify.BranchTargets(e.code)
 	if err != nil {
@@ -64,7 +67,31 @@ func (e *methodEmitter) body() error {
 	}
 	sortInts(pcs)
 
-	for _, pc := range pcs {
+	for i := 0; i < len(pcs); i++ {
+		pc := pcs[i]
+		// StringBuilder chain fold (P-0009 U1): synthesize the whole
+		// window as one concatenation and skip to the toString.
+		if f, ok := e.sbFolds[pc]; ok {
+			e.depth = f.out
+			tmp := fmt.Sprintf("_sb%d", pc)
+			e.p("// sb-fold [%d..%d]", pc, f.end)
+			e.p("%s = \"\"", tmp)
+			for _, ln := range strings.Split(f.stmt, "\n") {
+				if ln == "" {
+					continue
+				}
+				e.p("%s%s", tmp, strings.TrimPrefix(ln, "_sb"))
+			}
+			e.p("s%d = genrt.MakeStr(%s)", f.out, tmp)
+			e.depth = f.out + 1
+			// Advance i to the first pc past the window; the loop's own
+			// i++ then lands exactly on it.
+			for i < len(pcs) && pcs[i] <= f.end {
+				i++
+			}
+			i-- // compensate the for-post increment
+			continue
+		}
 		isJumpTarget := jumpTargets[pc]
 		_, isHandler := e.handlerAt[pc]
 		if d, ok := canonDepths[pc]; ok {

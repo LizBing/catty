@@ -182,6 +182,9 @@ func (k *Kernel) SetClassLoadHook(h func(*Class)) {
 	k.mu.Unlock()
 }
 
+// ctxPool backs InvokeAs's native-dispatch branch (CallContext reuse).
+var ctxPool sync.Pool
+
 // InstallInvoker registers the VM execution bridge. Idempotent: the first
 // installation wins (all threads of one kernel share one engine bridge).
 func (k *Kernel) InstallInvoker(i Invoker) {
@@ -276,7 +279,18 @@ func (k *Kernel) InvokeAs(owner OwnerKey, m *Method, recv Value, args []Value) (
 		return v, nil
 	}
 	if m.Native != nil {
-		return m.Native(&CallContext{K: k, Owner: owner}, recv, args)
+		// CallContext pooling: natives allocate one per call otherwise
+		// (mapops alloc profile showed this as the single largest
+		// engine-side source). Pool handles reentrant ctx.Invoke nesting.
+		c, _ := ctxPool.Get().(*CallContext)
+		if c == nil {
+			c = &CallContext{}
+		}
+		c.K, c.Owner = k, owner
+		v, err := m.Native(c, recv, args)
+		c.K, c.Owner = nil, nil
+		ctxPool.Put(c)
+		return v, err
 	}
 	if io, ok := owner.(Invoker); ok {
 		return io.InvokeInterpreted(m, recv, args)

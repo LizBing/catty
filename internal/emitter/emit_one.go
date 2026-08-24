@@ -569,7 +569,6 @@ func (e *methodEmitter) emitOne(pc int) error {
 		for i := range argDescs {
 			argNames[i] = fmt.Sprintf("s%d", base+starts[i])
 		}
-		argsExpr := "[]kernel.Value{" + joinStrings(argNames, ", ") + "}"
 		e.depth -= total
 		var recv string
 		if op != 0xb8 {
@@ -595,6 +594,15 @@ func (e *methodEmitter) emitOne(pc int) error {
 		if hasRet {
 			retSlot = e.depth
 			dst = fmt.Sprintf("s%d", retSlot)
+		}
+		// Args expression: reusable frame buffer when sized for it
+		// (kills per-call heap slices); heap literal otherwise.
+		argsExpr := "[]kernel.Value{" + joinStrings(argNames, ", ") + "}"
+		if e.maxArgs > 0 && len(argNames) <= e.maxArgs {
+			for i, an := range argNames {
+				e.p("abuf[%d] = %s", i, an)
+			}
+			argsExpr = fmt.Sprintf("abuf[:%d]", len(argNames))
 		}
 		var call string
 		if op == 0xb8 {
