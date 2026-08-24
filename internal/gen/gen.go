@@ -4290,6 +4290,396 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 func init() { installTable = append(installTable,
 	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"P99Bench", "main", "([Ljava/lang/String;)V", Catty_P99Bench_main___ALjava_lang_String__V}) }
 
+// GoCall.<init>
+func Catty_GoCall_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"GoCall", "<init>", "()V", Catty_GoCall_init____V}) }
+
+// GoCall.main
+func Catty_GoCall_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	var abuf [2]kernel.Value
+	_ = abuf
+	l0 = args[0]
+	l0 = args[0]
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = int32(20)
+	s2 = int32(22)
+	abuf[0] = s1
+	abuf[1] = s2
+	s1, exc = genrt.CallStatic(thr, "go/Bridge", "add", "(II)I", abuf[:2])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s1
+	_, exc = genrt.CallVirtualIC(283, thr, s0, "java/io/PrintStream", "println", "(I)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.Str("catty")
+	abuf[0] = s1
+	s1, exc = genrt.CallStatic(thr, "go/Bridge", "greet", "(Ljava/lang/String;)Ljava/lang/String;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s1
+	_, exc = genrt.CallVirtualIC(746, thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	_, exc = genrt.CallStatic(thr, "go/Bridge", "fail", "()V", abuf[:0])
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/lang/RuntimeException") { goto L38 }
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.Str("unreachable")
+	abuf[0] = s1
+	_, exc = genrt.CallVirtualIC(746, thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", abuf[:1])
+	if exc != nil {
+		if genrt.InstanceOf(exc.Obj, "java/lang/RuntimeException") { goto L38 }
+		return nil, exc // no handler matched
+	}
+	goto L67
+	L38:
+	s0 = exc.Obj
+	l1 = s0
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.New(thr, "java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("caught:")
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(489, thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s2, exc = genrt.CallVirtualIC(142, thr, s2, "java/lang/RuntimeException", "getMessage", "()Ljava/lang/String;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(489, thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtualIC(342, thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s1
+	_, exc = genrt.CallVirtualIC(746, thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	L67:
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"GoCall", "main", "([Ljava/lang/String;)V", Catty_GoCall_main___ALjava_lang_String__V}) }
+
+// GoCallBench.<init>
+func Catty_GoCallBench_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"GoCallBench", "<init>", "()V", Catty_GoCallBench_init____V}) }
+
+// GoCallBench.javaAdd
+func Catty_GoCallBench_javaAdd___II_I(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1 kernel.Value
+	_ = []kernel.Value{l0, l1}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = args[0]
+	l1 = args[1]
+	l0 = args[0]
+	l1 = args[1]
+	s0 = l0
+	s1 = l1
+	s0 = (s0.(int32)) + (s1.(int32))
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"GoCallBench", "javaAdd", "(II)I", Catty_GoCallBench_javaAdd___II_I}) }
+
+// GoCallBench.timed
+func Catty_GoCallBench_timed___IZ_J(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3, l4, l5, l6 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3, l4, l5, l6}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	var abuf [2]kernel.Value
+	_ = abuf
+	l0 = args[0]
+	l1 = args[1]
+	l0 = args[0]
+	l1 = args[1]
+	s0, exc = genrt.CallStatic(thr, "java/lang/System", "nanoTime", "()J", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s0
+	s0 = int32(0)
+	l4 = s0
+	s0 = int32(0)
+	l5 = s0
+	L10:
+	s0 = l5
+	s1 = l0
+	if s0.(int32) >= s1.(int32) { goto L51 }
+	s0 = l1
+	if s0.(int32) == 0 { goto L34 }
+	s0 = l4
+	s1 = l5
+	s2 = int32(1)
+	abuf[0] = s1
+	abuf[1] = s2
+	s1, exc = genrt.CallStatic(thr, "go/Bridge", "add", "(II)I", abuf[:2])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = (s0.(int32)) + (s1.(int32))
+	l4 = s0
+	goto L45
+	L34:
+	s0 = l4
+	s1 = l5
+	s2 = int32(1)
+	abuf[0] = s1
+	abuf[1] = s2
+	s1, exc = genrt.CallStatic(thr, "GoCallBench", "javaAdd", "(II)I", abuf[:2])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = (s0.(int32)) + (s1.(int32))
+	l4 = s0
+	L45:
+	l5 = l5.(int32) + 1
+	goto L10
+	L51:
+	s0, exc = genrt.CallStatic(thr, "java/lang/System", "nanoTime", "()J", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l5 = s0
+	s0 = l4
+	s1 = int32(-1)
+	if s0.(int32) != s1.(int32) { goto L70 }
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.Str("impossible")
+	abuf[0] = s1
+	_, exc = genrt.CallVirtualIC(746, thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	L70:
+	s0 = l5
+	s2 = l2
+	s0 = (s0.(int64)) - (s2.(int64))
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"GoCallBench", "timed", "(IZ)J", Catty_GoCallBench_timed___IZ_J}) }
+
+// GoCallBench.main
+func Catty_GoCallBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2 kernel.Value
+	_ = []kernel.Value{l0, l1, l2}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	var abuf [2]kernel.Value
+	_ = abuf
+	l0 = args[0]
+	l0 = args[0]
+	s0 = l0
+	s1 = int32(0)
+	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s0
+	s0, exc = genrt.CallStatic(thr, "java/lang/Integer", "parseInt", "(Ljava/lang/String;)I", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s0
+	s0 = int32(0)
+	l2 = s0
+	L9:
+	s0 = l2
+	s1 = int32(3)
+	if s0.(int32) >= s1.(int32) { goto L36 }
+	s0 = l1
+	s1 = int32(5)
+	s0, exc = genrt.IDiv(thr, s0.(int32), s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = int32(1)
+	abuf[0] = s0
+	abuf[1] = s1
+	s0, exc = genrt.CallStatic(thr, "GoCallBench", "timed", "(IZ)J", abuf[:2])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = l1
+	s1 = int32(5)
+	s0, exc = genrt.IDiv(thr, s0.(int32), s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = int32(0)
+	abuf[0] = s0
+	abuf[1] = s1
+	s0, exc = genrt.CallStatic(thr, "GoCallBench", "timed", "(IZ)J", abuf[:2])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = l2.(int32) + 1
+	goto L9
+	L36:
+	s0 = int32(0)
+	l2 = s0
+	L38:
+	s0 = l2
+	s1 = int32(3)
+	if s0.(int32) >= s1.(int32) { goto L115 }
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.New(thr, "java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("go_ns,")
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(489, thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s3 = int32(1)
+	abuf[0] = s2
+	abuf[1] = s3
+	s2, exc = genrt.CallStatic(thr, "GoCallBench", "timed", "(IZ)J", abuf[:2])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(897, thr, s1, "java/lang/StringBuilder", "append", "(J)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtualIC(342, thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s1
+	_, exc = genrt.CallVirtualIC(746, thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.New(thr, "java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("java_ns,")
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(489, thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l1
+	s3 = int32(0)
+	abuf[0] = s2
+	abuf[1] = s3
+	s2, exc = genrt.CallStatic(thr, "GoCallBench", "timed", "(IZ)J", abuf[:2])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(897, thr, s1, "java/lang/StringBuilder", "append", "(J)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtualIC(342, thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s1
+	_, exc = genrt.CallVirtualIC(746, thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.Str("---")
+	abuf[0] = s1
+	_, exc = genrt.CallVirtualIC(746, thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = l2.(int32) + 1
+	goto L38
+	L115:
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"GoCallBench", "main", "([Ljava/lang/String;)V", Catty_GoCallBench_main___ALjava_lang_String__V}) }
+
 // app/Main.<init>
 func Catty_app_Main_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown
