@@ -228,6 +228,30 @@ func TestReflectionFieldGetSetWithBoxing(t *testing.T) {
 	if n, ok := IntValueOf(got); !ok || n != 5 {
 		t.Fatalf("static get = %#v, want boxed 5", got)
 	}
+
+	// long-field round trip exercises the boxLong → Long.valueOf wrapper
+	// path (distinct from Integer boxing).
+	if _, err := k.DefineClass(&ClassDef{
+		Name:   "LongHolder",
+		Fields: []FieldDef{{Name: "stamp", Desc: "J", Flags: 0x0001}},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	lClsObj := reflectNative(t, k, "java/lang/Class", "forName",
+		"(Ljava/lang/String;)Ljava/lang/Class;", nil, k.InternGo("LongHolder"))
+	lfArr := reflectNative(t, k, "java/lang/Class", "getDeclaredFields",
+		"()[Ljava/lang/reflect/Field;", lClsObj).(*ArrayObj)
+	lf := lfArr.Elems[0]
+	lh, _ := k.NewInstance(mustLookup(k, "LongHolder"))
+	reflectNative(t, k, "java/lang/reflect/Field", "set", setDesc, lf, lh, int64(1<<40))
+	gotL := reflectNative(t, k, "java/lang/reflect/Field", "get", getDesc, lf, lh)
+	boxed, ok := gotL.(*Instance)
+	if !ok {
+		t.Fatalf("long get = %T, want boxed Long", gotL)
+	}
+	if v := boxed.Fields[0].(int64); v != 1<<40 {
+		t.Errorf("boxed long = %d, want %d", v, int64(1)<<40)
+	}
 }
 
 func TestReflectionMethodInvoke(t *testing.T) {
