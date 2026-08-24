@@ -141,18 +141,27 @@ func icHash(cls, name, desc string) uint32 {
 	return h % uint32(len(icTable))
 }
 
+// ICSlot is the public form of icHash for the emitter: genemit bakes its
+// result as a literal into each virtual/interface call site
+// (TestEmitterICSlotAgreement pins both implementations together).
+func ICSlot(cls, name, desc string) uint32 { return icHash(cls, name, desc) }
+
 // methodForDynCached resolves a virtual dispatch through the inline
 // cache. Monomorphic sites — the overwhelming majority in practice —
 // pay one atomic load plus pointer compares instead of a superclass-chain
 // walk with per-call memberKey allocation.
 func methodForDynCached(dyn *kernel.Class, cls, name, desc string) *kernel.Method {
-	slot := &icTable[icHash(cls, name, desc)]
-	if e := slot.Load(); e != nil && e.dyn == dyn &&
+	return methodForDynCachedSlot(icHash(cls, name, desc), dyn, cls, name, desc)
+}
+
+func methodForDynCachedSlot(slot uint32, dyn *kernel.Class, cls, name, desc string) *kernel.Method {
+	entry := &icTable[slot]
+	if e := entry.Load(); e != nil && e.dyn == dyn &&
 		e.cls == cls && e.name == name && e.desc == desc {
 		return e.m
 	}
 	m := methodForDyn(dyn, name, desc)
-	slot.Store(&icEntry{cls: cls, name: name, desc: desc, dyn: dyn, m: m})
+	entry.Store(&icEntry{cls: cls, name: name, desc: desc, dyn: dyn, m: m})
 	return m
 }
 
@@ -192,12 +201,18 @@ func CallStatic(th kernel.OwnerKey, cls, name, desc string, args []kernel.Value)
 
 // CallVirtual resolves against recv's dynamic class. Null receivers raise NPE.
 func CallVirtual(th kernel.OwnerKey, recv kernel.Value, cls, name, desc string, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	return CallVirtualIC(icHash(cls, name, desc), th, recv, cls, name, desc, args)
+}
+
+// CallVirtualIC is CallVirtual with the call-site's inline-cache slot
+// precomputed at emission time (no per-call string hashing).
+func CallVirtualIC(slot uint32, th kernel.OwnerKey, recv kernel.Value, cls, name, desc string, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	if recv == nil {
 		return nil, Throw(th, "java/lang/NullPointerException",
 			fmt.Sprintf("invokevirtual %s.%s on null", cls, name))
 	}
 	dyn := ClassOf(recv)
-	m := methodForDynCached(dyn, cls, name, desc)
+	m := methodForDynCachedSlot(slot, dyn, cls, name, desc)
 	return invokeChecked(th, m, recv, args)
 }
 
@@ -529,6 +544,51 @@ func LRem(th kernel.OwnerKey, a, b int64) (int64, *kernel.Thrown) {
 	}
 	return a % b, nil
 }
+
+// --- comparisons (JVMS §6.5 lcmp/fcmp/dcmp NaN semantics) -----------------
+
+func LCmp(a, b int64) int32 {
+	switch {
+	case a < b:
+		return -1
+	case a > b:
+		return 1
+	}
+	return 0
+}
+
+// fCmp32 shares the fcmpl/fcmpg shape: v<c → -1, v>c → +1, equal → 0,
+// NaN → nanResult (JLS 15.20.1: direction depends on the opcode).
+func fCmp32(v, c float32, nanResult int32) int32 {
+	if v < c {
+		return -1
+	}
+	if v > c {
+		return 1
+	}
+	if v == c {
+		return 0
+	}
+	return nanResult // NaN involved
+}
+
+func fCmp64(v, c float64, nanResult int32) int32 {
+	if v < c {
+		return -1
+	}
+	if v > c {
+		return 1
+	}
+	if v == c {
+		return 0
+	}
+	return nanResult
+}
+
+func FCmpl(a, b float32) int32 { return fCmp32(a, b, -1) }
+func FCmpg(a, b float32) int32 { return fCmp32(a, b, 1) }
+func DCmpl(a, b float64) int32 { return fCmp64(a, b, -1) }
+func DCmpg(a, b float64) int32 { return fCmp64(a, b, 1) }
 
 // NewRefArray allocates a reference-component array with nil elements.
 func NewRefArray(th kernel.OwnerKey, compClass string, n int32) (kernel.Value, *kernel.Thrown) {

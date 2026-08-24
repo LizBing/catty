@@ -31,6 +31,10 @@ func (e *methodEmitter) emitOne(pc int) error {
 
 	case 0x0e, 0x0f: // dconst_0, dconst_1
 		pushCat2(fmt.Sprintf("float64(%d)", int(op)-0x0e))
+	case 0x09, 0x0a: // lconst_0, lconst_1 (cat2)
+		pushCat2(fmt.Sprintf("int64(%d)", int(op)-0x09))
+	case 0x0b, 0x0c, 0x0d: // fconst_0..2
+		pushV(fmt.Sprintf("float32(%d)", int(op)-0x0b))
 	case 0x01:
 		pushV("nil")
 	case 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08:
@@ -424,12 +428,60 @@ func (e *methodEmitter) emitOne(pc int) error {
 		b, a := popRef(), popRef()
 		pushV(fmt.Sprintf("(%s.(int32)) ^ (%s.(int32))", a, b))
 
+	case 0x94: // lcmp (two cat2 -> int)
+		b, a := popRefCat2(), popRefCat2()
+		pushV(fmt.Sprintf("genrt.LCmp(%s.(int64), %s.(int64))", a, b))
+	case 0x95, 0x96: // fcmpl, fcmpg
+		b, a := popRef(), popRef()
+		fn := "genrt.FCmpl"
+		if op == 0x96 {
+			fn = "genrt.FCmpg"
+		}
+		pushV(fmt.Sprintf("%s(%s.(float32), %s.(float32))", fn, a, b))
+	case 0x97, 0x98: // dcmpl, dcmpg
+		b, a := popRefCat2(), popRefCat2()
+		fn := "genrt.DCmpl"
+		if op == 0x98 {
+			fn = "genrt.DCmpg"
+		}
+		pushV(fmt.Sprintf("%s(%s.(float64), %s.(float64))", fn, a, b))
+
 	case 0x85: // i2l
 		a := popRef()
 		pushCat2(fmt.Sprintf("int64(%s.(int32))", a))
+	case 0x86: // i2f
+		a := popRef()
+		pushV(fmt.Sprintf("float32(%s.(int32))", a))
+	case 0x87: // i2d
+		a := popRef()
+		pushCat2(fmt.Sprintf("float64(%s.(int32))", a))
 	case 0x88: // l2i
 		a := popRefCat2()
 		pushV(fmt.Sprintf("int32(%s.(int64))", a))
+	case 0x89: // l2f
+		a := popRefCat2()
+		pushV(fmt.Sprintf("float32(%s.(int64))", a))
+	case 0x8a: // l2d
+		a := popRefCat2()
+		pushCat2(fmt.Sprintf("float64(%s.(int64))", a))
+	case 0x8b: // f2i
+		a := popRef()
+		pushV(fmt.Sprintf("int32(%s.(float32))", a))
+	case 0x8c: // f2l
+		a := popRef()
+		pushCat2(fmt.Sprintf("int64(%s.(float32))", a))
+	case 0x8d: // f2d
+		a := popRef()
+		pushCat2(fmt.Sprintf("float64(%s.(float32))", a))
+	case 0x8e: // d2i
+		a := popRefCat2()
+		pushV(fmt.Sprintf("int32(%s.(float64))", a))
+	case 0x8f: // d2l
+		a := popRefCat2()
+		pushCat2(fmt.Sprintf("int64(%s.(float64))", a))
+	case 0x90: // d2f
+		a := popRefCat2()
+		pushV(fmt.Sprintf("float32(%s.(float64))", a))
 	case 0x91: // i2b
 		a := popRef()
 		pushV(fmt.Sprintf("int32(int8(%s.(int32)))", a))
@@ -453,13 +505,22 @@ func (e *methodEmitter) emitOne(pc int) error {
 		if rerr != nil {
 			return rerr
 		}
-		pushV(fmt.Sprintf("genrt.GetStatic(thr, %q, %q, %q)", cls, name, desc))
+		if descSlots(desc) == 2 {
+			pushCat2(fmt.Sprintf("genrt.GetStatic(thr, %q, %q, %q)", cls, name, desc))
+		} else {
+			pushV(fmt.Sprintf("genrt.GetStatic(thr, %q, %q, %q)", cls, name, desc))
+		}
 	case 0xb3: // putstatic
 		cls, name, desc, _, rerr := refAt(e.cf, code, pc)
 		if rerr != nil {
 			return rerr
 		}
-		val := popRef()
+		var val string
+		if descSlots(desc) == 2 {
+			val = popRefCat2()
+		} else {
+			val = popRef()
+		}
 		e.p("genrt.SetStatic(thr, %q, %q, %q, %s)", cls, name, desc, val)
 	case 0xb4: // getfield
 		_, name, desc, _, rerr := refAt(e.cf, code, pc)
@@ -470,13 +531,18 @@ func (e *methodEmitter) emitOne(pc int) error {
 		dst := fmt.Sprintf("s%d", e.depth)
 		e.p("%s, exc = genrt.GetFieldChecked(thr, %s, %q, %q)", dst, obj, name, desc)
 		excAfter()
-		e.depth++
+		e.depth += descSlots(desc)
 	case 0xb5: // putfield
 		_, name, desc, _, rerr := refAt(e.cf, code, pc)
 		if rerr != nil {
 			return rerr
 		}
-		val := popRef()
+		var val string
+		if descSlots(desc) == 2 {
+			val = popRefCat2() // cat2 value occupies two raw slots
+		} else {
+			val = popRef()
+		}
 		obj := popRef()
 		e.p("exc = genrt.SetFieldChecked(thr, %s, %q, %q, %s)", obj, name, desc, val)
 		excAfter()
@@ -533,6 +599,13 @@ func (e *methodEmitter) emitOne(pc int) error {
 		var call string
 		if op == 0xb8 {
 			call = fmt.Sprintf("genrt.CallStatic(thr, %q, %q, %q, %s)", cls, name, desc, argsExpr)
+		} else if op == 0xb6 || op == 0xb9 {
+			// Virtual/interface dispatch goes through the monomorphic
+			// inline cache; the slot index is baked at emission time.
+			// genrt.ICSlot must stay identical to icHash (pinned by
+			// TestEmitterICSlotAgreement).
+			call = fmt.Sprintf("genrt.CallVirtualIC(%d, thr, %s, %q, %q, %q, %s)",
+				icSlotFor(cls, name, desc), recv, cls, name, desc, argsExpr)
 		} else {
 			call = fmt.Sprintf("genrt.Call%s(thr, %s, %q, %q, %q, %s)",
 				invokeKindName(op), recv, cls, name, desc, argsExpr)
@@ -570,6 +643,8 @@ func (e *methodEmitter) emitOne(pc int) error {
 		e.p("%s, exc = genrt.ALoadChecked(thr, %s, %s.(int32))", dst, arr, idx)
 		excAfter()
 		switch op {
+		case 0x2f, 0x31: // laload, daload: cat2 element
+			e.depth++
 		case 0x33: // baload sign-extend
 			e.p("%s = int32(int8(%s.(int32)))", dst, dst)
 		case 0x34: // caload zero-extend
@@ -577,9 +652,16 @@ func (e *methodEmitter) emitOne(pc int) error {
 		case 0x35: // saload sign-extend
 			e.p("%s = int32(int16(%s.(int32)))", dst, dst)
 		}
+		e.depth++
 
-	case 0x4f, 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56: // array stores
+	case 0x4f, 0x51, 0x53, 0x54, 0x55, 0x56: // cat1 array stores
 		val := popRef()
+		idx := popRef()
+		arr := popRef()
+		e.p("exc = genrt.AStoreChecked(thr, %s, %s.(int32), %s)", arr, idx, val)
+		excAfter()
+	case 0x50, 0x52: // lastore, dastore (cat2 value)
+		val := popRefCat2()
 		idx := popRef()
 		arr := popRef()
 		e.p("exc = genrt.AStoreChecked(thr, %s, %s.(int32), %s)", arr, idx, val)
@@ -647,4 +729,18 @@ func invokeKindName(op byte) string {
 		return "Interface"
 	}
 	return "Static"
+}
+
+// icSlotFor mirrors genrt.icHash (FNV-1a over cls/name/desc mod table
+// size). The two MUST stay identical — pinned cross-package by
+// TestEmitterICSlotAgreement in internal/genrt.
+func icSlotFor(cls, name, desc string) uint32 {
+	h := uint32(2166136261)
+	for _, s := range [3]string{cls, name, desc} {
+		for i := 0; i < len(s); i++ {
+			h ^= uint32(s[i])
+			h *= 16777619
+		}
+	}
+	return h % 1024
 }

@@ -1,17 +1,17 @@
 # Catty 能力状态
 
 > 持续更新的能力矩阵。每次里程碑收口时刷新；与 `deviation-ledger.md`（行为偏差）、
-> `debt/register.md`(已知债务) 互为对照。最后更新：2026-08-24（M3 收口 + minimal-json assault）。
+> `debt/register.md`(已知债务) 互为对照。最后更新：2026-08-24（P-0009 分发层优化轮）。
 
 ## 一句话现状
 
-**M3 AOT 发射器收口**：javac 字节码翻译为 Go 源码整体编译，全部 fixture
-与真实三方库 minimal-json（39 类）在纯 AOT 下输出与参考 JVM **逐字节一致**；
-冷启动快 HotSpot 92%（R-0004）；算术密集吞吐 2.3× 于解释器、调用密集持平
-——瓶颈定位在运行时分发层（R-0005），优化路径已排序移交 M4。
-解释器内核（多线程/监视器/异常/验证器/socket 中断唤醒）持续兜底动态特性。
+**M3 收口 + M4 首轮完成**：javac 字节码翻译为 Go 源码整体编译，全部 fixture
+与真实三方库 minimal-json 在纯 AOT 下输出与参考 JVM **逐字节一致**；
+冷启动快 HotSpot 92%（R-0004）；分发链优化后调用密集吞吐从持平跃至
+**2.4–3.0× 于解释器**、mapops 1.50×（R-0006）；goroutine 并发承载不随线程数
+劣化；pprof/-race 直接观测"Java"程序（卖点⑤双兑现）。解释器内核持续兜底。
 
-体量：生产 Go ≈31k 行（含生成代码），测试 45+ 例，`-race` 干净。
+体量：生产 Go ≈33k 行（含生成代码），测试 50+ 例，`-race` 干净。
 
 ## 能力矩阵
 
@@ -20,9 +20,10 @@
 | 域 | 内容 |
 |---|---|
 | 执行引擎 | v52 指令集：解释执行 + **AOT 发射双路径**（invokedynamic 构建期脱糖；jsr/ret 非法） |
-| AOT 发射器 | genemit→gen.go 整体编译；installTable 混合执行零成本回退；异常通道=旗标返回（ADR-0009）；统一表示（ADR-0010） |
-| 栈深正确性 | `classfile.StackEffect` 全 256 opcode 单一事实源 + 总分类哨兵测试（DEBT-0015/0017/0019 漂移类根治） |
-| 堆栈回填 | Java 层 Throwable 堆栈：InvokeAs 统一帧追踪、构造点捕获、<init> 链裁剪、叶帧在前渲染（行号 Unknown Source 待 v2） |
+| AOT 发射器 | genemit→gen.go 整体编译（48 类）；installTable+懒加载钩子混合执行零成本回退；异常通道=旗标返回（ADR-0009）；统一表示（ADR-0010） |
+| 分发性能 | 单态内联缓存（烘焙槽位）+免锁帧计量+EmitBody 直调：vcall 2.95×、mapops 1.50× 于解释器（R-0006） |
+| 栈深正确性 | `classfile.StackEffect` 全 256 opcode 单一事实源 + 总分类哨兵测试；CFG 工作表深度传播 |
+| 堆栈回填 | Java 层 Throwable 堆栈：InvokeAs 统一帧追踪、构造点捕获、<init> 链裁剪、叶帧在前渲染（行号 Unknown Source 待 U3） |
 | 异常 | Throwable 家族、异常表分发、隐式抛出（NPE/越界/除零/负长/强转）、SOE（双路径计量）、uncaught 报告 |
 | 对象模型 | 身份语义、继承链 embedding、接口分派、字段默认值、数组、UTF-16 String |
 | 并发 | Thread 全生命周期 + 中断三路径（含 socket 读 SetDeadline 唤醒）；可重入监视器；wait/notify |
@@ -36,13 +37,14 @@
 
 | 缺口 | 债务/计划 | 解锁什么 |
 |---|---|---|
-| 调用分发优化（单态内联缓存、natives 直调、SB 链折叠） | R-0005 ROI 排序 → M4 | 吞吐卖点②证据链 |
+| SB 五连折叠 + 装箱分配削减 | P-0009 U1（R-0006 归因：mapops 新首位瓶颈） | mapops 吞吐第二刀 |
+| p99 持续负载采样 | P-0009 U4 | 卖点②正式证据 |
 | 反射 API / 注解 / MethodHandle | M2+ 远期 | Jackson/Spring 级生态 |
 | JAR 加载 | DEBT-0008 | 部署形态 |
-| 堆栈行号（逐帧调用点 pc） | emitter-abi §6.5 | 诊断体验对齐 JVM |
+| 堆栈行号（逐帧调用点 pc） | P-0009 U3 | 诊断体验对齐 JVM |
 | JNI | ADR-0007 范围内未开工 | 原生库互操作 |
 | Reference 四件套 / -Xmx 映射 | M3+ | GC 语义完整 |
-| 解析器 fuzz harness / provenance 扫描 | DEBT-0001/0002 deferred | 安全与 IP 纪律 |
+| provenance 扫描 | DEBT-0002 deferred | IP 纪律 |
 
 ## 行为偏差
 
@@ -59,7 +61,7 @@ M0 ████████ 完成（解释器 + HelloWorld）
 M1 ██████████ 完成（Monitor/加载器/验证器结构层）
 M2 ██████████ 完成（线程/SOE/Class 元对象/net+echo/数据流验证器）
 M3 ██████████ 完成（AOT 正确性闭环 + R-0004/R-0005 对照表 + minimal-json assault）
-M4 ░░░░░░░░░░ 三方基准与吞吐优化（分发层 ROI 排序已就绪）
+M4 ████░░░░░░ 进行中（分发层优化首轮达标 R-0006；余 SB 折叠/装箱/p99 采样）
 ```
 
 ## 质量纪律快照

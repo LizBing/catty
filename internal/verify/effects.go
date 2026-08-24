@@ -202,10 +202,20 @@ func conv(from, to vkind) simFunc {
 
 func cmp2(a, b vkind) simFunc {
 	return func(c *checker, m *classfile.MethodInfo, pc int, st *frame) ([]successor, error) {
-		if _, err := st.popExpect(b, "cmp rhs"); err != nil {
+		// Category-2 comparands sit as [value, top] pairs — popCat2 like
+		// binary() does (lcmp hit this: "want long, got top").
+		if isCat2Kind(b) {
+			if _, err := st.popCat2(); err != nil {
+				return nil, verr(c.mn, pc, "cmp rhs: %v", err)
+			}
+		} else if _, err := st.popExpect(b, "cmp rhs"); err != nil {
 			return nil, verr(c.mn, pc, "%v", err)
 		}
-		if _, err := st.popExpect(a, "cmp lhs"); err != nil {
+		if isCat2Kind(a) {
+			if _, err := st.popCat2(); err != nil {
+				return nil, verr(c.mn, pc, "cmp lhs: %v", err)
+			}
+		} else if _, err := st.popExpect(a, "cmp lhs"); err != nil {
 			return nil, verr(c.mn, pc, "%v", err)
 		}
 		st.push(tInt)

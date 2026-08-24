@@ -2,6 +2,8 @@ package vm
 
 import (
 	"fmt"
+	"os"
+	"runtime/debug"
 	"io"
 
 	"catty/internal/kernel"
@@ -29,6 +31,11 @@ func runJavaThread(k *kernel.Kernel, j *kernel.JThread) {
 		j.Terminate()
 		if r := recover(); r != nil {
 			fmt.Fprintf(k.Stderr(), "fatal: engine panic in thread %s: %v\n", j.Name, r)
+			// Engine panics are bugs; the Go stack identifies the genrt
+			// helper / emitted frame involved (CATTY quiet otherwise).
+			if os.Getenv("CATTY_PANICSTACK") != "" {
+				debug.PrintStack()
+			}
 		}
 	}()
 

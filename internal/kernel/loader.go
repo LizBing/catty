@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 // ClassPathLoader resolves class names against a list of directories
@@ -14,10 +15,16 @@ import (
 // Loading is lazy along the super chain: loading a class pulls in its
 // superclass and interfaces on demand, with a cycle guard. Verification
 // runs at link time when enabled (Options.Verify).
+//
+// Concurrency: worker threads racing the first `new X` all land here.
+// Loads are serialized by mu; waiters re-check the registry after acquiring
+// and receive the winner's class. Genuine same-thread cycles (super chain
+// loop) still raise ClassCircularityError.
 type ClassPathLoader struct {
 	k     *Kernel
 	dirs  []string
-	cycle map[string]bool // in-progress loads, guarded by k.mu
+	mu    sync.Mutex      // serializes concurrent duplicate loads
+	cycle map[string]bool // same-goroutine recursion guard, guarded by mu
 }
 
 // NewClassPathLoader attaches a directory-based loader to the kernel.
@@ -35,34 +42,32 @@ func (l *ClassPathLoader) Load(name string) (*Class, error) {
 	if c, ok := l.k.ClassByName(name); ok {
 		return c, nil
 	}
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	return l.loadLocked(name)
+}
 
-	l.k.mu.Lock()
+func (l *ClassPathLoader) loadLocked(name string) (*Class, error) {
+	// Winner may have registered while we waited on mu.
+	if c, ok := l.k.ClassByName(name); ok {
+		return c, nil
+	}
 	if l.cycle[name] {
-		l.k.mu.Unlock()
 		return nil, fmt.Errorf("ClassCircularityError: %s", name)
 	}
 	l.cycle[name] = true
-	l.k.mu.Unlock()
-	defer func() {
-		l.k.mu.Lock()
-		delete(l.cycle, name)
-		l.k.mu.Unlock()
-	}()
+	defer func() { delete(l.cycle, name) }()
 
 	data, err := l.readClassFile(name)
 	if err != nil {
 		return nil, err
 	}
-	c, err := l.k.LoadClassBytesWith(data, l.dependency)
-	if err != nil {
-		return nil, err
-	}
-	return c, nil
+	return l.k.LoadClassBytesWith(data, l.loadLocked) // recursion stays under mu
 }
 
-// dependency resolves superclasses/interfaces lazily through this loader.
+// dependency resolves superclasses/interfaces lazily; called with mu held.
 func (l *ClassPathLoader) dependency(name string) (*Class, error) {
-	return l.Load(name)
+	return l.loadLocked(name)
 }
 
 func (l *ClassPathLoader) readClassFile(name string) ([]byte, error) {
