@@ -11,7 +11,7 @@ Orchestrator 在空闲期择"高收益/低成本"清偿；清偿后移入表格�
 | DEBT-0002 ⏸ deferred | 无自动化许可证/provenance 扫描，目前靠 review 手查 | IP 污染风险 | M | M | 引入 CI 步骤校验 PROVENANCE 完整性与许可证清单白名单 |
 | DEBT-0003 ⏸ deferred | R7（内核 import 边界）尚无 arch test 强制 | 分层腐化 | L | S | go.mod 划分包后写 import 边界测试进 make check |
 | DEBT-0004 ⏸ deferred | libcore/Harmony 逐文件许可甄别未开始（ADR-0006 前置） | 阻塞 L2 移植 | M | M | M1 启动前产出甄别清单报告（research artifact） |
-| DEBT-0008 | cmd/catty 已接线目录 -cp 与 main args；**JAR 加载仍缺** | 可用性 | L | M | 随 ClassLoader 抽象（M2+）落地 zip 读取与并行加载 |
+| ~~DEBT-0008~~ ✅ | JAR 加载缺失 | classpath 条目 `.jar` 自动识别：构建期索引 + zip 流式读取；TestJarClasspathLoading/TestJarMissingEntrySkipped 钉扎 | — | — | — |
 
 ## 归档
 

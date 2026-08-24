@@ -62,11 +62,15 @@ if [[ -n "$(find . -path ./.git -prune -o -name '*.go' -print -quit 2>/dev/null)
   go build ./... || err "go build failed"
   go test ./... > /tmp/catty_go_test.out 2>&1 \
     || { err "go test failed (tail below)"; tail -40 /tmp/catty_go_test.out; }
-  # vet: skip unreachable-code in generated files only
+  # vet: skip unreachable-code in generated files only.
+  # NOTE: no `grep | grep -q` here — under `set -o pipefail` the early-exit
+  # `-q` turns a MATCHING pipeline into failure (SIGPIPE), which silently
+  # skipped the filter once gen.go grew past the pipe buffer.
   if ! go vet ./... > /tmp/catty_vet.out 2>&1; then
-    grep 'internal/gen/gen.go' /tmp/catty_vet.out | grep -q 'unreachable code' && \
+    if awk '/internal\/gen\/gen.go/ && /unreachable code/ { found=1 } END { exit !found }' /tmp/catty_vet.out; then
       sed -i '' '/unreachable code/d' /tmp/catty_vet.out
-    [[ -s /tmp/catty_vet.out ]] && { err "go vet:"; cat /tmp/catty_vet.out; }
+    fi
+    { [[ -s /tmp/catty_vet.out ]] && { err "go vet:"; cat /tmp/catty_vet.out; }; } || true
   fi
 fi
 

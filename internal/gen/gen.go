@@ -22,6 +22,7 @@ func Catty_HelloWorld_init____V(thr kernel.OwnerKey, recv kernel.Value, args []k
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 1)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -45,6 +46,7 @@ func Catty_HelloWorld_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 3)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.Str("Hello, Catty!")
 	abuf[0] = s1
@@ -52,6 +54,7 @@ func Catty_HelloWorld_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 4)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -68,6 +71,7 @@ func Catty_CollectionsDemo_init____V(thr kernel.OwnerKey, recv kernel.Value, arg
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 3)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -91,6 +95,7 @@ func Catty_CollectionsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 5)
 	s0 = genrt.New(thr, "java/util/ArrayList")
 	s1 = s0
 	_, exc = genrt.CallSpecial(thr, s1, "java/util/ArrayList", "<init>", "()V", abuf[:0])
@@ -98,12 +103,14 @@ func Catty_CollectionsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 6)
 	s0 = int32(1)
 	l2 = s0
 	L10:
 	s0 = l2
 	s1 = int32(5)
 	if s0.(int32) > s1.(int32) { goto L33 }
+	genrt.SetLine(thr, 7)
 	s0 = l1
 	s1 = l2
 	s2 = int32(10)
@@ -118,11 +125,14 @@ func Catty_CollectionsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 6)
 	l2 = l2.(int32) + 1
 	goto L10
+	genrt.SetLine(thr, 9)
 	L33:
 	s0 = int32(0)
 	l2 = s0
+	genrt.SetLine(thr, 10)
 	s0 = int32(0)
 	l3 = s0
 	L37:
@@ -133,6 +143,7 @@ func Catty_CollectionsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) >= s1.(int32) { goto L65 }
+	genrt.SetLine(thr, 11)
 	s0 = l2
 	s1 = l1
 	s2 = l3
@@ -151,8 +162,10 @@ func Catty_CollectionsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 	}
 	s0 = (s0.(int32)) + (s1.(int32))
 	l2 = s0
+	genrt.SetLine(thr, 10)
 	l3 = l3.(int32) + 1
 	goto L37
+	genrt.SetLine(thr, 13)
 	L65:
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = l2
@@ -161,6 +174,7 @@ func Catty_CollectionsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 16)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = l1
 	s2 = int32(99)
@@ -176,10 +190,13 @@ func Catty_CollectionsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 		if genrt.InstanceOf(exc.Obj, "java/lang/IndexOutOfBoundsException") { goto L87 }
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 19)
 	goto L116
+	genrt.SetLine(thr, 17)
 	L87:
 	s0 = exc.Obj
 	l3 = s0
+	genrt.SetLine(thr, 18)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -212,6 +229,7 @@ func Catty_CollectionsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 22)
 	L116:
 	s0 = l2
 	s1 = int32(0)
@@ -221,6 +239,7 @@ func Catty_CollectionsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 23)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = l3
 	abuf[0] = s1
@@ -229,10 +248,13 @@ func Catty_CollectionsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 		if genrt.InstanceOf(exc.Obj, "java/lang/ArithmeticException") { goto L130 }
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 26)
 	goto L139
+	genrt.SetLine(thr, 24)
 	L130:
 	s0 = exc.Obj
 	l3 = s0
+	genrt.SetLine(thr, 25)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.Str("div-by-zero caught")
 	abuf[0] = s1
@@ -240,6 +262,7 @@ func Catty_CollectionsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 28)
 	L139:
 	s0 = genrt.New(thr, "java/lang/StringBuilder")
 	s1 = s0
@@ -248,6 +271,7 @@ func Catty_CollectionsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 29)
 	s0 = l3
 	s1 = genrt.Str("sum=")
 	abuf[0] = s1
@@ -261,6 +285,7 @@ func Catty_CollectionsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 30)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = l3
 	s1, exc = genrt.CallVirtualIC(342, thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", abuf[:0])
@@ -272,6 +297,7 @@ func Catty_CollectionsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 31)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = l1
 	s2 = int32(30)
@@ -296,6 +322,7 @@ func Catty_CollectionsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 32)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -312,6 +339,7 @@ func Catty_ThreadsDemo_init____V(thr kernel.OwnerKey, recv kernel.Value, args []
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 1)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -333,12 +361,14 @@ func Catty_ThreadsDemo_bump___I_V(thr kernel.OwnerKey, recv kernel.Value, args [
 	_ = []kernel.Value{s0, s1, s2}
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 6)
 	s0 = int32(0)
 	l1 = s0
 	L2:
 	s0 = l1
 	s1 = l0
 	if s0.(int32) >= s1.(int32) { goto L37 }
+	genrt.SetLine(thr, 7)
 	s0 = genrt.GetStatic(thr, "ThreadsDemo", "lock", "Ljava/lang/Object;")
 	s1 = s0
 	l2 = s1
@@ -371,9 +401,11 @@ func Catty_ThreadsDemo_bump___I_V(thr kernel.OwnerKey, recv kernel.Value, args [
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 6)
 	L31:
 	l1 = l1.(int32) + 1
 	goto L2
+	genrt.SetLine(thr, 9)
 	L37:
 	return nil, nil
 	return nil, nil // unreachable terminal
@@ -393,6 +425,7 @@ func Catty_ThreadsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ke
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 12)
 	s0 = genrt.New(thr, "Worker")
 	s1 = s0
 	s2 = genrt.Str("w1")
@@ -404,6 +437,7 @@ func Catty_ThreadsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ke
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 13)
 	s0 = genrt.New(thr, "Worker")
 	s1 = s0
 	s2 = genrt.Str("w2")
@@ -415,6 +449,7 @@ func Catty_ThreadsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ke
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 14)
 	s0 = l1
 	_, exc = genrt.CallVirtualIC(764, thr, s0, "java/lang/Thread", "start", "()V", abuf[:0])
 	if exc != nil {
@@ -425,6 +460,7 @@ func Catty_ThreadsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ke
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 15)
 	s0 = l1
 	_, exc = genrt.CallVirtualIC(286, thr, s0, "java/lang/Thread", "join", "()V", abuf[:0])
 	if exc != nil {
@@ -435,6 +471,7 @@ func Catty_ThreadsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ke
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 16)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.GetStatic(thr, "ThreadsDemo", "count", "I")
 	abuf[0] = s1
@@ -442,6 +479,7 @@ func Catty_ThreadsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ke
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 18)
 	s0 = genrt.New(thr, "Sleeper")
 	s1 = s0
 	_, exc = genrt.CallSpecial(thr, s1, "Sleeper", "<init>", "()V", abuf[:0])
@@ -449,27 +487,32 @@ func Catty_ThreadsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ke
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 19)
 	s0 = l3
 	_, exc = genrt.CallVirtualIC(764, thr, s0, "java/lang/Thread", "start", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 20)
 	s0 = int64(50)
 	abuf[0] = s0
 	_, exc = genrt.CallStatic(thr, "java/lang/Thread", "sleep", "(J)V", abuf[:1])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 21)
 	s0 = l3
 	_, exc = genrt.CallVirtualIC(761, thr, s0, "java/lang/Thread", "interrupt", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 22)
 	s0 = l3
 	_, exc = genrt.CallVirtualIC(286, thr, s0, "java/lang/Thread", "join", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 23)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -505,6 +548,7 @@ func Catty_ThreadsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ke
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 24)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -547,6 +591,7 @@ func Catty_ThreadsDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ke
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 25)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -563,6 +608,7 @@ func Catty_WordCount_init____V(thr kernel.OwnerKey, recv kernel.Value, args []ke
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 4)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -588,8 +634,10 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 	_ = []any{_sb259, _sb487}
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 6)
 	s0 = genrt.Str("the quick brown fox jumps over the lazy dog the end")
 	l1 = s0
+	genrt.SetLine(thr, 7)
 	s0 = l1
 	s1 = genrt.Str(" ")
 	abuf[0] = s1
@@ -598,6 +646,7 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 9)
 	s0 = genrt.New(thr, "java/util/HashMap")
 	s1 = s0
 	_, exc = genrt.CallSpecial(thr, s1, "java/util/HashMap", "<init>", "()V", abuf[:0])
@@ -605,6 +654,7 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 10)
 	s0 = genrt.New(thr, "java/util/HashSet")
 	s1 = s0
 	_, exc = genrt.CallSpecial(thr, s1, "java/util/HashSet", "<init>", "()V", abuf[:0])
@@ -612,6 +662,7 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 		return nil, exc // no handler matched
 	}
 	l4 = s0
+	genrt.SetLine(thr, 12)
 	s0 = int32(0)
 	l5 = s0
 	L30:
@@ -622,6 +673,7 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) >= s1.(int32) { goto L100 }
+	genrt.SetLine(thr, 13)
 	s0 = l2
 	s1 = l5
 	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
@@ -629,6 +681,7 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 		return nil, exc // no handler matched
 	}
 	l6 = s0
+	genrt.SetLine(thr, 14)
 	s0 = l3
 	s1 = l6
 	abuf[0] = s1
@@ -641,11 +694,14 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 		return nil, exc // no handler matched
 	}
 	l7 = s0
+	genrt.SetLine(thr, 16)
 	s0 = l7
 	if (s0 == nil) == false { goto L65 }
+	genrt.SetLine(thr, 17)
 	s0 = int32(0)
 	l8 = s0
 	goto L72
+	genrt.SetLine(thr, 19)
 	L65:
 	s0 = l7
 	s0, exc = genrt.CallVirtualIC(53, thr, s0, "java/lang/Integer", "intValue", "()I", abuf[:0])
@@ -653,6 +709,7 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 		return nil, exc // no handler matched
 	}
 	l8 = s0
+	genrt.SetLine(thr, 21)
 	L72:
 	s0 = l3
 	s1 = l6
@@ -670,6 +727,7 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 22)
 	s0 = l4
 	s1 = l6
 	abuf[0] = s1
@@ -677,8 +735,10 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 12)
 	l5 = l5.(int32) + 1
 	goto L30
+	genrt.SetLine(thr, 25)
 	L100:
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
@@ -712,6 +772,7 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 26)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -744,6 +805,7 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 27)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -778,6 +840,7 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 28)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -812,6 +875,7 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 29)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -846,14 +910,17 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 32)
 	s0 = genrt.Str("  Hello, Catty!  ")
 	l5 = s0
+	genrt.SetLine(thr, 33)
 	s0 = l5
 	s0, exc = genrt.CallVirtualIC(25, thr, s0, "java/lang/String", "trim", "()Ljava/lang/String;", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l6 = s0
+	genrt.SetLine(thr, 34)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	// sb-fold [259..283]
 	_sb259 = ""
@@ -866,6 +933,7 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 35)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -898,6 +966,7 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 36)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -930,6 +999,7 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 37)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -966,6 +1036,7 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 38)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -1000,6 +1071,7 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 39)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -1034,6 +1106,7 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 40)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -1066,6 +1139,7 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 43)
 	s0 = int64(9999999999)
 	abuf[0] = s0
 	s0, exc = genrt.CallStatic(thr, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", abuf[:1])
@@ -1073,12 +1147,14 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 		return nil, exc // no handler matched
 	}
 	l7 = s0
+	genrt.SetLine(thr, 44)
 	s0 = l7
 	s0, exc = genrt.CallVirtualIC(999, thr, s0, "java/lang/Long", "longValue", "()J", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l8 = s0
+	genrt.SetLine(thr, 45)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	// sb-fold [487..506]
 	_sb487 = ""
@@ -1090,6 +1166,7 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 47)
 	s0 = int32(1)
 	abuf[0] = s0
 	s0, exc = genrt.CallStatic(thr, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", abuf[:1])
@@ -1097,6 +1174,7 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 		return nil, exc // no handler matched
 	}
 	l10 = s0
+	genrt.SetLine(thr, 48)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -1146,6 +1224,7 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 50)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.Str("done")
 	abuf[0] = s1
@@ -1153,6 +1232,7 @@ func Catty_WordCount_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kern
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 51)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -1169,6 +1249,7 @@ func Catty_WcFile_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kerne
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 5)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -1194,12 +1275,14 @@ func Catty_WcFile_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 	_ = []any{_sb171, _sb196}
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 7)
 	s0 = l0
 	s0, exc = genrt.ArrayLengthChecked(thr, s0)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) != 0 { goto L14 }
+	genrt.SetLine(thr, 8)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.Str("usage: wcfile <input.txt>")
 	abuf[0] = s1
@@ -1207,7 +1290,9 @@ func Catty_WcFile_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 9)
 	return nil, nil
+	genrt.SetLine(thr, 11)
 	L14:
 	s0 = genrt.New(thr, "java/util/HashMap")
 	s1 = s0
@@ -1216,10 +1301,12 @@ func Catty_WcFile_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 12)
 	s0 = int32(0)
 	l2 = s0
 	s0 = int32(0)
 	l3 = s0
+	genrt.SetLine(thr, 13)
 	s0 = genrt.New(thr, "java/io/BufferedReader")
 	s1 = s0
 	s2 = genrt.New(thr, "java/io/FileReader")
@@ -1241,16 +1328,20 @@ func Catty_WcFile_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 		return nil, exc // no handler matched
 	}
 	l4 = s0
+	genrt.SetLine(thr, 14)
 	s0 = l4
 	s0, exc = genrt.CallVirtualIC(1022, thr, s0, "java/io/BufferedReader", "readLine", "()Ljava/lang/String;", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l5 = s0
+	genrt.SetLine(thr, 15)
 	L52:
 	s0 = l5
 	if (s0 == nil) == true { goto L163 }
+	genrt.SetLine(thr, 16)
 	l2 = l2.(int32) + 1
+	genrt.SetLine(thr, 17)
 	s0 = l5
 	s0, exc = genrt.CallVirtualIC(25, thr, s0, "java/lang/String", "trim", "()Ljava/lang/String;", abuf[:0])
 	if exc != nil {
@@ -1263,6 +1354,7 @@ func Catty_WcFile_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 		return nil, exc // no handler matched
 	}
 	l6 = s0
+	genrt.SetLine(thr, 18)
 	s0 = int32(0)
 	l7 = s0
 	L75:
@@ -1273,6 +1365,7 @@ func Catty_WcFile_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) >= s1.(int32) { goto L153 }
+	genrt.SetLine(thr, 19)
 	s0 = l6
 	s1 = l7
 	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
@@ -1280,6 +1373,7 @@ func Catty_WcFile_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 		return nil, exc // no handler matched
 	}
 	l8 = s0
+	genrt.SetLine(thr, 20)
 	s0 = l8
 	s1 = genrt.Str("")
 	abuf[0] = s1
@@ -1289,8 +1383,10 @@ func Catty_WcFile_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 	}
 	if s0.(int32) == 0 { goto L103 }
 	goto L147
+	genrt.SetLine(thr, 21)
 	L103:
 	l3 = l3.(int32) + 1
+	genrt.SetLine(thr, 22)
 	s0 = l1
 	s1 = l8
 	abuf[0] = s1
@@ -1303,6 +1399,7 @@ func Catty_WcFile_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 		return nil, exc // no handler matched
 	}
 	l9 = s0
+	genrt.SetLine(thr, 23)
 	s0 = l9
 	if (s0 == nil) == false { goto L126 }
 	s0 = int32(0)
@@ -1315,6 +1412,7 @@ func Catty_WcFile_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 	}
 	L131:
 	l10 = s0
+	genrt.SetLine(thr, 24)
 	s0 = l1
 	s1 = l8
 	s2 = l10
@@ -1331,9 +1429,11 @@ func Catty_WcFile_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 18)
 	L147:
 	l7 = l7.(int32) + 1
 	goto L75
+	genrt.SetLine(thr, 26)
 	L153:
 	s0 = l4
 	s0, exc = genrt.CallVirtualIC(1022, thr, s0, "java/io/BufferedReader", "readLine", "()Ljava/lang/String;", abuf[:0])
@@ -1341,13 +1441,16 @@ func Catty_WcFile_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 		return nil, exc // no handler matched
 	}
 	l5 = s0
+	genrt.SetLine(thr, 27)
 	goto L52
+	genrt.SetLine(thr, 28)
 	L163:
 	s0 = l4
 	_, exc = genrt.CallVirtualIC(984, thr, s0, "java/io/BufferedReader", "close", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 29)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	// sb-fold [171..189]
 	_sb171 = ""
@@ -1359,6 +1462,7 @@ func Catty_WcFile_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 30)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	// sb-fold [196..214]
 	_sb196 = ""
@@ -1370,6 +1474,7 @@ func Catty_WcFile_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 31)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -1402,6 +1507,7 @@ func Catty_WcFile_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 32)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -1436,6 +1542,7 @@ func Catty_WcFile_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 33)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -1452,6 +1559,7 @@ func Catty_Bench_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 1)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -1469,6 +1577,7 @@ func Catty_Bench_now____J(thr kernel.OwnerKey, recv kernel.Value, args []kernel.
 	_ = exc
 	var s0, s1, s2 kernel.Value
 	_ = []kernel.Value{s0, s1, s2}
+	genrt.SetLine(thr, 2)
 	s0, exc = genrt.CallStatic(thr, "java/lang/System", "nanoTime", "()J", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
@@ -1491,13 +1600,16 @@ func Catty_Bench_arith___I_J(thr kernel.OwnerKey, recv kernel.Value, args []kern
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 6)
 	s0, exc = genrt.CallStatic(thr, "Bench", "now", "()J", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 7)
 	s0 = int32(0)
 	l3 = s0
+	genrt.SetLine(thr, 8)
 	s0 = int32(0)
 	l4 = s0
 	L9:
@@ -1516,12 +1628,14 @@ func Catty_Bench_arith___I_J(thr kernel.OwnerKey, recv kernel.Value, args []kern
 	l3 = s0
 	l4 = l4.(int32) + 1
 	goto L9
+	genrt.SetLine(thr, 9)
 	L33:
 	s0, exc = genrt.CallStatic(thr, "Bench", "now", "()J", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l4 = s0
+	genrt.SetLine(thr, 10)
 	s0 = l3
 	s1 = int32(42)
 	if s0.(int32) != s1.(int32) { goto L52 }
@@ -1532,6 +1646,7 @@ func Catty_Bench_arith___I_J(thr kernel.OwnerKey, recv kernel.Value, args []kern
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 11)
 	L52:
 	s0 = l4
 	s2 = l1
@@ -1554,11 +1669,13 @@ func Catty_Bench_vcall___I_J(thr kernel.OwnerKey, recv kernel.Value, args []kern
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 17)
 	s0, exc = genrt.CallStatic(thr, "Bench", "now", "()J", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 18)
 	s0 = genrt.New(thr, "Bench$Node")
 	s1 = s0
 	s2 = int32(7)
@@ -1568,8 +1685,10 @@ func Catty_Bench_vcall___I_J(thr kernel.OwnerKey, recv kernel.Value, args []kern
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 19)
 	s0 = int32(0)
 	l4 = s0
+	genrt.SetLine(thr, 20)
 	s0 = int32(0)
 	l5 = s0
 	L20:
@@ -1586,12 +1705,14 @@ func Catty_Bench_vcall___I_J(thr kernel.OwnerKey, recv kernel.Value, args []kern
 	l4 = s0
 	l5 = l5.(int32) + 1
 	goto L20
+	genrt.SetLine(thr, 21)
 	L41:
 	s0, exc = genrt.CallStatic(thr, "Bench", "now", "()J", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l5 = s0
+	genrt.SetLine(thr, 22)
 	s0 = l4
 	s1 = int32(42)
 	if s0.(int32) != s1.(int32) { goto L61 }
@@ -1602,6 +1723,7 @@ func Catty_Bench_vcall___I_J(thr kernel.OwnerKey, recv kernel.Value, args []kern
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 23)
 	L61:
 	s0 = l5
 	s2 = l1
@@ -1626,6 +1748,7 @@ func Catty_Bench_mapops___I_J(thr kernel.OwnerKey, recv kernel.Value, args []ker
 	_ = []any{_sb21}
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 28)
 	s0 = genrt.New(thr, "java/util/HashMap")
 	s1 = s0
 	_, exc = genrt.CallSpecial(thr, s1, "java/util/HashMap", "<init>", "()V", abuf[:0])
@@ -1633,11 +1756,13 @@ func Catty_Bench_mapops___I_J(thr kernel.OwnerKey, recv kernel.Value, args []ker
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 29)
 	s0, exc = genrt.CallStatic(thr, "Bench", "now", "()J", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 30)
 	s0 = int32(0)
 	l4 = s0
 	L15:
@@ -1649,7 +1774,9 @@ func Catty_Bench_mapops___I_J(thr kernel.OwnerKey, recv kernel.Value, args []ker
 	_sb21 += "k"
 	_sb21 += genrt.ItoA((l4.(int32) % 1024))
 	s0 = genrt.MakeStr(_sb21)
+	genrt.SetLine(thr, 31)
 	l5 = s0
+	genrt.SetLine(thr, 32)
 	s0 = l1
 	s1 = l5
 	abuf[0] = s1
@@ -1662,6 +1789,7 @@ func Catty_Bench_mapops___I_J(thr kernel.OwnerKey, recv kernel.Value, args []ker
 		return nil, exc // no handler matched
 	}
 	l6 = s0
+	genrt.SetLine(thr, 33)
 	s0 = l1
 	s1 = l5
 	s2 = l6
@@ -1688,14 +1816,17 @@ func Catty_Bench_mapops___I_J(thr kernel.OwnerKey, recv kernel.Value, args []ker
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 30)
 	l4 = l4.(int32) + 1
 	goto L15
+	genrt.SetLine(thr, 35)
 	L90:
 	s0, exc = genrt.CallStatic(thr, "Bench", "now", "()J", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l4 = s0
+	genrt.SetLine(thr, 36)
 	s0 = l4
 	s2 = l2
 	s0 = (s0.(int64)) - (s2.(int64))
@@ -1717,13 +1848,16 @@ func Catty_Bench_strcat___I_J(thr kernel.OwnerKey, recv kernel.Value, args []ker
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 41)
 	s0, exc = genrt.CallStatic(thr, "Bench", "now", "()J", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 42)
 	s0 = genrt.Str("")
 	l3 = s0
+	genrt.SetLine(thr, 43)
 	s0 = int32(0)
 	l4 = s0
 	L10:
@@ -1762,12 +1896,14 @@ func Catty_Bench_strcat___I_J(thr kernel.OwnerKey, recv kernel.Value, args []ker
 	l3 = s0
 	l4 = l4.(int32) + 1
 	goto L10
+	genrt.SetLine(thr, 44)
 	L47:
 	s0, exc = genrt.CallStatic(thr, "Bench", "now", "()J", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l4 = s0
+	genrt.SetLine(thr, 45)
 	s0 = l4
 	s2 = l1
 	s0 = (s0.(int64)) - (s2.(int64))
@@ -1789,6 +1925,7 @@ func Catty_Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.V
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 49)
 	s0 = l0
 	s1 = int32(0)
 	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
@@ -1801,6 +1938,7 @@ func Catty_Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.V
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 50)
 	s0 = l1
 	s1 = int32(5)
 	s0, exc = genrt.IDiv(thr, s0.(int32), s1.(int32))
@@ -1808,6 +1946,7 @@ func Catty_Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.V
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 52)
 	s0 = l2
 	abuf[0] = s0
 	s0, exc = genrt.CallStatic(thr, "Bench", "arith", "(I)J", abuf[:1])
@@ -1826,12 +1965,14 @@ func Catty_Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.V
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 53)
 	s0 = int32(0)
 	l3 = s0
 	L28:
 	s0 = l3
 	s1 = int32(3)
 	if s0.(int32) >= s1.(int32) { goto L162 }
+	genrt.SetLine(thr, 54)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -1865,6 +2006,7 @@ func Catty_Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.V
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 55)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -1898,6 +2040,7 @@ func Catty_Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.V
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 56)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -1931,6 +2074,7 @@ func Catty_Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.V
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 57)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -1969,6 +2113,7 @@ func Catty_Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.V
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 58)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.Str("---")
 	abuf[0] = s1
@@ -1976,8 +2121,10 @@ func Catty_Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.V
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 53)
 	l3 = l3.(int32) + 1
 	goto L28
+	genrt.SetLine(thr, 60)
 	L162:
 	return nil, nil
 	return nil, nil // unreachable terminal
@@ -1995,6 +2142,7 @@ func Catty_Bench_00036Node_get____I(thr kernel.OwnerKey, recv kernel.Value, args
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 15)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "v", "I")
 	if exc != nil {
@@ -2018,6 +2166,7 @@ func Catty_Bench_00036Node_init___I_V(thr kernel.OwnerKey, recv kernel.Value, ar
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 15)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -2045,6 +2194,7 @@ func Catty_HttpEcho_init____V(thr kernel.OwnerKey, recv kernel.Value, args []ker
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 6)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -2068,6 +2218,7 @@ func Catty_HttpEcho_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 8)
 	s0 = l0
 	s0, exc = genrt.ArrayLengthChecked(thr, s0)
 	if exc != nil {
@@ -2090,6 +2241,7 @@ func Catty_HttpEcho_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	s0 = int32(18080)
 	L17:
 	l1 = s0
+	genrt.SetLine(thr, 9)
 	s0 = genrt.New(thr, "java/net/ServerSocket")
 	s1 = s0
 	s2 = l1
@@ -2099,6 +2251,7 @@ func Catty_HttpEcho_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 10)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -2131,6 +2284,7 @@ func Catty_HttpEcho_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 12)
 	L55:
 	s0 = l2
 	s0, exc = genrt.CallVirtualIC(740, thr, s0, "java/net/ServerSocket", "accept", "()Ljava/net/Socket;", abuf[:0])
@@ -2138,6 +2292,7 @@ func Catty_HttpEcho_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 13)
 	s0 = genrt.New(thr, "Conn")
 	s1 = s0
 	s2 = l3
@@ -2147,11 +2302,13 @@ func Catty_HttpEcho_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 		return nil, exc // no handler matched
 	}
 	l4 = s0
+	genrt.SetLine(thr, 14)
 	s0 = l4
 	_, exc = genrt.CallVirtualIC(764, thr, s0, "java/lang/Thread", "start", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 15)
 	goto L55
 	return nil, nil // unreachable terminal
 }
@@ -2170,6 +2327,7 @@ func Catty_Conn_init___Ljava_net_Socket__V(thr kernel.OwnerKey, recv kernel.Valu
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 21)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Thread", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -2199,6 +2357,7 @@ func Catty_Conn_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.V
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 25)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "s", "Ljava/net/Socket;")
 	if exc != nil {
@@ -2211,6 +2370,7 @@ func Catty_Conn_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.V
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 26)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "s", "Ljava/net/Socket;")
 	if exc != nil {
@@ -2223,6 +2383,7 @@ func Catty_Conn_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.V
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 27)
 	s0 = int32(2048)
 	s0, exc = genrt.NewPrimitiveArray(thr, "B", s0.(int32))
 	if exc != nil {
@@ -2230,6 +2391,7 @@ func Catty_Conn_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.V
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 28)
 	s0 = genrt.New(thr, "java/lang/StringBuilder")
 	s1 = s0
 	_, exc = genrt.CallSpecial(thr, s1, "java/lang/StringBuilder", "<init>", "()V", abuf[:0])
@@ -2238,13 +2400,17 @@ func Catty_Conn_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.V
 		return nil, exc // no handler matched
 	}
 	l4 = s0
+	genrt.SetLine(thr, 29)
 	s0 = int32(0)
 	l5 = s0
+	genrt.SetLine(thr, 30)
 	s0 = int32(-1)
 	l6 = s0
+	genrt.SetLine(thr, 31)
 	L37:
 	s0 = l5
 	if s0.(int32) != 0 { goto L97 }
+	genrt.SetLine(thr, 32)
 	s0 = l1
 	s1 = l3
 	abuf[0] = s1
@@ -2254,9 +2420,11 @@ func Catty_Conn_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.V
 		return nil, exc // no handler matched
 	}
 	l7 = s0
+	genrt.SetLine(thr, 33)
 	s0 = l7
 	if s0.(int32) >= 0 { goto L57 }
 	goto L97
+	genrt.SetLine(thr, 34)
 	L57:
 	s0 = l4
 	s1 = genrt.New(thr, "java/lang/String")
@@ -2278,6 +2446,7 @@ func Catty_Conn_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.V
 		if genrt.InstanceOf(exc.Obj, "java/lang/Exception") { goto L135 }
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 35)
 	s0 = l4
 	s0, exc = genrt.CallVirtualIC(342, thr, s0, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", abuf[:0])
 	if exc != nil {
@@ -2292,12 +2461,15 @@ func Catty_Conn_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.V
 		return nil, exc // no handler matched
 	}
 	l6 = s0
+	genrt.SetLine(thr, 36)
 	s0 = l6
 	if s0.(int32) < 0 { goto L94 }
 	s0 = int32(1)
 	l5 = s0
+	genrt.SetLine(thr, 37)
 	L94:
 	goto L37
+	genrt.SetLine(thr, 38)
 	L97:
 	s0 = genrt.New(thr, "java/lang/StringBuilder")
 	s1 = s0
@@ -2326,6 +2498,7 @@ func Catty_Conn_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.V
 		return nil, exc // no handler matched
 	}
 	l7 = s0
+	genrt.SetLine(thr, 40)
 	s0 = l2
 	s1 = l7
 	s1, exc = genrt.CallVirtualIC(995, thr, s1, "java/lang/String", "getBytes", "()[B", abuf[:0])
@@ -2339,16 +2512,20 @@ func Catty_Conn_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.V
 		if genrt.InstanceOf(exc.Obj, "java/lang/Exception") { goto L135 }
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 41)
 	s0 = l2
 	_, exc = genrt.CallVirtualIC(737, thr, s0, "java/io/OutputStream", "close", "()V", abuf[:0])
 	if exc != nil {
 		if genrt.InstanceOf(exc.Obj, "java/lang/Exception") { goto L135 }
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 44)
 	goto L164
+	genrt.SetLine(thr, 42)
 	L135:
 	s0 = exc.Obj
 	l1 = s0
+	genrt.SetLine(thr, 43)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -2381,6 +2558,7 @@ func Catty_Conn_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.V
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 45)
 	L164:
 	return nil, nil
 	return nil, nil // unreachable terminal
@@ -2398,6 +2576,7 @@ func Catty_Sleeper_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kern
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 34)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Thread", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -2421,6 +2600,7 @@ func Catty_Sleeper_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kerne
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 37)
 	s0 = int64(60000)
 	abuf[0] = s0
 	_, exc = genrt.CallStatic(thr, "java/lang/Thread", "sleep", "(J)V", abuf[:1])
@@ -2428,6 +2608,7 @@ func Catty_Sleeper_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kerne
 		if genrt.InstanceOf(exc.Obj, "java/lang/InterruptedException") { goto L17 }
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 38)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.Str("BUG: not interrupted")
 	abuf[0] = s1
@@ -2436,10 +2617,13 @@ func Catty_Sleeper_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kerne
 		if genrt.InstanceOf(exc.Obj, "java/lang/InterruptedException") { goto L17 }
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 41)
 	goto L26
+	genrt.SetLine(thr, 39)
 	L17:
 	s0 = exc.Obj
 	l1 = s0
+	genrt.SetLine(thr, 40)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.Str("interrupted ok")
 	abuf[0] = s1
@@ -2447,6 +2631,7 @@ func Catty_Sleeper_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kerne
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 42)
 	L26:
 	return nil, nil
 	return nil, nil // unreachable terminal
@@ -2470,6 +2655,7 @@ func Catty_Worker_init___Ljava_lang_String_I_V(thr kernel.OwnerKey, recv kernel.
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 30)
 	s0 = l0
 	s1 = l1
 	abuf[0] = s1
@@ -2501,6 +2687,7 @@ func Catty_Worker_run____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 31)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "n", "I")
 	if exc != nil {
@@ -2527,6 +2714,7 @@ func Catty_TraceProbe_init____V(thr kernel.OwnerKey, recv kernel.Value, args []k
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 4)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -2550,6 +2738,7 @@ func Catty_TraceProbe_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 6)
 	s0 = l0
 	s0, exc = genrt.ArrayLengthChecked(thr, s0)
 	if exc != nil {
@@ -2560,6 +2749,7 @@ func Catty_TraceProbe_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 7)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -2576,8 +2766,10 @@ func Catty_TraceProbe_stepA___I_V(thr kernel.OwnerKey, recv kernel.Value, args [
 	_ = []kernel.Value{s0, s1, s2, s3}
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 10)
 	s0 = nil
 	l1 = s0
+	genrt.SetLine(thr, 11)
 	s0 = l1
 	s1 = int32(0)
 	s2 = l0
@@ -2585,6 +2777,7 @@ func Catty_TraceProbe_stepA___I_V(thr kernel.OwnerKey, recv kernel.Value, args [
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 12)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -2601,6 +2794,7 @@ func Catty_TraceProbe2_init____V(thr kernel.OwnerKey, recv kernel.Value, args []
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 5)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -2624,12 +2818,14 @@ func Catty_TraceProbe2_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ke
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 7)
 	s0 = int32(3)
 	abuf[0] = s0
 	_, exc = genrt.CallStatic(thr, "TraceProbe2", "fire", "(I)V", abuf[:1])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 8)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -2650,6 +2846,7 @@ func Catty_TraceProbe2_fire___I_V(thr kernel.OwnerKey, recv kernel.Value, args [
 	_ = []any{_sb4}
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 11)
 	s0 = genrt.New(thr, "java/lang/IllegalStateException")
 	s1 = s0
 	// sb-fold [4..22]
@@ -2681,6 +2878,7 @@ func Catty_JProbe_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kerne
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 4)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -2704,17 +2902,20 @@ func Catty_JProbe_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 6)
 	s0, exc = genrt.CallStatic(thr, "java/lang/System", "nanoTime", "()J", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 7)
 	s0 = l1
 	s2 = l1
 	s0 = (s0.(int64)) - (s2.(int64))
 	s2 = int64(42)
 	s0 = (s0.(int64)) + (s2.(int64))
 	l3 = s0
+	genrt.SetLine(thr, 8)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = l3
 	abuf[0] = s1
@@ -2722,6 +2923,7 @@ func Catty_JProbe_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 9)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -2738,6 +2940,7 @@ func Catty_MapBench_init____V(thr kernel.OwnerKey, recv kernel.Value, args []ker
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 3)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -2763,6 +2966,7 @@ func Catty_MapBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	_ = []any{_sb28}
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 5)
 	s0 = l0
 	s1 = int32(0)
 	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
@@ -2775,6 +2979,7 @@ func Catty_MapBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 6)
 	s0 = genrt.New(thr, "java/util/HashMap")
 	s1 = s0
 	_, exc = genrt.CallSpecial(thr, s1, "java/util/HashMap", "<init>", "()V", abuf[:0])
@@ -2782,11 +2987,13 @@ func Catty_MapBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 7)
 	s0, exc = genrt.CallStatic(thr, "java/lang/System", "nanoTime", "()J", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 8)
 	s0 = int32(0)
 	l5 = s0
 	L22:
@@ -2798,7 +3005,9 @@ func Catty_MapBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	_sb28 += "k"
 	_sb28 += genrt.ItoA((l5.(int32) % 1024))
 	s0 = genrt.MakeStr(_sb28)
+	genrt.SetLine(thr, 9)
 	l6 = s0
+	genrt.SetLine(thr, 10)
 	s0 = l2
 	s1 = l6
 	abuf[0] = s1
@@ -2811,6 +3020,7 @@ func Catty_MapBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 		return nil, exc // no handler matched
 	}
 	l7 = s0
+	genrt.SetLine(thr, 11)
 	s0 = l2
 	s1 = l6
 	s2 = l7
@@ -2837,14 +3047,17 @@ func Catty_MapBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 8)
 	l5 = l5.(int32) + 1
 	goto L22
+	genrt.SetLine(thr, 13)
 	L97:
 	s0, exc = genrt.CallStatic(thr, "java/lang/System", "nanoTime", "()J", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l5 = s0
+	genrt.SetLine(thr, 14)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -2875,6 +3088,7 @@ func Catty_MapBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 15)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -2891,6 +3105,7 @@ func Catty_VCallBench_init____V(thr kernel.OwnerKey, recv kernel.Value, args []k
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 2)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -2914,6 +3129,7 @@ func Catty_VCallBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 6)
 	s0 = l0
 	s1 = int32(0)
 	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
@@ -2926,6 +3142,7 @@ func Catty_VCallBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 7)
 	s0 = genrt.New(thr, "VCallBench$Node")
 	s1 = s0
 	s2 = int32(7)
@@ -2935,13 +3152,16 @@ func Catty_VCallBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 8)
 	s0, exc = genrt.CallStatic(thr, "java/lang/System", "nanoTime", "()J", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 9)
 	s0 = int32(0)
 	l5 = s0
+	genrt.SetLine(thr, 10)
 	s0 = int32(0)
 	l6 = s0
 	L27:
@@ -2958,12 +3178,14 @@ func Catty_VCallBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 	l5 = s0
 	l6 = l6.(int32) + 1
 	goto L27
+	genrt.SetLine(thr, 11)
 	L48:
 	s0, exc = genrt.CallStatic(thr, "java/lang/System", "nanoTime", "()J", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l6 = s0
+	genrt.SetLine(thr, 12)
 	s0 = l5
 	s1 = int32(42)
 	if s0.(int32) != s1.(int32) { goto L68 }
@@ -2974,6 +3196,7 @@ func Catty_VCallBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 13)
 	L68:
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
@@ -3005,6 +3228,7 @@ func Catty_VCallBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 14)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -3021,6 +3245,7 @@ func Catty_VCallBench_00036Node_get____I(thr kernel.OwnerKey, recv kernel.Value,
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 3)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "v", "I")
 	if exc != nil {
@@ -3044,6 +3269,7 @@ func Catty_VCallBench_00036Node_init___I_V(thr kernel.OwnerKey, recv kernel.Valu
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 3)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -3071,6 +3297,7 @@ func Catty_RaceRig_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kern
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 5)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -3094,6 +3321,7 @@ func Catty_RaceRig_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 17)
 	s0 = genrt.New(thr, "RaceRig$Bumper")
 	s1 = s0
 	_, exc = genrt.CallSpecial(thr, s1, "RaceRig$Bumper", "<init>", "()V", abuf[:0])
@@ -3101,6 +3329,7 @@ func Catty_RaceRig_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 18)
 	s0 = genrt.New(thr, "RaceRig$Bumper")
 	s1 = s0
 	_, exc = genrt.CallSpecial(thr, s1, "RaceRig$Bumper", "<init>", "()V", abuf[:0])
@@ -3108,26 +3337,31 @@ func Catty_RaceRig_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 19)
 	s0 = l1
 	_, exc = genrt.CallVirtualIC(26, thr, s0, "RaceRig$Bumper", "start", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 20)
 	s0 = l2
 	_, exc = genrt.CallVirtualIC(26, thr, s0, "RaceRig$Bumper", "start", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 21)
 	s0 = l1
 	_, exc = genrt.CallVirtualIC(500, thr, s0, "RaceRig$Bumper", "join", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 22)
 	s0 = l2
 	_, exc = genrt.CallVirtualIC(500, thr, s0, "RaceRig$Bumper", "join", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 23)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -3156,6 +3390,7 @@ func Catty_RaceRig_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 24)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -3172,6 +3407,7 @@ func Catty_RaceRig_00036Bumper_init____V(thr kernel.OwnerKey, recv kernel.Value,
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 8)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Thread", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -3193,18 +3429,22 @@ func Catty_RaceRig_00036Bumper_run____V(thr kernel.OwnerKey, recv kernel.Value, 
 	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 10)
 	s0 = int32(0)
 	l1 = s0
 	L2:
 	s0 = l1
 	s1 = int32(100000)
 	if s0.(int32) >= s1.(int32) { goto L22 }
+	genrt.SetLine(thr, 11)
 	s0 = genrt.GetStatic(thr, "RaceRig", "counter", "I")
 	s1 = int32(1)
 	s0 = (s0.(int32)) + (s1.(int32))
 	genrt.SetStatic(thr, "RaceRig", "counter", "I", s0)
+	genrt.SetLine(thr, 10)
 	l1 = l1.(int32) + 1
 	goto L2
+	genrt.SetLine(thr, 13)
 	L22:
 	return nil, nil
 	return nil, nil // unreachable terminal
@@ -3222,6 +3462,7 @@ func Catty_ConcurrentBench_init____V(thr kernel.OwnerKey, recv kernel.Value, arg
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 4)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -3245,6 +3486,7 @@ func Catty_ConcurrentBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 28)
 	s0 = l0
 	s1 = int32(0)
 	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
@@ -3257,6 +3499,7 @@ func Catty_ConcurrentBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 29)
 	s0 = l0
 	s1 = int32(1)
 	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
@@ -3269,23 +3512,27 @@ func Catty_ConcurrentBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 30)
 	s0 = l1
 	s0, exc = genrt.NewRefArray(thr, "ConcurrentBench$Worker", s0.(int32))
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 31)
 	s0, exc = genrt.CallStatic(thr, "java/lang/System", "nanoTime", "()J", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l4 = s0
+	genrt.SetLine(thr, 32)
 	s0 = int32(0)
 	l6 = s0
 	L27:
 	s0 = l6
 	s1 = l1
 	if s0.(int32) >= s1.(int32) { goto L58 }
+	genrt.SetLine(thr, 33)
 	s0 = l3
 	s1 = l6
 	s2 = genrt.New(thr, "ConcurrentBench$Worker")
@@ -3300,6 +3547,7 @@ func Catty_ConcurrentBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 34)
 	s0 = l3
 	s1 = l6
 	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
@@ -3310,8 +3558,10 @@ func Catty_ConcurrentBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 32)
 	l6 = l6.(int32) + 1
 	goto L27
+	genrt.SetLine(thr, 36)
 	L58:
 	s0 = int32(0)
 	l6 = s0
@@ -3319,6 +3569,7 @@ func Catty_ConcurrentBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 	s0 = l6
 	s1 = l1
 	if s0.(int32) >= s1.(int32) { goto L80 }
+	genrt.SetLine(thr, 37)
 	s0 = l3
 	s1 = l6
 	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
@@ -3329,22 +3580,27 @@ func Catty_ConcurrentBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 36)
 	l6 = l6.(int32) + 1
 	goto L61
+	genrt.SetLine(thr, 39)
 	L80:
 	s0, exc = genrt.CallStatic(thr, "java/lang/System", "nanoTime", "()J", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l6 = s0
+	genrt.SetLine(thr, 40)
 	s0 = int64(0)
 	l8 = s0
+	genrt.SetLine(thr, 41)
 	s0 = int32(0)
 	l10 = s0
 	L91:
 	s0 = l10
 	s1 = l1
 	if s0.(int32) >= s1.(int32) { goto L115 }
+	genrt.SetLine(thr, 42)
 	s0 = l8
 	s2 = l3
 	s3 = l10
@@ -3358,8 +3614,10 @@ func Catty_ConcurrentBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 	}
 	s0 = (s0.(int64)) + (s2.(int64))
 	l8 = s0
+	genrt.SetLine(thr, 41)
 	l10 = l10.(int32) + 1
 	goto L91
+	genrt.SetLine(thr, 44)
 	L115:
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
@@ -3412,6 +3670,7 @@ func Catty_ConcurrentBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 45)
 	s2 = l8
 	s4 = int64(42)
 	s2 = genrt.LCmp(s2.(int64), s4.(int64))
@@ -3430,11 +3689,13 @@ func Catty_ConcurrentBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, rec
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 44)
 	abuf[0] = s1
 	_, exc = genrt.CallVirtualIC(746, thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", abuf[:1])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 46)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -3451,6 +3712,7 @@ func Catty_ConcurrentBench_00036Node_get____I(thr kernel.OwnerKey, recv kernel.V
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 25)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "v", "I")
 	if exc != nil {
@@ -3474,6 +3736,7 @@ func Catty_ConcurrentBench_00036Node_init___I_V(thr kernel.OwnerKey, recv kernel
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 25)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -3503,6 +3766,7 @@ func Catty_ConcurrentBench_00036Worker_init___I_V(thr kernel.OwnerKey, recv kern
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 9)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Thread", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -3532,6 +3796,7 @@ func Catty_ConcurrentBench_00036Worker_run____V(thr kernel.OwnerKey, recv kernel
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 12)
 	s0 = genrt.New(thr, "ConcurrentBench$Node")
 	s1 = s0
 	s2 = int32(7)
@@ -3541,6 +3806,7 @@ func Catty_ConcurrentBench_00036Worker_run____V(thr kernel.OwnerKey, recv kernel
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 13)
 	s0 = genrt.New(thr, "java/util/HashMap")
 	s1 = s0
 	_, exc = genrt.CallSpecial(thr, s1, "java/util/HashMap", "<init>", "()V", abuf[:0])
@@ -3548,8 +3814,10 @@ func Catty_ConcurrentBench_00036Worker_run____V(thr kernel.OwnerKey, recv kernel
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 14)
 	s0 = int64(0)
 	l3 = s0
+	genrt.SetLine(thr, 15)
 	s0 = int32(0)
 	l5 = s0
 	L23:
@@ -3560,6 +3828,7 @@ func Catty_ConcurrentBench_00036Worker_run____V(thr kernel.OwnerKey, recv kernel
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) >= s1.(int32) { goto L66 }
+	genrt.SetLine(thr, 16)
 	s0 = l3
 	s2 = l1
 	s2, exc = genrt.CallVirtualIC(356, thr, s2, "ConcurrentBench$Node", "get", "()I", abuf[:0])
@@ -3569,10 +3838,12 @@ func Catty_ConcurrentBench_00036Worker_run____V(thr kernel.OwnerKey, recv kernel
 	s2 = int64(s2.(int32))
 	s0 = (s0.(int64)) + (s2.(int64))
 	l3 = s0
+	genrt.SetLine(thr, 17)
 	s0 = l5
 	s1 = int32(1023)
 	s0 = (s0.(int32)) & (s1.(int32))
 	if s0.(int32) != 0 { goto L60 }
+	genrt.SetLine(thr, 18)
 	s0 = l2
 	s1 = l1
 	s2 = l5
@@ -3587,9 +3858,11 @@ func Catty_ConcurrentBench_00036Worker_run____V(thr kernel.OwnerKey, recv kernel
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 15)
 	L60:
 	l5 = l5.(int32) + 1
 	goto L23
+	genrt.SetLine(thr, 21)
 	L66:
 	s0 = l0
 	s1 = l3
@@ -3597,6 +3870,7 @@ func Catty_ConcurrentBench_00036Worker_run____V(thr kernel.OwnerKey, recv kernel
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 22)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -3613,6 +3887,7 @@ func Catty_P99Bench_init____V(thr kernel.OwnerKey, recv kernel.Value, args []ker
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 5)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -3638,6 +3913,7 @@ func Catty_P99Bench_sort___AJI_V(thr kernel.OwnerKey, recv kernel.Value, args []
 	l1 = args[1]
 	l0 = args[0]
 	l1 = args[1]
+	genrt.SetLine(thr, 10)
 	s0 = l1
 	s1 = int32(2)
 	s0, exc = genrt.IDiv(thr, s0.(int32), s1.(int32))
@@ -3662,6 +3938,7 @@ func Catty_P99Bench_sort___AJI_V(thr kernel.OwnerKey, recv kernel.Value, args []
 	}
 	l2 = l2.(int32) + -1
 	goto L6
+	genrt.SetLine(thr, 11)
 	L22:
 	s0 = l1
 	s1 = int32(1)
@@ -3670,6 +3947,7 @@ func Catty_P99Bench_sort___AJI_V(thr kernel.OwnerKey, recv kernel.Value, args []
 	L26:
 	s0 = l2
 	if s0.(int32) <= 0 { goto L56 }
+	genrt.SetLine(thr, 12)
 	s0 = l0
 	s1 = int32(0)
 	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
@@ -3696,6 +3974,7 @@ func Catty_P99Bench_sort___AJI_V(thr kernel.OwnerKey, recv kernel.Value, args []
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 13)
 	s0 = l0
 	s1 = int32(0)
 	s2 = l2
@@ -3706,8 +3985,10 @@ func Catty_P99Bench_sort___AJI_V(thr kernel.OwnerKey, recv kernel.Value, args []
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 11)
 	l2 = l2.(int32) + -1
 	goto L26
+	genrt.SetLine(thr, 15)
 	L56:
 	return nil, nil
 	return nil, nil // unreachable terminal
@@ -3729,6 +4010,7 @@ func Catty_P99Bench_sift___AJII_V(thr kernel.OwnerKey, recv kernel.Value, args [
 	l0 = args[0]
 	l1 = args[1]
 	l2 = args[2]
+	genrt.SetLine(thr, 18)
 	L0:
 	s0 = int32(2)
 	s1 = l1
@@ -3737,12 +4019,14 @@ func Catty_P99Bench_sift___AJII_V(thr kernel.OwnerKey, recv kernel.Value, args [
 	s0 = (s0.(int32)) + (s1.(int32))
 	s1 = l2
 	if s0.(int32) >= s1.(int32) { goto L69 }
+	genrt.SetLine(thr, 19)
 	s0 = int32(2)
 	s1 = l1
 	s0 = (s0.(int32)) * (s1.(int32))
 	s1 = int32(1)
 	s0 = (s0.(int32)) + (s1.(int32))
 	l3 = s0
+	genrt.SetLine(thr, 20)
 	s0 = l3
 	s1 = int32(1)
 	s0 = (s0.(int32)) + (s1.(int32))
@@ -3765,6 +4049,7 @@ func Catty_P99Bench_sift___AJII_V(thr kernel.OwnerKey, recv kernel.Value, args [
 	s0 = genrt.LCmp(s0.(int64), s2.(int64))
 	if s0.(int32) <= 0 { goto L37 }
 	l3 = l3.(int32) + 1
+	genrt.SetLine(thr, 21)
 	L37:
 	s0 = l0
 	s1 = l1
@@ -3781,6 +4066,7 @@ func Catty_P99Bench_sift___AJII_V(thr kernel.OwnerKey, recv kernel.Value, args [
 	s0 = genrt.LCmp(s0.(int64), s2.(int64))
 	if s0.(int32) < 0 { goto L48 }
 	return nil, nil
+	genrt.SetLine(thr, 22)
 	L48:
 	s0 = l0
 	s1 = l1
@@ -3808,9 +4094,12 @@ func Catty_P99Bench_sift___AJII_V(thr kernel.OwnerKey, recv kernel.Value, args [
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 23)
 	s0 = l3
 	l1 = s0
+	genrt.SetLine(thr, 24)
 	goto L0
+	genrt.SetLine(thr, 25)
 	L69:
 	return nil, nil
 	return nil, nil // unreachable terminal
@@ -3834,6 +4123,7 @@ func Catty_P99Bench_pct___AJID_J(thr kernel.OwnerKey, recv kernel.Value, args []
 	l0 = args[0]
 	l1 = args[1]
 	l2 = args[2]
+	genrt.SetLine(thr, 28)
 	s0 = l2
 	s2 = l1
 	s3 = int32(1)
@@ -3847,6 +4137,7 @@ func Catty_P99Bench_pct___AJID_J(thr kernel.OwnerKey, recv kernel.Value, args []
 	}
 	s0 = int32(s0.(float64))
 	l4 = s0
+	genrt.SetLine(thr, 29)
 	s0 = l0
 	s1 = l4
 	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
@@ -3873,6 +4164,7 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	_ = []any{_sb175, _sb47}
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 33)
 	s0 = l0
 	s1 = int32(0)
 	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
@@ -3885,6 +4177,7 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 34)
 	s0 = l0
 	s1 = int32(1)
 	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
@@ -3897,6 +4190,7 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 35)
 	s0 = genrt.New(thr, "java/util/HashMap")
 	s1 = s0
 	_, exc = genrt.CallSpecial(thr, s1, "java/util/HashMap", "<init>", "()V", abuf[:0])
@@ -3904,6 +4198,7 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 36)
 	s0 = genrt.New(thr, "P99Bench$Node")
 	s1 = s0
 	s2 = int32(7)
@@ -3913,12 +4208,14 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 		return nil, exc // no handler matched
 	}
 	l4 = s0
+	genrt.SetLine(thr, 38)
 	s0 = l2
 	s0, exc = genrt.NewPrimitiveArray(thr, "J", s0.(int32))
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l5 = s0
+	genrt.SetLine(thr, 39)
 	s0 = int32(0)
 	l6 = s0
 	L41:
@@ -3930,7 +4227,9 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	_sb47 += "k"
 	_sb47 += genrt.ItoA((l6.(int32) % 1024))
 	s0 = genrt.MakeStr(_sb47)
+	genrt.SetLine(thr, 40)
 	l7 = s0
+	genrt.SetLine(thr, 41)
 	s0 = l3
 	s1 = l7
 	abuf[0] = s1
@@ -3943,6 +4242,7 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 		return nil, exc // no handler matched
 	}
 	l8 = s0
+	genrt.SetLine(thr, 42)
 	s0 = l3
 	s1 = l7
 	s2 = l8
@@ -3969,6 +4269,7 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 43)
 	s0 = genrt.New(thr, "java/lang/StringBuilder")
 	s1 = s0
 	s2 = l7
@@ -3994,6 +4295,7 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 		return nil, exc // no handler matched
 	}
 	l9 = s0
+	genrt.SetLine(thr, 44)
 	s0 = l9
 	s0, exc = genrt.CallVirtualIC(342, thr, s0, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", abuf[:0])
 	if exc != nil {
@@ -4012,9 +4314,11 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 39)
 	L155:
 	l6 = l6.(int32) + 1
 	goto L41
+	genrt.SetLine(thr, 46)
 	L161:
 	s0 = int32(0)
 	l6 = s0
@@ -4022,6 +4326,7 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	s0 = l6
 	s1 = l2
 	if s0.(int32) >= s1.(int32) { goto L300 }
+	genrt.SetLine(thr, 47)
 	s0, exc = genrt.CallStatic(thr, "java/lang/System", "nanoTime", "()J", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
@@ -4032,7 +4337,9 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	_sb175 += "k"
 	_sb175 += genrt.ItoA((l6.(int32) % 1024))
 	s0 = genrt.MakeStr(_sb175)
+	genrt.SetLine(thr, 48)
 	l9 = s0
+	genrt.SetLine(thr, 49)
 	s0 = l3
 	s1 = l9
 	abuf[0] = s1
@@ -4045,6 +4352,7 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 		return nil, exc // no handler matched
 	}
 	l10 = s0
+	genrt.SetLine(thr, 50)
 	s0 = l3
 	s1 = l9
 	s2 = l10
@@ -4071,6 +4379,7 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 51)
 	s0 = genrt.New(thr, "java/lang/StringBuilder")
 	s1 = s0
 	s2 = l9
@@ -4096,6 +4405,7 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 		return nil, exc // no handler matched
 	}
 	l11 = s0
+	genrt.SetLine(thr, 52)
 	s0 = l11
 	s0, exc = genrt.CallVirtualIC(342, thr, s0, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", abuf[:0])
 	if exc != nil {
@@ -4114,6 +4424,7 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 53)
 	L283:
 	s0 = l5
 	s1 = l6
@@ -4127,8 +4438,10 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 46)
 	l6 = l6.(int32) + 1
 	goto L164
+	genrt.SetLine(thr, 55)
 	L300:
 	s0 = l5
 	s1 = l2
@@ -4138,6 +4451,7 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 56)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -4175,6 +4489,7 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 57)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -4212,6 +4527,7 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 58)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -4249,6 +4565,7 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 59)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -4284,6 +4601,7 @@ func Catty_P99Bench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 60)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -4300,6 +4618,7 @@ func Catty_GoCall_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kerne
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 3)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -4323,6 +4642,7 @@ func Catty_GoCall_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 5)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = int32(20)
 	s2 = int32(22)
@@ -4337,6 +4657,7 @@ func Catty_GoCall_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 6)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.Str("catty")
 	abuf[0] = s1
@@ -4349,11 +4670,13 @@ func Catty_GoCall_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 8)
 	_, exc = genrt.CallStatic(thr, "go/Bridge", "fail", "()V", abuf[:0])
 	if exc != nil {
 		if genrt.InstanceOf(exc.Obj, "java/lang/RuntimeException") { goto L38 }
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 9)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.Str("unreachable")
 	abuf[0] = s1
@@ -4362,10 +4685,13 @@ func Catty_GoCall_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 		if genrt.InstanceOf(exc.Obj, "java/lang/RuntimeException") { goto L38 }
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 12)
 	goto L67
+	genrt.SetLine(thr, 10)
 	L38:
 	s0 = exc.Obj
 	l1 = s0
+	genrt.SetLine(thr, 11)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -4398,6 +4724,7 @@ func Catty_GoCall_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 13)
 	L67:
 	return nil, nil
 	return nil, nil // unreachable terminal
@@ -4415,6 +4742,7 @@ func Catty_GoCallBench_init____V(thr kernel.OwnerKey, recv kernel.Value, args []
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 4)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -4438,6 +4766,7 @@ func Catty_GoCallBench_javaAdd___II_I(thr kernel.OwnerKey, recv kernel.Value, ar
 	l1 = args[1]
 	l0 = args[0]
 	l1 = args[1]
+	genrt.SetLine(thr, 5)
 	s0 = l0
 	s1 = l1
 	s0 = (s0.(int32)) + (s1.(int32))
@@ -4461,19 +4790,23 @@ func Catty_GoCallBench_timed___IZ_J(thr kernel.OwnerKey, recv kernel.Value, args
 	l1 = args[1]
 	l0 = args[0]
 	l1 = args[1]
+	genrt.SetLine(thr, 8)
 	s0, exc = genrt.CallStatic(thr, "java/lang/System", "nanoTime", "()J", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 9)
 	s0 = int32(0)
 	l4 = s0
+	genrt.SetLine(thr, 10)
 	s0 = int32(0)
 	l5 = s0
 	L10:
 	s0 = l5
 	s1 = l0
 	if s0.(int32) >= s1.(int32) { goto L51 }
+	genrt.SetLine(thr, 11)
 	s0 = l1
 	if s0.(int32) == 0 { goto L34 }
 	s0 = l4
@@ -4488,6 +4821,7 @@ func Catty_GoCallBench_timed___IZ_J(thr kernel.OwnerKey, recv kernel.Value, args
 	s0 = (s0.(int32)) + (s1.(int32))
 	l4 = s0
 	goto L45
+	genrt.SetLine(thr, 12)
 	L34:
 	s0 = l4
 	s1 = l5
@@ -4500,15 +4834,18 @@ func Catty_GoCallBench_timed___IZ_J(thr kernel.OwnerKey, recv kernel.Value, args
 	}
 	s0 = (s0.(int32)) + (s1.(int32))
 	l4 = s0
+	genrt.SetLine(thr, 10)
 	L45:
 	l5 = l5.(int32) + 1
 	goto L10
+	genrt.SetLine(thr, 14)
 	L51:
 	s0, exc = genrt.CallStatic(thr, "java/lang/System", "nanoTime", "()J", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l5 = s0
+	genrt.SetLine(thr, 15)
 	s0 = l4
 	s1 = int32(-1)
 	if s0.(int32) != s1.(int32) { goto L70 }
@@ -4519,6 +4856,7 @@ func Catty_GoCallBench_timed___IZ_J(thr kernel.OwnerKey, recv kernel.Value, args
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 16)
 	L70:
 	s0 = l5
 	s2 = l2
@@ -4541,6 +4879,7 @@ func Catty_GoCallBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ke
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 20)
 	s0 = l0
 	s1 = int32(0)
 	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
@@ -4553,6 +4892,7 @@ func Catty_GoCallBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ke
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 22)
 	s0 = int32(0)
 	l2 = s0
 	L9:
@@ -4587,6 +4927,7 @@ func Catty_GoCallBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ke
 	}
 	l2 = l2.(int32) + 1
 	goto L9
+	genrt.SetLine(thr, 23)
 	L36:
 	s0 = int32(0)
 	l2 = s0
@@ -4594,6 +4935,7 @@ func Catty_GoCallBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ke
 	s0 = l2
 	s1 = int32(3)
 	if s0.(int32) >= s1.(int32) { goto L115 }
+	genrt.SetLine(thr, 24)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -4629,6 +4971,7 @@ func Catty_GoCallBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ke
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 25)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -4664,6 +5007,7 @@ func Catty_GoCallBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ke
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 26)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.Str("---")
 	abuf[0] = s1
@@ -4671,8 +5015,10 @@ func Catty_GoCallBench_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ke
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 23)
 	l2 = l2.(int32) + 1
 	goto L38
+	genrt.SetLine(thr, 28)
 	L115:
 	return nil, nil
 	return nil, nil // unreachable terminal
@@ -4690,6 +5036,7 @@ func Catty_app_Main_init____V(thr kernel.OwnerKey, recv kernel.Value, args []ker
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 3)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -4713,6 +5060,7 @@ func Catty_app_Main_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 5)
 	s0 = genrt.New(thr, "app/Helper")
 	s1 = s0
 	_, exc = genrt.CallSpecial(thr, s1, "app/Helper", "<init>", "()V", abuf[:0])
@@ -4720,6 +5068,7 @@ func Catty_app_Main_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 6)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = l1
 	s2 = genrt.Str("m1")
@@ -4733,6 +5082,7 @@ func Catty_app_Main_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 7)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = l1
 	s2 = genrt.Str("m2")
@@ -4746,6 +5096,7 @@ func Catty_app_Main_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 8)
 	s0 = genrt.New(thr, "app/Helper")
 	s1 = s0
 	_, exc = genrt.CallSpecial(thr, s1, "app/Helper", "<init>", "()V", abuf[:0])
@@ -4753,6 +5104,7 @@ func Catty_app_Main_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 9)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = l2
 	s1 = genrt.BoolValue(genrt.InstanceOf(s1, "app/Greeter"))
@@ -4761,12 +5113,14 @@ func Catty_app_Main_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 10)
 	s0 = l2
 	s0 = genrt.CheckCast(thr, s0, "app/Helper")
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 11)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = l3
 	s1, exc = genrt.CallVirtualIC(847, thr, s1, "app/Helper", "hits", "()I", abuf[:0])
@@ -4778,6 +5132,7 @@ func Catty_app_Main_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 12)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -4794,6 +5149,7 @@ func Catty_app_Helper_init____V(thr kernel.OwnerKey, recv kernel.Value, args []k
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 3)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -4819,6 +5175,7 @@ func Catty_app_Helper_greet___Ljava_lang_String__Ljava_lang_String_(thr kernel.O
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 7)
 	s0 = l0
 	s1 = s0
 	l2 = s1
@@ -4826,6 +5183,7 @@ func Catty_app_Helper_greet___Ljava_lang_String__Ljava_lang_String_(thr kernel.O
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 8)
 	s0 = l0
 	s1 = s0
 	l3 = s1
@@ -4834,6 +5192,7 @@ func Catty_app_Helper_greet___Ljava_lang_String__Ljava_lang_String_(thr kernel.O
 		goto L35
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 9)
 	s0 = l0
 	s1 = s0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "hits", "I")
@@ -4850,6 +5209,7 @@ func Catty_app_Helper_greet___Ljava_lang_String__Ljava_lang_String_(thr kernel.O
 		goto L35
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 10)
 	s0 = l3
 	exc = genrt.MonitorExit(thr, s0)
 	if exc != nil {
@@ -4874,6 +5234,7 @@ func Catty_app_Helper_greet___Ljava_lang_String__Ljava_lang_String_(thr kernel.O
 		goto L35
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 11)
 	L30:
 	s0 = l2
 	exc = genrt.MonitorExit(thr, s0)
@@ -4896,6 +5257,7 @@ func Catty_app_Helper_greet___Ljava_lang_String__Ljava_lang_String_(thr kernel.O
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 12)
 	L42:
 	s0 = genrt.New(thr, "java/lang/StringBuilder")
 	s1 = s0
@@ -4951,6 +5313,7 @@ func Catty_app_Helper_hits____I(thr kernel.OwnerKey, recv kernel.Value, args []k
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 16)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "hits", "I")
 	if exc != nil {
@@ -4972,11 +5335,13 @@ func Catty_com_eclipsesource_json_Json_init____V(thr kernel.OwnerKey, recv kerne
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 56)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 58)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -4995,6 +5360,7 @@ func Catty_com_eclipsesource_json_Json_value___I_Lcom_eclipsesource_json_JsonVal
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 83)
 	s0 = genrt.New(thr, "com/eclipsesource/json/JsonNumber")
 	s1 = s0
 	s2 = l0
@@ -5028,6 +5394,7 @@ func Catty_com_eclipsesource_json_Json_value___J_Lcom_eclipsesource_json_JsonVal
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 94)
 	s0 = genrt.New(thr, "com/eclipsesource/json/JsonNumber")
 	s1 = s0
 	s2 = l0
@@ -5061,6 +5428,7 @@ func Catty_com_eclipsesource_json_Json_value___F_Lcom_eclipsesource_json_JsonVal
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 105)
 	s0 = l0
 	abuf[0] = s0
 	s0, exc = genrt.CallStatic(thr, "java/lang/Float", "isInfinite", "(F)Z", abuf[:1])
@@ -5075,6 +5443,7 @@ func Catty_com_eclipsesource_json_Json_value___F_Lcom_eclipsesource_json_JsonVal
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) == 0 { goto L24 }
+	genrt.SetLine(thr, 106)
 	L14:
 	s0 = genrt.New(thr, "java/lang/IllegalArgumentException")
 	s1 = s0
@@ -5088,6 +5457,7 @@ func Catty_com_eclipsesource_json_Json_value___F_Lcom_eclipsesource_json_JsonVal
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 108)
 	L24:
 	s0 = genrt.New(thr, "com/eclipsesource/json/JsonNumber")
 	s1 = s0
@@ -5125,6 +5495,7 @@ func Catty_com_eclipsesource_json_Json_value___D_Lcom_eclipsesource_json_JsonVal
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 119)
 	s0 = l0
 	abuf[0] = s0
 	s0, exc = genrt.CallStatic(thr, "java/lang/Double", "isInfinite", "(D)Z", abuf[:1])
@@ -5139,6 +5510,7 @@ func Catty_com_eclipsesource_json_Json_value___D_Lcom_eclipsesource_json_JsonVal
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) == 0 { goto L24 }
+	genrt.SetLine(thr, 120)
 	L14:
 	s0 = genrt.New(thr, "java/lang/IllegalArgumentException")
 	s1 = s0
@@ -5152,6 +5524,7 @@ func Catty_com_eclipsesource_json_Json_value___D_Lcom_eclipsesource_json_JsonVal
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 122)
 	L24:
 	s0 = genrt.New(thr, "com/eclipsesource/json/JsonNumber")
 	s1 = s0
@@ -5189,6 +5562,7 @@ func Catty_com_eclipsesource_json_Json_value___Ljava_lang_String__Lcom_eclipseso
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 133)
 	s0 = l0
 	if (s0 == nil) == false { goto L10 }
 	s0 = genrt.GetStatic(thr, "com/eclipsesource/json/Json", "NULL", "Lcom/eclipsesource/json/JsonValue;")
@@ -5219,6 +5593,7 @@ func Catty_com_eclipsesource_json_Json_value___Z_Lcom_eclipsesource_json_JsonVal
 	_ = []kernel.Value{s0, s1}
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 144)
 	s0 = l0
 	if s0.(int32) == 0 { goto L10 }
 	s0 = genrt.GetStatic(thr, "com/eclipsesource/json/Json", "TRUE", "Lcom/eclipsesource/json/JsonValue;")
@@ -5238,6 +5613,7 @@ func Catty_com_eclipsesource_json_Json_array____Lcom_eclipsesource_json_JsonArra
 	_ = exc
 	var s0, s1, s2 kernel.Value
 	_ = []kernel.Value{s0, s1, s2}
+	genrt.SetLine(thr, 154)
 	s0 = genrt.New(thr, "com/eclipsesource/json/JsonArray")
 	s1 = s0
 	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonArray", "<init>", "()V", []kernel.Value{})
@@ -5262,8 +5638,10 @@ func Catty_com_eclipsesource_json_Json_array___AI_Lcom_eclipsesource_json_JsonAr
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 166)
 	s0 = l0
 	if (s0 == nil) == false { goto L14 }
+	genrt.SetLine(thr, 167)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("values is null")
@@ -5276,6 +5654,7 @@ func Catty_com_eclipsesource_json_Json_array___AI_Lcom_eclipsesource_json_JsonAr
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 169)
 	L14:
 	s0 = genrt.New(thr, "com/eclipsesource/json/JsonArray")
 	s1 = s0
@@ -5284,6 +5663,7 @@ func Catty_com_eclipsesource_json_Json_array___AI_Lcom_eclipsesource_json_JsonAr
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 170)
 	s0 = l0
 	l2 = s0
 	s0 = l2
@@ -5305,6 +5685,7 @@ func Catty_com_eclipsesource_json_Json_array___AI_Lcom_eclipsesource_json_JsonAr
 		return nil, exc // no handler matched
 	}
 	l5 = s0
+	genrt.SetLine(thr, 171)
 	s0 = l1
 	s1 = l5
 	abuf[0] = s1
@@ -5312,8 +5693,10 @@ func Catty_com_eclipsesource_json_Json_array___AI_Lcom_eclipsesource_json_JsonAr
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 170)
 	l4 = l4.(int32) + 1
 	goto L30
+	genrt.SetLine(thr, 173)
 	L55:
 	s0 = l1
 	return s0, nil
@@ -5334,8 +5717,10 @@ func Catty_com_eclipsesource_json_Json_array___AJ_Lcom_eclipsesource_json_JsonAr
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 185)
 	s0 = l0
 	if (s0 == nil) == false { goto L14 }
+	genrt.SetLine(thr, 186)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("values is null")
@@ -5348,6 +5733,7 @@ func Catty_com_eclipsesource_json_Json_array___AJ_Lcom_eclipsesource_json_JsonAr
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 188)
 	L14:
 	s0 = genrt.New(thr, "com/eclipsesource/json/JsonArray")
 	s1 = s0
@@ -5356,6 +5742,7 @@ func Catty_com_eclipsesource_json_Json_array___AJ_Lcom_eclipsesource_json_JsonAr
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 189)
 	s0 = l0
 	l2 = s0
 	s0 = l2
@@ -5377,6 +5764,7 @@ func Catty_com_eclipsesource_json_Json_array___AJ_Lcom_eclipsesource_json_JsonAr
 		return nil, exc // no handler matched
 	}
 	l5 = s0
+	genrt.SetLine(thr, 190)
 	s0 = l1
 	s1 = l5
 	abuf[0] = s1
@@ -5384,8 +5772,10 @@ func Catty_com_eclipsesource_json_Json_array___AJ_Lcom_eclipsesource_json_JsonAr
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 189)
 	l4 = l4.(int32) + 1
 	goto L30
+	genrt.SetLine(thr, 192)
 	L55:
 	s0 = l1
 	return s0, nil
@@ -5406,8 +5796,10 @@ func Catty_com_eclipsesource_json_Json_array___AF_Lcom_eclipsesource_json_JsonAr
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 204)
 	s0 = l0
 	if (s0 == nil) == false { goto L14 }
+	genrt.SetLine(thr, 205)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("values is null")
@@ -5420,6 +5812,7 @@ func Catty_com_eclipsesource_json_Json_array___AF_Lcom_eclipsesource_json_JsonAr
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 207)
 	L14:
 	s0 = genrt.New(thr, "com/eclipsesource/json/JsonArray")
 	s1 = s0
@@ -5428,6 +5821,7 @@ func Catty_com_eclipsesource_json_Json_array___AF_Lcom_eclipsesource_json_JsonAr
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 208)
 	s0 = l0
 	l2 = s0
 	s0 = l2
@@ -5449,6 +5843,7 @@ func Catty_com_eclipsesource_json_Json_array___AF_Lcom_eclipsesource_json_JsonAr
 		return nil, exc // no handler matched
 	}
 	l5 = s0
+	genrt.SetLine(thr, 209)
 	s0 = l1
 	s1 = l5
 	abuf[0] = s1
@@ -5456,8 +5851,10 @@ func Catty_com_eclipsesource_json_Json_array___AF_Lcom_eclipsesource_json_JsonAr
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 208)
 	l4 = l4.(int32) + 1
 	goto L30
+	genrt.SetLine(thr, 211)
 	L55:
 	s0 = l1
 	return s0, nil
@@ -5478,8 +5875,10 @@ func Catty_com_eclipsesource_json_Json_array___AD_Lcom_eclipsesource_json_JsonAr
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 223)
 	s0 = l0
 	if (s0 == nil) == false { goto L14 }
+	genrt.SetLine(thr, 224)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("values is null")
@@ -5492,6 +5891,7 @@ func Catty_com_eclipsesource_json_Json_array___AD_Lcom_eclipsesource_json_JsonAr
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 226)
 	L14:
 	s0 = genrt.New(thr, "com/eclipsesource/json/JsonArray")
 	s1 = s0
@@ -5500,6 +5900,7 @@ func Catty_com_eclipsesource_json_Json_array___AD_Lcom_eclipsesource_json_JsonAr
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 227)
 	s0 = l0
 	l2 = s0
 	s0 = l2
@@ -5521,6 +5922,7 @@ func Catty_com_eclipsesource_json_Json_array___AD_Lcom_eclipsesource_json_JsonAr
 		return nil, exc // no handler matched
 	}
 	l5 = s0
+	genrt.SetLine(thr, 228)
 	s0 = l1
 	s1 = l5
 	abuf[0] = s1
@@ -5528,8 +5930,10 @@ func Catty_com_eclipsesource_json_Json_array___AD_Lcom_eclipsesource_json_JsonAr
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 227)
 	l4 = l4.(int32) + 1
 	goto L30
+	genrt.SetLine(thr, 230)
 	L55:
 	s0 = l1
 	return s0, nil
@@ -5550,8 +5954,10 @@ func Catty_com_eclipsesource_json_Json_array___AZ_Lcom_eclipsesource_json_JsonAr
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 242)
 	s0 = l0
 	if (s0 == nil) == false { goto L14 }
+	genrt.SetLine(thr, 243)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("values is null")
@@ -5564,6 +5970,7 @@ func Catty_com_eclipsesource_json_Json_array___AZ_Lcom_eclipsesource_json_JsonAr
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 245)
 	L14:
 	s0 = genrt.New(thr, "com/eclipsesource/json/JsonArray")
 	s1 = s0
@@ -5572,6 +5979,7 @@ func Catty_com_eclipsesource_json_Json_array___AZ_Lcom_eclipsesource_json_JsonAr
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 246)
 	s0 = l0
 	l2 = s0
 	s0 = l2
@@ -5594,6 +6002,7 @@ func Catty_com_eclipsesource_json_Json_array___AZ_Lcom_eclipsesource_json_JsonAr
 	}
 	s0 = int32(int8(s0.(int32)))
 	l5 = s0
+	genrt.SetLine(thr, 247)
 	s0 = l1
 	s1 = l5
 	abuf[0] = s1
@@ -5601,8 +6010,10 @@ func Catty_com_eclipsesource_json_Json_array___AZ_Lcom_eclipsesource_json_JsonAr
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 246)
 	l4 = l4.(int32) + 1
 	goto L30
+	genrt.SetLine(thr, 249)
 	L55:
 	s0 = l1
 	return s0, nil
@@ -5623,8 +6034,10 @@ func Catty_com_eclipsesource_json_Json_array___ALjava_lang_String__Lcom_eclipses
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 260)
 	s0 = l0
 	if (s0 == nil) == false { goto L14 }
+	genrt.SetLine(thr, 261)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("values is null")
@@ -5637,6 +6050,7 @@ func Catty_com_eclipsesource_json_Json_array___ALjava_lang_String__Lcom_eclipses
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 263)
 	L14:
 	s0 = genrt.New(thr, "com/eclipsesource/json/JsonArray")
 	s1 = s0
@@ -5645,6 +6059,7 @@ func Catty_com_eclipsesource_json_Json_array___ALjava_lang_String__Lcom_eclipses
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 264)
 	s0 = l0
 	l2 = s0
 	s0 = l2
@@ -5666,6 +6081,7 @@ func Catty_com_eclipsesource_json_Json_array___ALjava_lang_String__Lcom_eclipses
 		return nil, exc // no handler matched
 	}
 	l5 = s0
+	genrt.SetLine(thr, 265)
 	s0 = l1
 	s1 = l5
 	abuf[0] = s1
@@ -5673,8 +6089,10 @@ func Catty_com_eclipsesource_json_Json_array___ALjava_lang_String__Lcom_eclipses
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 264)
 	l4 = l4.(int32) + 1
 	goto L30
+	genrt.SetLine(thr, 267)
 	L55:
 	s0 = l1
 	return s0, nil
@@ -5689,6 +6107,7 @@ func Catty_com_eclipsesource_json_Json_object____Lcom_eclipsesource_json_JsonObj
 	_ = exc
 	var s0, s1, s2 kernel.Value
 	_ = []kernel.Value{s0, s1, s2}
+	genrt.SetLine(thr, 277)
 	s0 = genrt.New(thr, "com/eclipsesource/json/JsonObject")
 	s1 = s0
 	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonObject", "<init>", "()V", []kernel.Value{})
@@ -5713,8 +6132,10 @@ func Catty_com_eclipsesource_json_Json_parse___Ljava_lang_String__Lcom_eclipseso
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 291)
 	s0 = l0
 	if (s0 == nil) == false { goto L14 }
+	genrt.SetLine(thr, 292)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("string is null")
@@ -5727,6 +6148,7 @@ func Catty_com_eclipsesource_json_Json_parse___Ljava_lang_String__Lcom_eclipseso
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 294)
 	L14:
 	s0 = genrt.New(thr, "com/eclipsesource/json/Json$DefaultHandler")
 	s1 = s0
@@ -5735,6 +6157,7 @@ func Catty_com_eclipsesource_json_Json_parse___Ljava_lang_String__Lcom_eclipseso
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 295)
 	s0 = genrt.New(thr, "com/eclipsesource/json/JsonParser")
 	s1 = s0
 	s2 = l1
@@ -5749,6 +6172,7 @@ func Catty_com_eclipsesource_json_Json_parse___Ljava_lang_String__Lcom_eclipseso
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 296)
 	s0 = l1
 	s0, exc = genrt.CallVirtualIC(46, thr, s0, "com/eclipsesource/json/Json$DefaultHandler", "getValue", "()Lcom/eclipsesource/json/JsonValue;", abuf[:0])
 	if exc != nil {
@@ -5772,8 +6196,10 @@ func Catty_com_eclipsesource_json_Json_parse___Ljava_io_Reader__Lcom_eclipsesour
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 316)
 	s0 = l0
 	if (s0 == nil) == false { goto L14 }
+	genrt.SetLine(thr, 317)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("reader is null")
@@ -5786,6 +6212,7 @@ func Catty_com_eclipsesource_json_Json_parse___Ljava_io_Reader__Lcom_eclipsesour
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 319)
 	L14:
 	s0 = genrt.New(thr, "com/eclipsesource/json/Json$DefaultHandler")
 	s1 = s0
@@ -5794,6 +6221,7 @@ func Catty_com_eclipsesource_json_Json_parse___Ljava_io_Reader__Lcom_eclipsesour
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 320)
 	s0 = genrt.New(thr, "com/eclipsesource/json/JsonParser")
 	s1 = s0
 	s2 = l1
@@ -5808,6 +6236,7 @@ func Catty_com_eclipsesource_json_Json_parse___Ljava_io_Reader__Lcom_eclipsesour
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 321)
 	s0 = l1
 	s0, exc = genrt.CallVirtualIC(46, thr, s0, "com/eclipsesource/json/Json$DefaultHandler", "getValue", "()Lcom/eclipsesource/json/JsonValue;", abuf[:0])
 	if exc != nil {
@@ -5831,6 +6260,7 @@ func Catty_com_eclipsesource_json_Json_cutOffPointZero___Ljava_lang_String__Ljav
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 325)
 	s0 = l0
 	s1 = genrt.Str(".0")
 	abuf[0] = s1
@@ -5839,6 +6269,7 @@ func Catty_com_eclipsesource_json_Json_cutOffPointZero___Ljava_lang_String__Ljav
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) == 0 { goto L21 }
+	genrt.SetLine(thr, 326)
 	s0 = l0
 	s1 = int32(0)
 	s2 = l0
@@ -5855,6 +6286,7 @@ func Catty_com_eclipsesource_json_Json_cutOffPointZero___Ljava_lang_String__Ljav
 		return nil, exc // no handler matched
 	}
 	return s0, nil
+	genrt.SetLine(thr, 328)
 	L21:
 	s0 = l0
 	return s0, nil
@@ -5873,6 +6305,7 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_init____V(thr kernel.
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 331)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonHandler", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -5894,6 +6327,7 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_startArray____Lcom_ec
 	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 337)
 	s0 = genrt.New(thr, "com/eclipsesource/json/JsonArray")
 	s1 = s0
 	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonArray", "<init>", "()V", []kernel.Value{})
@@ -5916,6 +6350,7 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_startObject____Lcom_e
 	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 342)
 	s0 = genrt.New(thr, "com/eclipsesource/json/JsonObject")
 	s1 = s0
 	_, exc = genrt.CallSpecial(thr, s1, "com/eclipsesource/json/JsonObject", "<init>", "()V", []kernel.Value{})
@@ -5938,12 +6373,14 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_endNull____V(thr kern
 	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 347)
 	s0 = l0
 	s1 = genrt.GetStatic(thr, "com/eclipsesource/json/Json", "NULL", "Lcom/eclipsesource/json/JsonValue;")
 	exc = genrt.SetFieldChecked(thr, s0, "value", "Lcom/eclipsesource/json/JsonValue;", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 348)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -5962,6 +6399,7 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_endBoolean___Z_V(thr 
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 352)
 	s0 = l0
 	s1 = l1
 	if s1.(int32) == 0 { goto L11 }
@@ -5974,6 +6412,7 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_endBoolean___Z_V(thr 
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 353)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -5994,6 +6433,7 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_endString___Ljava_lan
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 357)
 	s0 = l0
 	s1 = genrt.New(thr, "com/eclipsesource/json/JsonString")
 	s2 = s1
@@ -6007,6 +6447,7 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_endString___Ljava_lan
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 358)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -6027,6 +6468,7 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_endNumber___Ljava_lan
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 362)
 	s0 = l0
 	s1 = genrt.New(thr, "com/eclipsesource/json/JsonNumber")
 	s2 = s1
@@ -6040,6 +6482,7 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_endNumber___Ljava_lan
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 363)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -6058,12 +6501,14 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_endArray___Lcom_eclip
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 367)
 	s0 = l0
 	s1 = l1
 	exc = genrt.SetFieldChecked(thr, s0, "value", "Lcom/eclipsesource/json/JsonValue;", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 368)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -6082,12 +6527,14 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_endObject___Lcom_ecli
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 372)
 	s0 = l0
 	s1 = l1
 	exc = genrt.SetFieldChecked(thr, s0, "value", "Lcom/eclipsesource/json/JsonValue;", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 373)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -6108,6 +6555,7 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_endArrayValue___Lcom_
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 377)
 	s0 = l1
 	s1 = l0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "value", "Lcom/eclipsesource/json/JsonValue;")
@@ -6119,6 +6567,7 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_endArrayValue___Lcom_
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 378)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -6141,6 +6590,7 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_endObjectValue___Lcom
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 382)
 	s0 = l1
 	s1 = l2
 	s2 = l0
@@ -6154,6 +6604,7 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_endObjectValue___Lcom
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 383)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -6170,6 +6621,7 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_getValue____Lcom_ecli
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 386)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "value", "Lcom/eclipsesource/json/JsonValue;")
 	if exc != nil {
@@ -6197,6 +6649,7 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_endObjectValue___Ljav
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 331)
 	s0 = l0
 	s1 = l1
 	s1 = genrt.CheckCast(thr, s1, "com/eclipsesource/json/JsonObject")
@@ -6230,6 +6683,7 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_endObject___Ljava_lan
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 331)
 	s0 = l0
 	s1 = l1
 	s1 = genrt.CheckCast(thr, s1, "com/eclipsesource/json/JsonObject")
@@ -6257,6 +6711,7 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_startObject____Ljava_
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 331)
 	s0 = l0
 	s0, exc = genrt.CallVirtualIC(58, thr, s0, "com/eclipsesource/json/Json$DefaultHandler", "startObject", "()Lcom/eclipsesource/json/JsonObject;", []kernel.Value{})
 	if exc != nil {
@@ -6282,6 +6737,7 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_endArrayValue___Ljava
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 331)
 	s0 = l0
 	s1 = l1
 	s1 = genrt.CheckCast(thr, s1, "com/eclipsesource/json/JsonArray")
@@ -6313,6 +6769,7 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_endArray___Ljava_lang
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 331)
 	s0 = l0
 	s1 = l1
 	s1 = genrt.CheckCast(thr, s1, "com/eclipsesource/json/JsonArray")
@@ -6340,6 +6797,7 @@ func Catty_com_eclipsesource_json_Json_00036DefaultHandler_startArray____Ljava_l
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 331)
 	s0 = l0
 	s0, exc = genrt.CallVirtualIC(390, thr, s0, "com/eclipsesource/json/Json$DefaultHandler", "startArray", "()Lcom/eclipsesource/json/JsonArray;", []kernel.Value{})
 	if exc != nil {
@@ -6361,11 +6819,13 @@ func Catty_com_eclipsesource_json_JsonArray_init____V(thr kernel.OwnerKey, recv 
 	_ = []kernel.Value{s0, s1, s2, s3}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 70)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonValue", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 71)
 	s0 = l0
 	s1 = genrt.New(thr, "java/util/ArrayList")
 	s2 = s1
@@ -6377,6 +6837,7 @@ func Catty_com_eclipsesource_json_JsonArray_init____V(thr kernel.OwnerKey, recv 
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 72)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -6397,6 +6858,7 @@ func Catty_com_eclipsesource_json_JsonArray_init___Lcom_eclipsesource_json_JsonA
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 81)
 	s0 = l0
 	s1 = l1
 	s2 = int32(0)
@@ -6406,6 +6868,7 @@ func Catty_com_eclipsesource_json_JsonArray_init___Lcom_eclipsesource_json_JsonA
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 82)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -6428,13 +6891,16 @@ func Catty_com_eclipsesource_json_JsonArray_init___Lcom_eclipsesource_json_JsonA
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 84)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonValue", "<init>", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 85)
 	s0 = l1
 	if (s0 == nil) == false { goto L18 }
+	genrt.SetLine(thr, 86)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("array is null")
@@ -6447,9 +6913,11 @@ func Catty_com_eclipsesource_json_JsonArray_init___Lcom_eclipsesource_json_JsonA
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 88)
 	L18:
 	s0 = l2
 	if s0.(int32) == 0 { goto L36 }
+	genrt.SetLine(thr, 89)
 	s0 = l0
 	s1 = l1
 	s1, exc = genrt.GetFieldChecked(thr, s1, "values", "Ljava/util/List;")
@@ -6466,6 +6934,7 @@ func Catty_com_eclipsesource_json_JsonArray_init___Lcom_eclipsesource_json_JsonA
 		return nil, exc // no handler matched
 	}
 	goto L51
+	genrt.SetLine(thr, 91)
 	L36:
 	s0 = l0
 	s1 = genrt.New(thr, "java/util/ArrayList")
@@ -6484,6 +6953,7 @@ func Catty_com_eclipsesource_json_JsonArray_init___Lcom_eclipsesource_json_JsonA
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 93)
 	L51:
 	return nil, nil
 	return nil, nil // unreachable terminal
@@ -6503,6 +6973,7 @@ func Catty_com_eclipsesource_json_JsonArray_readFrom___Ljava_io_Reader__Lcom_ecl
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 116)
 	s0 = l0
 	abuf[0] = s0
 	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/JsonValue", "readFrom", "(Ljava/io/Reader;)Lcom/eclipsesource/json/JsonValue;", abuf[:1])
@@ -6531,6 +7002,7 @@ func Catty_com_eclipsesource_json_JsonArray_readFrom___Ljava_lang_String__Lcom_e
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 133)
 	s0 = l0
 	abuf[0] = s0
 	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/JsonValue", "readFrom", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", abuf[:1])
@@ -6559,6 +7031,7 @@ func Catty_com_eclipsesource_json_JsonArray_unmodifiableArray___Lcom_eclipsesour
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 149)
 	s0 = genrt.New(thr, "com/eclipsesource/json/JsonArray")
 	s1 = s0
 	s2 = l0
@@ -6589,6 +7062,7 @@ func Catty_com_eclipsesource_json_JsonArray_add___I_Lcom_eclipsesource_json_Json
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 161)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -6605,6 +7079,7 @@ func Catty_com_eclipsesource_json_JsonArray_add___I_Lcom_eclipsesource_json_Json
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 162)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -6626,6 +7101,7 @@ func Catty_com_eclipsesource_json_JsonArray_add___J_Lcom_eclipsesource_json_Json
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 174)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -6642,6 +7118,7 @@ func Catty_com_eclipsesource_json_JsonArray_add___J_Lcom_eclipsesource_json_Json
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 175)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -6663,6 +7140,7 @@ func Catty_com_eclipsesource_json_JsonArray_add___F_Lcom_eclipsesource_json_Json
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 187)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -6679,6 +7157,7 @@ func Catty_com_eclipsesource_json_JsonArray_add___F_Lcom_eclipsesource_json_Json
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 188)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -6700,6 +7179,7 @@ func Catty_com_eclipsesource_json_JsonArray_add___D_Lcom_eclipsesource_json_Json
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 200)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -6716,6 +7196,7 @@ func Catty_com_eclipsesource_json_JsonArray_add___D_Lcom_eclipsesource_json_Json
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 201)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -6737,6 +7218,7 @@ func Catty_com_eclipsesource_json_JsonArray_add___Z_Lcom_eclipsesource_json_Json
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 213)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -6753,6 +7235,7 @@ func Catty_com_eclipsesource_json_JsonArray_add___Z_Lcom_eclipsesource_json_Json
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 214)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -6774,6 +7257,7 @@ func Catty_com_eclipsesource_json_JsonArray_add___Ljava_lang_String__Lcom_eclips
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 225)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -6790,6 +7274,7 @@ func Catty_com_eclipsesource_json_JsonArray_add___Ljava_lang_String__Lcom_eclips
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 226)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -6811,8 +7296,10 @@ func Catty_com_eclipsesource_json_JsonArray_add___Lcom_eclipsesource_json_JsonVa
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 237)
 	s0 = l1
 	if (s0 == nil) == false { goto L14 }
+	genrt.SetLine(thr, 238)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("value is null")
@@ -6825,6 +7312,7 @@ func Catty_com_eclipsesource_json_JsonArray_add___Lcom_eclipsesource_json_JsonVa
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 240)
 	L14:
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
@@ -6837,6 +7325,7 @@ func Catty_com_eclipsesource_json_JsonArray_add___Lcom_eclipsesource_json_JsonVa
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 241)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -6860,6 +7349,7 @@ func Catty_com_eclipsesource_json_JsonArray_set___II_Lcom_eclipsesource_json_Jso
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 258)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -6878,6 +7368,7 @@ func Catty_com_eclipsesource_json_JsonArray_set___II_Lcom_eclipsesource_json_Jso
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 259)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -6901,6 +7392,7 @@ func Catty_com_eclipsesource_json_JsonArray_set___IJ_Lcom_eclipsesource_json_Jso
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 276)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -6919,6 +7411,7 @@ func Catty_com_eclipsesource_json_JsonArray_set___IJ_Lcom_eclipsesource_json_Jso
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 277)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -6942,6 +7435,7 @@ func Catty_com_eclipsesource_json_JsonArray_set___IF_Lcom_eclipsesource_json_Jso
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 294)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -6960,6 +7454,7 @@ func Catty_com_eclipsesource_json_JsonArray_set___IF_Lcom_eclipsesource_json_Jso
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 295)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -6983,6 +7478,7 @@ func Catty_com_eclipsesource_json_JsonArray_set___ID_Lcom_eclipsesource_json_Jso
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 312)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -7001,6 +7497,7 @@ func Catty_com_eclipsesource_json_JsonArray_set___ID_Lcom_eclipsesource_json_Jso
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 313)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -7024,6 +7521,7 @@ func Catty_com_eclipsesource_json_JsonArray_set___IZ_Lcom_eclipsesource_json_Jso
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 330)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -7042,6 +7540,7 @@ func Catty_com_eclipsesource_json_JsonArray_set___IZ_Lcom_eclipsesource_json_Jso
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 331)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -7065,6 +7564,7 @@ func Catty_com_eclipsesource_json_JsonArray_set___ILjava_lang_String__Lcom_eclip
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 348)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -7083,6 +7583,7 @@ func Catty_com_eclipsesource_json_JsonArray_set___ILjava_lang_String__Lcom_eclip
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 349)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -7106,8 +7607,10 @@ func Catty_com_eclipsesource_json_JsonArray_set___ILcom_eclipsesource_json_JsonV
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 365)
 	s0 = l2
 	if (s0 == nil) == false { goto L14 }
+	genrt.SetLine(thr, 366)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("value is null")
@@ -7120,6 +7623,7 @@ func Catty_com_eclipsesource_json_JsonArray_set___ILcom_eclipsesource_json_JsonV
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 368)
 	L14:
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
@@ -7134,6 +7638,7 @@ func Catty_com_eclipsesource_json_JsonArray_set___ILcom_eclipsesource_json_JsonV
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 369)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -7155,6 +7660,7 @@ func Catty_com_eclipsesource_json_JsonArray_remove___I_Lcom_eclipsesource_json_J
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 383)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -7166,6 +7672,7 @@ func Catty_com_eclipsesource_json_JsonArray_remove___I_Lcom_eclipsesource_json_J
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 384)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -7183,6 +7690,7 @@ func Catty_com_eclipsesource_json_JsonArray_size____I(thr kernel.OwnerKey, recv 
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 393)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -7208,6 +7716,7 @@ func Catty_com_eclipsesource_json_JsonArray_isEmpty____Z(thr kernel.OwnerKey, re
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 402)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -7237,6 +7746,7 @@ func Catty_com_eclipsesource_json_JsonArray_get___I_Lcom_eclipsesource_json_Json
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 416)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -7270,6 +7780,7 @@ func Catty_com_eclipsesource_json_JsonArray_values____Ljava_util_List_(thr kerne
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 427)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -7298,6 +7809,7 @@ func Catty_com_eclipsesource_json_JsonArray_iterator____Ljava_util_Iterator_(thr
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 437)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -7308,6 +7820,7 @@ func Catty_com_eclipsesource_json_JsonArray_iterator____Ljava_util_Iterator_(thr
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 438)
 	s0 = genrt.New(thr, "com/eclipsesource/json/JsonArray$1")
 	s1 = s0
 	s2 = l0
@@ -7338,23 +7851,27 @@ func Catty_com_eclipsesource_json_JsonArray_write___Lcom_eclipsesource_json_Json
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 456)
 	s0 = l1
 	_, exc = genrt.CallVirtualIC(487, thr, s0, "com/eclipsesource/json/JsonWriter", "writeArrayOpen", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 457)
 	s0 = l0
 	s0, exc = genrt.CallVirtualIC(204, thr, s0, "com/eclipsesource/json/JsonArray", "iterator", "()Ljava/util/Iterator;", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 458)
 	s0 = l2
 	s0, exc = genrt.CallVirtualIC(85, thr, s0, "java/util/Iterator", "hasNext", "()Z", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) == 0 { goto L60 }
+	genrt.SetLine(thr, 459)
 	s0 = l2
 	s0, exc = genrt.CallVirtualIC(1005, thr, s0, "java/util/Iterator", "next", "()Ljava/lang/Object;", abuf[:0])
 	if exc != nil {
@@ -7370,6 +7887,7 @@ func Catty_com_eclipsesource_json_JsonArray_write___Lcom_eclipsesource_json_Json
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 460)
 	L31:
 	s0 = l2
 	s0, exc = genrt.CallVirtualIC(85, thr, s0, "java/util/Iterator", "hasNext", "()Z", abuf[:0])
@@ -7377,11 +7895,13 @@ func Catty_com_eclipsesource_json_JsonArray_write___Lcom_eclipsesource_json_Json
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) == 0 { goto L60 }
+	genrt.SetLine(thr, 461)
 	s0 = l1
 	_, exc = genrt.CallVirtualIC(1022, thr, s0, "com/eclipsesource/json/JsonWriter", "writeArraySeparator", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 462)
 	s0 = l2
 	s0, exc = genrt.CallVirtualIC(1005, thr, s0, "java/util/Iterator", "next", "()Ljava/lang/Object;", abuf[:0])
 	if exc != nil {
@@ -7398,12 +7918,14 @@ func Catty_com_eclipsesource_json_JsonArray_write___Lcom_eclipsesource_json_Json
 		return nil, exc // no handler matched
 	}
 	goto L31
+	genrt.SetLine(thr, 465)
 	L60:
 	s0 = l1
 	_, exc = genrt.CallVirtualIC(531, thr, s0, "com/eclipsesource/json/JsonWriter", "writeArrayClose", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 466)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -7420,6 +7942,7 @@ func Catty_com_eclipsesource_json_JsonArray_isArray____Z(thr kernel.OwnerKey, re
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 470)
 	s0 = int32(1)
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -7437,6 +7960,7 @@ func Catty_com_eclipsesource_json_JsonArray_asArray____Lcom_eclipsesource_json_J
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 475)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -7454,6 +7978,7 @@ func Catty_com_eclipsesource_json_JsonArray_hashCode____I(thr kernel.OwnerKey, r
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 480)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -7483,16 +8008,21 @@ func Catty_com_eclipsesource_json_JsonArray_equals___Ljava_lang_Object__Z(thr ke
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 498)
 	s0 = l0
 	s1 = l1
 	if !genrt.RefEq(s0, s1) { goto L7 }
+	genrt.SetLine(thr, 499)
 	s0 = int32(1)
 	return s0, nil
+	genrt.SetLine(thr, 501)
 	L7:
 	s0 = l1
 	if (s0 == nil) == false { goto L13 }
+	genrt.SetLine(thr, 502)
 	s0 = int32(0)
 	return s0, nil
+	genrt.SetLine(thr, 504)
 	L13:
 	s0 = l0
 	s0, exc = genrt.CallVirtualIC(326, thr, s0, "java/lang/Object", "getClass", "()Ljava/lang/Class;", abuf[:0])
@@ -7505,8 +8035,10 @@ func Catty_com_eclipsesource_json_JsonArray_equals___Ljava_lang_Object__Z(thr ke
 		return nil, exc // no handler matched
 	}
 	if genrt.RefEq(s0, s1) { goto L26 }
+	genrt.SetLine(thr, 505)
 	s0 = int32(0)
 	return s0, nil
+	genrt.SetLine(thr, 507)
 	L26:
 	s0 = l1
 	s0 = genrt.CheckCast(thr, s0, "com/eclipsesource/json/JsonArray")
@@ -7514,6 +8046,7 @@ func Catty_com_eclipsesource_json_JsonArray_equals___Ljava_lang_Object__Z(thr ke
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 508)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -7549,6 +8082,7 @@ func Catty_com_eclipsesource_json_JsonArray_000361_init___Lcom_eclipsesource_jso
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 438)
 	s0 = l0
 	s1 = l2
 	exc = genrt.SetFieldChecked(thr, s0, "val$iterator", "Ljava/util/Iterator;", s1)
@@ -7582,6 +8116,7 @@ func Catty_com_eclipsesource_json_JsonArray_000361_hasNext____Z(thr kernel.Owner
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 441)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "val$iterator", "Ljava/util/Iterator;")
 	if exc != nil {
@@ -7607,6 +8142,7 @@ func Catty_com_eclipsesource_json_JsonArray_000361_next____Lcom_eclipsesource_js
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 445)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "val$iterator", "Ljava/util/Iterator;")
 	if exc != nil {
@@ -7636,6 +8172,7 @@ func Catty_com_eclipsesource_json_JsonArray_000361_remove____V(thr kernel.OwnerK
 	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 449)
 	s0 = genrt.New(thr, "java/lang/UnsupportedOperationException")
 	s1 = s0
 	_, exc = genrt.CallSpecial(thr, s1, "java/lang/UnsupportedOperationException", "<init>", "()V", []kernel.Value{})
@@ -7661,6 +8198,7 @@ func Catty_com_eclipsesource_json_JsonArray_000361_next____Ljava_lang_Object_(th
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 438)
 	s0 = l0
 	s0, exc = genrt.CallVirtualIC(291, thr, s0, "com/eclipsesource/json/JsonArray$1", "next", "()Lcom/eclipsesource/json/JsonValue;", []kernel.Value{})
 	if exc != nil {
@@ -7682,6 +8220,7 @@ func Catty_com_eclipsesource_json_JsonHandler_init____V(thr kernel.OwnerKey, rec
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 55)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -7703,6 +8242,7 @@ func Catty_com_eclipsesource_json_JsonHandler_getLocation____Lcom_eclipsesource_
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 65)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "parser", "Lcom/eclipsesource/json/JsonParser;")
 	if exc != nil {
@@ -7728,6 +8268,7 @@ func Catty_com_eclipsesource_json_JsonHandler_startNull____V(thr kernel.OwnerKey
 	_ = []kernel.Value{s0}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 73)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -7744,6 +8285,7 @@ func Catty_com_eclipsesource_json_JsonHandler_endNull____V(thr kernel.OwnerKey, 
 	_ = []kernel.Value{s0}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 80)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -7760,6 +8302,7 @@ func Catty_com_eclipsesource_json_JsonHandler_startBoolean____V(thr kernel.Owner
 	_ = []kernel.Value{s0}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 87)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -7778,6 +8321,7 @@ func Catty_com_eclipsesource_json_JsonHandler_endBoolean___Z_V(thr kernel.OwnerK
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 97)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -7794,6 +8338,7 @@ func Catty_com_eclipsesource_json_JsonHandler_startString____V(thr kernel.OwnerK
 	_ = []kernel.Value{s0}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 104)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -7812,6 +8357,7 @@ func Catty_com_eclipsesource_json_JsonHandler_endString___Ljava_lang_String__V(t
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 114)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -7828,6 +8374,7 @@ func Catty_com_eclipsesource_json_JsonHandler_startNumber____V(thr kernel.OwnerK
 	_ = []kernel.Value{s0}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 121)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -7846,6 +8393,7 @@ func Catty_com_eclipsesource_json_JsonHandler_endNumber___Ljava_lang_String__V(t
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 131)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -7862,6 +8410,7 @@ func Catty_com_eclipsesource_json_JsonHandler_startArray____Ljava_lang_Object_(t
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 146)
 	s0 = nil
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -7881,6 +8430,7 @@ func Catty_com_eclipsesource_json_JsonHandler_endArray___Ljava_lang_Object__V(th
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 158)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -7899,6 +8449,7 @@ func Catty_com_eclipsesource_json_JsonHandler_startArrayValue___Ljava_lang_Objec
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 170)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -7917,6 +8468,7 @@ func Catty_com_eclipsesource_json_JsonHandler_endArrayValue___Ljava_lang_Object_
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 183)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -7933,6 +8485,7 @@ func Catty_com_eclipsesource_json_JsonHandler_startObject____Ljava_lang_Object_(
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 200)
 	s0 = nil
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -7952,6 +8505,7 @@ func Catty_com_eclipsesource_json_JsonHandler_endObject___Ljava_lang_Object__V(t
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 211)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -7970,6 +8524,7 @@ func Catty_com_eclipsesource_json_JsonHandler_startObjectName___Ljava_lang_Objec
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 222)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -7990,6 +8545,7 @@ func Catty_com_eclipsesource_json_JsonHandler_endObjectName___Ljava_lang_Object_
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 234)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -8010,6 +8566,7 @@ func Catty_com_eclipsesource_json_JsonHandler_startObjectValue___Ljava_lang_Obje
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 247)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -8030,6 +8587,7 @@ func Catty_com_eclipsesource_json_JsonHandler_endObjectValue___Ljava_lang_Object
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 261)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -8050,17 +8608,20 @@ func Catty_com_eclipsesource_json_JsonLiteral_init___Ljava_lang_String__V(thr ke
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 35)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonValue", "<init>", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 36)
 	s0 = l0
 	s1 = l1
 	exc = genrt.SetFieldChecked(thr, s0, "value", "Ljava/lang/String;", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 37)
 	s0 = l0
 	s1 = genrt.Str("null")
 	s2 = l1
@@ -8073,6 +8634,7 @@ func Catty_com_eclipsesource_json_JsonLiteral_init___Ljava_lang_String__V(thr ke
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 38)
 	s0 = l0
 	s1 = genrt.Str("true")
 	s2 = l1
@@ -8085,6 +8647,7 @@ func Catty_com_eclipsesource_json_JsonLiteral_init___Ljava_lang_String__V(thr ke
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 39)
 	s0 = l0
 	s1 = genrt.Str("false")
 	s2 = l1
@@ -8097,6 +8660,7 @@ func Catty_com_eclipsesource_json_JsonLiteral_init___Ljava_lang_String__V(thr ke
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 40)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -8117,6 +8681,7 @@ func Catty_com_eclipsesource_json_JsonLiteral_write___Lcom_eclipsesource_json_Js
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 44)
 	s0 = l1
 	s1 = l0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "value", "Ljava/lang/String;")
@@ -8128,6 +8693,7 @@ func Catty_com_eclipsesource_json_JsonLiteral_write___Lcom_eclipsesource_json_Js
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 45)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -8144,6 +8710,7 @@ func Catty_com_eclipsesource_json_JsonLiteral_toString____Ljava_lang_String_(thr
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 49)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "value", "Ljava/lang/String;")
 	if exc != nil {
@@ -8165,6 +8732,7 @@ func Catty_com_eclipsesource_json_JsonLiteral_hashCode____I(thr kernel.OwnerKey,
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 54)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "value", "Ljava/lang/String;")
 	if exc != nil {
@@ -8190,6 +8758,7 @@ func Catty_com_eclipsesource_json_JsonLiteral_isNull____Z(thr kernel.OwnerKey, r
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 59)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "isNull", "Z")
 	if exc != nil {
@@ -8211,6 +8780,7 @@ func Catty_com_eclipsesource_json_JsonLiteral_isTrue____Z(thr kernel.OwnerKey, r
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 64)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "isTrue", "Z")
 	if exc != nil {
@@ -8232,6 +8802,7 @@ func Catty_com_eclipsesource_json_JsonLiteral_isFalse____Z(thr kernel.OwnerKey, 
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 69)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "isFalse", "Z")
 	if exc != nil {
@@ -8253,6 +8824,7 @@ func Catty_com_eclipsesource_json_JsonLiteral_isBoolean____Z(thr kernel.OwnerKey
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 74)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "isTrue", "Z")
 	if exc != nil {
@@ -8287,6 +8859,7 @@ func Catty_com_eclipsesource_json_JsonLiteral_asBoolean____Z(thr kernel.OwnerKey
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 79)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "isNull", "Z")
 	if exc != nil {
@@ -8326,16 +8899,21 @@ func Catty_com_eclipsesource_json_JsonLiteral_equals___Ljava_lang_Object__Z(thr 
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 84)
 	s0 = l0
 	s1 = l1
 	if !genrt.RefEq(s0, s1) { goto L7 }
+	genrt.SetLine(thr, 85)
 	s0 = int32(1)
 	return s0, nil
+	genrt.SetLine(thr, 87)
 	L7:
 	s0 = l1
 	if (s0 == nil) == false { goto L13 }
+	genrt.SetLine(thr, 88)
 	s0 = int32(0)
 	return s0, nil
+	genrt.SetLine(thr, 90)
 	L13:
 	s0 = l0
 	s0, exc = genrt.CallVirtualIC(326, thr, s0, "java/lang/Object", "getClass", "()Ljava/lang/Class;", abuf[:0])
@@ -8348,8 +8926,10 @@ func Catty_com_eclipsesource_json_JsonLiteral_equals___Ljava_lang_Object__Z(thr 
 		return nil, exc // no handler matched
 	}
 	if genrt.RefEq(s0, s1) { goto L26 }
+	genrt.SetLine(thr, 91)
 	s0 = int32(0)
 	return s0, nil
+	genrt.SetLine(thr, 93)
 	L26:
 	s0 = l1
 	s0 = genrt.CheckCast(thr, s0, "com/eclipsesource/json/JsonLiteral")
@@ -8357,6 +8937,7 @@ func Catty_com_eclipsesource_json_JsonLiteral_equals___Ljava_lang_Object__Z(thr 
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 94)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "value", "Ljava/lang/String;")
 	if exc != nil {
@@ -8392,13 +8973,16 @@ func Catty_com_eclipsesource_json_JsonNumber_init___Ljava_lang_String__V(thr ker
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 32)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonValue", "<init>", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 33)
 	s0 = l1
 	if (s0 == nil) == false { goto L18 }
+	genrt.SetLine(thr, 34)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("string is null")
@@ -8411,6 +8995,7 @@ func Catty_com_eclipsesource_json_JsonNumber_init___Ljava_lang_String__V(thr ker
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 36)
 	L18:
 	s0 = l0
 	s1 = l1
@@ -8418,6 +9003,7 @@ func Catty_com_eclipsesource_json_JsonNumber_init___Ljava_lang_String__V(thr ker
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 37)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -8434,6 +9020,7 @@ func Catty_com_eclipsesource_json_JsonNumber_toString____Ljava_lang_String_(thr 
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 41)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "string", "Ljava/lang/String;")
 	if exc != nil {
@@ -8459,6 +9046,7 @@ func Catty_com_eclipsesource_json_JsonNumber_write___Lcom_eclipsesource_json_Jso
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 46)
 	s0 = l1
 	s1 = l0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "string", "Ljava/lang/String;")
@@ -8470,6 +9058,7 @@ func Catty_com_eclipsesource_json_JsonNumber_write___Lcom_eclipsesource_json_Jso
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 47)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -8486,6 +9075,7 @@ func Catty_com_eclipsesource_json_JsonNumber_isNumber____Z(thr kernel.OwnerKey, 
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 51)
 	s0 = int32(1)
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -8505,6 +9095,7 @@ func Catty_com_eclipsesource_json_JsonNumber_asInt____I(thr kernel.OwnerKey, rec
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 56)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "string", "Ljava/lang/String;")
 	if exc != nil {
@@ -8535,6 +9126,7 @@ func Catty_com_eclipsesource_json_JsonNumber_asLong____J(thr kernel.OwnerKey, re
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 61)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "string", "Ljava/lang/String;")
 	if exc != nil {
@@ -8565,6 +9157,7 @@ func Catty_com_eclipsesource_json_JsonNumber_asFloat____F(thr kernel.OwnerKey, r
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 66)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "string", "Ljava/lang/String;")
 	if exc != nil {
@@ -8593,6 +9186,7 @@ func Catty_com_eclipsesource_json_JsonNumber_asDouble____D(thr kernel.OwnerKey, 
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 71)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "string", "Ljava/lang/String;")
 	if exc != nil {
@@ -8619,6 +9213,7 @@ func Catty_com_eclipsesource_json_JsonNumber_hashCode____I(thr kernel.OwnerKey, 
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 76)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "string", "Ljava/lang/String;")
 	if exc != nil {
@@ -8648,16 +9243,21 @@ func Catty_com_eclipsesource_json_JsonNumber_equals___Ljava_lang_Object__Z(thr k
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 81)
 	s0 = l0
 	s1 = l1
 	if !genrt.RefEq(s0, s1) { goto L7 }
+	genrt.SetLine(thr, 82)
 	s0 = int32(1)
 	return s0, nil
+	genrt.SetLine(thr, 84)
 	L7:
 	s0 = l1
 	if (s0 == nil) == false { goto L13 }
+	genrt.SetLine(thr, 85)
 	s0 = int32(0)
 	return s0, nil
+	genrt.SetLine(thr, 87)
 	L13:
 	s0 = l0
 	s0, exc = genrt.CallVirtualIC(326, thr, s0, "java/lang/Object", "getClass", "()Ljava/lang/Class;", abuf[:0])
@@ -8670,8 +9270,10 @@ func Catty_com_eclipsesource_json_JsonNumber_equals___Ljava_lang_Object__Z(thr k
 		return nil, exc // no handler matched
 	}
 	if genrt.RefEq(s0, s1) { goto L26 }
+	genrt.SetLine(thr, 88)
 	s0 = int32(0)
 	return s0, nil
+	genrt.SetLine(thr, 90)
 	L26:
 	s0 = l1
 	s0 = genrt.CheckCast(thr, s0, "com/eclipsesource/json/JsonNumber")
@@ -8679,6 +9281,7 @@ func Catty_com_eclipsesource_json_JsonNumber_equals___Ljava_lang_Object__Z(thr k
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 91)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "string", "Ljava/lang/String;")
 	if exc != nil {
@@ -8710,11 +9313,13 @@ func Catty_com_eclipsesource_json_JsonObject_init____V(thr kernel.OwnerKey, recv
 	_ = []kernel.Value{s0, s1, s2, s3}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 82)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonValue", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 83)
 	s0 = l0
 	s1 = genrt.New(thr, "java/util/ArrayList")
 	s2 = s1
@@ -8726,6 +9331,7 @@ func Catty_com_eclipsesource_json_JsonObject_init____V(thr kernel.OwnerKey, recv
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 84)
 	s0 = l0
 	s1 = genrt.New(thr, "java/util/ArrayList")
 	s2 = s1
@@ -8737,6 +9343,7 @@ func Catty_com_eclipsesource_json_JsonObject_init____V(thr kernel.OwnerKey, recv
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 85)
 	s0 = l0
 	s1 = genrt.New(thr, "com/eclipsesource/json/JsonObject$HashIndexTable")
 	s2 = s1
@@ -8748,6 +9355,7 @@ func Catty_com_eclipsesource_json_JsonObject_init____V(thr kernel.OwnerKey, recv
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 86)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -8768,6 +9376,7 @@ func Catty_com_eclipsesource_json_JsonObject_init___Lcom_eclipsesource_json_Json
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 95)
 	s0 = l0
 	s1 = l1
 	s2 = int32(0)
@@ -8777,6 +9386,7 @@ func Catty_com_eclipsesource_json_JsonObject_init___Lcom_eclipsesource_json_Json
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 96)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -8799,13 +9409,16 @@ func Catty_com_eclipsesource_json_JsonObject_init___Lcom_eclipsesource_json_Json
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 98)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonValue", "<init>", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 99)
 	s0 = l1
 	if (s0 == nil) == false { goto L18 }
+	genrt.SetLine(thr, 100)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("object is null")
@@ -8818,9 +9431,11 @@ func Catty_com_eclipsesource_json_JsonObject_init___Lcom_eclipsesource_json_Json
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 102)
 	L18:
 	s0 = l2
 	if s0.(int32) == 0 { goto L47 }
+	genrt.SetLine(thr, 103)
 	s0 = l0
 	s1 = l1
 	s1, exc = genrt.GetFieldChecked(thr, s1, "names", "Ljava/util/List;")
@@ -8836,6 +9451,7 @@ func Catty_com_eclipsesource_json_JsonObject_init___Lcom_eclipsesource_json_Json
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 104)
 	s0 = l0
 	s1 = l1
 	s1, exc = genrt.GetFieldChecked(thr, s1, "values", "Ljava/util/List;")
@@ -8852,6 +9468,7 @@ func Catty_com_eclipsesource_json_JsonObject_init___Lcom_eclipsesource_json_Json
 		return nil, exc // no handler matched
 	}
 	goto L77
+	genrt.SetLine(thr, 106)
 	L47:
 	s0 = l0
 	s1 = genrt.New(thr, "java/util/ArrayList")
@@ -8870,6 +9487,7 @@ func Catty_com_eclipsesource_json_JsonObject_init___Lcom_eclipsesource_json_Json
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 107)
 	s0 = l0
 	s1 = genrt.New(thr, "java/util/ArrayList")
 	s2 = s1
@@ -8887,6 +9505,7 @@ func Catty_com_eclipsesource_json_JsonObject_init___Lcom_eclipsesource_json_Json
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 109)
 	L77:
 	s0 = l0
 	s1 = genrt.New(thr, "com/eclipsesource/json/JsonObject$HashIndexTable")
@@ -8899,11 +9518,13 @@ func Catty_com_eclipsesource_json_JsonObject_init___Lcom_eclipsesource_json_Json
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 110)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonObject", "updateHashIndex", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 111)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -8922,6 +9543,7 @@ func Catty_com_eclipsesource_json_JsonObject_readFrom___Ljava_io_Reader__Lcom_ec
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 134)
 	s0 = l0
 	abuf[0] = s0
 	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/JsonValue", "readFrom", "(Ljava/io/Reader;)Lcom/eclipsesource/json/JsonValue;", abuf[:1])
@@ -8950,6 +9572,7 @@ func Catty_com_eclipsesource_json_JsonObject_readFrom___Ljava_lang_String__Lcom_
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 151)
 	s0 = l0
 	abuf[0] = s0
 	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/JsonValue", "readFrom", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", abuf[:1])
@@ -8978,6 +9601,7 @@ func Catty_com_eclipsesource_json_JsonObject_unmodifiableObject___Lcom_eclipseso
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 168)
 	s0 = genrt.New(thr, "com/eclipsesource/json/JsonObject")
 	s1 = s0
 	s2 = l0
@@ -9010,6 +9634,7 @@ func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_I_Lcom_ecli
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 190)
 	s0 = l0
 	s1 = l1
 	s2 = l2
@@ -9024,6 +9649,7 @@ func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_I_Lcom_ecli
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 191)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -9047,6 +9673,7 @@ func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_J_Lcom_ecli
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 213)
 	s0 = l0
 	s1 = l1
 	s2 = l2
@@ -9061,6 +9688,7 @@ func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_J_Lcom_ecli
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 214)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -9084,6 +9712,7 @@ func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_F_Lcom_ecli
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 236)
 	s0 = l0
 	s1 = l1
 	s2 = l2
@@ -9098,6 +9727,7 @@ func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_F_Lcom_ecli
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 237)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -9121,6 +9751,7 @@ func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_D_Lcom_ecli
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 259)
 	s0 = l0
 	s1 = l1
 	s2 = l2
@@ -9135,6 +9766,7 @@ func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_D_Lcom_ecli
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 260)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -9158,6 +9790,7 @@ func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_Z_Lcom_ecli
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 282)
 	s0 = l0
 	s1 = l1
 	s2 = l2
@@ -9172,6 +9805,7 @@ func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_Z_Lcom_ecli
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 283)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -9195,6 +9829,7 @@ func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_Ljava_lang_
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 305)
 	s0 = l0
 	s1 = l1
 	s2 = l2
@@ -9209,6 +9844,7 @@ func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_Ljava_lang_
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 306)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -9232,8 +9868,10 @@ func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_Lcom_eclips
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 328)
 	s0 = l1
 	if (s0 == nil) == false { goto L14 }
+	genrt.SetLine(thr, 329)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("name is null")
@@ -9246,9 +9884,11 @@ func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_Lcom_eclips
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 331)
 	L14:
 	s0 = l2
 	if (s0 == nil) == false { goto L28 }
+	genrt.SetLine(thr, 332)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("value is null")
@@ -9261,6 +9901,7 @@ func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_Lcom_eclips
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 334)
 	L28:
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "table", "Lcom/eclipsesource/json/JsonObject$HashIndexTable;")
@@ -9283,6 +9924,7 @@ func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_Lcom_eclips
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 335)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "names", "Ljava/util/List;")
 	if exc != nil {
@@ -9294,6 +9936,7 @@ func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_Lcom_eclips
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 336)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -9305,6 +9948,7 @@ func Catty_com_eclipsesource_json_JsonObject_add___Ljava_lang_String_Lcom_eclips
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 337)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -9328,6 +9972,7 @@ func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_I_Lcom_ecli
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 358)
 	s0 = l0
 	s1 = l1
 	s2 = l2
@@ -9342,6 +9987,7 @@ func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_I_Lcom_ecli
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 359)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -9365,6 +10011,7 @@ func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_J_Lcom_ecli
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 380)
 	s0 = l0
 	s1 = l1
 	s2 = l2
@@ -9379,6 +10026,7 @@ func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_J_Lcom_ecli
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 381)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -9402,6 +10050,7 @@ func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_F_Lcom_ecli
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 402)
 	s0 = l0
 	s1 = l1
 	s2 = l2
@@ -9416,6 +10065,7 @@ func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_F_Lcom_ecli
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 403)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -9439,6 +10089,7 @@ func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_D_Lcom_ecli
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 424)
 	s0 = l0
 	s1 = l1
 	s2 = l2
@@ -9453,6 +10104,7 @@ func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_D_Lcom_ecli
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 425)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -9476,6 +10128,7 @@ func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_Z_Lcom_ecli
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 446)
 	s0 = l0
 	s1 = l1
 	s2 = l2
@@ -9490,6 +10143,7 @@ func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_Z_Lcom_ecli
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 447)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -9513,6 +10167,7 @@ func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_Ljava_lang_
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 468)
 	s0 = l0
 	s1 = l1
 	s2 = l2
@@ -9527,6 +10182,7 @@ func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_Ljava_lang_
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 469)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -9550,8 +10206,10 @@ func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_Lcom_eclips
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 489)
 	s0 = l1
 	if (s0 == nil) == false { goto L14 }
+	genrt.SetLine(thr, 490)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("name is null")
@@ -9564,9 +10222,11 @@ func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_Lcom_eclips
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 492)
 	L14:
 	s0 = l2
 	if (s0 == nil) == false { goto L28 }
+	genrt.SetLine(thr, 493)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("value is null")
@@ -9579,6 +10239,7 @@ func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_Lcom_eclips
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 495)
 	L28:
 	s0 = l0
 	s1 = l1
@@ -9588,9 +10249,11 @@ func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_Lcom_eclips
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 496)
 	s0 = l3
 	s1 = int32(-1)
 	if s0.(int32) == s1.(int32) { goto L54 }
+	genrt.SetLine(thr, 497)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -9605,6 +10268,7 @@ func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_Lcom_eclips
 		return nil, exc // no handler matched
 	}
 	goto L93
+	genrt.SetLine(thr, 499)
 	L54:
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "table", "Lcom/eclipsesource/json/JsonObject$HashIndexTable;")
@@ -9627,6 +10291,7 @@ func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_Lcom_eclips
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 500)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "names", "Ljava/util/List;")
 	if exc != nil {
@@ -9638,6 +10303,7 @@ func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_Lcom_eclips
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 501)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -9649,6 +10315,7 @@ func Catty_com_eclipsesource_json_JsonObject_set___Ljava_lang_String_Lcom_eclips
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 503)
 	L93:
 	s0 = l0
 	return s0, nil
@@ -9671,8 +10338,10 @@ func Catty_com_eclipsesource_json_JsonObject_remove___Ljava_lang_String__Lcom_ec
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 516)
 	s0 = l1
 	if (s0 == nil) == false { goto L14 }
+	genrt.SetLine(thr, 517)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("name is null")
@@ -9685,6 +10354,7 @@ func Catty_com_eclipsesource_json_JsonObject_remove___Ljava_lang_String__Lcom_ec
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 519)
 	L14:
 	s0 = l0
 	s1 = l1
@@ -9694,9 +10364,11 @@ func Catty_com_eclipsesource_json_JsonObject_remove___Ljava_lang_String__Lcom_ec
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 520)
 	s0 = l2
 	s1 = int32(-1)
 	if s0.(int32) == s1.(int32) { goto L55 }
+	genrt.SetLine(thr, 521)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "table", "Lcom/eclipsesource/json/JsonObject$HashIndexTable;")
 	if exc != nil {
@@ -9708,6 +10380,7 @@ func Catty_com_eclipsesource_json_JsonObject_remove___Ljava_lang_String__Lcom_ec
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 522)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "names", "Ljava/util/List;")
 	if exc != nil {
@@ -9719,6 +10392,7 @@ func Catty_com_eclipsesource_json_JsonObject_remove___Ljava_lang_String__Lcom_ec
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 523)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -9730,6 +10404,7 @@ func Catty_com_eclipsesource_json_JsonObject_remove___Ljava_lang_String__Lcom_ec
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 525)
 	L55:
 	s0 = l0
 	return s0, nil
@@ -9752,8 +10427,10 @@ func Catty_com_eclipsesource_json_JsonObject_merge___Lcom_eclipsesource_json_Jso
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 538)
 	s0 = l1
 	if (s0 == nil) == false { goto L14 }
+	genrt.SetLine(thr, 539)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("object is null")
@@ -9766,6 +10443,7 @@ func Catty_com_eclipsesource_json_JsonObject_merge___Lcom_eclipsesource_json_Jso
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 541)
 	L14:
 	s0 = l1
 	s0, exc = genrt.CallVirtualIC(844, thr, s0, "com/eclipsesource/json/JsonObject", "iterator", "()Ljava/util/Iterator;", abuf[:0])
@@ -9790,6 +10468,7 @@ func Catty_com_eclipsesource_json_JsonObject_merge___Lcom_eclipsesource_json_Jso
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 542)
 	s0 = l0
 	s1 = l3
 	abuf[0] = s1
@@ -9809,7 +10488,9 @@ func Catty_com_eclipsesource_json_JsonObject_merge___Lcom_eclipsesource_json_Jso
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 543)
 	goto L19
+	genrt.SetLine(thr, 544)
 	L54:
 	s0 = l0
 	return s0, nil
@@ -9832,8 +10513,10 @@ func Catty_com_eclipsesource_json_JsonObject_get___Ljava_lang_String__Lcom_eclip
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 557)
 	s0 = l1
 	if (s0 == nil) == false { goto L14 }
+	genrt.SetLine(thr, 558)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("name is null")
@@ -9846,6 +10529,7 @@ func Catty_com_eclipsesource_json_JsonObject_get___Ljava_lang_String__Lcom_eclip
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 560)
 	L14:
 	s0 = l0
 	s1 = l1
@@ -9855,6 +10539,7 @@ func Catty_com_eclipsesource_json_JsonObject_get___Ljava_lang_String__Lcom_eclip
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 561)
 	s0 = l2
 	s1 = int32(-1)
 	if s0.(int32) == s1.(int32) { goto L41 }
@@ -9899,6 +10584,7 @@ func Catty_com_eclipsesource_json_JsonObject_getInt___Ljava_lang_String_I_I(thr 
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 579)
 	s0 = l0
 	s1 = l1
 	abuf[0] = s1
@@ -9907,6 +10593,7 @@ func Catty_com_eclipsesource_json_JsonObject_getInt___Ljava_lang_String_I_I(thr 
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 580)
 	s0 = l3
 	if (s0 == nil) == true { goto L17 }
 	s0 = l3
@@ -9940,6 +10627,7 @@ func Catty_com_eclipsesource_json_JsonObject_getLong___Ljava_lang_String_J_J(thr
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 598)
 	s0 = l0
 	s1 = l1
 	abuf[0] = s1
@@ -9948,6 +10636,7 @@ func Catty_com_eclipsesource_json_JsonObject_getLong___Ljava_lang_String_J_J(thr
 		return nil, exc // no handler matched
 	}
 	l4 = s0
+	genrt.SetLine(thr, 599)
 	s0 = l4
 	if (s0 == nil) == true { goto L20 }
 	s0 = l4
@@ -9981,6 +10670,7 @@ func Catty_com_eclipsesource_json_JsonObject_getFloat___Ljava_lang_String_F_F(th
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 617)
 	s0 = l0
 	s1 = l1
 	abuf[0] = s1
@@ -9989,6 +10679,7 @@ func Catty_com_eclipsesource_json_JsonObject_getFloat___Ljava_lang_String_F_F(th
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 618)
 	s0 = l3
 	if (s0 == nil) == true { goto L17 }
 	s0 = l3
@@ -10022,6 +10713,7 @@ func Catty_com_eclipsesource_json_JsonObject_getDouble___Ljava_lang_String_D_D(t
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 636)
 	s0 = l0
 	s1 = l1
 	abuf[0] = s1
@@ -10030,6 +10722,7 @@ func Catty_com_eclipsesource_json_JsonObject_getDouble___Ljava_lang_String_D_D(t
 		return nil, exc // no handler matched
 	}
 	l4 = s0
+	genrt.SetLine(thr, 637)
 	s0 = l4
 	if (s0 == nil) == true { goto L20 }
 	s0 = l4
@@ -10063,6 +10756,7 @@ func Catty_com_eclipsesource_json_JsonObject_getBoolean___Ljava_lang_String_Z_Z(
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 655)
 	s0 = l0
 	s1 = l1
 	abuf[0] = s1
@@ -10071,6 +10765,7 @@ func Catty_com_eclipsesource_json_JsonObject_getBoolean___Ljava_lang_String_Z_Z(
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 656)
 	s0 = l3
 	if (s0 == nil) == true { goto L17 }
 	s0 = l3
@@ -10104,6 +10799,7 @@ func Catty_com_eclipsesource_json_JsonObject_getString___Ljava_lang_String_Ljava
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 673)
 	s0 = l0
 	s1 = l1
 	abuf[0] = s1
@@ -10112,6 +10808,7 @@ func Catty_com_eclipsesource_json_JsonObject_getString___Ljava_lang_String_Ljava
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 674)
 	s0 = l3
 	if (s0 == nil) == true { goto L17 }
 	s0 = l3
@@ -10139,6 +10836,7 @@ func Catty_com_eclipsesource_json_JsonObject_size____I(thr kernel.OwnerKey, recv
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 683)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "names", "Ljava/util/List;")
 	if exc != nil {
@@ -10164,6 +10862,7 @@ func Catty_com_eclipsesource_json_JsonObject_isEmpty____Z(thr kernel.OwnerKey, r
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 692)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "names", "Ljava/util/List;")
 	if exc != nil {
@@ -10191,6 +10890,7 @@ func Catty_com_eclipsesource_json_JsonObject_names____Ljava_util_List_(thr kerne
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 703)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "names", "Ljava/util/List;")
 	if exc != nil {
@@ -10219,6 +10919,7 @@ func Catty_com_eclipsesource_json_JsonObject_iterator____Ljava_util_Iterator_(th
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 713)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "names", "Ljava/util/List;")
 	if exc != nil {
@@ -10229,6 +10930,7 @@ func Catty_com_eclipsesource_json_JsonObject_iterator____Ljava_util_Iterator_(th
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 714)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -10239,6 +10941,7 @@ func Catty_com_eclipsesource_json_JsonObject_iterator____Ljava_util_Iterator_(th
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 715)
 	s0 = genrt.New(thr, "com/eclipsesource/json/JsonObject$1")
 	s1 = s0
 	s2 = l0
@@ -10271,11 +10974,13 @@ func Catty_com_eclipsesource_json_JsonObject_write___Lcom_eclipsesource_json_Jso
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 736)
 	s0 = l1
 	_, exc = genrt.CallVirtualIC(455, thr, s0, "com/eclipsesource/json/JsonWriter", "writeObjectOpen", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 737)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "names", "Ljava/util/List;")
 	if exc != nil {
@@ -10286,6 +10991,7 @@ func Catty_com_eclipsesource_json_JsonObject_write___Lcom_eclipsesource_json_Jso
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 738)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "values", "Ljava/util/List;")
 	if exc != nil {
@@ -10296,12 +11002,14 @@ func Catty_com_eclipsesource_json_JsonObject_write___Lcom_eclipsesource_json_Jso
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 739)
 	s0 = l2
 	s0, exc = genrt.CallVirtualIC(85, thr, s0, "java/util/Iterator", "hasNext", "()Z", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) == 0 { goto L109 }
+	genrt.SetLine(thr, 740)
 	s0 = l1
 	s1 = l2
 	s1, exc = genrt.CallVirtualIC(1005, thr, s1, "java/util/Iterator", "next", "()Ljava/lang/Object;", abuf[:0])
@@ -10317,11 +11025,13 @@ func Catty_com_eclipsesource_json_JsonObject_write___Lcom_eclipsesource_json_Jso
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 741)
 	s0 = l1
 	_, exc = genrt.CallVirtualIC(511, thr, s0, "com/eclipsesource/json/JsonWriter", "writeMemberSeparator", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 742)
 	s0 = l3
 	s0, exc = genrt.CallVirtualIC(1005, thr, s0, "java/util/Iterator", "next", "()Ljava/lang/Object;", abuf[:0])
 	if exc != nil {
@@ -10337,6 +11047,7 @@ func Catty_com_eclipsesource_json_JsonObject_write___Lcom_eclipsesource_json_Jso
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 743)
 	L63:
 	s0 = l2
 	s0, exc = genrt.CallVirtualIC(85, thr, s0, "java/util/Iterator", "hasNext", "()Z", abuf[:0])
@@ -10344,11 +11055,13 @@ func Catty_com_eclipsesource_json_JsonObject_write___Lcom_eclipsesource_json_Jso
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) == 0 { goto L109 }
+	genrt.SetLine(thr, 744)
 	s0 = l1
 	_, exc = genrt.CallVirtualIC(94, thr, s0, "com/eclipsesource/json/JsonWriter", "writeObjectSeparator", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 745)
 	s0 = l1
 	s1 = l2
 	s1, exc = genrt.CallVirtualIC(1005, thr, s1, "java/util/Iterator", "next", "()Ljava/lang/Object;", abuf[:0])
@@ -10364,11 +11077,13 @@ func Catty_com_eclipsesource_json_JsonObject_write___Lcom_eclipsesource_json_Jso
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 746)
 	s0 = l1
 	_, exc = genrt.CallVirtualIC(511, thr, s0, "com/eclipsesource/json/JsonWriter", "writeMemberSeparator", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 747)
 	s0 = l3
 	s0, exc = genrt.CallVirtualIC(1005, thr, s0, "java/util/Iterator", "next", "()Ljava/lang/Object;", abuf[:0])
 	if exc != nil {
@@ -10385,12 +11100,14 @@ func Catty_com_eclipsesource_json_JsonObject_write___Lcom_eclipsesource_json_Jso
 		return nil, exc // no handler matched
 	}
 	goto L63
+	genrt.SetLine(thr, 750)
 	L109:
 	s0 = l1
 	_, exc = genrt.CallVirtualIC(243, thr, s0, "com/eclipsesource/json/JsonWriter", "writeObjectClose", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 751)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -10407,6 +11124,7 @@ func Catty_com_eclipsesource_json_JsonObject_isObject____Z(thr kernel.OwnerKey, 
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 755)
 	s0 = int32(1)
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -10424,6 +11142,7 @@ func Catty_com_eclipsesource_json_JsonObject_asObject____Lcom_eclipsesource_json
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 760)
 	s0 = l0
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -10441,8 +11160,10 @@ func Catty_com_eclipsesource_json_JsonObject_hashCode____I(thr kernel.OwnerKey, 
 	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 765)
 	s0 = int32(1)
 	l1 = s0
+	genrt.SetLine(thr, 766)
 	s0 = int32(31)
 	s1 = l1
 	s0 = (s0.(int32)) * (s1.(int32))
@@ -10457,6 +11178,7 @@ func Catty_com_eclipsesource_json_JsonObject_hashCode____I(thr kernel.OwnerKey, 
 	}
 	s0 = (s0.(int32)) + (s1.(int32))
 	l1 = s0
+	genrt.SetLine(thr, 767)
 	s0 = int32(31)
 	s1 = l1
 	s0 = (s0.(int32)) * (s1.(int32))
@@ -10471,6 +11193,7 @@ func Catty_com_eclipsesource_json_JsonObject_hashCode____I(thr kernel.OwnerKey, 
 	}
 	s0 = (s0.(int32)) + (s1.(int32))
 	l1 = s0
+	genrt.SetLine(thr, 768)
 	s0 = l1
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -10492,16 +11215,21 @@ func Catty_com_eclipsesource_json_JsonObject_equals___Ljava_lang_Object__Z(thr k
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 773)
 	s0 = l0
 	s1 = l1
 	if !genrt.RefEq(s0, s1) { goto L7 }
+	genrt.SetLine(thr, 774)
 	s0 = int32(1)
 	return s0, nil
+	genrt.SetLine(thr, 776)
 	L7:
 	s0 = l1
 	if (s0 == nil) == false { goto L13 }
+	genrt.SetLine(thr, 777)
 	s0 = int32(0)
 	return s0, nil
+	genrt.SetLine(thr, 779)
 	L13:
 	s0 = l0
 	s0, exc = genrt.CallVirtualIC(326, thr, s0, "java/lang/Object", "getClass", "()Ljava/lang/Class;", abuf[:0])
@@ -10514,8 +11242,10 @@ func Catty_com_eclipsesource_json_JsonObject_equals___Ljava_lang_Object__Z(thr k
 		return nil, exc // no handler matched
 	}
 	if genrt.RefEq(s0, s1) { goto L26 }
+	genrt.SetLine(thr, 780)
 	s0 = int32(0)
 	return s0, nil
+	genrt.SetLine(thr, 782)
 	L26:
 	s0 = l1
 	s0 = genrt.CheckCast(thr, s0, "com/eclipsesource/json/JsonObject")
@@ -10523,6 +11253,7 @@ func Catty_com_eclipsesource_json_JsonObject_equals___Ljava_lang_Object__Z(thr k
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 783)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "names", "Ljava/util/List;")
 	if exc != nil {
@@ -10580,6 +11311,7 @@ func Catty_com_eclipsesource_json_JsonObject_indexOf___Ljava_lang_String__I(thr 
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 787)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "table", "Lcom/eclipsesource/json/JsonObject$HashIndexTable;")
 	if exc != nil {
@@ -10592,6 +11324,7 @@ func Catty_com_eclipsesource_json_JsonObject_indexOf___Ljava_lang_String__I(thr 
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 788)
 	s0 = l2
 	s1 = int32(-1)
 	if s0.(int32) == s1.(int32) { goto L33 }
@@ -10613,8 +11346,10 @@ func Catty_com_eclipsesource_json_JsonObject_indexOf___Ljava_lang_String__I(thr 
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) == 0 { goto L33 }
+	genrt.SetLine(thr, 789)
 	s0 = l2
 	return s0, nil
+	genrt.SetLine(thr, 791)
 	L33:
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "names", "Ljava/util/List;")
@@ -10645,11 +11380,13 @@ func Catty_com_eclipsesource_json_JsonObject_readObject___Ljava_io_ObjectInputSt
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 797)
 	s0 = l1
 	_, exc = genrt.CallVirtualIC(141, thr, s0, "java/io/ObjectInputStream", "defaultReadObject", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 798)
 	s0 = l0
 	s1 = genrt.New(thr, "com/eclipsesource/json/JsonObject$HashIndexTable")
 	s2 = s1
@@ -10661,11 +11398,13 @@ func Catty_com_eclipsesource_json_JsonObject_readObject___Ljava_io_ObjectInputSt
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 799)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonObject", "updateHashIndex", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 800)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -10684,6 +11423,7 @@ func Catty_com_eclipsesource_json_JsonObject_updateHashIndex____V(thr kernel.Own
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 803)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "names", "Ljava/util/List;")
 	if exc != nil {
@@ -10694,12 +11434,14 @@ func Catty_com_eclipsesource_json_JsonObject_updateHashIndex____V(thr kernel.Own
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 804)
 	s0 = int32(0)
 	l2 = s0
 	L12:
 	s0 = l2
 	s1 = l1
 	if s0.(int32) >= s1.(int32) { goto L44 }
+	genrt.SetLine(thr, 805)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "table", "Lcom/eclipsesource/json/JsonObject$HashIndexTable;")
 	if exc != nil {
@@ -10727,8 +11469,10 @@ func Catty_com_eclipsesource_json_JsonObject_updateHashIndex____V(thr kernel.Own
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 804)
 	l2 = l2.(int32) + 1
 	goto L12
+	genrt.SetLine(thr, 807)
 	L44:
 	return nil, nil
 	return nil, nil // unreachable terminal
@@ -10752,6 +11496,7 @@ func Catty_com_eclipsesource_json_JsonObject_000361_init___Lcom_eclipsesource_js
 	l1 = args[0]
 	l2 = args[1]
 	l3 = args[2]
+	genrt.SetLine(thr, 715)
 	s0 = l0
 	s1 = l2
 	exc = genrt.SetFieldChecked(thr, s0, "val$namesIterator", "Ljava/util/Iterator;", s1)
@@ -10791,6 +11536,7 @@ func Catty_com_eclipsesource_json_JsonObject_000361_hasNext____Z(thr kernel.Owne
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 718)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "val$namesIterator", "Ljava/util/Iterator;")
 	if exc != nil {
@@ -10818,6 +11564,7 @@ func Catty_com_eclipsesource_json_JsonObject_000361_next____Lcom_eclipsesource_j
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 722)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "val$namesIterator", "Ljava/util/Iterator;")
 	if exc != nil {
@@ -10832,6 +11579,7 @@ func Catty_com_eclipsesource_json_JsonObject_000361_next____Lcom_eclipsesource_j
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 723)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "val$valuesIterator", "Ljava/util/Iterator;")
 	if exc != nil {
@@ -10846,6 +11594,7 @@ func Catty_com_eclipsesource_json_JsonObject_000361_next____Lcom_eclipsesource_j
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 724)
 	s0 = genrt.New(thr, "com/eclipsesource/json/JsonObject$Member")
 	s1 = s0
 	s2 = l1
@@ -10872,6 +11621,7 @@ func Catty_com_eclipsesource_json_JsonObject_000361_remove____V(thr kernel.Owner
 	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 728)
 	s0 = genrt.New(thr, "java/lang/UnsupportedOperationException")
 	s1 = s0
 	_, exc = genrt.CallSpecial(thr, s1, "java/lang/UnsupportedOperationException", "<init>", "()V", []kernel.Value{})
@@ -10897,6 +11647,7 @@ func Catty_com_eclipsesource_json_JsonObject_000361_next____Ljava_lang_Object_(t
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 715)
 	s0 = l0
 	s0, exc = genrt.CallVirtualIC(253, thr, s0, "com/eclipsesource/json/JsonObject$1", "next", "()Lcom/eclipsesource/json/JsonObject$Member;", []kernel.Value{})
 	if exc != nil {
@@ -10918,11 +11669,13 @@ func Catty_com_eclipsesource_json_JsonObject_00036HashIndexTable_init____V(thr k
 	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 882)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 880)
 	s0 = l0
 	s1 = int32(32)
 	s1, exc = genrt.NewPrimitiveArray(thr, "B", s1.(int32))
@@ -10933,6 +11686,7 @@ func Catty_com_eclipsesource_json_JsonObject_00036HashIndexTable_init____V(thr k
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 883)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -10953,11 +11707,13 @@ func Catty_com_eclipsesource_json_JsonObject_00036HashIndexTable_init___Lcom_ecl
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 885)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 880)
 	s0 = l0
 	s1 = int32(32)
 	s1, exc = genrt.NewPrimitiveArray(thr, "B", s1.(int32))
@@ -10968,6 +11724,7 @@ func Catty_com_eclipsesource_json_JsonObject_00036HashIndexTable_init___Lcom_ecl
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 886)
 	s0 = l1
 	s0, exc = genrt.GetFieldChecked(thr, s0, "hashTable", "[B")
 	if exc != nil {
@@ -10998,6 +11755,7 @@ func Catty_com_eclipsesource_json_JsonObject_00036HashIndexTable_init___Lcom_ecl
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 887)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -11020,6 +11778,7 @@ func Catty_com_eclipsesource_json_JsonObject_00036HashIndexTable_add___Ljava_lan
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 890)
 	s0 = l0
 	s1 = l1
 	abuf[0] = s1
@@ -11028,9 +11787,11 @@ func Catty_com_eclipsesource_json_JsonObject_00036HashIndexTable_add___Ljava_lan
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 891)
 	s0 = l2
 	s1 = int32(255)
 	if s0.(int32) >= s1.(int32) { goto L26 }
+	genrt.SetLine(thr, 893)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "hashTable", "[B")
 	if exc != nil {
@@ -11046,6 +11807,7 @@ func Catty_com_eclipsesource_json_JsonObject_00036HashIndexTable_add___Ljava_lan
 		return nil, exc // no handler matched
 	}
 	goto L33
+	genrt.SetLine(thr, 895)
 	L26:
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "hashTable", "[B")
@@ -11058,6 +11820,7 @@ func Catty_com_eclipsesource_json_JsonObject_00036HashIndexTable_add___Ljava_lan
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 897)
 	L33:
 	return nil, nil
 	return nil, nil // unreachable terminal
@@ -11077,6 +11840,7 @@ func Catty_com_eclipsesource_json_JsonObject_00036HashIndexTable_remove___I_V(th
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 900)
 	s0 = int32(0)
 	l2 = s0
 	L2:
@@ -11091,6 +11855,7 @@ func Catty_com_eclipsesource_json_JsonObject_00036HashIndexTable_remove___I_V(th
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) >= s1.(int32) { goto L62 }
+	genrt.SetLine(thr, 901)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "hashTable", "[B")
 	if exc != nil {
@@ -11106,6 +11871,7 @@ func Catty_com_eclipsesource_json_JsonObject_00036HashIndexTable_remove___I_V(th
 	s2 = int32(1)
 	s1 = (s1.(int32)) + (s2.(int32))
 	if s0.(int32) != s1.(int32) { goto L33 }
+	genrt.SetLine(thr, 902)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "hashTable", "[B")
 	if exc != nil {
@@ -11118,6 +11884,7 @@ func Catty_com_eclipsesource_json_JsonObject_00036HashIndexTable_remove___I_V(th
 		return nil, exc // no handler matched
 	}
 	goto L56
+	genrt.SetLine(thr, 903)
 	L33:
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "hashTable", "[B")
@@ -11134,6 +11901,7 @@ func Catty_com_eclipsesource_json_JsonObject_00036HashIndexTable_remove___I_V(th
 	s2 = int32(1)
 	s1 = (s1.(int32)) + (s2.(int32))
 	if s0.(int32) <= s1.(int32) { goto L56 }
+	genrt.SetLine(thr, 904)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "hashTable", "[B")
 	if exc != nil {
@@ -11154,9 +11922,11 @@ func Catty_com_eclipsesource_json_JsonObject_00036HashIndexTable_remove___I_V(th
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 900)
 	L56:
 	l2 = l2.(int32) + 1
 	goto L2
+	genrt.SetLine(thr, 907)
 	L62:
 	return nil, nil
 	return nil, nil // unreachable terminal
@@ -11178,6 +11948,7 @@ func Catty_com_eclipsesource_json_JsonObject_00036HashIndexTable_get___Ljava_lan
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 910)
 	s0 = l0
 	s1 = l1
 	abuf[0] = s1
@@ -11186,6 +11957,7 @@ func Catty_com_eclipsesource_json_JsonObject_00036HashIndexTable_get___Ljava_lan
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 912)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "hashTable", "[B")
 	if exc != nil {
@@ -11219,6 +11991,7 @@ func Catty_com_eclipsesource_json_JsonObject_00036HashIndexTable_hashSlotFor___L
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 916)
 	s0 = l1
 	s0, exc = genrt.CallVirtualIC(173, thr, s0, "java/lang/Object", "hashCode", "()I", []kernel.Value{})
 	if exc != nil {
@@ -11256,23 +12029,27 @@ func Catty_com_eclipsesource_json_JsonObject_00036Member_init___Ljava_lang_Strin
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 817)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 818)
 	s0 = l0
 	s1 = l1
 	exc = genrt.SetFieldChecked(thr, s0, "name", "Ljava/lang/String;", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 819)
 	s0 = l0
 	s1 = l2
 	exc = genrt.SetFieldChecked(thr, s0, "value", "Lcom/eclipsesource/json/JsonValue;", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 820)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -11289,6 +12066,7 @@ func Catty_com_eclipsesource_json_JsonObject_00036Member_getName____Ljava_lang_S
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 828)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "name", "Ljava/lang/String;")
 	if exc != nil {
@@ -11310,6 +12088,7 @@ func Catty_com_eclipsesource_json_JsonObject_00036Member_getValue____Lcom_eclips
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 837)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "value", "Lcom/eclipsesource/json/JsonValue;")
 	if exc != nil {
@@ -11331,8 +12110,10 @@ func Catty_com_eclipsesource_json_JsonObject_00036Member_hashCode____I(thr kerne
 	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 842)
 	s0 = int32(1)
 	l1 = s0
+	genrt.SetLine(thr, 843)
 	s0 = int32(31)
 	s1 = l1
 	s0 = (s0.(int32)) * (s1.(int32))
@@ -11347,6 +12128,7 @@ func Catty_com_eclipsesource_json_JsonObject_00036Member_hashCode____I(thr kerne
 	}
 	s0 = (s0.(int32)) + (s1.(int32))
 	l1 = s0
+	genrt.SetLine(thr, 844)
 	s0 = int32(31)
 	s1 = l1
 	s0 = (s0.(int32)) * (s1.(int32))
@@ -11361,6 +12143,7 @@ func Catty_com_eclipsesource_json_JsonObject_00036Member_hashCode____I(thr kerne
 	}
 	s0 = (s0.(int32)) + (s1.(int32))
 	l1 = s0
+	genrt.SetLine(thr, 845)
 	s0 = l1
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -11382,16 +12165,21 @@ func Catty_com_eclipsesource_json_JsonObject_00036Member_equals___Ljava_lang_Obj
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 863)
 	s0 = l0
 	s1 = l1
 	if !genrt.RefEq(s0, s1) { goto L7 }
+	genrt.SetLine(thr, 864)
 	s0 = int32(1)
 	return s0, nil
+	genrt.SetLine(thr, 866)
 	L7:
 	s0 = l1
 	if (s0 == nil) == false { goto L13 }
+	genrt.SetLine(thr, 867)
 	s0 = int32(0)
 	return s0, nil
+	genrt.SetLine(thr, 869)
 	L13:
 	s0 = l0
 	s0, exc = genrt.CallVirtualIC(326, thr, s0, "java/lang/Object", "getClass", "()Ljava/lang/Class;", abuf[:0])
@@ -11404,8 +12192,10 @@ func Catty_com_eclipsesource_json_JsonObject_00036Member_equals___Ljava_lang_Obj
 		return nil, exc // no handler matched
 	}
 	if genrt.RefEq(s0, s1) { goto L26 }
+	genrt.SetLine(thr, 870)
 	s0 = int32(0)
 	return s0, nil
+	genrt.SetLine(thr, 872)
 	L26:
 	s0 = l1
 	s0 = genrt.CheckCast(thr, s0, "com/eclipsesource/json/JsonObject$Member")
@@ -11413,6 +12203,7 @@ func Catty_com_eclipsesource_json_JsonObject_00036Member_equals___Ljava_lang_Obj
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 873)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "name", "Ljava/lang/String;")
 	if exc != nil {
@@ -11466,6 +12257,7 @@ func Catty_com_eclipsesource_json_JsonObject_00036Member_access_00036000___Lcom_
 	_ = []kernel.Value{s0, s1}
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 812)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "name", "Ljava/lang/String;")
 	if exc != nil {
@@ -11487,6 +12279,7 @@ func Catty_com_eclipsesource_json_JsonObject_00036Member_access_00036100___Lcom_
 	_ = []kernel.Value{s0, s1}
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 812)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "value", "Lcom/eclipsesource/json/JsonValue;")
 	if exc != nil {
@@ -11512,13 +12305,16 @@ func Catty_com_eclipsesource_json_JsonParser_init___Lcom_eclipsesource_json_Json
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 68)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 69)
 	s0 = l1
 	if (s0 == nil) == false { goto L18 }
+	genrt.SetLine(thr, 70)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("handler is null")
@@ -11531,6 +12327,7 @@ func Catty_com_eclipsesource_json_JsonParser_init___Lcom_eclipsesource_json_Json
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 72)
 	L18:
 	s0 = l0
 	s1 = l1
@@ -11538,12 +12335,14 @@ func Catty_com_eclipsesource_json_JsonParser_init___Lcom_eclipsesource_json_Json
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 73)
 	s0 = l1
 	s1 = l0
 	exc = genrt.SetFieldChecked(thr, s0, "parser", "Lcom/eclipsesource/json/JsonParser;", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 74)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -11564,8 +12363,10 @@ func Catty_com_eclipsesource_json_JsonParser_parse___Ljava_lang_String__V(thr ke
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 86)
 	s0 = l1
 	if (s0 == nil) == false { goto L14 }
+	genrt.SetLine(thr, 87)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("string is null")
@@ -11578,6 +12379,7 @@ func Catty_com_eclipsesource_json_JsonParser_parse___Ljava_lang_String__V(thr ke
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 89)
 	L14:
 	s0 = int32(10)
 	s1 = int32(1024)
@@ -11599,6 +12401,7 @@ func Catty_com_eclipsesource_json_JsonParser_parse___Ljava_lang_String__V(thr ke
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 91)
 	s0 = l0
 	s1 = genrt.New(thr, "java/io/StringReader")
 	s2 = s1
@@ -11617,10 +12420,13 @@ func Catty_com_eclipsesource_json_JsonParser_parse___Ljava_lang_String__V(thr ke
 		if genrt.InstanceOf(exc.Obj, "java/io/IOException") { goto L46 }
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 95)
 	goto L56
+	genrt.SetLine(thr, 92)
 	L46:
 	s0 = exc.Obj
 	l3 = s0
+	genrt.SetLine(thr, 94)
 	s0 = genrt.New(thr, "java/lang/RuntimeException")
 	s1 = s0
 	s2 = l3
@@ -11633,6 +12439,7 @@ func Catty_com_eclipsesource_json_JsonParser_parse___Ljava_lang_String__V(thr ke
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 96)
 	L56:
 	return nil, nil
 	return nil, nil // unreachable terminal
@@ -11654,6 +12461,7 @@ func Catty_com_eclipsesource_json_JsonParser_parse___Ljava_io_Reader__V(thr kern
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 114)
 	s0 = l0
 	s1 = l1
 	s2 = int32(1024)
@@ -11663,6 +12471,7 @@ func Catty_com_eclipsesource_json_JsonParser_parse___Ljava_io_Reader__V(thr kern
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 115)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -11685,8 +12494,10 @@ func Catty_com_eclipsesource_json_JsonParser_parse___Ljava_io_Reader_I_V(thr ker
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 135)
 	s0 = l1
 	if (s0 == nil) == false { goto L14 }
+	genrt.SetLine(thr, 136)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("reader is null")
@@ -11699,9 +12510,11 @@ func Catty_com_eclipsesource_json_JsonParser_parse___Ljava_io_Reader_I_V(thr ker
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 138)
 	L14:
 	s0 = l2
 	if s0.(int32) > 0 { goto L28 }
+	genrt.SetLine(thr, 139)
 	s0 = genrt.New(thr, "java/lang/IllegalArgumentException")
 	s1 = s0
 	s2 = genrt.Str("buffersize is zero or negative")
@@ -11714,6 +12527,7 @@ func Catty_com_eclipsesource_json_JsonParser_parse___Ljava_io_Reader_I_V(thr ker
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 141)
 	L28:
 	s0 = l0
 	s1 = l1
@@ -11721,6 +12535,7 @@ func Catty_com_eclipsesource_json_JsonParser_parse___Ljava_io_Reader_I_V(thr ker
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 142)
 	s0 = l0
 	s1 = l2
 	s1, exc = genrt.NewPrimitiveArray(thr, "C", s1.(int32))
@@ -11731,74 +12546,87 @@ func Catty_com_eclipsesource_json_JsonParser_parse___Ljava_io_Reader_I_V(thr ker
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 143)
 	s0 = l0
 	s1 = int32(0)
 	exc = genrt.SetFieldChecked(thr, s0, "bufferOffset", "I", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 144)
 	s0 = l0
 	s1 = int32(0)
 	exc = genrt.SetFieldChecked(thr, s0, "index", "I", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 145)
 	s0 = l0
 	s1 = int32(0)
 	exc = genrt.SetFieldChecked(thr, s0, "fill", "I", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 146)
 	s0 = l0
 	s1 = int32(1)
 	exc = genrt.SetFieldChecked(thr, s0, "line", "I", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 147)
 	s0 = l0
 	s1 = int32(0)
 	exc = genrt.SetFieldChecked(thr, s0, "lineOffset", "I", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 148)
 	s0 = l0
 	s1 = int32(0)
 	exc = genrt.SetFieldChecked(thr, s0, "current", "I", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 149)
 	s0 = l0
 	s1 = int32(-1)
 	exc = genrt.SetFieldChecked(thr, s0, "captureStart", "I", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 150)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 151)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "skipWhiteSpace", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 152)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readValue", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 153)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "skipWhiteSpace", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 154)
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "isEndOfText", "()Z", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) != 0 { goto L105 }
+	genrt.SetLine(thr, 155)
 	s0 = l0
 	s1 = genrt.Str("Unexpected character")
 	abuf[0] = s1
@@ -11810,6 +12638,7 @@ func Catty_com_eclipsesource_json_JsonParser_parse___Ljava_io_Reader_I_V(thr ker
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 157)
 	L105:
 	return nil, nil
 	return nil, nil // unreachable terminal
@@ -11829,6 +12658,7 @@ func Catty_com_eclipsesource_json_JsonParser_readValue____V(thr kernel.OwnerKey,
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 160)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
 	if exc != nil {
@@ -11872,55 +12702,70 @@ func Catty_com_eclipsesource_json_JsonParser_readValue____V(thr kernel.OwnerKey,
 	default:
 		goto L201
 	}
+	genrt.SetLine(thr, 162)
 	L152:
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readNull", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 163)
 	goto L208
+	genrt.SetLine(thr, 165)
 	L159:
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readTrue", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 166)
 	goto L208
+	genrt.SetLine(thr, 168)
 	L166:
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readFalse", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 169)
 	goto L208
+	genrt.SetLine(thr, 171)
 	L173:
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readString", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 172)
 	goto L208
+	genrt.SetLine(thr, 174)
 	L180:
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readArray", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 175)
 	goto L208
+	genrt.SetLine(thr, 177)
 	L187:
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readObject", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 178)
 	goto L208
+	genrt.SetLine(thr, 190)
 	L194:
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readNumber", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 191)
 	goto L208
+	genrt.SetLine(thr, 193)
 	L201:
 	s0 = l0
 	s1 = genrt.Str("value")
@@ -11933,6 +12778,7 @@ func Catty_com_eclipsesource_json_JsonParser_readValue____V(thr kernel.OwnerKey,
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 195)
 	L208:
 	return nil, nil
 	return nil, nil // unreachable terminal
@@ -11952,6 +12798,7 @@ func Catty_com_eclipsesource_json_JsonParser_readArray____V(thr kernel.OwnerKey,
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 198)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
 	if exc != nil {
@@ -11962,11 +12809,13 @@ func Catty_com_eclipsesource_json_JsonParser_readArray____V(thr kernel.OwnerKey,
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 199)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 200)
 	s0 = l0
 	s1 = s0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "nestingLevel", "I")
@@ -11984,6 +12833,7 @@ func Catty_com_eclipsesource_json_JsonParser_readArray____V(thr kernel.OwnerKey,
 	}
 	s1 = int32(1000)
 	if s0.(int32) <= s1.(int32) { goto L36 }
+	genrt.SetLine(thr, 201)
 	s0 = l0
 	s1 = genrt.Str("Nesting too deep")
 	abuf[0] = s1
@@ -11995,12 +12845,14 @@ func Catty_com_eclipsesource_json_JsonParser_readArray____V(thr kernel.OwnerKey,
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 203)
 	L36:
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "skipWhiteSpace", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 204)
 	s0 = l0
 	s1 = int32(93)
 	abuf[0] = s1
@@ -12009,6 +12861,7 @@ func Catty_com_eclipsesource_json_JsonParser_readArray____V(thr kernel.OwnerKey,
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) == 0 { goto L68 }
+	genrt.SetLine(thr, 205)
 	s0 = l0
 	s1 = s0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "nestingLevel", "I")
@@ -12021,6 +12874,7 @@ func Catty_com_eclipsesource_json_JsonParser_readArray____V(thr kernel.OwnerKey,
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 206)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
 	if exc != nil {
@@ -12032,13 +12886,16 @@ func Catty_com_eclipsesource_json_JsonParser_readArray____V(thr kernel.OwnerKey,
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 207)
 	return nil, nil
+	genrt.SetLine(thr, 210)
 	L68:
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "skipWhiteSpace", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 211)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
 	if exc != nil {
@@ -12050,11 +12907,13 @@ func Catty_com_eclipsesource_json_JsonParser_readArray____V(thr kernel.OwnerKey,
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 212)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readValue", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 213)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
 	if exc != nil {
@@ -12066,11 +12925,13 @@ func Catty_com_eclipsesource_json_JsonParser_readArray____V(thr kernel.OwnerKey,
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 214)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "skipWhiteSpace", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 215)
 	s0 = l0
 	s1 = int32(44)
 	abuf[0] = s1
@@ -12079,6 +12940,7 @@ func Catty_com_eclipsesource_json_JsonParser_readArray____V(thr kernel.OwnerKey,
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) != 0 { goto L68 }
+	genrt.SetLine(thr, 216)
 	s0 = l0
 	s1 = int32(93)
 	abuf[0] = s1
@@ -12087,6 +12949,7 @@ func Catty_com_eclipsesource_json_JsonParser_readArray____V(thr kernel.OwnerKey,
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) != 0 { goto L121 }
+	genrt.SetLine(thr, 217)
 	s0 = l0
 	s1 = genrt.Str("',' or ']'")
 	abuf[0] = s1
@@ -12098,6 +12961,7 @@ func Catty_com_eclipsesource_json_JsonParser_readArray____V(thr kernel.OwnerKey,
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 219)
 	L121:
 	s0 = l0
 	s1 = s0
@@ -12111,6 +12975,7 @@ func Catty_com_eclipsesource_json_JsonParser_readArray____V(thr kernel.OwnerKey,
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 220)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
 	if exc != nil {
@@ -12122,6 +12987,7 @@ func Catty_com_eclipsesource_json_JsonParser_readArray____V(thr kernel.OwnerKey,
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 221)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -12140,6 +13006,7 @@ func Catty_com_eclipsesource_json_JsonParser_readObject____V(thr kernel.OwnerKey
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 224)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
 	if exc != nil {
@@ -12150,11 +13017,13 @@ func Catty_com_eclipsesource_json_JsonParser_readObject____V(thr kernel.OwnerKey
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 225)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 226)
 	s0 = l0
 	s1 = s0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "nestingLevel", "I")
@@ -12172,6 +13041,7 @@ func Catty_com_eclipsesource_json_JsonParser_readObject____V(thr kernel.OwnerKey
 	}
 	s1 = int32(1000)
 	if s0.(int32) <= s1.(int32) { goto L36 }
+	genrt.SetLine(thr, 227)
 	s0 = l0
 	s1 = genrt.Str("Nesting too deep")
 	abuf[0] = s1
@@ -12183,12 +13053,14 @@ func Catty_com_eclipsesource_json_JsonParser_readObject____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 229)
 	L36:
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "skipWhiteSpace", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 230)
 	s0 = l0
 	s1 = int32(125)
 	abuf[0] = s1
@@ -12197,6 +13069,7 @@ func Catty_com_eclipsesource_json_JsonParser_readObject____V(thr kernel.OwnerKey
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) == 0 { goto L68 }
+	genrt.SetLine(thr, 231)
 	s0 = l0
 	s1 = s0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "nestingLevel", "I")
@@ -12209,6 +13082,7 @@ func Catty_com_eclipsesource_json_JsonParser_readObject____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 232)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
 	if exc != nil {
@@ -12220,13 +13094,16 @@ func Catty_com_eclipsesource_json_JsonParser_readObject____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 233)
 	return nil, nil
+	genrt.SetLine(thr, 236)
 	L68:
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "skipWhiteSpace", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 237)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
 	if exc != nil {
@@ -12238,12 +13115,14 @@ func Catty_com_eclipsesource_json_JsonParser_readObject____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 238)
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readName", "()Ljava/lang/String;", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 239)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
 	if exc != nil {
@@ -12257,11 +13136,13 @@ func Catty_com_eclipsesource_json_JsonParser_readObject____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 240)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "skipWhiteSpace", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 241)
 	s0 = l0
 	s1 = int32(58)
 	abuf[0] = s1
@@ -12270,6 +13151,7 @@ func Catty_com_eclipsesource_json_JsonParser_readObject____V(thr kernel.OwnerKey
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) != 0 { goto L114 }
+	genrt.SetLine(thr, 242)
 	s0 = l0
 	s1 = genrt.Str("':'")
 	abuf[0] = s1
@@ -12281,12 +13163,14 @@ func Catty_com_eclipsesource_json_JsonParser_readObject____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 244)
 	L114:
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "skipWhiteSpace", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 245)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
 	if exc != nil {
@@ -12300,11 +13184,13 @@ func Catty_com_eclipsesource_json_JsonParser_readObject____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 246)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readValue", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 247)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
 	if exc != nil {
@@ -12318,11 +13204,13 @@ func Catty_com_eclipsesource_json_JsonParser_readObject____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 248)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "skipWhiteSpace", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 249)
 	s0 = l0
 	s1 = int32(44)
 	abuf[0] = s1
@@ -12331,6 +13219,7 @@ func Catty_com_eclipsesource_json_JsonParser_readObject____V(thr kernel.OwnerKey
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) != 0 { goto L68 }
+	genrt.SetLine(thr, 250)
 	s0 = l0
 	s1 = int32(125)
 	abuf[0] = s1
@@ -12339,6 +13228,7 @@ func Catty_com_eclipsesource_json_JsonParser_readObject____V(thr kernel.OwnerKey
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) != 0 { goto L169 }
+	genrt.SetLine(thr, 251)
 	s0 = l0
 	s1 = genrt.Str("',' or '}'")
 	abuf[0] = s1
@@ -12350,6 +13240,7 @@ func Catty_com_eclipsesource_json_JsonParser_readObject____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 253)
 	L169:
 	s0 = l0
 	s1 = s0
@@ -12363,6 +13254,7 @@ func Catty_com_eclipsesource_json_JsonParser_readObject____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 254)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
 	if exc != nil {
@@ -12374,6 +13266,7 @@ func Catty_com_eclipsesource_json_JsonParser_readObject____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 255)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -12392,6 +13285,7 @@ func Catty_com_eclipsesource_json_JsonParser_readName____Ljava_lang_String_(thr 
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 258)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
 	if exc != nil {
@@ -12399,6 +13293,7 @@ func Catty_com_eclipsesource_json_JsonParser_readName____Ljava_lang_String_(thr 
 	}
 	s1 = int32(34)
 	if s0.(int32) == s1.(int32) { goto L16 }
+	genrt.SetLine(thr, 259)
 	s0 = l0
 	s1 = genrt.Str("name")
 	abuf[0] = s1
@@ -12410,6 +13305,7 @@ func Catty_com_eclipsesource_json_JsonParser_readName____Ljava_lang_String_(thr 
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 261)
 	L16:
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readStringInternal", "()Ljava/lang/String;", abuf[:0])
@@ -12434,6 +13330,7 @@ func Catty_com_eclipsesource_json_JsonParser_readNull____V(thr kernel.OwnerKey, 
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 265)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
 	if exc != nil {
@@ -12443,11 +13340,13 @@ func Catty_com_eclipsesource_json_JsonParser_readNull____V(thr kernel.OwnerKey, 
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 266)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 267)
 	s0 = l0
 	s1 = int32(117)
 	abuf[0] = s1
@@ -12455,6 +13354,7 @@ func Catty_com_eclipsesource_json_JsonParser_readNull____V(thr kernel.OwnerKey, 
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 268)
 	s0 = l0
 	s1 = int32(108)
 	abuf[0] = s1
@@ -12462,6 +13362,7 @@ func Catty_com_eclipsesource_json_JsonParser_readNull____V(thr kernel.OwnerKey, 
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 269)
 	s0 = l0
 	s1 = int32(108)
 	abuf[0] = s1
@@ -12469,6 +13370,7 @@ func Catty_com_eclipsesource_json_JsonParser_readNull____V(thr kernel.OwnerKey, 
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 270)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
 	if exc != nil {
@@ -12478,6 +13380,7 @@ func Catty_com_eclipsesource_json_JsonParser_readNull____V(thr kernel.OwnerKey, 
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 271)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -12496,6 +13399,7 @@ func Catty_com_eclipsesource_json_JsonParser_readTrue____V(thr kernel.OwnerKey, 
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 274)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
 	if exc != nil {
@@ -12505,11 +13409,13 @@ func Catty_com_eclipsesource_json_JsonParser_readTrue____V(thr kernel.OwnerKey, 
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 275)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 276)
 	s0 = l0
 	s1 = int32(114)
 	abuf[0] = s1
@@ -12517,6 +13423,7 @@ func Catty_com_eclipsesource_json_JsonParser_readTrue____V(thr kernel.OwnerKey, 
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 277)
 	s0 = l0
 	s1 = int32(117)
 	abuf[0] = s1
@@ -12524,6 +13431,7 @@ func Catty_com_eclipsesource_json_JsonParser_readTrue____V(thr kernel.OwnerKey, 
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 278)
 	s0 = l0
 	s1 = int32(101)
 	abuf[0] = s1
@@ -12531,6 +13439,7 @@ func Catty_com_eclipsesource_json_JsonParser_readTrue____V(thr kernel.OwnerKey, 
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 279)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
 	if exc != nil {
@@ -12542,6 +13451,7 @@ func Catty_com_eclipsesource_json_JsonParser_readTrue____V(thr kernel.OwnerKey, 
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 280)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -12560,6 +13470,7 @@ func Catty_com_eclipsesource_json_JsonParser_readFalse____V(thr kernel.OwnerKey,
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 283)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
 	if exc != nil {
@@ -12569,11 +13480,13 @@ func Catty_com_eclipsesource_json_JsonParser_readFalse____V(thr kernel.OwnerKey,
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 284)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 285)
 	s0 = l0
 	s1 = int32(97)
 	abuf[0] = s1
@@ -12581,6 +13494,7 @@ func Catty_com_eclipsesource_json_JsonParser_readFalse____V(thr kernel.OwnerKey,
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 286)
 	s0 = l0
 	s1 = int32(108)
 	abuf[0] = s1
@@ -12588,6 +13502,7 @@ func Catty_com_eclipsesource_json_JsonParser_readFalse____V(thr kernel.OwnerKey,
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 287)
 	s0 = l0
 	s1 = int32(115)
 	abuf[0] = s1
@@ -12595,6 +13510,7 @@ func Catty_com_eclipsesource_json_JsonParser_readFalse____V(thr kernel.OwnerKey,
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 288)
 	s0 = l0
 	s1 = int32(101)
 	abuf[0] = s1
@@ -12602,6 +13518,7 @@ func Catty_com_eclipsesource_json_JsonParser_readFalse____V(thr kernel.OwnerKey,
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 289)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
 	if exc != nil {
@@ -12613,6 +13530,7 @@ func Catty_com_eclipsesource_json_JsonParser_readFalse____V(thr kernel.OwnerKey,
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 290)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -12635,6 +13553,7 @@ func Catty_com_eclipsesource_json_JsonParser_readRequiredChar___C_V(thr kernel.O
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 293)
 	s0 = l0
 	s1 = l1
 	abuf[0] = s1
@@ -12643,6 +13562,7 @@ func Catty_com_eclipsesource_json_JsonParser_readRequiredChar___C_V(thr kernel.O
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) != 0 { goto L37 }
+	genrt.SetLine(thr, 294)
 	s0 = l0
 	// sb-fold [9..32]
 	_sb9 = ""
@@ -12659,6 +13579,7 @@ func Catty_com_eclipsesource_json_JsonParser_readRequiredChar___C_V(thr kernel.O
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 296)
 	L37:
 	return nil, nil
 	return nil, nil // unreachable terminal
@@ -12678,6 +13599,7 @@ func Catty_com_eclipsesource_json_JsonParser_readString____V(thr kernel.OwnerKey
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 299)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
 	if exc != nil {
@@ -12687,6 +13609,7 @@ func Catty_com_eclipsesource_json_JsonParser_readString____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 300)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
 	if exc != nil {
@@ -12702,6 +13625,7 @@ func Catty_com_eclipsesource_json_JsonParser_readString____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 301)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -12720,16 +13644,19 @@ func Catty_com_eclipsesource_json_JsonParser_readStringInternal____Ljava_lang_St
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 304)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 305)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "startCapture", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 306)
 	L8:
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
@@ -12738,6 +13665,7 @@ func Catty_com_eclipsesource_json_JsonParser_readStringInternal____Ljava_lang_St
 	}
 	s1 = int32(34)
 	if s0.(int32) == s1.(int32) { goto L64 }
+	genrt.SetLine(thr, 307)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
 	if exc != nil {
@@ -12745,22 +13673,26 @@ func Catty_com_eclipsesource_json_JsonParser_readStringInternal____Ljava_lang_St
 	}
 	s1 = int32(92)
 	if s0.(int32) != s1.(int32) { goto L41 }
+	genrt.SetLine(thr, 308)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "pauseCapture", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 309)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readEscape", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 310)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "startCapture", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	goto L8
+	genrt.SetLine(thr, 311)
 	L41:
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
@@ -12769,6 +13701,7 @@ func Catty_com_eclipsesource_json_JsonParser_readStringInternal____Ljava_lang_St
 	}
 	s1 = int32(32)
 	if s0.(int32) >= s1.(int32) { goto L57 }
+	genrt.SetLine(thr, 312)
 	s0 = l0
 	s1 = genrt.Str("valid string character")
 	abuf[0] = s1
@@ -12780,6 +13713,7 @@ func Catty_com_eclipsesource_json_JsonParser_readStringInternal____Ljava_lang_St
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 314)
 	L57:
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", abuf[:0])
@@ -12787,6 +13721,7 @@ func Catty_com_eclipsesource_json_JsonParser_readStringInternal____Ljava_lang_St
 		return nil, exc // no handler matched
 	}
 	goto L8
+	genrt.SetLine(thr, 317)
 	L64:
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "endCapture", "()Ljava/lang/String;", abuf[:0])
@@ -12794,11 +13729,13 @@ func Catty_com_eclipsesource_json_JsonParser_readStringInternal____Ljava_lang_St
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 318)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 319)
 	s0 = l1
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -12818,11 +13755,13 @@ func Catty_com_eclipsesource_json_JsonParser_readEscape____V(thr kernel.OwnerKey
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 323)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 324)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
 	if exc != nil {
@@ -12850,6 +13789,7 @@ func Catty_com_eclipsesource_json_JsonParser_readEscape____V(thr kernel.OwnerKey
 	default:
 		goto L241
 	}
+	genrt.SetLine(thr, 328)
 	L92:
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
@@ -12867,7 +13807,9 @@ func Catty_com_eclipsesource_json_JsonParser_readEscape____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 329)
 	goto L249
+	genrt.SetLine(thr, 331)
 	L108:
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
@@ -12880,7 +13822,9 @@ func Catty_com_eclipsesource_json_JsonParser_readEscape____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 332)
 	goto L249
+	genrt.SetLine(thr, 334)
 	L121:
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
@@ -12893,7 +13837,9 @@ func Catty_com_eclipsesource_json_JsonParser_readEscape____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 335)
 	goto L249
+	genrt.SetLine(thr, 337)
 	L134:
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
@@ -12906,7 +13852,9 @@ func Catty_com_eclipsesource_json_JsonParser_readEscape____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 338)
 	goto L249
+	genrt.SetLine(thr, 340)
 	L147:
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
@@ -12919,7 +13867,9 @@ func Catty_com_eclipsesource_json_JsonParser_readEscape____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 341)
 	goto L249
+	genrt.SetLine(thr, 343)
 	L160:
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
@@ -12932,7 +13882,9 @@ func Catty_com_eclipsesource_json_JsonParser_readEscape____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 344)
 	goto L249
+	genrt.SetLine(thr, 346)
 	L173:
 	s0 = int32(4)
 	s0, exc = genrt.NewPrimitiveArray(thr, "C", s0.(int32))
@@ -12940,23 +13892,27 @@ func Catty_com_eclipsesource_json_JsonParser_readEscape____V(thr kernel.OwnerKey
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 347)
 	s0 = int32(0)
 	l2 = s0
 	L179:
 	s0 = l2
 	s1 = int32(4)
 	if s0.(int32) >= s1.(int32) { goto L216 }
+	genrt.SetLine(thr, 348)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 349)
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "isHexDigit", "()Z", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) != 0 { goto L202 }
+	genrt.SetLine(thr, 350)
 	s0 = l0
 	s1 = genrt.Str("hexadecimal digit")
 	abuf[0] = s1
@@ -12968,6 +13924,7 @@ func Catty_com_eclipsesource_json_JsonParser_readEscape____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 352)
 	L202:
 	s0 = l1
 	s1 = l2
@@ -12981,8 +13938,10 @@ func Catty_com_eclipsesource_json_JsonParser_readEscape____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 347)
 	l2 = l2.(int32) + 1
 	goto L179
+	genrt.SetLine(thr, 354)
 	L216:
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
@@ -13010,7 +13969,9 @@ func Catty_com_eclipsesource_json_JsonParser_readEscape____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 355)
 	goto L249
+	genrt.SetLine(thr, 357)
 	L241:
 	s0 = l0
 	s1 = genrt.Str("valid escape sequence")
@@ -13023,12 +13984,14 @@ func Catty_com_eclipsesource_json_JsonParser_readEscape____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 359)
 	L249:
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 360)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -13047,6 +14010,7 @@ func Catty_com_eclipsesource_json_JsonParser_readNumber____V(thr kernel.OwnerKey
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 363)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
 	if exc != nil {
@@ -13056,11 +14020,13 @@ func Catty_com_eclipsesource_json_JsonParser_readNumber____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 364)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "startCapture", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 365)
 	s0 = l0
 	s1 = int32(45)
 	abuf[0] = s1
@@ -13068,18 +14034,21 @@ func Catty_com_eclipsesource_json_JsonParser_readNumber____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 366)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 367)
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readDigit", "()Z", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) != 0 { goto L38 }
+	genrt.SetLine(thr, 368)
 	s0 = l0
 	s1 = genrt.Str("digit")
 	abuf[0] = s1
@@ -13091,10 +14060,12 @@ func Catty_com_eclipsesource_json_JsonParser_readNumber____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 370)
 	L38:
 	s0 = l1
 	s1 = int32(48)
 	if s0.(int32) == s1.(int32) { goto L54 }
+	genrt.SetLine(thr, 371)
 	L44:
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readDigit", "()Z", abuf[:0])
@@ -13103,17 +14074,20 @@ func Catty_com_eclipsesource_json_JsonParser_readNumber____V(thr kernel.OwnerKey
 	}
 	if s0.(int32) == 0 { goto L54 }
 	goto L44
+	genrt.SetLine(thr, 374)
 	L54:
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readFraction", "()Z", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 375)
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readExponent", "()Z", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 376)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "handler", "Lcom/eclipsesource/json/JsonHandler;")
 	if exc != nil {
@@ -13129,6 +14103,7 @@ func Catty_com_eclipsesource_json_JsonParser_readNumber____V(thr kernel.OwnerKey
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 377)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -13147,6 +14122,7 @@ func Catty_com_eclipsesource_json_JsonParser_readFraction____Z(thr kernel.OwnerK
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 380)
 	s0 = l0
 	s1 = int32(46)
 	abuf[0] = s1
@@ -13155,8 +14131,10 @@ func Catty_com_eclipsesource_json_JsonParser_readFraction____Z(thr kernel.OwnerK
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) != 0 { goto L11 }
+	genrt.SetLine(thr, 381)
 	s0 = int32(0)
 	return s0, nil
+	genrt.SetLine(thr, 383)
 	L11:
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readDigit", "()Z", abuf[:0])
@@ -13164,6 +14142,7 @@ func Catty_com_eclipsesource_json_JsonParser_readFraction____Z(thr kernel.OwnerK
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) != 0 { goto L26 }
+	genrt.SetLine(thr, 384)
 	s0 = l0
 	s1 = genrt.Str("digit")
 	abuf[0] = s1
@@ -13175,6 +14154,7 @@ func Catty_com_eclipsesource_json_JsonParser_readFraction____Z(thr kernel.OwnerK
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 386)
 	L26:
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readDigit", "()Z", abuf[:0])
@@ -13183,6 +14163,7 @@ func Catty_com_eclipsesource_json_JsonParser_readFraction____Z(thr kernel.OwnerK
 	}
 	if s0.(int32) == 0 { goto L36 }
 	goto L26
+	genrt.SetLine(thr, 388)
 	L36:
 	s0 = int32(1)
 	return s0, nil
@@ -13203,6 +14184,7 @@ func Catty_com_eclipsesource_json_JsonParser_readExponent____Z(thr kernel.OwnerK
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 392)
 	s0 = l0
 	s1 = int32(101)
 	abuf[0] = s1
@@ -13219,8 +14201,10 @@ func Catty_com_eclipsesource_json_JsonParser_readExponent____Z(thr kernel.OwnerK
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) != 0 { goto L20 }
+	genrt.SetLine(thr, 393)
 	s0 = int32(0)
 	return s0, nil
+	genrt.SetLine(thr, 395)
 	L20:
 	s0 = l0
 	s1 = int32(43)
@@ -13230,6 +14214,7 @@ func Catty_com_eclipsesource_json_JsonParser_readExponent____Z(thr kernel.OwnerK
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) != 0 { goto L36 }
+	genrt.SetLine(thr, 396)
 	s0 = l0
 	s1 = int32(45)
 	abuf[0] = s1
@@ -13237,6 +14222,7 @@ func Catty_com_eclipsesource_json_JsonParser_readExponent____Z(thr kernel.OwnerK
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 398)
 	L36:
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readDigit", "()Z", abuf[:0])
@@ -13244,6 +14230,7 @@ func Catty_com_eclipsesource_json_JsonParser_readExponent____Z(thr kernel.OwnerK
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) != 0 { goto L51 }
+	genrt.SetLine(thr, 399)
 	s0 = l0
 	s1 = genrt.Str("digit")
 	abuf[0] = s1
@@ -13255,6 +14242,7 @@ func Catty_com_eclipsesource_json_JsonParser_readExponent____Z(thr kernel.OwnerK
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 401)
 	L51:
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "readDigit", "()Z", abuf[:0])
@@ -13263,6 +14251,7 @@ func Catty_com_eclipsesource_json_JsonParser_readExponent____Z(thr kernel.OwnerK
 	}
 	if s0.(int32) == 0 { goto L61 }
 	goto L51
+	genrt.SetLine(thr, 403)
 	L61:
 	s0 = int32(1)
 	return s0, nil
@@ -13283,6 +14272,7 @@ func Catty_com_eclipsesource_json_JsonParser_readChar___C_Z(thr kernel.OwnerKey,
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 407)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
 	if exc != nil {
@@ -13290,14 +14280,17 @@ func Catty_com_eclipsesource_json_JsonParser_readChar___C_Z(thr kernel.OwnerKey,
 	}
 	s1 = l1
 	if s0.(int32) == s1.(int32) { goto L10 }
+	genrt.SetLine(thr, 408)
 	s0 = int32(0)
 	return s0, nil
+	genrt.SetLine(thr, 410)
 	L10:
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 411)
 	s0 = int32(1)
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -13315,20 +14308,24 @@ func Catty_com_eclipsesource_json_JsonParser_readDigit____Z(thr kernel.OwnerKey,
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 415)
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "isDigit", "()Z", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) != 0 { goto L9 }
+	genrt.SetLine(thr, 416)
 	s0 = int32(0)
 	return s0, nil
+	genrt.SetLine(thr, 418)
 	L9:
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 419)
 	s0 = int32(1)
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -13346,6 +14343,7 @@ func Catty_com_eclipsesource_json_JsonParser_skipWhiteSpace____V(thr kernel.Owne
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 423)
 	L0:
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "isWhiteSpace", "()Z", []kernel.Value{})
@@ -13353,12 +14351,14 @@ func Catty_com_eclipsesource_json_JsonParser_skipWhiteSpace____V(thr kernel.Owne
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) == 0 { goto L14 }
+	genrt.SetLine(thr, 424)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "read", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	goto L0
+	genrt.SetLine(thr, 426)
 	L14:
 	return nil, nil
 	return nil, nil // unreachable terminal
@@ -13378,6 +14378,7 @@ func Catty_com_eclipsesource_json_JsonParser_read____V(thr kernel.OwnerKey, recv
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 429)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "index", "I")
 	if exc != nil {
@@ -13389,6 +14390,7 @@ func Catty_com_eclipsesource_json_JsonParser_read____V(thr kernel.OwnerKey, recv
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) != s1.(int32) { goto L112 }
+	genrt.SetLine(thr, 430)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "captureStart", "I")
 	if exc != nil {
@@ -13396,6 +14398,7 @@ func Catty_com_eclipsesource_json_JsonParser_read____V(thr kernel.OwnerKey, recv
 	}
 	s1 = int32(-1)
 	if s0.(int32) == s1.(int32) { goto L49 }
+	genrt.SetLine(thr, 431)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
 	if exc != nil {
@@ -13429,12 +14432,14 @@ func Catty_com_eclipsesource_json_JsonParser_read____V(thr kernel.OwnerKey, recv
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 432)
 	s0 = l0
 	s1 = int32(0)
 	exc = genrt.SetFieldChecked(thr, s0, "captureStart", "I", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 434)
 	L49:
 	s0 = l0
 	s1 = s0
@@ -13452,6 +14457,7 @@ func Catty_com_eclipsesource_json_JsonParser_read____V(thr kernel.OwnerKey, recv
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 435)
 	s0 = l0
 	s1 = l0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "reader", "Ljava/io/Reader;")
@@ -13484,12 +14490,14 @@ func Catty_com_eclipsesource_json_JsonParser_read____V(thr kernel.OwnerKey, recv
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 436)
 	s0 = l0
 	s1 = int32(0)
 	exc = genrt.SetFieldChecked(thr, s0, "index", "I", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 437)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "fill", "I")
 	if exc != nil {
@@ -13497,12 +14505,14 @@ func Catty_com_eclipsesource_json_JsonParser_read____V(thr kernel.OwnerKey, recv
 	}
 	s1 = int32(-1)
 	if s0.(int32) != s1.(int32) { goto L112 }
+	genrt.SetLine(thr, 438)
 	s0 = l0
 	s1 = int32(-1)
 	exc = genrt.SetFieldChecked(thr, s0, "current", "I", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 439)
 	s0 = l0
 	s1 = s0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "index", "I")
@@ -13515,7 +14525,9 @@ func Catty_com_eclipsesource_json_JsonParser_read____V(thr kernel.OwnerKey, recv
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 440)
 	return nil, nil
+	genrt.SetLine(thr, 443)
 	L112:
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
@@ -13524,6 +14536,7 @@ func Catty_com_eclipsesource_json_JsonParser_read____V(thr kernel.OwnerKey, recv
 	}
 	s1 = int32(10)
 	if s0.(int32) != s1.(int32) { goto L144 }
+	genrt.SetLine(thr, 444)
 	s0 = l0
 	s1 = s0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "line", "I")
@@ -13536,6 +14549,7 @@ func Catty_com_eclipsesource_json_JsonParser_read____V(thr kernel.OwnerKey, recv
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 445)
 	s0 = l0
 	s1 = l0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "bufferOffset", "I")
@@ -13552,6 +14566,7 @@ func Catty_com_eclipsesource_json_JsonParser_read____V(thr kernel.OwnerKey, recv
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 447)
 	L144:
 	s0 = l0
 	s1 = l0
@@ -13583,6 +14598,7 @@ func Catty_com_eclipsesource_json_JsonParser_read____V(thr kernel.OwnerKey, recv
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 448)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -13599,12 +14615,14 @@ func Catty_com_eclipsesource_json_JsonParser_startCapture____V(thr kernel.OwnerK
 	_ = []kernel.Value{s0, s1, s2, s3}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 451)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	if (s0 == nil) == false { goto L18 }
+	genrt.SetLine(thr, 452)
 	s0 = l0
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -13616,6 +14634,7 @@ func Catty_com_eclipsesource_json_JsonParser_startCapture____V(thr kernel.OwnerK
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 454)
 	L18:
 	s0 = l0
 	s1 = l0
@@ -13629,6 +14648,7 @@ func Catty_com_eclipsesource_json_JsonParser_startCapture____V(thr kernel.OwnerK
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 455)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -13647,6 +14667,7 @@ func Catty_com_eclipsesource_json_JsonParser_pauseCapture____V(thr kernel.OwnerK
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 458)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
 	if exc != nil {
@@ -13670,6 +14691,7 @@ func Catty_com_eclipsesource_json_JsonParser_pauseCapture____V(thr kernel.OwnerK
 	s0 = (s0.(int32)) - (s1.(int32))
 	L21:
 	l1 = s0
+	genrt.SetLine(thr, 459)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
 	if exc != nil {
@@ -13699,12 +14721,14 @@ func Catty_com_eclipsesource_json_JsonParser_pauseCapture____V(thr kernel.OwnerK
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 460)
 	s0 = l0
 	s1 = int32(-1)
 	exc = genrt.SetFieldChecked(thr, s0, "captureStart", "I", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 461)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -13723,12 +14747,14 @@ func Catty_com_eclipsesource_json_JsonParser_endCapture____Ljava_lang_String_(th
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 464)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "captureStart", "I")
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 465)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "index", "I")
 	if exc != nil {
@@ -13737,12 +14763,14 @@ func Catty_com_eclipsesource_json_JsonParser_endCapture____Ljava_lang_String_(th
 	s1 = int32(1)
 	s0 = (s0.(int32)) - (s1.(int32))
 	l2 = s0
+	genrt.SetLine(thr, 466)
 	s0 = l0
 	s1 = int32(-1)
 	exc = genrt.SetFieldChecked(thr, s0, "captureStart", "I", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 467)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
 	if exc != nil {
@@ -13753,6 +14781,7 @@ func Catty_com_eclipsesource_json_JsonParser_endCapture____Ljava_lang_String_(th
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) <= 0 { goto L61 }
+	genrt.SetLine(thr, 468)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
 	if exc != nil {
@@ -13774,6 +14803,7 @@ func Catty_com_eclipsesource_json_JsonParser_endCapture____Ljava_lang_String_(th
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 469)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
 	if exc != nil {
@@ -13784,6 +14814,7 @@ func Catty_com_eclipsesource_json_JsonParser_endCapture____Ljava_lang_String_(th
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 470)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "captureBuffer", "Ljava/lang/StringBuilder;")
 	if exc != nil {
@@ -13795,8 +14826,10 @@ func Catty_com_eclipsesource_json_JsonParser_endCapture____Ljava_lang_String_(th
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 471)
 	s0 = l3
 	return s0, nil
+	genrt.SetLine(thr, 473)
 	L61:
 	s0 = genrt.New(thr, "java/lang/String")
 	s1 = s0
@@ -13834,6 +14867,7 @@ func Catty_com_eclipsesource_json_JsonParser_getLocation____Lcom_eclipsesource_j
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 477)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "bufferOffset", "I")
 	if exc != nil {
@@ -13848,6 +14882,7 @@ func Catty_com_eclipsesource_json_JsonParser_getLocation____Lcom_eclipsesource_j
 	s1 = int32(1)
 	s0 = (s0.(int32)) - (s1.(int32))
 	l1 = s0
+	genrt.SetLine(thr, 478)
 	s0 = l1
 	s1 = l0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "lineOffset", "I")
@@ -13858,6 +14893,7 @@ func Catty_com_eclipsesource_json_JsonParser_getLocation____Lcom_eclipsesource_j
 	s1 = int32(1)
 	s0 = (s0.(int32)) + (s1.(int32))
 	l2 = s0
+	genrt.SetLine(thr, 479)
 	s0 = genrt.New(thr, "com/eclipsesource/json/Location")
 	s1 = s0
 	s2 = l1
@@ -13896,12 +14932,14 @@ func Catty_com_eclipsesource_json_JsonParser_expected___Ljava_lang_String__Lcom_
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 483)
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonParser", "isEndOfText", "()Z", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) == 0 { goto L15 }
+	genrt.SetLine(thr, 484)
 	s0 = l0
 	s1 = genrt.Str("Unexpected end of input")
 	abuf[0] = s1
@@ -13910,6 +14948,7 @@ func Catty_com_eclipsesource_json_JsonParser_expected___Ljava_lang_String__Lcom_
 		return nil, exc // no handler matched
 	}
 	return s0, nil
+	genrt.SetLine(thr, 486)
 	L15:
 	s0 = l0
 	// sb-fold [16..35]
@@ -13942,6 +14981,7 @@ func Catty_com_eclipsesource_json_JsonParser_error___Ljava_lang_String__Lcom_ecl
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 490)
 	s0 = genrt.New(thr, "com/eclipsesource/json/ParseException")
 	s1 = s0
 	s2 = l1
@@ -13972,6 +15012,7 @@ func Catty_com_eclipsesource_json_JsonParser_isWhiteSpace____Z(thr kernel.OwnerK
 	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 494)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
 	if exc != nil {
@@ -14022,6 +15063,7 @@ func Catty_com_eclipsesource_json_JsonParser_isDigit____Z(thr kernel.OwnerKey, r
 	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 498)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
 	if exc != nil {
@@ -14057,6 +15099,7 @@ func Catty_com_eclipsesource_json_JsonParser_isHexDigit____Z(thr kernel.OwnerKey
 	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 502)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
 	if exc != nil {
@@ -14123,6 +15166,7 @@ func Catty_com_eclipsesource_json_JsonParser_isEndOfText____Z(thr kernel.OwnerKe
 	_ = []kernel.Value{s0, s1, s2}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 508)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "current", "I")
 	if exc != nil {
@@ -14155,13 +15199,16 @@ func Catty_com_eclipsesource_json_JsonString_init___Ljava_lang_String__V(thr ker
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 32)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/JsonValue", "<init>", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 33)
 	s0 = l1
 	if (s0 == nil) == false { goto L18 }
+	genrt.SetLine(thr, 34)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("string is null")
@@ -14174,6 +15221,7 @@ func Catty_com_eclipsesource_json_JsonString_init___Ljava_lang_String__V(thr ker
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 36)
 	L18:
 	s0 = l0
 	s1 = l1
@@ -14181,6 +15229,7 @@ func Catty_com_eclipsesource_json_JsonString_init___Ljava_lang_String__V(thr ker
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 37)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -14201,6 +15250,7 @@ func Catty_com_eclipsesource_json_JsonString_write___Lcom_eclipsesource_json_Jso
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 41)
 	s0 = l1
 	s1 = l0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "string", "Ljava/lang/String;")
@@ -14212,6 +15262,7 @@ func Catty_com_eclipsesource_json_JsonString_write___Lcom_eclipsesource_json_Jso
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 42)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -14228,6 +15279,7 @@ func Catty_com_eclipsesource_json_JsonString_isString____Z(thr kernel.OwnerKey, 
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 46)
 	s0 = int32(1)
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -14245,6 +15297,7 @@ func Catty_com_eclipsesource_json_JsonString_asString____Ljava_lang_String_(thr 
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 51)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "string", "Ljava/lang/String;")
 	if exc != nil {
@@ -14266,6 +15319,7 @@ func Catty_com_eclipsesource_json_JsonString_hashCode____I(thr kernel.OwnerKey, 
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 56)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "string", "Ljava/lang/String;")
 	if exc != nil {
@@ -14295,16 +15349,21 @@ func Catty_com_eclipsesource_json_JsonString_equals___Ljava_lang_Object__Z(thr k
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 61)
 	s0 = l0
 	s1 = l1
 	if !genrt.RefEq(s0, s1) { goto L7 }
+	genrt.SetLine(thr, 62)
 	s0 = int32(1)
 	return s0, nil
+	genrt.SetLine(thr, 64)
 	L7:
 	s0 = l1
 	if (s0 == nil) == false { goto L13 }
+	genrt.SetLine(thr, 65)
 	s0 = int32(0)
 	return s0, nil
+	genrt.SetLine(thr, 67)
 	L13:
 	s0 = l0
 	s0, exc = genrt.CallVirtualIC(326, thr, s0, "java/lang/Object", "getClass", "()Ljava/lang/Class;", abuf[:0])
@@ -14317,8 +15376,10 @@ func Catty_com_eclipsesource_json_JsonString_equals___Ljava_lang_Object__Z(thr k
 		return nil, exc // no handler matched
 	}
 	if genrt.RefEq(s0, s1) { goto L26 }
+	genrt.SetLine(thr, 68)
 	s0 = int32(0)
 	return s0, nil
+	genrt.SetLine(thr, 70)
 	L26:
 	s0 = l1
 	s0 = genrt.CheckCast(thr, s0, "com/eclipsesource/json/JsonString")
@@ -14326,6 +15387,7 @@ func Catty_com_eclipsesource_json_JsonString_equals___Ljava_lang_Object__Z(thr k
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 71)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "string", "Ljava/lang/String;")
 	if exc != nil {
@@ -14357,11 +15419,13 @@ func Catty_com_eclipsesource_json_JsonValue_init____V(thr kernel.OwnerKey, recv 
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 87)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 89)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -14380,6 +15444,7 @@ func Catty_com_eclipsesource_json_JsonValue_readFrom___Ljava_io_Reader__Lcom_ecl
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 110)
 	s0 = l0
 	abuf[0] = s0
 	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "parse", "(Ljava/io/Reader;)Lcom/eclipsesource/json/JsonValue;", abuf[:1])
@@ -14404,6 +15469,7 @@ func Catty_com_eclipsesource_json_JsonValue_readFrom___Ljava_lang_String__Lcom_e
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 125)
 	s0 = l0
 	abuf[0] = s0
 	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "parse", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", abuf[:1])
@@ -14428,6 +15494,7 @@ func Catty_com_eclipsesource_json_JsonValue_valueOf___I_Lcom_eclipsesource_json_
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 138)
 	s0 = l0
 	abuf[0] = s0
 	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(I)Lcom/eclipsesource/json/JsonValue;", abuf[:1])
@@ -14452,6 +15519,7 @@ func Catty_com_eclipsesource_json_JsonValue_valueOf___J_Lcom_eclipsesource_json_
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 151)
 	s0 = l0
 	abuf[0] = s0
 	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(J)Lcom/eclipsesource/json/JsonValue;", abuf[:1])
@@ -14476,6 +15544,7 @@ func Catty_com_eclipsesource_json_JsonValue_valueOf___F_Lcom_eclipsesource_json_
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 164)
 	s0 = l0
 	abuf[0] = s0
 	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(F)Lcom/eclipsesource/json/JsonValue;", abuf[:1])
@@ -14500,6 +15569,7 @@ func Catty_com_eclipsesource_json_JsonValue_valueOf___D_Lcom_eclipsesource_json_
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 177)
 	s0 = l0
 	abuf[0] = s0
 	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(D)Lcom/eclipsesource/json/JsonValue;", abuf[:1])
@@ -14524,6 +15594,7 @@ func Catty_com_eclipsesource_json_JsonValue_valueOf___Ljava_lang_String__Lcom_ec
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 190)
 	s0 = l0
 	abuf[0] = s0
 	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", abuf[:1])
@@ -14548,6 +15619,7 @@ func Catty_com_eclipsesource_json_JsonValue_valueOf___Z_Lcom_eclipsesource_json_
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 203)
 	s0 = l0
 	abuf[0] = s0
 	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "value", "(Z)Lcom/eclipsesource/json/JsonValue;", abuf[:1])
@@ -14570,6 +15642,7 @@ func Catty_com_eclipsesource_json_JsonValue_isObject____Z(thr kernel.OwnerKey, r
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 213)
 	s0 = int32(0)
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -14587,6 +15660,7 @@ func Catty_com_eclipsesource_json_JsonValue_isArray____Z(thr kernel.OwnerKey, re
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 223)
 	s0 = int32(0)
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -14604,6 +15678,7 @@ func Catty_com_eclipsesource_json_JsonValue_isNumber____Z(thr kernel.OwnerKey, r
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 232)
 	s0 = int32(0)
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -14621,6 +15696,7 @@ func Catty_com_eclipsesource_json_JsonValue_isString____Z(thr kernel.OwnerKey, r
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 241)
 	s0 = int32(0)
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -14638,6 +15714,7 @@ func Catty_com_eclipsesource_json_JsonValue_isBoolean____Z(thr kernel.OwnerKey, 
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 251)
 	s0 = int32(0)
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -14655,6 +15732,7 @@ func Catty_com_eclipsesource_json_JsonValue_isTrue____Z(thr kernel.OwnerKey, rec
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 260)
 	s0 = int32(0)
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -14672,6 +15750,7 @@ func Catty_com_eclipsesource_json_JsonValue_isFalse____Z(thr kernel.OwnerKey, re
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 269)
 	s0 = int32(0)
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -14689,6 +15768,7 @@ func Catty_com_eclipsesource_json_JsonValue_isNull____Z(thr kernel.OwnerKey, rec
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 278)
 	s0 = int32(0)
 	return s0, nil
 	return nil, nil // unreachable terminal
@@ -14708,6 +15788,7 @@ func Catty_com_eclipsesource_json_JsonValue_asObject____Lcom_eclipsesource_json_
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 290)
 	s0 = genrt.New(thr, "java/lang/UnsupportedOperationException")
 	s1 = s0
 	s2 = genrt.New(thr, "java/lang/StringBuilder")
@@ -14762,6 +15843,7 @@ func Catty_com_eclipsesource_json_JsonValue_asArray____Lcom_eclipsesource_json_J
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 302)
 	s0 = genrt.New(thr, "java/lang/UnsupportedOperationException")
 	s1 = s0
 	s2 = genrt.New(thr, "java/lang/StringBuilder")
@@ -14816,6 +15898,7 @@ func Catty_com_eclipsesource_json_JsonValue_asInt____I(thr kernel.OwnerKey, recv
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 321)
 	s0 = genrt.New(thr, "java/lang/UnsupportedOperationException")
 	s1 = s0
 	s2 = genrt.New(thr, "java/lang/StringBuilder")
@@ -14870,6 +15953,7 @@ func Catty_com_eclipsesource_json_JsonValue_asLong____J(thr kernel.OwnerKey, rec
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 340)
 	s0 = genrt.New(thr, "java/lang/UnsupportedOperationException")
 	s1 = s0
 	s2 = genrt.New(thr, "java/lang/StringBuilder")
@@ -14924,6 +16008,7 @@ func Catty_com_eclipsesource_json_JsonValue_asFloat____F(thr kernel.OwnerKey, re
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 356)
 	s0 = genrt.New(thr, "java/lang/UnsupportedOperationException")
 	s1 = s0
 	s2 = genrt.New(thr, "java/lang/StringBuilder")
@@ -14978,6 +16063,7 @@ func Catty_com_eclipsesource_json_JsonValue_asDouble____D(thr kernel.OwnerKey, r
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 372)
 	s0 = genrt.New(thr, "java/lang/UnsupportedOperationException")
 	s1 = s0
 	s2 = genrt.New(thr, "java/lang/StringBuilder")
@@ -15032,6 +16118,7 @@ func Catty_com_eclipsesource_json_JsonValue_asString____Ljava_lang_String_(thr k
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 384)
 	s0 = genrt.New(thr, "java/lang/UnsupportedOperationException")
 	s1 = s0
 	s2 = genrt.New(thr, "java/lang/StringBuilder")
@@ -15086,6 +16173,7 @@ func Catty_com_eclipsesource_json_JsonValue_asBoolean____Z(thr kernel.OwnerKey, 
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 396)
 	s0 = genrt.New(thr, "java/lang/UnsupportedOperationException")
 	s1 = s0
 	s2 = genrt.New(thr, "java/lang/StringBuilder")
@@ -15142,6 +16230,7 @@ func Catty_com_eclipsesource_json_JsonValue_writeTo___Ljava_io_Writer__V(thr ker
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 412)
 	s0 = l0
 	s1 = l1
 	s2 = genrt.GetStatic(thr, "com/eclipsesource/json/WriterConfig", "MINIMAL", "Lcom/eclipsesource/json/WriterConfig;")
@@ -15151,6 +16240,7 @@ func Catty_com_eclipsesource_json_JsonValue_writeTo___Ljava_io_Writer__V(thr ker
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 413)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -15173,8 +16263,10 @@ func Catty_com_eclipsesource_json_JsonValue_writeTo___Ljava_io_Writer_Lcom_eclip
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 429)
 	s0 = l1
 	if (s0 == nil) == false { goto L14 }
+	genrt.SetLine(thr, 430)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("writer is null")
@@ -15187,9 +16279,11 @@ func Catty_com_eclipsesource_json_JsonValue_writeTo___Ljava_io_Writer_Lcom_eclip
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 432)
 	L14:
 	s0 = l2
 	if (s0 == nil) == false { goto L28 }
+	genrt.SetLine(thr, 433)
 	s0 = genrt.New(thr, "java/lang/NullPointerException")
 	s1 = s0
 	s2 = genrt.Str("config is null")
@@ -15202,6 +16296,7 @@ func Catty_com_eclipsesource_json_JsonValue_writeTo___Ljava_io_Writer_Lcom_eclip
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 435)
 	L28:
 	s0 = genrt.New(thr, "com/eclipsesource/json/WritingBuffer")
 	s1 = s0
@@ -15214,6 +16309,7 @@ func Catty_com_eclipsesource_json_JsonValue_writeTo___Ljava_io_Writer_Lcom_eclip
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 436)
 	s0 = l0
 	s1 = l2
 	s2 = l3
@@ -15227,11 +16323,13 @@ func Catty_com_eclipsesource_json_JsonValue_writeTo___Ljava_io_Writer_Lcom_eclip
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 437)
 	s0 = l3
 	_, exc = genrt.CallVirtualIC(252, thr, s0, "com/eclipsesource/json/WritingBuffer", "flush", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 438)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -15250,6 +16348,7 @@ func Catty_com_eclipsesource_json_JsonValue_toString____Ljava_lang_String_(thr k
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 449)
 	s0 = l0
 	s1 = genrt.GetStatic(thr, "com/eclipsesource/json/WriterConfig", "MINIMAL", "Lcom/eclipsesource/json/WriterConfig;")
 	abuf[0] = s1
@@ -15277,6 +16376,7 @@ func Catty_com_eclipsesource_json_JsonValue_toString___Lcom_eclipsesource_json_W
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 460)
 	s0 = genrt.New(thr, "java/io/StringWriter")
 	s1 = s0
 	_, exc = genrt.CallSpecial(thr, s1, "java/io/StringWriter", "<init>", "()V", abuf[:0])
@@ -15284,6 +16384,7 @@ func Catty_com_eclipsesource_json_JsonValue_toString___Lcom_eclipsesource_json_W
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 462)
 	s0 = l0
 	s1 = l2
 	s2 = l1
@@ -15294,10 +16395,13 @@ func Catty_com_eclipsesource_json_JsonValue_toString___Lcom_eclipsesource_json_W
 		if genrt.InstanceOf(exc.Obj, "java/io/IOException") { goto L17 }
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 466)
 	goto L27
+	genrt.SetLine(thr, 463)
 	L17:
 	s0 = exc.Obj
 	l3 = s0
+	genrt.SetLine(thr, 465)
 	s0 = genrt.New(thr, "java/lang/RuntimeException")
 	s1 = s0
 	s2 = l3
@@ -15310,6 +16414,7 @@ func Catty_com_eclipsesource_json_JsonValue_toString___Lcom_eclipsesource_json_W
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 467)
 	L27:
 	s0 = l2
 	s0, exc = genrt.CallVirtualIC(698, thr, s0, "java/io/StringWriter", "toString", "()Ljava/lang/String;", abuf[:0])
@@ -15336,6 +16441,7 @@ func Catty_com_eclipsesource_json_JsonValue_equals___Ljava_lang_Object__Z(thr ke
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 485)
 	s0 = l0
 	s1 = l1
 	abuf[0] = s1
@@ -15359,6 +16465,7 @@ func Catty_com_eclipsesource_json_JsonValue_hashCode____I(thr kernel.OwnerKey, r
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 490)
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "hashCode", "()I", []kernel.Value{})
 	if exc != nil {
@@ -15382,17 +16489,20 @@ func Catty_com_eclipsesource_json_JsonWriter_init___Ljava_io_Writer__V(thr kerne
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 46)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 47)
 	s0 = l0
 	s1 = l1
 	exc = genrt.SetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 48)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -15413,6 +16523,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeLiteral___Ljava_lang_String__V
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 51)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -15424,6 +16535,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeLiteral___Ljava_lang_String__V
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 52)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -15444,6 +16556,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeNumber___Ljava_lang_String__V(
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 55)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -15455,6 +16568,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeNumber___Ljava_lang_String__V(
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 56)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -15475,6 +16589,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeString___Ljava_lang_String__V(
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 59)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -15486,6 +16601,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeString___Ljava_lang_String__V(
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 60)
 	s0 = l0
 	s1 = l1
 	abuf[0] = s1
@@ -15493,6 +16609,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeString___Ljava_lang_String__V(
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 61)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -15504,6 +16621,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeString___Ljava_lang_String__V(
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 62)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -15522,6 +16640,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeArrayOpen____V(thr kernel.Owne
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 65)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -15533,6 +16652,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeArrayOpen____V(thr kernel.Owne
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 66)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -15551,6 +16671,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeArrayClose____V(thr kernel.Own
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 69)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -15562,6 +16683,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeArrayClose____V(thr kernel.Own
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 70)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -15580,6 +16702,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeArraySeparator____V(thr kernel
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 73)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -15591,6 +16714,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeArraySeparator____V(thr kernel
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 74)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -15609,6 +16733,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeObjectOpen____V(thr kernel.Own
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 77)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -15620,6 +16745,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeObjectOpen____V(thr kernel.Own
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 78)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -15638,6 +16764,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeObjectClose____V(thr kernel.Ow
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 81)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -15649,6 +16776,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeObjectClose____V(thr kernel.Ow
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 82)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -15669,6 +16797,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeMemberName___Ljava_lang_String
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 85)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -15680,6 +16809,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeMemberName___Ljava_lang_String
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 86)
 	s0 = l0
 	s1 = l1
 	abuf[0] = s1
@@ -15687,6 +16817,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeMemberName___Ljava_lang_String
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 87)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -15698,6 +16829,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeMemberName___Ljava_lang_String
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 88)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -15716,6 +16848,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeMemberSeparator____V(thr kerne
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 91)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -15727,6 +16860,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeMemberSeparator____V(thr kerne
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 92)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -15745,6 +16879,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeObjectSeparator____V(thr kerne
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 95)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -15756,6 +16891,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeObjectSeparator____V(thr kerne
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 96)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -15776,20 +16912,24 @@ func Catty_com_eclipsesource_json_JsonWriter_writeJsonString___Ljava_lang_String
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 99)
 	s0 = l1
 	s0, exc = genrt.CallVirtualIC(208, thr, s0, "java/lang/String", "length", "()I", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 100)
 	s0 = int32(0)
 	l3 = s0
+	genrt.SetLine(thr, 101)
 	s0 = int32(0)
 	l4 = s0
 	L10:
 	s0 = l4
 	s1 = l2
 	if s0.(int32) >= s1.(int32) { goto L65 }
+	genrt.SetLine(thr, 102)
 	s0 = l1
 	s1 = l4
 	abuf[0] = s1
@@ -15803,8 +16943,10 @@ func Catty_com_eclipsesource_json_JsonWriter_writeJsonString___Ljava_lang_String
 		return nil, exc // no handler matched
 	}
 	l5 = s0
+	genrt.SetLine(thr, 103)
 	s0 = l5
 	if (s0 == nil) == true { goto L59 }
+	genrt.SetLine(thr, 104)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -15822,6 +16964,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeJsonString___Ljava_lang_String
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 105)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -15833,13 +16976,16 @@ func Catty_com_eclipsesource_json_JsonWriter_writeJsonString___Ljava_lang_String
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 106)
 	s0 = l4
 	s1 = int32(1)
 	s0 = (s0.(int32)) + (s1.(int32))
 	l3 = s0
+	genrt.SetLine(thr, 101)
 	L59:
 	l4 = l4.(int32) + 1
 	goto L10
+	genrt.SetLine(thr, 109)
 	L65:
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
@@ -15858,6 +17004,7 @@ func Catty_com_eclipsesource_json_JsonWriter_writeJsonString___Ljava_lang_String
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 110)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -15874,18 +17021,22 @@ func Catty_com_eclipsesource_json_JsonWriter_getReplacementChars___C_AC(thr kern
 	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6}
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 113)
 	s0 = l0
 	s1 = int32(92)
 	if s0.(int32) <= s1.(int32) { goto L39 }
+	genrt.SetLine(thr, 114)
 	s0 = l0
 	s1 = int32(8232)
 	if s0.(int32) < s1.(int32) { goto L20 }
 	s0 = l0
 	s1 = int32(8233)
 	if s0.(int32) <= s1.(int32) { goto L22 }
+	genrt.SetLine(thr, 116)
 	L20:
 	s0 = nil
 	return s0, nil
+	genrt.SetLine(thr, 118)
 	L22:
 	s0 = l0
 	s1 = int32(8232)
@@ -15896,48 +17047,63 @@ func Catty_com_eclipsesource_json_JsonWriter_getReplacementChars___C_AC(thr kern
 	s0 = genrt.GetStatic(thr, "com/eclipsesource/json/JsonWriter", "UNICODE_2029_CHARS", "[C")
 	L38:
 	return s0, nil
+	genrt.SetLine(thr, 120)
 	L39:
 	s0 = l0
 	s1 = int32(92)
 	if s0.(int32) != s1.(int32) { goto L49 }
+	genrt.SetLine(thr, 121)
 	s0 = genrt.GetStatic(thr, "com/eclipsesource/json/JsonWriter", "BS_CHARS", "[C")
 	return s0, nil
+	genrt.SetLine(thr, 123)
 	L49:
 	s0 = l0
 	s1 = int32(34)
 	if s0.(int32) <= s1.(int32) { goto L57 }
+	genrt.SetLine(thr, 125)
 	s0 = nil
 	return s0, nil
+	genrt.SetLine(thr, 127)
 	L57:
 	s0 = l0
 	s1 = int32(34)
 	if s0.(int32) != s1.(int32) { goto L67 }
+	genrt.SetLine(thr, 128)
 	s0 = genrt.GetStatic(thr, "com/eclipsesource/json/JsonWriter", "QUOT_CHARS", "[C")
 	return s0, nil
+	genrt.SetLine(thr, 130)
 	L67:
 	s0 = l0
 	s1 = int32(31)
 	if s0.(int32) <= s1.(int32) { goto L75 }
+	genrt.SetLine(thr, 131)
 	s0 = nil
 	return s0, nil
+	genrt.SetLine(thr, 133)
 	L75:
 	s0 = l0
 	s1 = int32(10)
 	if s0.(int32) != s1.(int32) { goto L85 }
+	genrt.SetLine(thr, 134)
 	s0 = genrt.GetStatic(thr, "com/eclipsesource/json/JsonWriter", "LF_CHARS", "[C")
 	return s0, nil
+	genrt.SetLine(thr, 136)
 	L85:
 	s0 = l0
 	s1 = int32(13)
 	if s0.(int32) != s1.(int32) { goto L95 }
+	genrt.SetLine(thr, 137)
 	s0 = genrt.GetStatic(thr, "com/eclipsesource/json/JsonWriter", "CR_CHARS", "[C")
 	return s0, nil
+	genrt.SetLine(thr, 139)
 	L95:
 	s0 = l0
 	s1 = int32(9)
 	if s0.(int32) != s1.(int32) { goto L105 }
+	genrt.SetLine(thr, 140)
 	s0 = genrt.GetStatic(thr, "com/eclipsesource/json/JsonWriter", "TAB_CHARS", "[C")
 	return s0, nil
+	genrt.SetLine(thr, 142)
 	L105:
 	s0 = int32(6)
 	s0, exc = genrt.NewPrimitiveArray(thr, "C", s0.(int32))
@@ -16026,29 +17192,34 @@ func Catty_com_eclipsesource_json_Location_init___III_V(thr kernel.OwnerKey, rec
 	l1 = args[0]
 	l2 = args[1]
 	l3 = args[2]
+	genrt.SetLine(thr, 45)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 46)
 	s0 = l0
 	s1 = l1
 	exc = genrt.SetFieldChecked(thr, s0, "offset", "I", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 47)
 	s0 = l0
 	s1 = l3
 	exc = genrt.SetFieldChecked(thr, s0, "column", "I", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 48)
 	s0 = l0
 	s1 = l2
 	exc = genrt.SetFieldChecked(thr, s0, "line", "I", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 49)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -16067,6 +17238,7 @@ func Catty_com_eclipsesource_json_Location_toString____Ljava_lang_String_(thr ke
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 53)
 	s0 = genrt.New(thr, "java/lang/StringBuilder")
 	s1 = s0
 	_, exc = genrt.CallSpecial(thr, s1, "java/lang/StringBuilder", "<init>", "()V", abuf[:0])
@@ -16119,6 +17291,7 @@ func Catty_com_eclipsesource_json_Location_hashCode____I(thr kernel.OwnerKey, re
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 58)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "offset", "I")
 	if exc != nil {
@@ -16142,16 +17315,21 @@ func Catty_com_eclipsesource_json_Location_equals___Ljava_lang_Object__Z(thr ker
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 63)
 	s0 = l0
 	s1 = l1
 	if !genrt.RefEq(s0, s1) { goto L7 }
+	genrt.SetLine(thr, 64)
 	s0 = int32(1)
 	return s0, nil
+	genrt.SetLine(thr, 66)
 	L7:
 	s0 = l1
 	if (s0 == nil) == false { goto L13 }
+	genrt.SetLine(thr, 67)
 	s0 = int32(0)
 	return s0, nil
+	genrt.SetLine(thr, 69)
 	L13:
 	s0 = l0
 	s0, exc = genrt.CallVirtualIC(326, thr, s0, "java/lang/Object", "getClass", "()Ljava/lang/Class;", []kernel.Value{})
@@ -16164,8 +17342,10 @@ func Catty_com_eclipsesource_json_Location_equals___Ljava_lang_Object__Z(thr ker
 		return nil, exc // no handler matched
 	}
 	if genrt.RefEq(s0, s1) { goto L26 }
+	genrt.SetLine(thr, 70)
 	s0 = int32(0)
 	return s0, nil
+	genrt.SetLine(thr, 72)
 	L26:
 	s0 = l1
 	s0 = genrt.CheckCast(thr, s0, "com/eclipsesource/json/Location")
@@ -16173,6 +17353,7 @@ func Catty_com_eclipsesource_json_Location_equals___Ljava_lang_Object__Z(thr ker
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 73)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "offset", "I")
 	if exc != nil {
@@ -16233,6 +17414,7 @@ func Catty_com_eclipsesource_json_ParseException_init___Ljava_lang_String_Lcom_e
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 33)
 	s0 = l0
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -16267,12 +17449,14 @@ func Catty_com_eclipsesource_json_ParseException_init___Ljava_lang_String_Lcom_e
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 34)
 	s0 = l0
 	s1 = l2
 	exc = genrt.SetFieldChecked(thr, s0, "location", "Lcom/eclipsesource/json/Location;", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 35)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -16289,6 +17473,7 @@ func Catty_com_eclipsesource_json_ParseException_getLocation____Lcom_eclipsesour
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 43)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "location", "Lcom/eclipsesource/json/Location;")
 	if exc != nil {
@@ -16310,6 +17495,7 @@ func Catty_com_eclipsesource_json_ParseException_getOffset____I(thr kernel.Owner
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 55)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "location", "Lcom/eclipsesource/json/Location;")
 	if exc != nil {
@@ -16335,6 +17521,7 @@ func Catty_com_eclipsesource_json_ParseException_getLine____I(thr kernel.OwnerKe
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 66)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "location", "Lcom/eclipsesource/json/Location;")
 	if exc != nil {
@@ -16360,6 +17547,7 @@ func Catty_com_eclipsesource_json_ParseException_getColumn____I(thr kernel.Owner
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 78)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "location", "Lcom/eclipsesource/json/Location;")
 	if exc != nil {
@@ -16387,17 +17575,20 @@ func Catty_com_eclipsesource_json_PrettyPrint_init___AC_V(thr kernel.OwnerKey, r
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 41)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/WriterConfig", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 42)
 	s0 = l0
 	s1 = l1
 	exc = genrt.SetFieldChecked(thr, s0, "indentChars", "[C", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 43)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -16412,6 +17603,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_singleLine____Lcom_eclipsesource_j
 	_ = []kernel.Value{s0, s1, s2, s3}
 	var abuf [1]kernel.Value
 	_ = abuf
+	genrt.SetLine(thr, 51)
 	s0 = genrt.New(thr, "com/eclipsesource/json/PrettyPrint")
 	s1 = s0
 	s2 = nil
@@ -16438,8 +17630,10 @@ func Catty_com_eclipsesource_json_PrettyPrint_indentWithSpaces___I_Lcom_eclipses
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 62)
 	s0 = l0
 	if s0.(int32) >= 0 { goto L14 }
+	genrt.SetLine(thr, 63)
 	s0 = genrt.New(thr, "java/lang/IllegalArgumentException")
 	s1 = s0
 	s2 = genrt.Str("number is negative")
@@ -16452,6 +17646,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_indentWithSpaces___I_Lcom_eclipses
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 65)
 	L14:
 	s0 = l0
 	s0, exc = genrt.NewPrimitiveArray(thr, "C", s0.(int32))
@@ -16459,6 +17654,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_indentWithSpaces___I_Lcom_eclipses
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 66)
 	s0 = l1
 	s1 = int32(32)
 	abuf[0] = s0
@@ -16467,6 +17663,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_indentWithSpaces___I_Lcom_eclipses
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 67)
 	s0 = genrt.New(thr, "com/eclipsesource/json/PrettyPrint")
 	s1 = s0
 	s2 = l1
@@ -16489,6 +17686,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_indentWithTabs____Lcom_eclipsesour
 	_ = []kernel.Value{s0, s1, s2, s3, s4, s5, s6}
 	var abuf [1]kernel.Value
 	_ = abuf
+	genrt.SetLine(thr, 76)
 	s0 = genrt.New(thr, "com/eclipsesource/json/PrettyPrint")
 	s1 = s0
 	s2 = int32(1)
@@ -16528,6 +17726,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_createWriter___Ljava_io_Writer__Lc
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 81)
 	s0 = genrt.New(thr, "com/eclipsesource/json/PrettyPrint$PrettyPrintWriter")
 	s1 = s0
 	s2 = l1
@@ -16566,6 +17765,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_init___Ljav
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 90)
 	s0 = l0
 	s1 = l1
 	abuf[0] = s1
@@ -16573,12 +17773,14 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_init___Ljav
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 91)
 	s0 = l0
 	s1 = l2
 	exc = genrt.SetFieldChecked(thr, s0, "indentChars", "[C", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 92)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -16597,6 +17799,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeArrayO
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 96)
 	s0 = l0
 	s1 = s0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "indent", "I")
@@ -16609,6 +17812,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeArrayO
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 97)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -16620,11 +17824,13 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeArrayO
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 98)
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/PrettyPrint$PrettyPrintWriter", "writeNewLine", "()Z", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 99)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -16643,6 +17849,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeArrayC
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 103)
 	s0 = l0
 	s1 = s0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "indent", "I")
@@ -16655,11 +17862,13 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeArrayC
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 104)
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/PrettyPrint$PrettyPrintWriter", "writeNewLine", "()Z", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 105)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -16671,6 +17880,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeArrayC
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 106)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -16689,6 +17899,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeArrayS
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 110)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -16700,12 +17911,14 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeArrayS
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 111)
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/PrettyPrint$PrettyPrintWriter", "writeNewLine", "()Z", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) != 0 { goto L25 }
+	genrt.SetLine(thr, 112)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -16717,6 +17930,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeArrayS
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 114)
 	L25:
 	return nil, nil
 	return nil, nil // unreachable terminal
@@ -16736,6 +17950,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeObject
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 118)
 	s0 = l0
 	s1 = s0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "indent", "I")
@@ -16748,6 +17963,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeObject
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 119)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -16759,11 +17975,13 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeObject
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 120)
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/PrettyPrint$PrettyPrintWriter", "writeNewLine", "()Z", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 121)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -16782,6 +18000,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeObject
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 125)
 	s0 = l0
 	s1 = s0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "indent", "I")
@@ -16794,11 +18013,13 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeObject
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 126)
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/PrettyPrint$PrettyPrintWriter", "writeNewLine", "()Z", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 127)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -16810,6 +18031,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeObject
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 128)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -16828,6 +18050,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeMember
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 132)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -16839,6 +18062,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeMember
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 133)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -16850,6 +18074,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeMember
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 134)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -16868,6 +18093,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeObject
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 138)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -16879,12 +18105,14 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeObject
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 139)
 	s0 = l0
 	s0, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/PrettyPrint$PrettyPrintWriter", "writeNewLine", "()Z", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) != 0 { goto L25 }
+	genrt.SetLine(thr, 140)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -16896,6 +18124,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeObject
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 142)
 	L25:
 	return nil, nil
 	return nil, nil // unreachable terminal
@@ -16915,14 +18144,17 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeNewLin
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 145)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "indentChars", "[C")
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
 	if (s0 == nil) == false { goto L9 }
+	genrt.SetLine(thr, 146)
 	s0 = int32(0)
 	return s0, nil
+	genrt.SetLine(thr, 148)
 	L9:
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
@@ -16935,6 +18167,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeNewLin
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 149)
 	s0 = int32(0)
 	l1 = s0
 	L20:
@@ -16945,6 +18178,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeNewLin
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) >= s1.(int32) { goto L45 }
+	genrt.SetLine(thr, 150)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -16960,8 +18194,10 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_writeNewLin
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 149)
 	l1 = l1.(int32) + 1
 	goto L20
+	genrt.SetLine(thr, 152)
 	L45:
 	s0 = int32(1)
 	return s0, nil
@@ -16988,6 +18224,7 @@ func Catty_com_eclipsesource_json_PrettyPrint_00036PrettyPrintWriter_init___Ljav
 	l1 = args[0]
 	l2 = args[1]
 	l3 = args[2]
+	genrt.SetLine(thr, 84)
 	s0 = l0
 	s1 = l1
 	s2 = l2
@@ -17013,6 +18250,7 @@ func Catty_com_eclipsesource_json_WriterConfig_init____V(thr kernel.OwnerKey, re
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 30)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -17034,6 +18272,7 @@ func Catty_com_eclipsesource_json_WriterConfig_000361_init____V(thr kernel.Owner
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 35)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "com/eclipsesource/json/WriterConfig", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -17059,6 +18298,7 @@ func Catty_com_eclipsesource_json_WriterConfig_000361_createWriter___Ljava_io_Wr
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 38)
 	s0 = genrt.New(thr, "com/eclipsesource/json/JsonWriter")
 	s1 = s0
 	s2 = l1
@@ -17087,6 +18327,7 @@ func Catty_com_eclipsesource_json_WritingBuffer_init___Ljava_io_Writer__V(thr ke
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 41)
 	s0 = l0
 	s1 = l1
 	s2 = int32(16)
@@ -17096,6 +18337,7 @@ func Catty_com_eclipsesource_json_WritingBuffer_init___Ljava_io_Writer__V(thr ke
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 42)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -17116,23 +18358,27 @@ func Catty_com_eclipsesource_json_WritingBuffer_init___Ljava_io_Writer_I_V(thr k
 	l0 = recv
 	l1 = args[0]
 	l2 = args[1]
+	genrt.SetLine(thr, 44)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/io/Writer", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 38)
 	s0 = l0
 	s1 = int32(0)
 	exc = genrt.SetFieldChecked(thr, s0, "fill", "I", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 45)
 	s0 = l0
 	s1 = l1
 	exc = genrt.SetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 46)
 	s0 = l0
 	s1 = l2
 	s1, exc = genrt.NewPrimitiveArray(thr, "C", s1.(int32))
@@ -17143,6 +18389,7 @@ func Catty_com_eclipsesource_json_WritingBuffer_init___Ljava_io_Writer_I_V(thr k
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 47)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -17161,6 +18408,7 @@ func Catty_com_eclipsesource_json_WritingBuffer_write___I_V(thr kernel.OwnerKey,
 	l1 = args[0]
 	l0 = recv
 	l1 = args[0]
+	genrt.SetLine(thr, 51)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "fill", "I")
 	if exc != nil {
@@ -17178,11 +18426,13 @@ func Catty_com_eclipsesource_json_WritingBuffer_write___I_V(thr kernel.OwnerKey,
 	s2 = int32(1)
 	s1 = (s1.(int32)) - (s2.(int32))
 	if s0.(int32) <= s1.(int32) { goto L18 }
+	genrt.SetLine(thr, 52)
 	s0 = l0
 	_, exc = genrt.CallVirtualIC(252, thr, s0, "com/eclipsesource/json/WritingBuffer", "flush", "()V", []kernel.Value{})
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 54)
 	L18:
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "buffer", "[C")
@@ -17210,6 +18460,7 @@ func Catty_com_eclipsesource_json_WritingBuffer_write___I_V(thr kernel.OwnerKey,
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 55)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -17234,6 +18485,7 @@ func Catty_com_eclipsesource_json_WritingBuffer_write___ACII_V(thr kernel.OwnerK
 	l1 = args[0]
 	l2 = args[1]
 	l3 = args[2]
+	genrt.SetLine(thr, 59)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "fill", "I")
 	if exc != nil {
@@ -17251,11 +18503,13 @@ func Catty_com_eclipsesource_json_WritingBuffer_write___ACII_V(thr kernel.OwnerK
 	s2 = l3
 	s1 = (s1.(int32)) - (s2.(int32))
 	if s0.(int32) <= s1.(int32) { goto L38 }
+	genrt.SetLine(thr, 60)
 	s0 = l0
 	_, exc = genrt.CallVirtualIC(252, thr, s0, "com/eclipsesource/json/WritingBuffer", "flush", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 61)
 	s0 = l3
 	s1 = l0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "buffer", "[C")
@@ -17267,6 +18521,7 @@ func Catty_com_eclipsesource_json_WritingBuffer_write___ACII_V(thr kernel.OwnerK
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) <= s1.(int32) { goto L38 }
+	genrt.SetLine(thr, 62)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -17282,7 +18537,9 @@ func Catty_com_eclipsesource_json_WritingBuffer_write___ACII_V(thr kernel.OwnerK
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 63)
 	return nil, nil
+	genrt.SetLine(thr, 66)
 	L38:
 	s0 = l1
 	s1 = l2
@@ -17306,6 +18563,7 @@ func Catty_com_eclipsesource_json_WritingBuffer_write___ACII_V(thr kernel.OwnerK
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 67)
 	s0 = l0
 	s1 = s0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "fill", "I")
@@ -17318,6 +18576,7 @@ func Catty_com_eclipsesource_json_WritingBuffer_write___ACII_V(thr kernel.OwnerK
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 68)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -17342,6 +18601,7 @@ func Catty_com_eclipsesource_json_WritingBuffer_write___Ljava_lang_String_II_V(t
 	l1 = args[0]
 	l2 = args[1]
 	l3 = args[2]
+	genrt.SetLine(thr, 72)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "fill", "I")
 	if exc != nil {
@@ -17359,11 +18619,13 @@ func Catty_com_eclipsesource_json_WritingBuffer_write___Ljava_lang_String_II_V(t
 	s2 = l3
 	s1 = (s1.(int32)) - (s2.(int32))
 	if s0.(int32) <= s1.(int32) { goto L38 }
+	genrt.SetLine(thr, 73)
 	s0 = l0
 	_, exc = genrt.CallVirtualIC(252, thr, s0, "com/eclipsesource/json/WritingBuffer", "flush", "()V", abuf[:0])
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 74)
 	s0 = l3
 	s1 = l0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "buffer", "[C")
@@ -17375,6 +18637,7 @@ func Catty_com_eclipsesource_json_WritingBuffer_write___Ljava_lang_String_II_V(t
 		return nil, exc // no handler matched
 	}
 	if s0.(int32) <= s1.(int32) { goto L38 }
+	genrt.SetLine(thr, 75)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -17390,7 +18653,9 @@ func Catty_com_eclipsesource_json_WritingBuffer_write___Ljava_lang_String_II_V(t
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 76)
 	return nil, nil
+	genrt.SetLine(thr, 79)
 	L38:
 	s0 = l1
 	s1 = l2
@@ -17415,6 +18680,7 @@ func Catty_com_eclipsesource_json_WritingBuffer_write___Ljava_lang_String_II_V(t
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 80)
 	s0 = l0
 	s1 = s0
 	s1, exc = genrt.GetFieldChecked(thr, s1, "fill", "I")
@@ -17427,6 +18693,7 @@ func Catty_com_eclipsesource_json_WritingBuffer_write___Ljava_lang_String_II_V(t
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 81)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -17445,6 +18712,7 @@ func Catty_com_eclipsesource_json_WritingBuffer_flush____V(thr kernel.OwnerKey, 
 	_ = abuf
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 88)
 	s0 = l0
 	s0, exc = genrt.GetFieldChecked(thr, s0, "writer", "Ljava/io/Writer;")
 	if exc != nil {
@@ -17468,12 +18736,14 @@ func Catty_com_eclipsesource_json_WritingBuffer_flush____V(thr kernel.OwnerKey, 
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 89)
 	s0 = l0
 	s1 = int32(0)
 	exc = genrt.SetFieldChecked(thr, s0, "fill", "I", s1)
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 90)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -17490,6 +18760,7 @@ func Catty_com_eclipsesource_json_WritingBuffer_close____V(thr kernel.OwnerKey, 
 	_ = []kernel.Value{s0}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 97)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -17506,6 +18777,7 @@ func Catty_JsonDriver_init____V(thr kernel.OwnerKey, recv kernel.Value, args []k
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 3)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -17529,6 +18801,7 @@ func Catty_JsonDriver_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 5)
 	s0 = int32(6)
 	s0, exc = genrt.NewRefArray(thr, "java/lang/String", s0.(int32))
 	if exc != nil {
@@ -17577,6 +18850,7 @@ func Catty_JsonDriver_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 		return nil, exc // no handler matched
 	}
 	l1 = s0
+	genrt.SetLine(thr, 14)
 	s0 = l1
 	l2 = s0
 	s0 = l2
@@ -17598,6 +18872,7 @@ func Catty_JsonDriver_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 		return nil, exc // no handler matched
 	}
 	l5 = s0
+	genrt.SetLine(thr, 16)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -17647,10 +18922,13 @@ func Catty_JsonDriver_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 		if genrt.InstanceOf(exc.Obj, "java/lang/Throwable") { goto L94 }
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 20)
 	goto L123
+	genrt.SetLine(thr, 17)
 	L94:
 	s0 = exc.Obj
 	l6 = s0
+	genrt.SetLine(thr, 18)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -17679,10 +18957,13 @@ func Catty_JsonDriver_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 19)
 	return nil, nil
+	genrt.SetLine(thr, 14)
 	L123:
 	l4 = l4.(int32) + 1
 	goto L44
+	genrt.SetLine(thr, 22)
 	L129:
 	s0 = l1
 	s1 = int32(5)
@@ -17700,6 +18981,7 @@ func Catty_JsonDriver_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 		return nil, exc // no handler matched
 	}
 	l2 = s0
+	genrt.SetLine(thr, 23)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -17738,6 +19020,7 @@ func Catty_JsonDriver_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 24)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -17774,6 +19057,7 @@ func Catty_JsonDriver_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 25)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -17816,6 +19100,7 @@ func Catty_JsonDriver_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 26)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -17862,8 +19147,10 @@ func Catty_JsonDriver_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 27)
 	s0 = genrt.Str("{\"bad")
 	l3 = s0
+	genrt.SetLine(thr, 29)
 	s0 = l3
 	abuf[0] = s0
 	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "parse", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", abuf[:1])
@@ -17871,6 +19158,7 @@ func Catty_JsonDriver_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 		if genrt.InstanceOf(exc.Obj, "com/eclipsesource/json/ParseException") { goto L297 }
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 30)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.Str("no-throw=BAD")
 	abuf[0] = s1
@@ -17879,10 +19167,13 @@ func Catty_JsonDriver_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 		if genrt.InstanceOf(exc.Obj, "com/eclipsesource/json/ParseException") { goto L297 }
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 33)
 	goto L307
+	genrt.SetLine(thr, 31)
 	L297:
 	s0 = exc.Obj
 	l4 = s0
+	genrt.SetLine(thr, 32)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.Str("parse-err caught ok")
 	abuf[0] = s1
@@ -17890,6 +19181,7 @@ func Catty_JsonDriver_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 34)
 	L307:
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.Str("done")
@@ -17898,6 +19190,7 @@ func Catty_JsonDriver_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv ker
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 35)
 	return nil, nil
 	return nil, nil // unreachable terminal
 }
@@ -17914,6 +19207,7 @@ func Catty_TwoParse_init____V(thr kernel.OwnerKey, recv kernel.Value, args []ker
 	_ = []kernel.Value{s0, s1}
 	l0 = recv
 	l0 = recv
+	genrt.SetLine(thr, 3)
 	s0 = l0
 	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
 	if exc != nil {
@@ -17937,14 +19231,17 @@ func Catty_TwoParse_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	_ = abuf
 	l0 = args[0]
 	l0 = args[0]
+	genrt.SetLine(thr, 5)
 	s0 = genrt.Str("{\"name\":\"catty\",\"year\":2026,\"tags\":[\"aot\",\"fast\",17],\"nested\":{\"pi\":3.5,\"ok\":true,\"nil\":null}}")
 	l1 = s0
+	genrt.SetLine(thr, 7)
 	s0 = int32(1)
 	l2 = s0
 	L5:
 	s0 = l2
 	s1 = int32(2)
 	if s0.(int32) > s1.(int32) { goto L99 }
+	genrt.SetLine(thr, 9)
 	s0 = l1
 	abuf[0] = s0
 	s0, exc = genrt.CallStatic(thr, "com/eclipsesource/json/Json", "parse", "(Ljava/lang/String;)Lcom/eclipsesource/json/JsonValue;", abuf[:1])
@@ -17953,6 +19250,7 @@ func Catty_TwoParse_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 		return nil, exc // no handler matched
 	}
 	l3 = s0
+	genrt.SetLine(thr, 10)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -18010,10 +19308,13 @@ func Catty_TwoParse_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 		if genrt.InstanceOf(exc.Obj, "java/lang/Throwable") { goto L58 }
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 13)
 	goto L93
+	genrt.SetLine(thr, 11)
 	L58:
 	s0 = exc.Obj
 	l3 = s0
+	genrt.SetLine(thr, 12)
 	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
 	s1 = genrt.New(thr, "java/lang/StringBuilder")
 	s2 = s1
@@ -18054,9 +19355,11 @@ func Catty_TwoParse_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kerne
 	if exc != nil {
 		return nil, exc // no handler matched
 	}
+	genrt.SetLine(thr, 7)
 	L93:
 	l2 = l2.(int32) + 1
 	goto L5
+	genrt.SetLine(thr, 15)
 	L99:
 	return nil, nil
 	return nil, nil // unreachable terminal

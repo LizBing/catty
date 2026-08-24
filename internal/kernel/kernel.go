@@ -146,6 +146,7 @@ type Kernel struct {
 	classes map[string]*Class
 	strPool map[string]*JString
 	intBox  [256]*Instance // Integer.valueOf cache [-128,127]
+	intCls  atomic.Pointer[Class] // lazily cached bootstrap Integer class
 
 	// Threads tracks java.lang.Thread identities and blocking operations.
 	Threads *ThreadRegistry
@@ -813,18 +814,23 @@ func utf16Key(u []uint16) string {
 // IntegerOf implements Integer.valueOf boxing with the [-128,127] cache.
 func (k *Kernel) IntegerOf(v int32) *Instance {
 	if v >= -128 && v <= 127 {
-		k.mu.Lock()
-		defer k.mu.Unlock()
 		if b := k.intBox[v+128]; b != nil {
+			return b
+		}
+		k.mu.Lock()
+		if b := k.intBox[v+128]; b != nil { // lost race re-check
+			k.mu.Unlock()
 			return b
 		}
 		b := k.newBoxedIntLocked(v)
 		k.intBox[v+128] = b
+		k.mu.Unlock()
 		return b
 	}
-	k.mu.Lock()
-	defer k.mu.Unlock()
-	return k.newBoxedIntLocked(v)
+	// Out-of-cache boxes touch no shared state: allocation only. The
+	// mutex here was pure serialization overhead on hot map workloads
+	// (P-0009 U5).
+	return k.newBoxedIntFast(v)
 }
 
 func (k *Kernel) newBoxedIntLocked(v int32) *Instance {
@@ -841,6 +847,31 @@ func (k *Kernel) newBoxedIntLocked(v int32) *Instance {
 	} else {
 		b.Fields[0] = v
 	}
+	return b
+}
+
+// integerCls caches the bootstrap Integer class (atomic; the registry
+// entry is immutable once defined).
+func (k *Kernel) integerCls() *Class {
+	if c := k.intCls.Load(); c != nil {
+		return c
+	}
+	c := k.lookupClass("java/lang/Integer")
+	if c == nil {
+		panic("kernel: bootstrap Integer class missing")
+	}
+	k.intCls.Store(c)
+	return c
+}
+
+// newBoxedIntFast is the out-of-cache boxing fast path: no locking, and a
+// specialized single-field layout instead of the generic default-fill walk.
+// Integer's synthesized layout is fixed at one slot holding the value, so
+// this is semantically identical to NewInstance + putfield.
+func (k *Kernel) newBoxedIntFast(v int32) *Instance {
+	b := &Instance{}
+	b.Class = k.integerCls()
+	b.Fields = []Value{v}
 	return b
 }
 

@@ -7,11 +7,21 @@
 // trace reflects where the exception was CONSTRUCTED, not where it landed.
 package kernel
 
+import (
+	"fmt"
+)
+
 // JavaFrame is one resolved Java call frame. Class is an internal name
 // ("com/eclipsesource/json/JsonParser"); Method excludes the descriptor.
+//
+// Line carries the source line the frame was last known to execute:
+// for the leaf it is the throw/creation site; for callers it is the line
+// of the call into the next frame — exactly what a JVM trace prints.
+// Zero means unknown ("Unknown Source").
 type JavaFrame struct {
 	Class  string
 	Method string
+	Line   int32
 }
 
 // JavaStackTrace is the creation-time Java call stack captured on a
@@ -29,6 +39,9 @@ type FrameTracker interface {
 	PopJavaFrame()
 	// JavaFrames returns a snapshot copy, outermost first.
 	JavaFrames() []JavaFrame
+	// SetTopJavaLine records the source line the top frame is now
+	// executing (call sites and line-segment entries; no-op when empty).
+	SetTopJavaLine(line int32)
 }
 
 // attachTrace snapshots the current Java frames of owner into obj,
@@ -57,24 +70,43 @@ func AttachTraceTo(owner OwnerKey, obj *Instance) { attachTrace(owner, obj) }
 // FormatUncaught renders the standard uncaught-throwable report:
 //
 //	Exception in thread "main" java.lang.NullPointerException: msg
-//		at com/foo/Bar.baz(Unknown Source)
+//		at com.foo.Bar.baz(Foo.java:12)
 //
-// Frame lines are omitted when no trace was captured (owner-less paths).
-// Line numbers are v1 "(Unknown Source)": per-frame call-site pcs are not
-// tracked yet (emitter-abi.md §stack-backfill).
-func FormatUncaught(threadName string, th *Thrown) string {
+// Frame lines render JVM-style "(Source.java:N)" when the frame's line is
+// known AND the declaring class carries a SourceFile attribute; otherwise
+// "(Unknown Source)". Leaf-first ordering matches the JVM.
+func (k *Kernel) FormatUncaught(threadName string, th *Thrown) string {
 	header := "Exception in thread \"" + threadName + "\" "
 	msg := ""
 	if s, ok := th.Obj.fieldByName("detailMessage").(*JString); ok && s != nil {
 		msg = ": " + s.String()
 	}
 	out := header + dotted(th.Obj.Class.Name) + msg + "\n"
-	if th.Obj.Stack != nil {
-		// JVM order is leaf-first; our stack stores top-of-stack last.
-		fr := th.Obj.Stack.Frames
-		for i := len(fr) - 1; i >= 0; i-- {
-			out += "\tat " + dotted(fr[i].Class) + "." + fr[i].Method + "(Unknown Source)\n"
+	if th.Obj.Stack == nil {
+		return out
+	}
+	fr := th.Obj.Stack.Frames
+	for i := len(fr) - 1; i >= 0; i-- {
+		f := fr[i]
+		at := "\tat " + dotted(f.Class) + "." + f.Method
+		if f.Line > 0 {
+			if sf := k.sourceFileOf(f.Class); sf != "" {
+				at += "(" + sf + ":" + fmt.Sprintf("%d", f.Line) + ")"
+			} else {
+				at += "(Unknown Source)"
+			}
+		} else {
+			at += "(Unknown Source)"
 		}
+		out += at + "\n"
 	}
 	return out
+}
+
+func (k *Kernel) sourceFileOf(internalClass string) string {
+	c, ok := k.ClassByName(internalClass)
+	if !ok || c.CF == nil {
+		return ""
+	}
+	return c.CF.SourceFile
 }

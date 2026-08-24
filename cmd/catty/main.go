@@ -68,8 +68,7 @@ func main() {
 	if _, err := t.Call(main, nil, []kernel.Value{argsArr}); err != nil {
 		var th *kernel.Thrown
 		if ok := asThrown(err, &th); ok {
-			fmt.Fprintf(os.Stderr, "Exception in thread \"main\" %s\n",
-				strings.TrimPrefix(th.Error(), "uncaught "))
+			fmt.Fprint(os.Stderr, k.FormatUncaught("main", th))
 			os.Exit(1)
 		}
 		fmt.Fprintln(os.Stderr, "catty engine error:", err)

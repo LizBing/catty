@@ -51,6 +51,34 @@ func (t *Thread) JavaFrames() []kernel.JavaFrame {
 	return cp
 }
 
+// SetTopJavaLine implements kernel.FrameTracker: records the source line
+// the top frame is executing (call sites and line-segment entries). This
+// is what makes non-leaf trace frames print their call-site line and the
+// leaf print its throw-site line (U3).
+func (t *Thread) SetTopJavaLine(line int32) {
+	if n := len(t.jstack); n > 0 {
+		t.jstack[n-1].Line = line
+	}
+}
+
+// lineAt resolves the source line for pc in m's LineNumberTable.
+// Returns 0 when absent (Unknown Source).
+func lineAt(m *kernel.Method, pc int) int32 {
+	if m == nil || m.Code == nil || len(m.Code.LineNumbers) == 0 {
+		return 0
+	}
+	lns := m.Code.LineNumbers
+	line := int32(0)
+	for i := range lns {
+		if int(lns[i].StartPc) <= pc {
+			line = int32(lns[i].Line)
+		} else {
+			break
+		}
+	}
+	return line
+}
+
 // New creates the primordial thread for a kernel and installs the VM's
 // bridges (Invoker, spawn hook, main-thread record).
 func New(k *kernel.Kernel) *Thread {
@@ -381,7 +409,7 @@ func (t *Thread) exec(m *kernel.Method, recv kernel.Value, args []kernel.Value) 
 
 		// ---- array loads ----
 		case opIaload, opBaload, opCaload, opSaload, opLaload, opFaload, opDaload, opAaload:
-			v, th, err := t.arrayLoad(f)
+			v, th, err := t.arrayLoad(f, faultPc)
 			if err != nil {
 				return nil, err
 			}
@@ -426,7 +454,7 @@ func (t *Thread) exec(m *kernel.Method, recv kernel.Value, args []kernel.Value) 
 			case opSastore:
 				v = int32(int16(v))
 			}
-			if th := t.arrayStore(f, v); th != nil {
+			if th := t.arrayStore(f, faultPc, v); th != nil {
 				if throwOrHandle(th, faultPc) {
 					continue
 				}
@@ -434,7 +462,7 @@ func (t *Thread) exec(m *kernel.Method, recv kernel.Value, args []kernel.Value) 
 			}
 		case opLastore:
 			v := f.popL()
-			if th := t.arrayStore(f, v); th != nil {
+			if th := t.arrayStore(f, faultPc, v); th != nil {
 				if throwOrHandle(th, faultPc) {
 					continue
 				}
@@ -442,7 +470,7 @@ func (t *Thread) exec(m *kernel.Method, recv kernel.Value, args []kernel.Value) 
 			}
 		case opFastore:
 			v := f.popF()
-			if th := t.arrayStore(f, v); th != nil {
+			if th := t.arrayStore(f, faultPc, v); th != nil {
 				if throwOrHandle(th, faultPc) {
 					continue
 				}
@@ -450,7 +478,7 @@ func (t *Thread) exec(m *kernel.Method, recv kernel.Value, args []kernel.Value) 
 			}
 		case opDastore:
 			v := f.popD()
-			if th := t.arrayStore(f, v); th != nil {
+			if th := t.arrayStore(f, faultPc, v); th != nil {
 				if throwOrHandle(th, faultPc) {
 					continue
 				}
@@ -458,7 +486,7 @@ func (t *Thread) exec(m *kernel.Method, recv kernel.Value, args []kernel.Value) 
 			}
 		case opAastore:
 			v := f.popRef()
-			if th := t.arrayStore(f, v); th != nil {
+			if th := t.arrayStore(f, faultPc, v); th != nil {
 				if throwOrHandle(th, faultPc) {
 					continue
 				}
@@ -527,6 +555,7 @@ func (t *Thread) exec(m *kernel.Method, recv kernel.Value, args []kernel.Value) 
 		case opIdiv:
 			b, a := f.popI(), f.popI()
 			if b == 0 {
+				t.SetTopJavaLine(lineAt(m, faultPc))
 				if th := t.throwNamed("java/lang/ArithmeticException", "/ by zero"); th != nil {
 					if throwOrHandle(th, faultPc) {
 						continue
@@ -538,6 +567,7 @@ func (t *Thread) exec(m *kernel.Method, recv kernel.Value, args []kernel.Value) 
 		case opIrem:
 			b, a := f.popI(), f.popI()
 			if b == 0 {
+				t.SetTopJavaLine(lineAt(m, faultPc))
 				if th := t.throwNamed("java/lang/ArithmeticException", "/ by zero"); th != nil {
 					if throwOrHandle(th, faultPc) {
 						continue
@@ -580,6 +610,7 @@ func (t *Thread) exec(m *kernel.Method, recv kernel.Value, args []kernel.Value) 
 		case opLdiv:
 			b, a := f.popL(), f.popL()
 			if b == 0 {
+				t.SetTopJavaLine(lineAt(m, faultPc))
 				if th := t.throwNamed("java/lang/ArithmeticException", "/ by zero"); th != nil {
 					if throwOrHandle(th, faultPc) {
 						continue
@@ -591,6 +622,7 @@ func (t *Thread) exec(m *kernel.Method, recv kernel.Value, args []kernel.Value) 
 		case opLrem:
 			b, a := f.popL(), f.popL()
 			if b == 0 {
+				t.SetTopJavaLine(lineAt(m, faultPc))
 				if th := t.throwNamed("java/lang/ArithmeticException", "/ by zero"); th != nil {
 					if throwOrHandle(th, faultPc) {
 						continue
@@ -965,6 +997,7 @@ func (t *Thread) exec(m *kernel.Method, recv kernel.Value, args []kernel.Value) 
 				}
 				syncHdr.Monitor().Enter(t.OwnerKey())
 			}
+			t.SetTopJavaLine(lineAt(m, faultPc)) // caller frame records call-site line (U3)
 			res, callErr := t.K.InvokeAs(t, target, recv, vals) // attribute to this thread
 			if syncHdr != nil {
 				if serr := syncHdr.Monitor().Exit(t.OwnerKey()); serr != nil {
@@ -1075,6 +1108,7 @@ func (t *Thread) exec(m *kernel.Method, recv kernel.Value, args []kernel.Value) 
 			}
 			obj := f.stack[f.sp-1]
 			if obj != nil && !t.K.IsInstance(obj, cls) {
+				t.SetTopJavaLine(lineAt(m, faultPc))
 				th := t.throwNamed("java/lang/ClassCastException",
 					fmt.Sprintf("class %s cannot be cast to class %s", objClassName(obj), dotted(cls.Name)))
 				if throwOrHandle(th, faultPc) {
@@ -1113,7 +1147,8 @@ func (t *Thread) exec(m *kernel.Method, recv kernel.Value, args []kernel.Value) 
 				return nil, th
 			}
 			if err := objHeader(obj).Monitor().Exit(t.OwnerKey()); err != nil {
-				th := t.throwNamed("java/lang/IllegalMonitorStateException",
+				t.SetTopJavaLine(lineAt(m, faultPc))
+					th := t.throwNamed("java/lang/IllegalMonitorStateException",
 					"monitorexit on unowned monitor")
 				if throwOrHandle(th, faultPc) {
 					continue

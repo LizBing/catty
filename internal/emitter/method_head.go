@@ -211,6 +211,7 @@ type methodEmitter struct {
 	depth       int
 	maxLocals   int
 	maxArgs     int             // arg-buffer capacity; 0 = heap-literal fallback
+	lastLine    int32           // last emitted genrt.SetLine value (-1 = none yet)
 	sbFolds     map[int]*sbFold // StringBuilder chain windows keyed by `new` pc
 	handlers    []classfile.ExceptionHandler
 	targets     map[int]bool

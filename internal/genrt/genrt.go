@@ -429,6 +429,15 @@ func MonitorExit(th kernel.OwnerKey, obj kernel.Value) *kernel.Thrown {
 	return nil
 }
 
+// SetLine records the source line the current (top) Java frame is
+// executing. Emitted code calls this at line-segment entries and labels;
+// it is what gives stack traces exact leaf/call-site lines (U3).
+func SetLine(th kernel.OwnerKey, line int32) {
+	if ft, ok := th.(kernel.FrameTracker); ok {
+		ft.SetTopJavaLine(line)
+	}
+}
+
 // --- string helpers for folded StringBuilder chains (P-0009 U1) -----------
 
 // MakeStr allocates a fresh (non-interned) JString — toString semantics.

@@ -62,7 +62,7 @@ func defaultUncaughtHandler(k *kernel.Kernel) func(j *kernel.JThread, th *kernel
 	return func(j *kernel.JThread, th *kernel.Thrown) {
 		// Stack backfill: frames captured at construction ride along on
 		// the throwable (DEBT-0019 diagnostic infrastructure).
-		fmt.Fprint(w, kernel.FormatUncaught(j.Name, th))
+		fmt.Fprint(w, k.FormatUncaught(j.Name, th))
 	}
 }
 

@@ -199,7 +199,8 @@ func (t *Thread) npe(f *frame, why string) *kernel.Thrown {
 }
 
 // arrayLoad: stack is …, arrayref, index.
-func (t *Thread) arrayLoad(f *frame) (kernel.Value, *kernel.Thrown, error) {
+func (t *Thread) arrayLoad(f *frame, opPc int) (kernel.Value, *kernel.Thrown, error) {
+	t.SetTopJavaLine(lineAt(f.m, opPc))
 	idx := f.popI()
 	arr := f.popRef()
 	if arr == nil {
@@ -214,7 +215,8 @@ func (t *Thread) arrayLoad(f *frame) (kernel.Value, *kernel.Thrown, error) {
 }
 
 // arrayStore: stack is …, arrayref, index, value.
-func (t *Thread) arrayStore(f *frame, v kernel.Value) *kernel.Thrown {
+func (t *Thread) arrayStore(f *frame, opPc int, v kernel.Value) *kernel.Thrown {
+	t.SetTopJavaLine(lineAt(f.m, opPc))
 	idx := f.popI()
 	arr := f.popRef()
 	if arr == nil {

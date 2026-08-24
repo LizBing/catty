@@ -140,6 +140,16 @@ type Code struct {
 	Code      []byte
 	Handlers  []ExceptionHandler
 	StackMaps []StackMapFrame // decoded StackMapTable (may be nil)
+
+	// LineNumbers is the LineNumberTable (JVMS §4.7.12), ascending by
+	// StartPc. Nil when the attribute is absent.
+	LineNumbers []LineNum
+}
+
+// LineNum maps a bytecode range start to a source line.
+type LineNum struct {
+	StartPc uint16
+	Line    uint16
 }
 
 // FieldInfo is a parsed field.
@@ -177,6 +187,7 @@ type ClassFile struct {
 	AccessFlags  uint16
 	ThisClass    string
 	SuperClass   string // "" for java/lang/Object itself
+	SourceFile   string // SourceFile attribute, "" when absent
 	Interfaces   []string
 	Fields       []FieldInfo
 	Methods      []MethodInfo

@@ -23,3 +23,21 @@ func retOf(desc string) (struct{}, bool, error) {
 	}
 	return struct{}{}, false, nil
 }
+
+// lineAtPC resolves the source line for pc via the method's
+// LineNumberTable (0 when absent — caller skips SetLine emission).
+func (e *methodEmitter) lineAtPC(pc int) int32 {
+	if e.m.Code == nil || len(e.m.Code.LineNumbers) == 0 {
+		return 0
+	}
+	lns := e.m.Code.LineNumbers
+	line := int32(0)
+	for i := range lns {
+		if int(lns[i].StartPc) <= pc {
+			line = int32(lns[i].Line)
+		} else {
+			break
+		}
+	}
+	return line
+}

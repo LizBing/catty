@@ -92,6 +92,13 @@ func (e *methodEmitter) body() error {
 			i-- // compensate the for-post increment
 			continue
 		}
+		// Line-segment entry (U3): refresh the frame's source line at
+		// every label and every line change so stack traces carry exact
+		// leaf/call-site lines under any control flow.
+		if ln := e.lineAtPC(pc); ln > 0 && ln != e.lastLine {
+			e.p("genrt.SetLine(thr, %d)", ln)
+			e.lastLine = ln
+		}
 		isJumpTarget := jumpTargets[pc]
 		_, isHandler := e.handlerAt[pc]
 		if d, ok := canonDepths[pc]; ok {

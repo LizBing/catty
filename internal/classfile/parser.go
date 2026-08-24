@@ -162,6 +162,12 @@ func Parse(data []byte) (cf *ClassFile, err error) {
 	if cf.Attributes, err = parseAttributes(r, cf); err != nil {
 		return nil, err
 	}
+	for _, a := range cf.Attributes {
+		if a.Name == "SourceFile" && len(a.Data) == 2 {
+			idx := uint16(a.Data[0])<<8 | uint16(a.Data[1])
+			cf.SourceFile, _ = cf.UTF8(idx)
+		}
+	}
 
 	if r.pos != len(data) {
 		return nil, fmt.Errorf("trailing bytes after class file: consumed %d of %d", r.pos, len(data))
@@ -242,6 +248,18 @@ func parseCode(cf *ClassFile, data []byte) (*Code, error) {
 				return nil, err
 			}
 			break
+		}
+		if a.Name == "LineNumberTable" && len(a.Data) >= 2 {
+			n := int(uint16(a.Data[0])<<8 | uint16(a.Data[1]))
+			lns := make([]LineNum, 0, n)
+			for i := 0; i < n && 2+4*i+4 <= len(a.Data); i++ {
+				o := 2 + 4*i
+				lns = append(lns, LineNum{
+					StartPc: uint16(a.Data[o])<<8 | uint16(a.Data[o+1]),
+					Line:    uint16(a.Data[o+2])<<8 | uint16(a.Data[o+3]),
+				})
+			}
+			c.LineNumbers = lns
 		}
 	}
 	return c, nil

@@ -38,7 +38,7 @@ func runTraceProbe(t *testing.T, name string, aot bool) string {
 	if !ok {
 		t.Fatalf("engine error, not a Java throwable: %v", callErr)
 	}
-	return kernel.FormatUncaught("main", thrown)
+	return k.FormatUncaught("main", thrown)
 }
 
 func assertFrames(t *testing.T, report string, wantFrames []string) {
@@ -48,7 +48,7 @@ func assertFrames(t *testing.T, report string, wantFrames []string) {
 		t.Fatalf("report has %d lines, want %d:\n%s", len(lines), 1+len(wantFrames), report)
 	}
 	for i, wf := range wantFrames {
-		if lines[i+1] != "\tat "+wf+"(Unknown Source)" {
+		if lines[i+1] != "\tat "+wf {
 			t.Errorf("frame %d = %q, want %q\nreport:\n%s", i, lines[i+1], "\tat "+wf, report)
 		}
 	}
@@ -66,8 +66,8 @@ func TestStackBackfillBootstrapNPE(t *testing.T) {
 			t.Errorf("[%s] header: %q", engine, report)
 		}
 		assertFrames(t, report, []string{
-			"TraceProbe.stepA",
-			"TraceProbe.main",
+			"TraceProbe.stepA(TraceProbe.java:11)",
+			"TraceProbe.main(TraceProbe.java:6)",
 		})
 	}
 }
@@ -85,8 +85,8 @@ func TestStackBackfillUserException(t *testing.T) {
 			t.Errorf("[%s] construction chain leaked into trace:\n%s", engine, report)
 		}
 		assertFrames(t, report, []string{
-			"TraceProbe2.fire",
-			"TraceProbe2.main",
+			"TraceProbe2.fire(TraceProbe2.java:11)",
+			"TraceProbe2.main(TraceProbe2.java:7)",
 		})
 	}
 }

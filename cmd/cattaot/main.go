@@ -90,7 +90,7 @@ func main() {
 			t = tt
 			// Stack backfill renders the Java frames captured at
 			// construction (DEBT-0019 diagnostic infrastructure).
-			fmt.Fprint(os.Stderr, kernel.FormatUncaught("main", t))
+			fmt.Fprint(os.Stderr, k.FormatUncaught("main", t))
 			os.Exit(1)
 		}
 		fmt.Fprintln(os.Stderr, "cattaot engine error:", err)
