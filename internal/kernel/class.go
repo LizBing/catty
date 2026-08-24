@@ -71,7 +71,8 @@ type Class struct {
 	Flags  uint16
 
 	Methods   []*Method
-	OwnFields []*Field // fields declared by this class itself (non-static)
+	OwnFields      []*Field // instance fields declared by this class itself
+	DeclaredFields []*Field // ALL declared fields (incl. statics), declaration order — reflection view
 	Statics   []Value  // static storage declared here
 
 	CF  *classfile.ClassFile // nil for synthesized classes

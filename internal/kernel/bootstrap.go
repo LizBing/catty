@@ -121,12 +121,28 @@ func bootstrap(k *Kernel) {
 		mustDefine(k, def)
 	}
 
+	// Reflection classes first: wrapper TYPE statics and any getClass/ldc
+	// usage depend on java/lang/Class existing before other bootstrap pieces.
+	if err := registerReflection(k); err != nil {
+		panic("kernel bootstrap reflection: " + err.Error())
+	}
 	mustDefine(k, &ClassDef{
 		Name:  "java/lang/Integer",
 		Super: "java/lang/Object",
 		Flags: classfile.AccPublic | classfile.AccFinal,
 		Fields: []FieldDef{
 			{Name: "value", Desc: "I", Flags: classfile.AccPrivate | classfile.AccFinal},
+			{Name: "TYPE", Desc: "Ljava/lang/Class;", Flags: classfile.AccPublic | classfile.AccStatic | classfile.AccFinal},
+		},
+		StaticInit: func(k *Kernel, c *Class) error {
+			prim, err := k.primitiveClass("I", "int")
+			if err != nil {
+				return err
+			}
+			if f := c.fieldsByKey[memberKey("TYPE", "Ljava/lang/Class;")]; f != nil {
+				c.Statics[f.StaticSlot] = prim
+			}
+			return nil
 		},
 		Methods: []MethodDef{
 			{Name: "<init>", Desc: "(I)V", Flags: classfile.AccPublic, Native: natIntegerInit},
@@ -272,6 +288,7 @@ func bootstrap(k *Kernel) {
 				Flags: classfile.AccPublic | classfile.AccStatic, Native: natIdentityHashCode},
 		},
 	})
+
 }
 
 func appendSB(desc string, nat NativeFunc) MethodDef {

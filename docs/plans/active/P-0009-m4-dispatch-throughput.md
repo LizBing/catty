@@ -49,6 +49,10 @@ U1 分配侧组合拳      JString hashCode/UTF-8 惰性缓存、jkey 结构键�
 U2 strcat 波动归因   O(n²) 复制流量 × GC 相位；折叠 23× 回归反向印证        ✅(记录)
 U3 堆栈叶帧行号       SetLine 行段发射+调用点捕获+源文件渲染；                ✅
                      TraceProbe 双路径与 JVM oracle 逐字节一致
+U7 反射最小面         Class.forName/getDeclared*/Field/Method/Constructor     ✅
+                     （P-0011 单列轮次完成，迷你序列化器=JVM 逐字节）
+U8 JAR 加载           .jar 条目索引+流式读取（DEBT-0008 关闭）                 ✅
+U9 装箱快路径         26ns vs 57-67ns（-55%，微观基准 BoxedInt*）             ✅
 U4 p99 持续负载采样   P99Bench 单线程分位 + embeddemo 嵌入服务形态           ✅
                      （4/8/16 worker 吞吐 43k→65k req/s，p99<1ms，
                       R-0007 附录②）

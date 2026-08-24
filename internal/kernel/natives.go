@@ -671,6 +671,9 @@ func natClassGetName(ctx *CallContext, recv Value, args []Value) (Value, error) 
 	if !ok {
 		return nil, fmt.Errorf("getClass receiver payload missing")
 	}
+	if pi, ok := in.Payload.(*primitiveInfo); ok {
+		return ctx.K.MakeJStringFromGo(pi.name), nil // int.class → "int"
+	}
 	c, ok := in.Payload.(*Class)
 	if !ok {
 		return nil, fmt.Errorf("Class instance lacks class payload")

@@ -24,6 +24,11 @@ func wrapperDef(name string, primDesc string, extraMethods []MethodDef) *ClassDe
 		Flags: classfile.AccPublic | classfile.AccFinal,
 		Fields: []FieldDef{
 			{Name: "value", Desc: primDesc, Flags: classfile.AccPrivate | classfile.AccFinal},
+			// TYPE = the primitive Class constant (Integer.TYPE == int.class)
+			{Name: "TYPE", Desc: "Ljava/lang/Class;", Flags: classfile.AccPublic | classfile.AccStatic |
+				classfile.AccFinal,
+				// value wired by StaticInit below via the reflection registry
+			},
 		},
 		Methods: []MethodDef{
 			{Name: "<init>", Desc: "(" + primDesc + ")V", Flags: classfile.AccPublic, Native: natWrapperInit(primDesc)},
@@ -33,6 +38,21 @@ func wrapperDef(name string, primDesc string, extraMethods []MethodDef) *ClassDe
 			{Name: "toString", Desc: "()Ljava/lang/String;", Flags: classfile.AccPublic, Native: natWrapperToString},
 			{Name: "valueOf", Desc: "(" + primDesc + ")L" + name + ";", Flags: classfile.AccPublic | classfile.AccStatic, Native: natWrapperValueOf(name)},
 		},
+	}
+	def.StaticInit = func(k *Kernel, c *Class) error {
+		kw := map[string]string{"B": "byte", "C": "char", "S": "short",
+			"J": "long", "Z": "boolean"}[primDesc]
+		if kw == "" {
+			return nil // Float/Double wrappers handled separately if added
+		}
+		prim, err := k.primitiveClass(primDesc, kw)
+		if err != nil {
+			return err
+		}
+		if f := c.fieldsByKey[memberKey("TYPE", "Ljava/lang/Class;")]; f != nil {
+			c.Statics[f.StaticSlot] = prim
+		}
+		return nil
 	}
 	def.Methods = append(def.Methods, extraMethods...)
 	return def

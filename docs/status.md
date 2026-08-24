@@ -23,6 +23,8 @@
 | AOT 发射器 | genemit→gen.go 整体编译（48 类）；installTable+懒加载钩子混合执行零成本回退；异常通道=旗标返回（ADR-0009）；统一表示（ADR-0010） |
 | 分发与分配性能 | 内联缓存+免锁计量+EmitBody 直调（R-0006）；JString 缓存/jkey 键/CallContext 池/SB 折叠(增长链守卫)（R-0007）：vcall **2.86×**、mapops **2.49×** 于解释器 |
 | Java↔Go 互操作 | `interop.Bind` 反射绑定（ADR-0011）：一行注册 Go 函数为 Java 静态方法，类型映射全格钉扎，调用税 ~82ns；演示 cmd/embeddemo（Go 宿主内嵌 + 本地 HTTP + md5） |
+| 反射最小面 | Class.forName/getDeclared*/isInstance/newInstance + Field.get/set + Method.invoke + Constructor.newInstance（含基本类型装箱、静态字段、TYPE 常量）；迷你序列化器双引擎=JVM 逐字节（DEV-0010 边界已登记） |
+| JAR classpath | `.jar` 条目自动索引加载（DEBT-0008 关闭） |
 | 栈深正确性 | `classfile.StackEffect` 全 256 opcode 单一事实源 + 总分类哨兵测试；CFG 工作表深度传播 |
 | 堆栈回填 | Java 层 Throwable 堆栈：InvokeAs 统一帧追踪、构造点捕获、<init> 链裁剪、叶帧在前渲染（行号 Unknown Source 待 U3） |
 | 异常 | Throwable 家族、异常表分发、隐式抛出（NPE/越界/除零/负长/强转）、SOE（双路径计量）、uncaught 报告 |
@@ -40,7 +42,7 @@
 |---|---|---|
 | Integer 装箱削减 | P-0009 U5（需 EA 级手段；剩余首位分配源） | mapops 第三刀 |
 | p99 持续负载采样 | P-0009 U4 | 卖点②正式证据 |
-| 反射 API / 注解 / MethodHandle | M2+ 远期 | Jackson/Spring 级生态 |
+| 注解 / MethodHandle / 反射深水区（继承成员遍历、泛型签名、访问控制） | M2+ 按真实库需求 | 更大生态兼容 |
 | JAR 加载 | DEBT-0008 | 部署形态 |
 | 堆栈行号（逐帧调用点 pc） | P-0009 U3 | 诊断体验对齐 JVM |
 | JNI | ADR-0007 范围内未开工 | 原生库互操作 |

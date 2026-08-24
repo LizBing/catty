@@ -147,6 +147,7 @@ type Kernel struct {
 	strPool map[string]*JString
 	intBox  [256]*Instance // Integer.valueOf cache [-128,127]
 	intCls  atomic.Pointer[Class] // lazily cached bootstrap Integer class
+	primOnce sync.Map // desc → *Instance primitive Class constants (int.class …)
 
 	// Threads tracks java.lang.Thread identities and blocking operations.
 	Threads *ThreadRegistry
@@ -447,6 +448,9 @@ func (k *Kernel) DefineClass(def *ClassDef) (*Class, error) {
 					c.OwnFields = append(c.OwnFields, f)
 				}
 			}
+			if x == c {
+				c.DeclaredFields = append(c.DeclaredFields, f)
+			}
 			c.flatField(f)
 		}
 	}
@@ -562,6 +566,9 @@ func (k *Kernel) LoadClassBytesWith(data []byte, dep func(name string) (*Class, 
 				if x == c {
 					c.OwnFields = append(c.OwnFields, f)
 				}
+			}
+			if x == c {
+				c.DeclaredFields = append(c.DeclaredFields, f)
 			}
 			c.flatField(f)
 		}
@@ -721,10 +728,11 @@ func (k *Kernel) ClassObjectOf(c *Class) (*Instance, error) {
 	if !ok {
 		return nil, fmt.Errorf("kernel: bootstrap Class missing")
 	}
-	in, err := k.NewInstance(cls)
-	if err != nil {
-		return nil, err
-	}
+	// Direct construction: NewInstance refuses java/lang/Class by design
+	// (the `new` bytecode must never instantiate it), but the runtime
+	// itself needs exactly one mirror instance per class here.
+	in := &Instance{}
+	in.Class = cls
 	in.Payload = c
 	if !c.classObj.CompareAndSwap(nil, in) {
 		return c.classObj.Load(), nil
