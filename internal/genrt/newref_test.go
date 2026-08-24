@@ -16,7 +16,7 @@ func TestNewRefArrayThenStore(t *testing.T) {
 	th := &nraOwner{key: k.MintKey()}
 	_ = th
 
-	tv, terr := NewRefArray("java/lang/String", 6)
+	tv, terr := NewRefArray(th, "java/lang/String", 6)
 	if terr != nil {
 		t.Fatalf("NewRefArray threw: %v", terr)
 	}
@@ -32,8 +32,7 @@ func TestNewRefArrayThenStore(t *testing.T) {
 	if len(arr.Elems) != 6 {
 		t.Fatalf("len=%d", len(arr.Elems))
 	}
-	if th := AStoreChecked(tv, int32(0), strV); th == nil {
-		// storing nil is legal for reference arrays
-		_ = th
+	if exc := AStoreChecked(th, tv, int32(0), strV); exc != nil {
+		t.Fatalf("AStoreChecked threw: %v", exc.Error())
 	}
 }

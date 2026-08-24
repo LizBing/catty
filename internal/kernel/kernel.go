@@ -226,6 +226,13 @@ func (k *Kernel) Invoke(m *Method, recv Value, args []Value) (Value, error) {
 // one (the VM's Thread does); k.Invoker is only the fallback for
 // owner-less paths (tests, kernel-internal probes).
 func (k *Kernel) InvokeAs(owner OwnerKey, m *Method, recv Value, args []Value) (Value, error) {
+	// Java call-stack maintenance for stack backfill (DEBT-0019). Every
+	// engine funnels through here, so one push/pop pair covers interpreted
+	// and emitted frames alike.
+	if ft, ok := owner.(FrameTracker); ok {
+		ft.PushJavaFrame(JavaFrame{Class: m.Holder.Name, Method: m.Name})
+		defer ft.PopJavaFrame()
+	}
 	if m.Native != nil {
 		return m.Native(&CallContext{K: k, Owner: owner}, recv, args)
 	}

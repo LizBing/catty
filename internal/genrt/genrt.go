@@ -22,8 +22,18 @@ import (
 // K is the kernel installed by InstallKernel before any Java execution.
 var K *kernel.Kernel
 
+// resolved caches pool-driven method resolutions against the INSTALLED
+// kernel. Entries are invalidated on every InstallKernel: they point into
+// a specific kernel's class graph and must never leak across installs
+// (in-process multi-kernel runs — tests, embedding — would otherwise
+// execute stale bodies against mismatched class identities).
+var resolved = map[methodKey]*kernel.Method{}
+
 // InstallKernel wires the bridge to a kernel (done once by the entrypoint).
-func InstallKernel(k *kernel.Kernel) { K = k }
+func InstallKernel(k *kernel.Kernel) {
+	K = k
+	resolved = make(map[methodKey]*kernel.Method)
+}
 
 func thrKey(th kernel.OwnerKey) uint64 {
 	if th == nil {
@@ -90,8 +100,6 @@ type methodKey struct {
 	cls, name, desc string
 }
 
-var resolved = map[methodKey]*kernel.Method{}
-
 func methodForDyn(dyn *kernel.Class, name, desc string) *kernel.Method {
 	m, err := K.ResolveMethod(dyn, name, desc)
 	if err != nil {
@@ -129,7 +137,7 @@ func CallStatic(th kernel.OwnerKey, cls, name, desc string, args []kernel.Value)
 // CallVirtual resolves against recv's dynamic class. Null receivers raise NPE.
 func CallVirtual(th kernel.OwnerKey, recv kernel.Value, cls, name, desc string, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	if recv == nil {
-		return nil, Throw("java/lang/NullPointerException",
+		return nil, Throw(th, "java/lang/NullPointerException",
 			fmt.Sprintf("invokevirtual %s.%s on null", cls, name))
 	}
 	dyn := ClassOf(recv)
@@ -146,7 +154,7 @@ func CallSpecial(th kernel.OwnerKey, recv kernel.Value, cls, name, desc string, 
 func invokeChecked(th kernel.OwnerKey, m *kernel.Method, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	key := thrKey(th)
 	if err := K.Threads.FrameEnter(key); err != nil {
-		return nil, Throw("java/lang/StackOverflowError", "")
+		return nil, Throw(th, "java/lang/StackOverflowError", "")
 	}
 	defer K.Threads.FrameExit(key)
 
@@ -230,7 +238,7 @@ func CheckCast(th kernel.OwnerKey, v kernel.Value, clsName string) kernel.Value 
 		panic("genrt checkcast target missing: " + clsName)
 	}
 	if v != nil && !K.IsInstance(v, c) {
-		t := Throw("java/lang/ClassCastException",
+		t := Throw(th, "java/lang/ClassCastException",
 			fmt.Sprintf("class %s cannot be cast to class %s", TypeName(v), dotted(clsName)))
 		return t.Obj
 	}
@@ -253,16 +261,16 @@ func dotted(internal string) string { return strings.ReplaceAll(internal, "/", "
 
 // --- arithmetic with Java semantics -------------------------------------------------------
 
-func IDiv(a, b int32) (int32, *kernel.Thrown) {
+func IDiv(th kernel.OwnerKey, a, b int32) (int32, *kernel.Thrown) {
 	if b == 0 {
-		return 0, Throw("java/lang/ArithmeticException", "/ by zero")
+		return 0, Throw(th, "java/lang/ArithmeticException", "/ by zero")
 	}
 	return a / b, nil
 }
 
-func IRem(a, b int32) (int32, *kernel.Thrown) {
+func IRem(th kernel.OwnerKey, a, b int32) (int32, *kernel.Thrown) {
 	if b == 0 {
-		return 0, Throw("java/lang/ArithmeticException", "/ by zero")
+		return 0, Throw(th, "java/lang/ArithmeticException", "/ by zero")
 	}
 	return a % b, nil
 }
@@ -272,7 +280,7 @@ func IRem(a, b int32) (int32, *kernel.Thrown) {
 func ALoad(arr kernel.Value, idx int32) kernel.Value {
 	a := arr.(*kernel.ArrayObj)
 	if idx < 0 || int(idx) >= len(a.Elems) {
-		t := Throw("java/lang/ArrayIndexOutOfBoundsException",
+		t := Throw(nil, "java/lang/ArrayIndexOutOfBoundsException",
 			fmt.Sprintf("Index %d out of bounds for length %d", idx, len(a.Elems)))
 		return t.Obj
 	}
@@ -283,7 +291,7 @@ func ALoad(arr kernel.Value, idx int32) kernel.Value {
 func AStore(arr kernel.Value, idx int32, v kernel.Value) kernel.Value {
 	a := arr.(*kernel.ArrayObj)
 	if idx < 0 || int(idx) >= len(a.Elems) {
-		t := Throw("java/lang/ArrayIndexOutOfBoundsException",
+		t := Throw(nil, "java/lang/ArrayIndexOutOfBoundsException",
 			fmt.Sprintf("Index %d out of bounds for length %d", idx, len(a.Elems)))
 		return t.Obj
 	}
@@ -292,6 +300,15 @@ func AStore(arr kernel.Value, idx int32, v kernel.Value) kernel.Value {
 }
 
 func ArrayLength(arr kernel.Value) int32 { return int32(len(arr.(*kernel.ArrayObj).Elems)) }
+
+// ArrayLengthChecked implements arraylength with NPE semantics.
+func ArrayLengthChecked(th kernel.OwnerKey, arr kernel.Value) (int32, *kernel.Thrown) {
+	a, ok := arr.(*kernel.ArrayObj)
+	if !ok {
+		return 0, Throw(th, "java/lang/NullPointerException", "array length")
+	}
+	return int32(len(a.Elems)), nil
+}
 
 // --- monitors -----------------------------------------------------------------------------------
 
@@ -304,7 +321,7 @@ func MonitorEnter(th kernel.OwnerKey, obj kernel.Value) *kernel.Thrown {
 func MonitorExit(th kernel.OwnerKey, obj kernel.Value) *kernel.Thrown {
 	h := headerOf(obj)
 	if err := h.Monitor().Exit(thrKey(th)); err != nil {
-		return Throw("java/lang/IllegalMonitorStateException",
+		return Throw(th, "java/lang/IllegalMonitorStateException",
 			"monitorexit without ownership")
 	}
 	return nil
@@ -312,12 +329,15 @@ func MonitorExit(th kernel.OwnerKey, obj kernel.Value) *kernel.Thrown {
 
 // --- throw helper ----------------------------------------------------------------------------------
 
-// Throw builds a bootstrap exception instance wrapped as Thrown.
-func Throw(cls, msg string) *kernel.Thrown {
+// Throw builds a bootstrap exception instance wrapped as Thrown. The
+// current Java call stack (maintained by kernel.InvokeAs) is backfilled
+// onto the throwable, mirroring fillInStackTrace (DEBT-0019).
+func Throw(th kernel.OwnerKey, cls, msg string) *kernel.Thrown {
 	obj, err := K.NewThrowable(cls, msg)
 	if err != nil {
 		panic("genrt: " + err.Error())
 	}
+	kernel.AttachTraceTo(th, obj)
 	return &kernel.Thrown{Obj: obj}
 }
 
@@ -335,7 +355,7 @@ func BoolValue(b bool) kernel.Value {
 // GetFieldChecked performs getfield with null-receiver NPE semantics.
 func GetFieldChecked(th kernel.OwnerKey, recv kernel.Value, name, desc string) (kernel.Value, *kernel.Thrown) {
 	if recv == nil {
-		return nil, Throw("java/lang/NullPointerException",
+		return nil, Throw(th, "java/lang/NullPointerException",
 			fmt.Sprintf("getfield %s on null", name))
 	}
 	in := recv.(*kernel.Instance)
@@ -349,7 +369,7 @@ func GetFieldChecked(th kernel.OwnerKey, recv kernel.Value, name, desc string) (
 // SetFieldChecked performs putfield with null-receiver NPE semantics.
 func SetFieldChecked(th kernel.OwnerKey, recv kernel.Value, name, desc string, v kernel.Value) *kernel.Thrown {
 	if recv == nil {
-		return Throw("java/lang/NullPointerException",
+		return Throw(th, "java/lang/NullPointerException",
 			fmt.Sprintf("putfield %s on null", name))
 	}
 	in := recv.(*kernel.Instance)
@@ -362,9 +382,9 @@ func SetFieldChecked(th kernel.OwnerKey, recv kernel.Value, name, desc string, v
 }
 
 // NewPrimitiveArray allocates a primitive array by component descriptor.
-func NewPrimitiveArray(compDesc string, size int32) (kernel.Value, *kernel.Thrown) {
+func NewPrimitiveArray(th kernel.OwnerKey, compDesc string, size int32) (kernel.Value, *kernel.Thrown) {
 	if size < 0 {
-		return nil, Throw("java/lang/NegativeArraySizeException", fmt.Sprintf("%d", size))
+		return nil, Throw(th, "java/lang/NegativeArraySizeException", fmt.Sprintf("%d", size))
 	}
 	a, aerr := K.NewArray(compDesc, int(size))
 	if aerr != nil {
@@ -374,29 +394,29 @@ func NewPrimitiveArray(compDesc string, size int32) (kernel.Value, *kernel.Throw
 }
 
 // ALoadChecked reads an array element with NPE/bounds semantics.
-func ALoadChecked(arr kernel.Value, idx int32) (kernel.Value, *kernel.Thrown) {
+func ALoadChecked(th kernel.OwnerKey, arr kernel.Value, idx int32) (kernel.Value, *kernel.Thrown) {
 	a, ok := arr.(*kernel.ArrayObj)
 	if !ok {
-		return nil, Throw("java/lang/NullPointerException", "array load")
+		return nil, Throw(th, "java/lang/NullPointerException", "array load")
 	}
 	if idx < 0 || int(idx) >= len(a.Elems) {
-		return nil, Throw("java/lang/ArrayIndexOutOfBoundsException",
+		return nil, Throw(th, "java/lang/ArrayIndexOutOfBoundsException",
 			fmt.Sprintf("Index %d out of bounds for length %d", idx, len(a.Elems)))
 	}
 	return a.Elems[idx], nil
 }
 
 // AStoreChecked writes an array element with NPE/bounds semantics.
-func AStoreChecked(arr kernel.Value, idx int32, v kernel.Value) *kernel.Thrown {
+func AStoreChecked(th kernel.OwnerKey, arr kernel.Value, idx int32, v kernel.Value) *kernel.Thrown {
 	if os.Getenv("CATTY_ASD") != "" {
 		fmt.Fprintf(os.Stderr, "[asd] arr_nil=%v idx=%d\n", arr == nil, idx)
 	}
 	a, ok := arr.(*kernel.ArrayObj)
 	if !ok {
-		return Throw("java/lang/NullPointerException", "array store into null")
+		return Throw(th, "java/lang/NullPointerException", "array store into null")
 	}
 	if idx < 0 || int(idx) >= len(a.Elems) {
-		return Throw("java/lang/ArrayIndexOutOfBoundsException",
+		return Throw(th, "java/lang/ArrayIndexOutOfBoundsException",
 			fmt.Sprintf("Index %d out of bounds for length %d", idx, len(a.Elems)))
 	}
 	a.Elems[idx] = v
@@ -409,23 +429,26 @@ func CallInterface(th kernel.OwnerKey, recv kernel.Value, cls, name, desc string
 }
 
 // LDiv implements JLS 15.17.1 long division incl. div-by-zero throw.
-func LDiv(a, b int64) (int64, *kernel.Thrown) {
+func LDiv(th kernel.OwnerKey, a, b int64) (int64, *kernel.Thrown) {
 	if b == 0 {
-		return 0, Throw("java/lang/ArithmeticException", "/ by zero")
+		return 0, Throw(th, "java/lang/ArithmeticException", "/ by zero")
 	}
 	return a / b, nil
 }
 
 // LRem implements JLS 15.17.3 long remainder.
-func LRem(a, b int64) (int64, *kernel.Thrown) {
+func LRem(th kernel.OwnerKey, a, b int64) (int64, *kernel.Thrown) {
 	if b == 0 {
-		return 0, Throw("java/lang/ArithmeticException", "/ by zero")
+		return 0, Throw(th, "java/lang/ArithmeticException", "/ by zero")
 	}
 	return a % b, nil
 }
 
 // NewRefArray allocates a reference-component array with nil elements.
-func NewRefArray(compClass string, n int32) (kernel.Value, *kernel.Thrown) {
+func NewRefArray(th kernel.OwnerKey, compClass string, n int32) (kernel.Value, *kernel.Thrown) {
+	if n < 0 {
+		return nil, Throw(th, "java/lang/NegativeArraySizeException", fmt.Sprintf("%d", n))
+	}
 	arrCls := K.ArrayClassOf("L" + compClass + ";")
 	if arrCls == nil {
 		panic("[nra-dbg] no array class for " + compClass)

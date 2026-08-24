@@ -257,13 +257,13 @@ func (e *methodEmitter) emitOne(pc int) error {
 	case 0x6c: // idiv
 		b, a := popRef(), popRef()
 		dst := fmt.Sprintf("s%d", e.depth)
-		e.p("%s, exc = genrt.IDiv(%s.(int32), %s.(int32))", dst, a, b)
+		e.p("%s, exc = genrt.IDiv(thr, %s.(int32), %s.(int32))", dst, a, b)
 		excAfter()
 		e.depth++
 	case 0x70: // irem
 		b, a := popRef(), popRef()
 		dst := fmt.Sprintf("s%d", e.depth)
-		e.p("%s, exc = genrt.IRem(%s.(int32), %s.(int32))", dst, a, b)
+		e.p("%s, exc = genrt.IRem(thr, %s.(int32), %s.(int32))", dst, a, b)
 		excAfter()
 		e.depth++
 
@@ -301,13 +301,13 @@ func (e *methodEmitter) emitOne(pc int) error {
 	case 0x6d: // ldiv
 		b, a := popRefCat2(), popRefCat2()
 		dst := fmt.Sprintf("s%d", e.depth)
-		e.p("%s, exc = genrt.LDiv(%s.(int64), %s.(int64))", dst, a, b)
+		e.p("%s, exc = genrt.LDiv(thr, %s.(int64), %s.(int64))", dst, a, b)
 		excAfter()
 		e.depth += 2
 	case 0x71: // lrem
 		b, a := popRefCat2(), popRefCat2()
 		dst := fmt.Sprintf("s%d", e.depth)
-		e.p("%s, exc = genrt.LRem(%s.(int64), %s.(int64))", dst, a, b)
+		e.p("%s, exc = genrt.LRem(thr, %s.(int64), %s.(int64))", dst, a, b)
 		excAfter()
 		e.depth += 2
 	case 0x75: // lneg
@@ -560,14 +560,14 @@ func (e *methodEmitter) emitOne(pc int) error {
 		}
 		sizeExpr := popRef()
 		dst := fmt.Sprintf("s%d", e.depth)
-		e.p("%s, exc = genrt.NewPrimitiveArray(%q, %s.(int32))", dst, nm, sizeExpr)
+		e.p("%s, exc = genrt.NewPrimitiveArray(thr, %q, %s.(int32))", dst, nm, sizeExpr)
 		excAfter()
 		e.depth++
 	case 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35: // array loads
 		idx := popRef()
 		arr := popRef()
 		dst := fmt.Sprintf("s%d", e.depth)
-		e.p("%s, exc = genrt.ALoadChecked(%s, %s.(int32))", dst, arr, idx)
+		e.p("%s, exc = genrt.ALoadChecked(thr, %s, %s.(int32))", dst, arr, idx)
 		excAfter()
 		switch op {
 		case 0x33: // baload sign-extend
@@ -582,7 +582,7 @@ func (e *methodEmitter) emitOne(pc int) error {
 		val := popRef()
 		idx := popRef()
 		arr := popRef()
-		e.p("exc = genrt.AStoreChecked(%s, %s.(int32), %s)", arr, idx, val)
+		e.p("exc = genrt.AStoreChecked(thr, %s, %s.(int32), %s)", arr, idx, val)
 		excAfter()
 
 	case 0xbd: // anewarray
@@ -592,14 +592,16 @@ func (e *methodEmitter) emitOne(pc int) error {
 		}
 		sizeExpr := popRef()
 		dst := fmt.Sprintf("s%d", e.depth)
-		e.p("%s, exc = genrt.NewRefArray(%q, %s.(int32))", dst, clsName, sizeExpr)
+		e.p("%s, exc = genrt.NewRefArray(thr, %q, %s.(int32))", dst, clsName, sizeExpr)
 		excAfter()
 		e.depth++
 
 	case 0xbe: // arraylength
 		arr := popRef()
-		pushV(fmt.Sprintf("genrt.ArrayLength(%s)", arr))
+		dst := fmt.Sprintf("s%d", e.depth)
+		e.p("%s, exc = genrt.ArrayLengthChecked(thr, %s)", dst, arr)
 		excAfter()
+		e.depth++
 	case 0xbf: // athrow
 		v := popRef()
 		e.p("exc = &kernel.Thrown{Obj: %s.(*kernel.Instance)}", v)

@@ -60,7 +60,8 @@ func (e *methodEmitter) computeCanonicalDepths(reach map[int]bool) map[int]int {
 		} else if sd, ok := smDepth[pc]; ok {
 			d = sd
 		}
-		if os.Getenv("CATTY_SIM") != "" && true && (pc >= 35 && pc <= 45) || (pc >= 155 && pc <= 170) {
+		if os.Getenv("CATTY_SIM") != "" &&
+			((pc >= 35 && pc <= 45) || (pc >= 155 && pc <= 170)) {
 			fmt.Fprintf(os.Stderr, "[sim] pc=%d op=%#x rec=%d\n", pc, op, d)
 		}
 		depths[pc] = d
@@ -87,100 +88,24 @@ func (e *methodEmitter) computeCanonicalDepths(reach map[int]bool) map[int]int {
 	return depths
 }
 
-// netStackEffect returns how many slots an opcode adds to the operand stack.
+// netStackEffect returns how many raw slots an opcode adds to the operand
+// stack. Fixed-effect opcodes delegate to classfile.StackEffect — the
+// single source of truth shared across engines (DEBT-0015/0017/0019
+// drift class); only descriptor-shaped opcodes fall through to
+// conservative defaults here, and instrEffect refines those from the
+// constant pool.
 func netStackEffect(op byte) int {
-	switch op {
-	// ---- pushes ----
-	case 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
-		0x10, 0x11, 0x12, 0x13, // bipush,sipush,ldc,ldc_w
-		0x15, 0x17, 0x19, // iload,fload,aload
-		0x1a, 0x1b, 0x1c, 0x1d, // iload_0..3
-		0x22, 0x23, 0x24, 0x25, // fload_0..3
-		0x2a, 0x2b, 0x2c, 0x2d: // aload_0..3
-		return 1
-	case 0x26, 0x27, 0x28, 0x29: // dload_0..3 (cat2)
-		return 2
-	case 0x09, 0x0a, 0x0e, 0x0f, 0x14, // lconst,dconst,ldc2_w
-		0x16, 0x18, // lload,dload
-		0x1e, 0x1f, 0x20, 0x21: // lload_0..3
-		return 2
-
-	// ---- pops (stores / pop) ----
-	case 0x36, 0x38, 0x3a, // istore,fstore,astore (indexed)
-		0x3b, 0x3c, 0x3d, 0x3e, // istore_0..3
-		0x43, 0x44, 0x45, 0x46, // fstore_0..3
-		0x4b, 0x4c, 0x4d, 0x4e, // astore_0..3
-		0x57,                               // pop
-		0x2e, 0x30, 0x32, 0x33, 0x34, 0x35: // iaload,faload,aaload,baload,caload,saload
-		return -1
-	case 0x37, 0x3f, 0x40, 0x41, 0x42, // lstore family
-		0x39, 0x47, 0x48, 0x49, 0x4a, // dstore family
-		0x58: // pop2
-		return -2
-
-	// ---- stack ops ----
-	case 0x59, 0x5a, 0x5b, 0x5c, 0x5d, 0x5e: // dup family
-		return 1
-	case 0x5f: // swap
-		return 0
-
-	// ---- cat1 arithmetic / bitwise ----
-	case 0x60, 0x64, 0x68, 0x6c, 0x70, // iadd,isub,imul,idiv,irem
-		0x78, 0x7a, 0x7c, // ishl,ishr,iushr (shift int by int)
-		0x7e, 0x80, 0x82, // iand,ior,ixor
-		0x94, 0x95, 0x96, 0x97, 0x98: // lcmp,fcmpg/fcmpl,dcmpg/dcmpl
-		return -1
-	case 0x74: // ineg
-		return 0
-
-	// ---- cat2 arithmetic ----
-	case 0x61, 0x65, 0x69, 0x6d, 0x71, // ladd,lsub,lmul,ldiv,lrem
-		0x63, 0x67, 0x6b, 0x6f, 0x73, // dadd,dsub,dmul,ddiv,drem
-		0x7f, 0x81, 0x83: // land,lor,lxor
-		return -2
-	case 0x75, 0x77: // lneg,dneg
-		return 0
-
-	// ---- shifts on long values (value cat2 + shift cat1 -> cat2) ----
-	case 0x79, 0x7b, 0x7d: // lshl,lshr,lushr
-		return -1
-
-	case 0x84: // iinc
-		return 0
-
-	// ---- objects / arrays / misc ----
-	case 0xbb: // new
-		return 1
-	case 0xbc, // newarray (pop size, push ref)
-		0xbd, // anewarray
-		0xbe, // arraylength
-		0xc0, // checkcast
-		0xc1: // instanceof
-		return 0
-	case 0xbf: // athrow
-		return -1
-	case 0xc2, 0xc3: // monitorenter/exit
-		return -1
-
-	// ---- branches (consume condition) ----
-	case 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, // ifeq..ifle
-		0xc6, 0xc7: // ifnull,ifnonnull
-		return -1
-	case 0x9f, 0xa0, 0xa1, 0xa2, 0xa3, 0xa4, // if_icmpXX
-		0xa5, 0xa6: // if_acmpeq/ne
-		return -2
-	case 0xa7, 0xc8: // goto
-		return 0
-
-	// ---- fields ----
-	case 0xb2: // getstatic
-		return 1 // caller overrides via instrEffect for J/D — conservative
-	case 0xb4: // getfield
-		return 0
-
-	default:
-		return 0
+	if n, class := classfile.StackEffect(op); class == classfile.EffectFixed {
+		return n
 	}
+	switch op {
+	case 0xb2: // getstatic: conservative before pool resolution
+		return 1
+	case 0xbf, 0xc2, 0xc3, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e,
+		0xc6, 0xc7: // unreachable via EffectFixed above; kept for clarity
+		return -1
+	}
+	return 0
 }
 
 // instrSizeSafe returns the byte length of the instruction at pc.

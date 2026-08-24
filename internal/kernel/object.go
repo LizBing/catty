@@ -47,6 +47,11 @@ type Instance struct {
 	Header
 	Fields  []Value // absolute slot layout across the hierarchy (super first)
 	Payload any     // scratch storage for synthesized natives (ArrayList, StringBuilder, …)
+
+	// Stack carries the creation-time Java call stack of throwables
+	// (stack backfill, DEBT-0019); nil on every non-throwable and on
+	// throwables created off-thread. One word of overhead per instance.
+	Stack *JavaStackTrace
 }
 
 // fieldByName finds an instance field slot value by name across the

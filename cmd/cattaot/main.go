@@ -58,8 +58,9 @@ func main() {
 		var t *kernel.Thrown
 		if tt, ok := err.(*kernel.Thrown); ok {
 			t = tt
-			fmt.Fprintf(os.Stderr, "Exception in thread \"main\" %s\n",
-				strings.TrimPrefix(t.Error(), "uncaught "))
+			// Stack backfill renders the Java frames captured at
+			// construction (DEBT-0019 diagnostic infrastructure).
+			fmt.Fprint(os.Stderr, kernel.FormatUncaught("main", t))
 			os.Exit(1)
 		}
 		fmt.Fprintln(os.Stderr, "cattaot engine error:", err)

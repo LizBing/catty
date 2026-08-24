@@ -344,11 +344,21 @@ func setDetailMessage(ctx *CallContext, recv Value, msg string) {
 	}
 }
 
+// attachTrace backfills the creation-time Java call stack onto a
+// throwable under construction (stack backfill, DEBT-0019).
+func (ctx *CallContext) attachTrace(recv Value) {
+	if in, ok := recv.(*Instance); ok {
+		attachTrace(ctx.Owner, in)
+	}
+}
+
 func natThrowableInitVoid(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	ctx.attachTrace(recv)
 	return nil, nil
 }
 
 func natThrowableInitString(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	ctx.attachTrace(recv)
 	if s, ok := args[0].(*JString); ok && s != nil {
 		setDetailMessage(ctx, recv, s.String())
 	}

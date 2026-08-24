@@ -190,6 +190,7 @@ func (t *Thread) throwNamed(className, msg string) *kernel.Thrown {
 	if err != nil {
 		panic("vm: " + err.Error())
 	}
+	kernel.AttachTraceTo(t, obj) // bootstrap throws carry the Java stack too
 	return &kernel.Thrown{Obj: obj}
 }
 

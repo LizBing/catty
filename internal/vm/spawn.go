@@ -53,7 +53,9 @@ func runJavaThread(k *kernel.Kernel, j *kernel.JThread) {
 func defaultUncaughtHandler(k *kernel.Kernel) func(j *kernel.JThread, th *kernel.Thrown) {
 	var w io.Writer = k.Stderr()
 	return func(j *kernel.JThread, th *kernel.Thrown) {
-		fmt.Fprintf(w, "Exception in thread \"%s\" %s\n", j.Name, th.Error())
+		// Stack backfill: frames captured at construction ride along on
+		// the throwable (DEBT-0019 diagnostic infrastructure).
+		fmt.Fprint(w, kernel.FormatUncaught(j.Name, th))
 	}
 }
 

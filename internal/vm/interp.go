@@ -22,6 +22,33 @@ type Thread struct {
 	depth     int              // interpreted-frame depth (SOE metering)
 	maxDepth  int
 	initStack []string // class names with <clinit> in progress (JVMS §5.5)
+
+	jstack []kernel.JavaFrame // Java call stack for backfill; touched only by the owning goroutine
+}
+
+// --- kernel.FrameTracker ------------------------------------------------------
+
+// PushJavaFrame appends one frame (stack-backfill bookkeeping). Only the
+// owning goroutine executes Java on this Thread, so no lock is required;
+// cross-thread readers go through JavaFrames' snapshot.
+func (t *Thread) PushJavaFrame(f kernel.JavaFrame) { t.jstack = append(t.jstack, f) }
+
+// PopJavaFrame drops the top frame. A mismatched pop is an engine bug and
+// panics loudly instead of silently corrupting traces.
+func (t *Thread) PopJavaFrame() {
+	n := len(t.jstack)
+	if n == 0 {
+		panic("vm: PopJavaFrame on empty stack")
+	}
+	t.jstack[n-1] = kernel.JavaFrame{} // drop reference for GC hygiene
+	t.jstack = t.jstack[:n-1]
+}
+
+// JavaFrames snapshots the current stack, outermost first.
+func (t *Thread) JavaFrames() []kernel.JavaFrame {
+	cp := make([]kernel.JavaFrame, len(t.jstack))
+	copy(cp, t.jstack)
+	return cp
 }
 
 // New creates the primordial thread for a kernel and installs the VM's
