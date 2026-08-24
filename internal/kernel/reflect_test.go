@@ -62,6 +62,22 @@ func reflectNative(t *testing.T, k *kernelSelf, cls, name, desc string, recv Val
 // kernelSelf alias keeps the helper signature readable.
 type kernelSelf = Kernel
 
+// reflectNativeErr is reflectNative for probes that EXPECT a throw; the
+// returned error carries the Thrown payload for inspection.
+func reflectNativeErr(t *testing.T, k *kernelSelf, cls, name, desc string, recv Value, args ...Value) (Value, error) {
+	t.Helper()
+	c, ok := k.ClassByName(cls)
+	if !ok {
+		t.Fatalf("%s missing", cls)
+	}
+	m, err := k.ResolveMethod(c, name, desc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	v, ierr := k.InvokeAs(nil, m, recv, args)
+	return v, ierr
+}
+
 func jstrOf(t *testing.T, v Value) string {
 	t.Helper()
 	js, ok := v.(*JString)
@@ -254,6 +270,36 @@ func TestReflectionMethodInvoke(t *testing.T) {
 				t.Errorf("sum = %d, want 42", v)
 			}
 		}
+	}
+}
+
+func TestReflectionSuperclassAndCNFEType(t *testing.T) {
+	k, _ := reflectKernel(t)
+	clsObj := reflectNative(t, k, "java/lang/Class", "forName",
+		"(Ljava/lang/String;)Ljava/lang/Class;", nil, k.InternGo("Pojo"))
+
+	super := reflectNative(t, k, "java/lang/Class", "getSuperclass",
+		"()Ljava/lang/Class;", clsObj)
+	if jstrOf(t, reflectNative(t, k, "java/lang/Class", "getName",
+		"()Ljava/lang/String;", super)) != "java.lang.Object" {
+		t.Errorf("Pojo superclass mismatch")
+	}
+	objCls := reflectNative(t, k, "java/lang/Class", "forName",
+		"(Ljava/lang/String;)Ljava/lang/Class;", nil, k.InternGo("java.lang.Object"))
+	if got := reflectNative(t, k, "java/lang/Class", "getSuperclass",
+		"()Ljava/lang/Class;", objCls); got != nil {
+		t.Errorf("Object.superclass should be nil, got %v", got)
+	}
+
+	// forName miss throws exactly java.lang.ClassNotFoundException
+	_, err := reflectNativeErr(t, k, "java/lang/Class", "forName",
+		"(Ljava/lang/String;)Ljava/lang/Class;", nil, k.InternGo("no/Such"))
+	if err == nil {
+		t.Fatal("expected throw")
+	}
+	th, ok := err.(*Thrown)
+	if !ok || th.Obj.Class.Name != "java/lang/ClassNotFoundException" {
+		t.Fatalf("want ClassNotFoundException, got %#v", err)
 	}
 }
 
