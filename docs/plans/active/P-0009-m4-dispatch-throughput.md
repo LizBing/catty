@@ -14,19 +14,33 @@ native-image 若可行），兑现卖点②"零预热抖动"的首个证据环�
 ## Tasks（DAG）
 
 ```
-T1 单态内联缓存：CallVirtual 接收者动态类 [class→Method] 单槽缓存
-   ↑ 基线：先重跑 R-0005 四基准固化 pre 数据（tickMillis 口径不变以保可比）
-T2 natives 白名单直调展开：HashMap.get 等高频方法发射符号引用绕过字符串解析
-T3 StringBuilder 五连模式折叠（new+dup+init+append*+toString）
-T4 复测与报告：R-0006 落盘 docs/research/，含方法学、原始数据与噪声分析
-T5 （择机）Bench 切回 nanoTime(J) 口径重校 DEBT-0017 解锁后的长时钟数据
+T0 基线固化      重跑 R-0005 四基准（tickMillis 口径不变，保可比）
+T0.5 分发链剖析  cattaot 加 env 门控 pprof；vcall/mapops 热点画像定靶
+T1 分发链削减    单态内联缓存（[site,dyn]→Method 原子单槽）+
+                 帧深度计量去全局锁（按证据决定是否入本轮）
+T2 natives 直调  白名单方法发射符号引用绕过字符串解析
+                 （static/final/已证单态调用点准入）
+T3 复测 + R-0006 benchstat 显著性检验；噪声内变化不得宣称优化成功（§26）
+T4 并发首证(spike) N 线程工作负载 vs JDK 平台线程；持续负载 p99 采样
+T5 可观测性(spike) pprof 演示资产；-race 构建检测 Java 数据竞争实验
+T6 捎带(S 成本)   DEBT-0001 fuzz 目标进可选 make 目标；
+                  堆栈叶帧行号（发射期 LNT 烘焙，视主线余量）
 ```
 
-## Validation
+## Success Criteria
 
-- `make check` 绿；全仓 -race 绿
-- 全部既有钉扎测试（fixture 双路径、JsonDriver e2e、TraceProbe 堆栈形态）不回退
-- T4 报告附 benchstat 显著性检验
+- `make check` 绿；全仓 `-race` 绿；既有钉扎零回退
+  （fixture 双路径 / JsonDriver e2e / TraceProbe 堆栈形态 / 效果表哨兵）
+- mapops/vcall 的 AOT÷解释器比值从 1.0–1.14× 提升至 **≥1.5×**；
+  未达标则 R-0006 如实记录并给出瓶颈归因
+- 产出：docs/research/R-0006（方法学 + 原始数据 + 显著性）、
+  卖点⑤演示资产或精确登记的偏差/债务
+
+## Risks
+
+- 内联缓存失效语义：Install 多内核场景需失效化（genrt resolved 缓存教训已内化）
+- 直调展开绕过 ResolveMethod 的动态性：仅限 final/static/已证单态调用点
+- spike 结论可能为负（如 -race 检不出 Java 层竞争）：负结果同样落盘登记
 
 ## Risks
 

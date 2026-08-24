@@ -20,8 +20,9 @@ const (
 	StateErroneous
 )
 
-// Method is a resolved method of a class: either interpreted (CF != nil,
-// Code != nil) or native (Native != nil).
+// Method is a resolved method of a class: interpreted (CF != nil,
+// Code != nil), native (Native != nil), or emitter-generated
+// (EmitBody != nil, the direct fast twin of Native).
 type Method struct {
 	Holder *Class
 	Name   string
@@ -31,7 +32,17 @@ type Method struct {
 	CF     *classfile.ClassFile // interpreted: owner's constant pool
 	Code   *classfile.Code      // interpreted: bytecode
 	Native NativeFunc           // synthesized implementation
+
+	// EmitBody is the emitter-generated body (P-0009 T1). When set,
+	// InvokeAs dispatches straight to it: no CallContext allocation, no
+	// closure indirection. Install sets both this and Native so
+	// interpreter-path callers keep working unchanged.
+	EmitBody EmitFunc
 }
+
+// EmitFunc mirrors the emitter ABI calling convention without importing
+// the genrt package (the kernel stays dependency-free).
+type EmitFunc func(th OwnerKey, recv Value, args []Value) (Value, *Thrown)
 
 // Static reports whether the method is static.
 func (m *Method) Static() bool { return m.Flags&classfile.AccStatic != 0 }

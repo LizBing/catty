@@ -10,6 +10,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"runtime/pprof"
 	"strings"
 
 	"catty/internal/gen"
@@ -18,6 +19,22 @@ import (
 )
 
 func main() {
+	// CATTY_PPROF=<file> captures a CPU profile of the whole run into the
+	// given file (selling point #5 evidence: Go observability on Java
+	// execution, no JVM agent involved).
+	if path := os.Getenv("CATTY_PPROF"); path != "" {
+		f, err := os.Create(path)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "cattaot pprof:", err)
+			os.Exit(1)
+		}
+		if err := pprof.StartCPUProfile(f); err != nil {
+			fmt.Fprintln(os.Stderr, "cattaot pprof:", err)
+			os.Exit(1)
+		}
+		defer pprof.StopCPUProfile()
+	}
+
 	cp := ""
 	rest := os.Args[1:]
 	if len(rest) > 0 && rest[0] == "-cp" {

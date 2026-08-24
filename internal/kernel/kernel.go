@@ -1,6 +1,7 @@
 package kernel
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -21,6 +22,19 @@ type NativeFunc func(ctx *CallContext, recv Value, args []Value) (Value, error)
 // Implemented by the execution layer's thread abstraction.
 type OwnerKey interface {
 	OwnerKey() uint64
+}
+
+// ErrStackOverflow signals frame-budget exhaustion to FrameMeter users.
+var ErrStackOverflow = errors.New("stack overflow")
+
+// FrameMeter is an optional OwnerKey extension: threads that meter frame
+// depth on themselves (plain field, no registry locking). The emitted
+// path (genrt.invokeChecked) prefers it over ThreadRegistry.FrameEnter so
+// the hot dispatch chain stays lock-free; interpreted frames share the
+// same budget, matching the JVM single-stack model.
+type FrameMeter interface {
+	EnterFrame() error // ErrStackOverflow when budget exhausted
+	ExitFrame()
 }
 
 // CallContext gives natives access to runtime services.
@@ -147,9 +161,25 @@ type Kernel struct {
 	// Installed by the VM alongside SpawnJavaThread.
 	UncaughtHandler func(j *JThread, thrown *Thrown)
 
+	// classLoadHook runs after a classfile-backed class is registered
+	// (lazy loads included). It is how the emitter layer attaches
+	// generated bodies to classes that resolve AFTER gen.Install ran —
+	// nested classes and library dependencies load lazily at first
+	// `new`, which previously left them interpreted forever. Guarded by
+	// mu; called outside it.
+	classLoadHook func(*Class)
+
 	// invoker is the VM execution bridge. Accessed via setInvoker/
 	// invokerFallback because spawned threads race to install it.
 	invoker Invoker
+}
+
+// SetClassLoadHook installs the post-registration callback. One hook per
+// kernel; the last installation wins (single emitter layer per process).
+func (k *Kernel) SetClassLoadHook(h func(*Class)) {
+	k.mu.Lock()
+	k.classLoadHook = h
+	k.mu.Unlock()
 }
 
 // InstallInvoker registers the VM execution bridge. Idempotent: the first
@@ -229,9 +259,21 @@ func (k *Kernel) InvokeAs(owner OwnerKey, m *Method, recv Value, args []Value) (
 	// Java call-stack maintenance for stack backfill (DEBT-0019). Every
 	// engine funnels through here, so one push/pop pair covers interpreted
 	// and emitted frames alike.
-	if ft, ok := owner.(FrameTracker); ok {
+	var ft FrameTracker
+	if f, ok := owner.(FrameTracker); ok {
+		ft = f
 		ft.PushJavaFrame(JavaFrame{Class: m.Holder.Name, Method: m.Name})
 		defer ft.PopJavaFrame()
+	}
+	// Emitter-generated bodies take the allocation-free fast path
+	// (P-0009 T1): the ABI returns (Value, *Thrown) directly and needs
+	// no CallContext.
+	if m.EmitBody != nil {
+		v, exc := m.EmitBody(owner, recv, args)
+		if exc != nil {
+			return nil, exc
+		}
+		return v, nil
 	}
 	if m.Native != nil {
 		return m.Native(&CallContext{K: k, Owner: owner}, recv, args)
@@ -529,6 +571,15 @@ func (k *Kernel) LoadClassBytesWith(data []byte, dep func(name string) (*Class, 
 		if err := k.verifyLoaded(c, cf); err != nil {
 			return fail(fmt.Errorf("VerifyError in %s: %w", c.Name, err))
 		}
+	}
+	// Post-registration hook (emitter layer attaches generated bodies to
+	// lazily-loaded classes). Fired outside k.mu: the hook resolves
+	// members on the fresh class only.
+	k.mu.Lock()
+	hook := k.classLoadHook
+	k.mu.Unlock()
+	if hook != nil {
+		hook(c)
 	}
 	return c, nil
 }

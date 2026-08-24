@@ -1,9 +1,6 @@
 package emitter
 
 import (
-	"fmt"
-	"os"
-
 	"catty/internal/classfile"
 )
 
@@ -11,24 +8,19 @@ import (
 type qItem struct{ pc, depth int }
 
 // computeCanonicalDepths simulates operand-stack depth for every reachable
-// pc using SM frame canonical values at merge points and per-opcode stack
-// effects elsewhere.
+// pc via worklist propagation along CFG edges. Ground truth: StackMap
+// frames override at their offsets; exception-handler entries are always
+// depth 1 (JVMS §2.6 stack clear + exception ref).
+//
+// History note: the original implementation walked pcs LINEARLY, letting
+// a taken-branch path's depth leak into unreachable straight-line
+// instructions (e.g. the fall-through arm after goto) — masked for years
+// by dense SM resyncs, exposed by minimal-json's getDouble merge.
 func (e *methodEmitter) computeCanonicalDepths(reach map[int]bool) map[int]int {
 	depths := make(map[int]int)
 	code := e.code
-	if os.Getenv("CATTY_SIM") != "" {
-		fmt.Fprintf(os.Stderr, "[cc] %s.%s reach=%d\n", e.cf.ThisClass, e.m.Name, len(reach))
-	}
 
-	// JVMS: the operand stack is EMPTY at method entry; parameters live
-	// in locals. Counting them here inflated every depth by the arg
-	// footprint (the root cause of the Json.value(F) s-1 drift).
-	entryDepth := 0
-	if os.Getenv("CATTY_SIM") != "" {
-		fmt.Fprintf(os.Stderr, "[cc-v2] %s.%s entry=0\n", e.cf.ThisClass, e.m.Name)
-	}
-
-	// Build SM frame lookup.
+	// Build SM frame lookup (raw slot count, cat2 = 2).
 	smDepth := make(map[int]int)
 	for i := range e.m.Code.StackMaps {
 		fr := &e.m.Code.StackMaps[i]
@@ -47,43 +39,105 @@ func (e *methodEmitter) computeCanonicalDepths(reach map[int]bool) map[int]int {
 		handlerSet[pc] = true
 	}
 
-	d := entryDepth
-	for pc := 0; pc < len(code); pc++ {
-		if !reach[pc] {
-			continue
-		}
-		op := code[pc]
-
-		// Exception handler entries: stack cleared + exception pushed = 1.
+	applyGroundTruth := func(pc, d int) int {
 		if handlerSet[pc] {
-			d = 1
-		} else if sd, ok := smDepth[pc]; ok {
-			d = sd
+			return 1
 		}
-		if os.Getenv("CATTY_SIM") != "" &&
-			((pc >= 35 && pc <= 45) || (pc >= 155 && pc <= 170)) {
-			fmt.Fprintf(os.Stderr, "[sim] pc=%d op=%#x rec=%d\n", pc, op, d)
+		if sd, ok := smDepth[pc]; ok {
+			return sd
+		}
+		return d
+	}
+
+	enqueue := func(list []qItem, pc, d int) []qItem {
+		if !reach[pc] {
+			return list
+		}
+		d = applyGroundTruth(pc, d)
+		if prev, seen := depths[pc]; seen {
+			if prev == d {
+				return list // converged
+			}
+			// Verifier-checked input guarantees consistent frames; on
+			// any residual disagreement keep the established value and
+			// do not re-propagate (deterministic, no oscillation).
+			return list
 		}
 		depths[pc] = d
+		return append(list, qItem{pc, d})
+	}
 
-		effect := e.instrEffect(pc, op)
-		d += effect
-		if d < 0 {
-			d = 0
-		}
+	work := make([]qItem, 0, len(reach))
+	work = enqueue(work, 0, 0) // method entry: empty operand stack
 
-		// Skip non-linear successors.
+	for len(work) > 0 {
+		it := work[len(work)-1]
+		work = work[:len(work)-1]
+		op := code[it.pc]
+
+		next := -1 // linear successor when the opcode falls through
 		switch op {
-		case 0xa7, 0xc8: // goto/goto_w: jump target will re-sync from SM
-			pc += instrSizeSafe(code, pc) - 1
-		case 0xaa, 0xab: // switches
-			pc += instrSizeSafe(code, pc) - 1
+		case 0xa7, 0xc8: // goto, goto_w
+			next = branchTarget(it.pc, code)
+			if op == 0xc8 {
+				p := it.pc + 1
+				next = it.pc + int(int32(uint32(code[p])<<24|uint32(code[p+1])<<16|
+					uint32(code[p+2])<<8|uint32(code[p+3])))
+			}
+		case 0xaa, 0xab: // tableswitch, lookupswitch
+			p := it.pc + 1
+			for p%4 != 0 {
+				p++
+			}
+			rd32 := func(i int) int32 {
+				return int32(uint32(code[i])<<24 | uint32(code[i+1])<<16 |
+					uint32(code[i+2])<<8 | uint32(code[i+3]))
+			}
+			emit := func(tgt int) { work = enqueue(work, tgt, it.depth) }
+			if op == 0xaa {
+				def := it.pc + int(rd32(p))
+				low, high := int(rd32(p+4)), int(rd32(p+8))
+				p += 12
+				emit(def)
+				for v := low; v <= high; v++ {
+					emit(it.pc + int(rd32(p)))
+					p += 4
+				}
+			} else {
+				def := it.pc + int(rd32(p))
+				pairs := int(rd32(p+4))
+				p += 8
+				emit(def)
+				for j := 0; j < pairs; j++ {
+					emit(it.pc + int(rd32(p+4)))
+					p += 8
+				}
+			}
+		case 0xa9, 0xbf, 0xac, 0xad, 0xae, 0xaf, 0xb0, 0xb1:
+			// ret/athrow/returns: no linear successor. Exception edges
+			// land on handler entries, seeded globally below.
+		case 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e,
+			0x9f, 0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6,
+			0xc6, 0xc7: // conditional branches: both edges
+			work = enqueue(work, branchTarget(it.pc, code), it.depth)
+			next = it.pc + instrSizeSafe(code, it.pc)
 		default:
-			// fallthrough handled by loop increment
+			next = it.pc + instrSizeSafe(code, it.pc)
+		}
+		if next >= 0 && next <= len(code) {
+			d := it.depth + e.instrEffect(it.pc, op)
+			if d < 0 {
+				d = 0
+			}
+			work = enqueue(work, next, d)
 		}
 	}
-	if os.Getenv("CATTY_SIM") != "" && e.cf.ThisClass == "com/eclipsesource/json/Json" {
-		fmt.Fprintf(os.Stderr, "[cc-done] %s.%s depths=%v\n", e.cf.ThisClass, e.m.Name, depths)
+
+	// Handler entries not reached by explicit edges still canonicalize.
+	for pc := range handlerSet {
+		if _, ok := depths[pc]; !ok && reach[pc] {
+			depths[pc] = 1
+		}
 	}
 	return depths
 }
@@ -181,7 +235,11 @@ func (e *methodEmitter) instrEffect(pc int, op byte) int {
 		if err != nil {
 			return 0
 		}
-		return descSlots(desc) // pop recv + push value
+		// Net effect: pop receiver, push value ⇒ slots-1. The missing
+		// -1 here inflated straight-line depth by one per getfield —
+		// masked for years by dense StackMap resyncs, exposed when the
+		// lazy-install hook first ran minimal-json's generated bodies.
+		return descSlots(desc) - 1
 	case 0xb5: // putfield
 		_, _, desc, _, err := refAt(e.cf, code, pc)
 		if err != nil {

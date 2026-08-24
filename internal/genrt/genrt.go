@@ -15,6 +15,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
+	"sync/atomic"
 
 	"catty/internal/kernel"
 )
@@ -33,6 +35,10 @@ var resolved = map[methodKey]*kernel.Method{}
 func InstallKernel(k *kernel.Kernel) {
 	K = k
 	resolved = make(map[methodKey]*kernel.Method)
+	classCache = sync.Map{} // entries reference the previous kernel's graph
+	for i := range icTable {
+		icTable[i].Store(nil) // entries reference the previous kernel's graph
+	}
 }
 
 func thrKey(th kernel.OwnerKey) uint64 {
@@ -79,15 +85,24 @@ func mustInstance(v kernel.Value, why string) *kernel.Instance {
 	return in
 }
 
+// trackerFor returns the init tracker for a thread. Threads implementing
+// kernel.InitTracker (the VM's Thread) must be used DIRECTLY: mixing this
+// with a KeyTracker splits the in-progress bookkeeping across two stores,
+// and a <clinit> that drops from emitted into interpreted code then
+// deadlocks on its own class mutex (self-referential init, DEV-0002
+// family).
+func trackerFor(th kernel.OwnerKey) kernel.InitTracker {
+	if it, ok := th.(kernel.InitTracker); ok {
+		return it
+	}
+	return kernel.KeyTracker{R: K.Threads, Key: thrKey(th)}
+}
+
 // EnsureInit drives <clinit> for emitted-code static access, using a
 // registry-backed recursion guard.
 func EnsureInit(th kernel.OwnerKey, clsName string) {
-	c, err := K.ResolveClass(clsName)
-	if err != nil {
-		panic("genrt EnsureInit: " + err.Error())
-	}
-	tr := kernel.KeyTracker{R: K.Threads, Key: thrKey(th)}
-	_ = K.EnsureInitialized(tr, c)
+	c := classFor(clsName)
+	_ = K.EnsureInitialized(trackerFor(th), c)
 }
 
 func engineErr(err error) *kernel.Thrown {
@@ -98,6 +113,47 @@ func engineErr(err error) *kernel.Thrown {
 
 type methodKey struct {
 	cls, name, desc string
+}
+
+// icEntry is one monomorphic inline-cache slot payload. Immutable after
+// construction; swapped in via atomic pointer so concurrent callers never
+// observe a torn {dyn, m} pair.
+type icEntry struct {
+	cls, name, desc string // call-site identity (compile-time constants)
+	dyn             *kernel.Class
+	m               *kernel.Method
+}
+
+// icTable is the direct-mapped virtual-dispatch cache (P-0009 T1).
+// Generated code passes the same constant strings per call site, so hit
+// verification is mostly pointer equality. Cleared on InstallKernel:
+// entries point into a specific kernel's class graph.
+var icTable [1024]atomic.Pointer[icEntry]
+
+func icHash(cls, name, desc string) uint32 {
+	h := uint32(2166136261)
+	for _, s := range [3]string{cls, name, desc} {
+		for i := 0; i < len(s); i++ {
+			h ^= uint32(s[i])
+			h *= 16777619
+		}
+	}
+	return h % uint32(len(icTable))
+}
+
+// methodForDynCached resolves a virtual dispatch through the inline
+// cache. Monomorphic sites — the overwhelming majority in practice —
+// pay one atomic load plus pointer compares instead of a superclass-chain
+// walk with per-call memberKey allocation.
+func methodForDynCached(dyn *kernel.Class, cls, name, desc string) *kernel.Method {
+	slot := &icTable[icHash(cls, name, desc)]
+	if e := slot.Load(); e != nil && e.dyn == dyn &&
+		e.cls == cls && e.name == name && e.desc == desc {
+		return e.m
+	}
+	m := methodForDyn(dyn, name, desc)
+	slot.Store(&icEntry{cls: cls, name: name, desc: desc, dyn: dyn, m: m})
+	return m
 }
 
 func methodForDyn(dyn *kernel.Class, name, desc string) *kernel.Method {
@@ -141,7 +197,7 @@ func CallVirtual(th kernel.OwnerKey, recv kernel.Value, cls, name, desc string, 
 			fmt.Sprintf("invokevirtual %s.%s on null", cls, name))
 	}
 	dyn := ClassOf(recv)
-	m := methodForDyn(dyn, name, desc)
+	m := methodForDynCached(dyn, cls, name, desc)
 	return invokeChecked(th, m, recv, args)
 }
 
@@ -152,11 +208,21 @@ func CallSpecial(th kernel.OwnerKey, recv kernel.Value, cls, name, desc string, 
 }
 
 func invokeChecked(th kernel.OwnerKey, m *kernel.Method, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
-	key := thrKey(th)
-	if err := K.Threads.FrameEnter(key); err != nil {
-		return nil, Throw(th, "java/lang/StackOverflowError", "")
+	// Frame metering: prefer the thread's own lock-free counter (shared
+	// budget with interpreted frames); fall back to the registry for
+	// owner keys without a meter.
+	if fm, ok := th.(kernel.FrameMeter); ok {
+		if err := fm.EnterFrame(); err != nil {
+			return nil, Throw(th, "java/lang/StackOverflowError", "")
+		}
+		defer fm.ExitFrame()
+	} else {
+		key := thrKey(th)
+		if err := K.Threads.FrameEnter(key); err != nil {
+			return nil, Throw(th, "java/lang/StackOverflowError", "")
+		}
+		defer K.Threads.FrameExit(key)
 	}
-	defer K.Threads.FrameExit(key)
 
 	v, err := K.InvokeAs(ownerOf(th), m, recv, args)
 	if err == nil {
@@ -207,12 +273,32 @@ func fieldFor(cls *kernel.Class, name, desc string) *kernel.Field {
 
 // --- allocation / typing ---------------------------------------------------------------
 
-// New allocates an instance of an internal class name.
-func New(clsName string) *kernel.Instance {
+// classCache memoizes name→*Class for the installed kernel (cleared by
+// InstallKernel). Allocation paths resolve classes by name on every `new`.
+var classCache sync.Map // string -> *kernel.Class
+
+func classFor(clsName string) *kernel.Class {
+	if v, ok := classCache.Load(clsName); ok {
+		return v.(*kernel.Class)
+	}
 	c, err := K.ResolveClass(clsName)
 	if err != nil {
-		panic("genrt new: " + err.Error())
+		panic("genrt resolve: " + err.Error())
 	}
+	classCache.Store(clsName, c)
+	return c
+}
+
+// New allocates an instance of an internal class, mirroring the
+// interpreter's `new` semantics exactly: java/lang/String gets its magic
+// JString representation, and the class is driven to initialized state
+// before the constructor runs (JVMS §5.5).
+func New(th kernel.OwnerKey, clsName string) kernel.Value {
+	c := classFor(clsName)
+	if c.Name == "java/lang/String" {
+		return K.MakeJString(nil)
+	}
+	_ = K.EnsureInitialized(trackerFor(th), c)
 	in, ierr := K.NewInstance(c)
 	if ierr != nil {
 		panic("genrt new: " + ierr.Error())

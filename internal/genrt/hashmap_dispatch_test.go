@@ -27,7 +27,7 @@ func TestHashMapThroughGenRTPath(t *testing.T) {
 	th := testKey
 
 	// Step 1: new HashMap
-	obj := New("java/util/HashMap")
+	obj := New(th, "java/util/HashMap")
 	if obj == nil {
 		t.Fatal("New returned nil")
 	}
@@ -39,7 +39,7 @@ func TestHashMapThroughGenRTPath(t *testing.T) {
 	}
 
 	// Verify Payload was set by <init>
-	in := obj
+	in := obj.(*kernel.Instance)
 	if in.Payload == nil {
 		t.Fatal("Payload is nil after <init> — natHashMapInit was not called!")
 	}

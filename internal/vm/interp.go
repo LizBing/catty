@@ -80,17 +80,30 @@ func New(k *kernel.Kernel) *Thread {
 func (t *Thread) OwnerKey() uint64 { return t.id }
 
 // InvokeInterpreted implements kernel.Invoker with SOE depth metering.
+// The meter is shared with the emitted path (genrt.invokeChecked) so one
+// budget spans both engines like a real JVM stack.
 func (t *Thread) InvokeInterpreted(m *kernel.Method, recv kernel.Value, args []kernel.Value) (kernel.Value, error) {
+	if err := t.EnterFrame(); err != nil {
+		return nil, t.throwNamed("java/lang/StackOverflowError", "")
+	}
+	defer t.ExitFrame()
+	return t.exec(m, recv, args)
+}
+
+// EnterFrame implements kernel.FrameMeter (lock-free per-thread depth).
+func (t *Thread) EnterFrame() error {
 	if t.maxDepth == 0 { // primordial thread lazy-init
 		t.maxDepth = t.K.MaxFrames()
 	}
 	t.depth++
-	defer func() { t.depth-- }()
 	if t.depth > t.maxDepth {
-		return nil, t.throwNamed("java/lang/StackOverflowError", "")
+		return kernel.ErrStackOverflow
 	}
-	return t.exec(m, recv, args)
+	return nil
 }
+
+// ExitFrame implements kernel.FrameMeter.
+func (t *Thread) ExitFrame() { t.depth-- }
 
 // --- kernel.InitTracker -----------------------------------------------------
 

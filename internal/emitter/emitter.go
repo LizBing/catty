@@ -30,28 +30,44 @@ func EmitProgram(files ...*classfile.ClassFile) (string, error) {
 		}
 	}
 
-	// Install overrides interpreted bodies for emitted methods. Idempotent.
+	// Install overrides interpreted bodies for emitted methods. Idempotent
+	// per method; classes that load LATER (nested classes, library deps —
+	// they resolve lazily at first `new`) are covered by the kernel's
+	// class-load hook.
 	b.WriteString(`// Install wires emitted bodies into the kernel (call once after loading).
 func Install(k *kernel.Kernel) {
 	genrt.InstallKernel(k)
-	for _, e := range installTable {
-		c, ok := k.ClassByName(e.cls)
-		if !ok {
-			continue // class not in this run
-		}
-		m, err := k.ResolveMethod(c, e.name, e.desc)
-		if err != nil {
-			panic("gen install: " + err.Error())
-		}
-		f := e.fn
-		m.Native = func(ctx *kernel.CallContext, recv kernel.Value, args []kernel.Value) (kernel.Value, error) {
-			v, exc := f(ctx.Owner, recv, args)
-			if exc != nil {
-				return nil, exc
+	apply := func(c *kernel.Class) {
+		for _, e := range installTable {
+			if e.cls != c.Name {
+				continue // class not in this run
 			}
-			return v, nil
+			m, err := k.ResolveMethod(c, e.name, e.desc)
+			if err != nil {
+				panic("gen install: " + err.Error())
+			}
+			if m.EmitBody != nil {
+				continue // already installed (repeat loads / idempotence)
+			}
+			f := e.fn
+			m.EmitBody = func(th kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+				return f(th, recv, args)
+			}
+			m.Native = func(ctx *kernel.CallContext, recv kernel.Value, args []kernel.Value) (kernel.Value, error) {
+				v, exc := f(ctx.Owner, recv, args)
+				if exc != nil {
+					return nil, exc
+				}
+				return v, nil
+			}
 		}
 	}
+	for _, e := range installTable {
+		if c, ok := k.ClassByName(e.cls); ok {
+			apply(c)
+		}
+	}
+	k.SetClassLoadHook(apply)
 }`)
 
 	return b.String(), nil

@@ -69,9 +69,9 @@ func (e *methodEmitter) body() error {
 		_, isHandler := e.handlerAt[pc]
 		if d, ok := canonDepths[pc]; ok {
 			e.depth = d
-			if os.Getenv("CATTY_BODYDBG") != "" && e.cf.ThisClass == "com/eclipsesource/json/Json" &&
-				e.m.Desc == "(F)Lcom/eclipsesource/json/JsonValue;" {
-				fmt.Fprintf(os.Stderr, "[bd] pc=%d canon=%d depth_now=%d\n", pc, d, e.depth)
+			if os.Getenv("CATTY_DEPTHDBG") != "" {
+				fmt.Fprintf(os.Stderr, "[dep] %s.%s pc=%d op=%#x canon=%d\n",
+					e.cf.ThisClass, e.m.Name, pc, e.code[pc], d)
 			}
 		}
 		if isHandler {

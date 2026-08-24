@@ -440,10 +440,10 @@ func (e *methodEmitter) emitOne(pc int) error {
 		a := popRef()
 		pushV(fmt.Sprintf("int32(int16(%s.(int32)))", a))
 
-	case 0xac, 0xae, 0xaf, 0xb0: // ireturn/freturn/dreturn/areturn (cat1)
+	case 0xac, 0xae, 0xb0: // ireturn/freturn/areturn (cat1)
 		v := popRef()
 		e.p("return %s, nil", v)
-	case 0xad: // lreturn (cat2)
+	case 0xad, 0xaf: // lreturn/dreturn (cat2)
 		e.p("return %s, nil", popRefCat2())
 	case 0xb1: // return
 		e.p("return nil, nil")
@@ -552,7 +552,7 @@ func (e *methodEmitter) emitOne(pc int) error {
 		if cerr != nil {
 			return cerr
 		}
-		pushV(fmt.Sprintf("genrt.New(%q)", clsName))
+		pushV(fmt.Sprintf("genrt.New(thr, %q)", clsName))
 	case 0xbc: // newarray
 		nm, ok := atypeName(int(code[pc+1]))
 		if !ok {
