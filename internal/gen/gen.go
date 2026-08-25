@@ -5469,6 +5469,659 @@ func Catty_demo_ReflectDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, re
 func init() { installTable = append(installTable,
 	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"demo/ReflectDemo", "main", "([Ljava/lang/String;)V", Catty_demo_ReflectDemo_main___ALjava_lang_String__V}) }
 
+// demo/MiniJson.<init>
+func Catty_demo_MiniJson_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1 kernel.Value
+	_ = []kernel.Value{s0, s1}
+	l0 = recv
+	l0 = recv
+	genrt.SetLine(thr, 9)
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"demo/MiniJson", "<init>", "()V", Catty_demo_MiniJson_init____V}) }
+
+// demo/MiniJson.serialize
+func Catty_demo_MiniJson_serialize___Ljava_lang_Object__Ljava_lang_String_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3, l4, l5, l6, l7, l8 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3, l4, l5, l6, l7, l8}
+	var s0, s1, s2, s3 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3}
+	var abuf [1]kernel.Value
+	_ = abuf
+	l0 = args[0]
+	l0 = args[0]
+	genrt.SetLine(thr, 12)
+	s0 = l0
+	s0, exc = genrt.CallVirtualIC(326, thr, s0, "java/lang/Object", "getClass", "()Ljava/lang/Class;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s0
+	genrt.SetLine(thr, 13)
+	s0 = genrt.New(thr, "java/lang/StringBuilder")
+	s1 = s0
+	s2 = genrt.Str("{")
+	abuf[0] = s2
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s0
+	genrt.SetLine(thr, 14)
+	s0 = int32(1)
+	l3 = s0
+	genrt.SetLine(thr, 15)
+	s0 = l1
+	s0, exc = genrt.CallVirtualIC(101, thr, s0, "java/lang/Class", "getDeclaredFields", "()[Ljava/lang/reflect/Field;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l4 = s0
+	s0 = l4
+	s0, exc = genrt.ArrayLengthChecked(thr, s0)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l5 = s0
+	s0 = int32(0)
+	l6 = s0
+	L31:
+	s0 = l6
+	s1 = l5
+	if s0.(int32) >= s1.(int32) { goto L127 }
+	s0 = l4
+	s1 = l6
+	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l7 = s0
+	genrt.SetLine(thr, 16)
+	s0 = l3
+	if s0.(int32) != 0 { goto L56 }
+	s0 = l2
+	s1 = int32(44)
+	abuf[0] = s1
+	s0, exc = genrt.CallVirtualIC(514, thr, s0, "java/lang/StringBuilder", "append", "(C)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	genrt.SetLine(thr, 17)
+	L56:
+	s0 = int32(0)
+	l3 = s0
+	genrt.SetLine(thr, 18)
+	s0 = l2
+	s1 = int32(34)
+	abuf[0] = s1
+	s0, exc = genrt.CallVirtualIC(514, thr, s0, "java/lang/StringBuilder", "append", "(C)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l7
+	s1, exc = genrt.CallVirtualIC(189, thr, s1, "java/lang/reflect/Field", "getName", "()Ljava/lang/String;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s1
+	s0, exc = genrt.CallVirtualIC(489, thr, s0, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = genrt.Str("\":")
+	abuf[0] = s1
+	s0, exc = genrt.CallVirtualIC(489, thr, s0, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	genrt.SetLine(thr, 19)
+	s0 = l7
+	s1 = l0
+	abuf[0] = s1
+	s0, exc = genrt.CallVirtualIC(878, thr, s0, "java/lang/reflect/Field", "get", "(Ljava/lang/Object;)Ljava/lang/Object;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l8 = s0
+	genrt.SetLine(thr, 20)
+	s0 = l8
+	s0 = genrt.BoolValue(genrt.InstanceOf(s0, "java/lang/String"))
+	if s0.(int32) == 0 { goto L114 }
+	genrt.SetLine(thr, 21)
+	s0 = l2
+	s1 = int32(34)
+	abuf[0] = s1
+	s0, exc = genrt.CallVirtualIC(514, thr, s0, "java/lang/StringBuilder", "append", "(C)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l8
+	abuf[0] = s1
+	s0, exc = genrt.CallVirtualIC(487, thr, s0, "java/lang/StringBuilder", "append", "(Ljava/lang/Object;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = int32(34)
+	abuf[0] = s1
+	s0, exc = genrt.CallVirtualIC(514, thr, s0, "java/lang/StringBuilder", "append", "(C)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	goto L121
+	genrt.SetLine(thr, 23)
+	L114:
+	s0 = l2
+	s1 = l8
+	abuf[0] = s1
+	s0, exc = genrt.CallVirtualIC(487, thr, s0, "java/lang/StringBuilder", "append", "(Ljava/lang/Object;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	genrt.SetLine(thr, 15)
+	L121:
+	l6 = l6.(int32) + 1
+	goto L31
+	genrt.SetLine(thr, 26)
+	L127:
+	s0 = l2
+	s1 = int32(125)
+	abuf[0] = s1
+	s0, exc = genrt.CallVirtualIC(514, thr, s0, "java/lang/StringBuilder", "append", "(C)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtualIC(342, thr, s0, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"demo/MiniJson", "serialize", "(Ljava/lang/Object;)Ljava/lang/String;", Catty_demo_MiniJson_serialize___Ljava_lang_Object__Ljava_lang_String_}) }
+
+// demo/InheritDemo.<init>
+func Catty_demo_InheritDemo_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	genrt.SetLine(thr, 11)
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "demo/IBase", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	genrt.SetLine(thr, 12)
+	s0 = l0
+	s1 = int32(7)
+	exc = genrt.SetFieldChecked(thr, s0, "num", "I", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	genrt.SetLine(thr, 13)
+	s0 = l0
+	s1 = genrt.Str("C")
+	exc = genrt.SetFieldChecked(thr, s0, "base", "Ljava/lang/String;", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"demo/InheritDemo", "<init>", "()V", Catty_demo_InheritDemo_init____V}) }
+
+// demo/InheritDemo.baseInfo
+func Catty_demo_InheritDemo_baseInfo____Ljava_lang_String_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	var abuf [1]kernel.Value
+	_ = abuf
+	l0 = recv
+	l0 = recv
+	genrt.SetLine(thr, 15)
+	s0 = genrt.New(thr, "java/lang/StringBuilder")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/StringBuilder", "<init>", "()V", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = genrt.Str("child:")
+	abuf[0] = s1
+	s0, exc = genrt.CallVirtualIC(489, thr, s0, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "base", "Ljava/lang/String;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s1
+	s0, exc = genrt.CallVirtualIC(489, thr, s0, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtualIC(342, thr, s0, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"demo/InheritDemo", "baseInfo", "()Ljava/lang/String;", Catty_demo_InheritDemo_baseInfo____Ljava_lang_String_}) }
+
+// demo/InheritDemo.main
+func Catty_demo_InheritDemo_main___ALjava_lang_String__V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0, l1, l2, l3, l4, l5, l6, l7 kernel.Value
+	_ = []kernel.Value{l0, l1, l2, l3, l4, l5, l6, l7}
+	var s0, s1, s2, s3, s4 kernel.Value
+	_ = []kernel.Value{s0, s1, s2, s3, s4}
+	var abuf [2]kernel.Value
+	_ = abuf
+	l0 = args[0]
+	l0 = args[0]
+	genrt.SetLine(thr, 18)
+	s0 = genrt.Str("demo.InheritDemo")
+	abuf[0] = s0
+	s0, exc = genrt.CallStatic(thr, "java/lang/Class", "forName", "(Ljava/lang/String;)Ljava/lang/Class;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l1 = s0
+	genrt.SetLine(thr, 20)
+	s0 = l1
+	s0, exc = genrt.CallVirtualIC(747, thr, s0, "java/lang/Class", "getFields", "()[Ljava/lang/reflect/Field;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l2 = s0
+	genrt.SetLine(thr, 21)
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.New(thr, "java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("count=")
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(489, thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l2
+	s2, exc = genrt.ArrayLengthChecked(thr, s2)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(172, thr, s1, "java/lang/StringBuilder", "append", "(I)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtualIC(342, thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s1
+	_, exc = genrt.CallVirtualIC(746, thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	genrt.SetLine(thr, 22)
+	s0 = l2
+	l3 = s0
+	s0 = l3
+	s0, exc = genrt.ArrayLengthChecked(thr, s0)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l4 = s0
+	s0 = int32(0)
+	l5 = s0
+	L46:
+	s0 = l5
+	s1 = l4
+	if s0.(int32) >= s1.(int32) { goto L110 }
+	s0 = l3
+	s1 = l5
+	s0, exc = genrt.ALoadChecked(thr, s0, s1.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l6 = s0
+	genrt.SetLine(thr, 23)
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.New(thr, "java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("field=")
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(489, thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l6
+	s2, exc = genrt.CallVirtualIC(880, thr, s2, "java/lang/reflect/Field", "getDeclaringClass", "()Ljava/lang/Class;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2, exc = genrt.CallVirtualIC(9, thr, s2, "java/lang/Class", "getSimpleName", "()Ljava/lang/String;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(489, thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str(".")
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(489, thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l6
+	genrt.SetLine(thr, 24)
+	s2, exc = genrt.CallVirtualIC(189, thr, s2, "java/lang/reflect/Field", "getName", "()Ljava/lang/String;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(489, thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtualIC(342, thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	genrt.SetLine(thr, 23)
+	abuf[0] = s1
+	_, exc = genrt.CallVirtualIC(746, thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	genrt.SetLine(thr, 22)
+	l5 = l5.(int32) + 1
+	goto L46
+	genrt.SetLine(thr, 27)
+	L110:
+	s0 = genrt.New(thr, "demo/InheritDemo")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "demo/InheritDemo", "<init>", "()V", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l3 = s0
+	genrt.SetLine(thr, 28)
+	s0 = l3
+	s1 = genrt.Str("X")
+	exc = genrt.SetFieldChecked(thr, s0, "base", "Ljava/lang/String;", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	genrt.SetLine(thr, 29)
+	s0 = l3
+	l4 = s0
+	genrt.SetLine(thr, 30)
+	s0 = l1
+	s1 = genrt.Str("baseInfo")
+	s2 = int32(0)
+	s2, exc = genrt.NewRefArray(thr, "java/lang/Class", s2.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s1
+	abuf[1] = s2
+	s0, exc = genrt.CallVirtualIC(743, thr, s0, "java/lang/Class", "getMethod", "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;", abuf[:2])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l5 = s0
+	genrt.SetLine(thr, 31)
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = l5
+	s2 = l4
+	s3 = int32(0)
+	s3, exc = genrt.NewRefArray(thr, "java/lang/Object", s3.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s2
+	abuf[1] = s3
+	s1, exc = genrt.CallVirtualIC(266, thr, s1, "java/lang/reflect/Method", "invoke", "(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;", abuf[:2])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = genrt.CheckCast(thr, s1, "java/lang/String")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s1
+	_, exc = genrt.CallVirtualIC(746, thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	genrt.SetLine(thr, 33)
+	s0 = l4
+	s0, exc = genrt.CallVirtualIC(326, thr, s0, "java/lang/Object", "getClass", "()Ljava/lang/Class;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = genrt.Str("baseInfo")
+	s2 = int32(0)
+	s2, exc = genrt.NewRefArray(thr, "java/lang/Class", s2.(int32))
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s1
+	abuf[1] = s2
+	s0, exc = genrt.CallVirtualIC(743, thr, s0, "java/lang/Class", "getMethod", "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;", abuf[:2])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l6 = s0
+	genrt.SetLine(thr, 34)
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.New(thr, "java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("same=")
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(489, thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l5
+	s3 = l6
+	abuf[0] = s3
+	s2, exc = genrt.CallVirtualIC(966, thr, s2, "java/lang/reflect/Method", "equals", "(Ljava/lang/Object;)Z", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(305, thr, s1, "java/lang/StringBuilder", "append", "(Z)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtualIC(342, thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s1
+	_, exc = genrt.CallVirtualIC(746, thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	genrt.SetLine(thr, 36)
+	s0 = l1
+	s0, exc = genrt.CallVirtualIC(248, thr, s0, "java/lang/Class", "getSuperclass", "()Ljava/lang/Class;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	l7 = s0
+	genrt.SetLine(thr, 37)
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.New(thr, "java/lang/StringBuilder")
+	s2 = s1
+	_, exc = genrt.CallSpecial(thr, s2, "java/lang/StringBuilder", "<init>", "()V", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = genrt.Str("super=")
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(489, thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s2 = l7
+	s2, exc = genrt.CallVirtualIC(9, thr, s2, "java/lang/Class", "getSimpleName", "()Ljava/lang/String;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s2
+	s1, exc = genrt.CallVirtualIC(489, thr, s1, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1, exc = genrt.CallVirtualIC(342, thr, s1, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s1
+	_, exc = genrt.CallVirtualIC(746, thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	genrt.SetLine(thr, 38)
+	s0 = genrt.GetStatic(thr, "java/lang/System", "out", "Ljava/io/PrintStream;")
+	s1 = genrt.Str("done")
+	abuf[0] = s1
+	_, exc = genrt.CallVirtualIC(746, thr, s0, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	genrt.SetLine(thr, 39)
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"demo/InheritDemo", "main", "([Ljava/lang/String;)V", Catty_demo_InheritDemo_main___ALjava_lang_String__V}) }
+
+// demo/IBase.<init>
+func Catty_demo_IBase_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	l0 = recv
+	l0 = recv
+	genrt.SetLine(thr, 4)
+	s0 = l0
+	_, exc = genrt.CallSpecial(thr, s0, "java/lang/Object", "<init>", "()V", []kernel.Value{})
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	genrt.SetLine(thr, 5)
+	s0 = l0
+	s1 = genrt.Str("B")
+	exc = genrt.SetFieldChecked(thr, s0, "base", "Ljava/lang/String;", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	genrt.SetLine(thr, 6)
+	s0 = l0
+	s1 = int32(0)
+	exc = genrt.SetFieldChecked(thr, s0, "secret", "I", s1)
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return nil, nil
+	return nil, nil // unreachable terminal
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"demo/IBase", "<init>", "()V", Catty_demo_IBase_init____V}) }
+
+// demo/IBase.baseInfo
+func Catty_demo_IBase_baseInfo____Ljava_lang_String_(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
+	var exc *kernel.Thrown
+	_ = exc
+	var l0 kernel.Value
+	_ = []kernel.Value{l0}
+	var s0, s1, s2 kernel.Value
+	_ = []kernel.Value{s0, s1, s2}
+	var abuf [1]kernel.Value
+	_ = abuf
+	l0 = recv
+	l0 = recv
+	genrt.SetLine(thr, 8)
+	s0 = genrt.New(thr, "java/lang/StringBuilder")
+	s1 = s0
+	_, exc = genrt.CallSpecial(thr, s1, "java/lang/StringBuilder", "<init>", "()V", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = genrt.Str("base:")
+	abuf[0] = s1
+	s0, exc = genrt.CallVirtualIC(489, thr, s0, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s1 = l0
+	s1, exc = genrt.GetFieldChecked(thr, s1, "base", "Ljava/lang/String;")
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	abuf[0] = s1
+	s0, exc = genrt.CallVirtualIC(489, thr, s0, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", abuf[:1])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	s0, exc = genrt.CallVirtualIC(342, thr, s0, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", abuf[:0])
+	if exc != nil {
+		return nil, exc // no handler matched
+	}
+	return s0, nil
+	return nil, nil // unreachable terminal
+}
+func init() { installTable = append(installTable,
+	struct{ cls, name, desc string; fn func(kernel.OwnerKey, kernel.Value, []kernel.Value) (kernel.Value, *kernel.Thrown) }{"demo/IBase", "baseInfo", "()Ljava/lang/String;", Catty_demo_IBase_baseInfo____Ljava_lang_String_}) }
+
 // app/Main.<init>
 func Catty_app_Main_init____V(thr kernel.OwnerKey, recv kernel.Value, args []kernel.Value) (kernel.Value, *kernel.Thrown) {
 	var exc *kernel.Thrown

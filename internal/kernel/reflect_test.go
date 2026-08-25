@@ -380,6 +380,84 @@ func TestReflectionArrayClassAndStaticInvoke(t *testing.T) {
 	_ = err
 }
 
+func TestReflectionInheritedTraversal(t *testing.T) {
+	k, _ := reflectKernel(t)
+	// Base (synthesized parent) with a public field + public method.
+	if _, err := k.DefineClass(&ClassDef{
+		Name: "RBase",
+		Fields: []FieldDef{
+			{Name: "base", Desc: "Ljava/lang/String;", Flags: 0x0001},
+			{Name: "hidden", Desc: "I", Flags: 0x0002}, // private: excluded
+		},
+		Methods: []MethodDef{
+			{Name: "baseInfo", Desc: "()Ljava/lang/String;", Flags: 0x0001,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					return ctx.NewStringGo("base"), nil
+				}},
+			{Name: "secret", Desc: "()V", Flags: 0x0002, Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+				return nil, nil
+			}}, // private: excluded
+		},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	// Child extends RBase; shadows `base` and overrides baseInfo.
+	if _, err := k.DefineClass(&ClassDef{
+		Name:  "RChild",
+		Super: "RBase",
+		Fields: []FieldDef{
+			{Name: "base", Desc: "Ljava/lang/String;", Flags: 0x0001}, // shadows
+			{Name: "extra", Desc: "I", Flags: 0x0001},
+		},
+		Methods: []MethodDef{
+			{Name: "<init>", Desc: "()V", Flags: 0x0001, Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+				return nil, nil
+			}},
+			{Name: "baseInfo", Desc: "()Ljava/lang/String;", Flags: 0x0001,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					return ctx.NewStringGo("child"), nil
+				}}, // overrides
+		},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	childCls := reflectNative(t, k, "java/lang/Class", "forName",
+		"(Ljava/lang/String;)Ljava/lang/Class;", nil, k.InternGo("RChild"))
+
+	fieldNames := map[string]bool{}
+	fArr := reflectNative(t, k, "java/lang/Class", "getFields",
+		"()[Ljava/lang/reflect/Field;", childCls).(*ArrayObj)
+	for _, fv := range fArr.Elems {
+		fieldNames[jstrOf(t, reflectNative(t, k, "java/lang/reflect/Field",
+			"getName", "()Ljava/lang/String;", fv))] = true
+	}
+	if !fieldNames["base"] || !fieldNames["extra"] || fieldNames["hidden"] {
+		t.Errorf("getFields = %v (want base+extra, no private)", fieldNames)
+	}
+	// Java semantics: a shadowed field is DISTINCT — both Child.base and
+	// RBase.base appear (matches JVM getFields behavior).
+	if len(fArr.Elems) != 3 {
+		t.Errorf("getFields len = %d, want 3", len(fArr.Elems))
+	}
+
+	mArr := reflectNative(t, k, "java/lang/Class", "getMethods",
+		"()[Ljava/lang/reflect/Method;", childCls).(*ArrayObj)
+	methodNames := map[string]bool{}
+	for _, mv := range mArr.Elems {
+		methodNames[jstrOf(t, reflectNative(t, k, "java/lang/reflect/Method",
+			"getName", "()Ljava/lang/String;", mv))] = true
+	}
+	if !methodNames["baseInfo"] || methodNames["secret"] {
+		t.Errorf("getMethods = %v (want inherited public, no private)", methodNames)
+	}
+
+	cArr := reflectNative(t, k, "java/lang/Class", "getConstructors",
+		"()[Ljava/lang/reflect/Constructor;", childCls).(*ArrayObj)
+	if len(cArr.Elems) != 1 {
+		t.Fatalf("constructors = %d, want 1 (ctors are not inherited)", len(cArr.Elems))
+	}
+}
+
 func TestReflectionEdgePins(t *testing.T) {
 	k, _ := reflectKernel(t)
 	clsObj := reflectNative(t, k, "java/lang/Class", "forName",

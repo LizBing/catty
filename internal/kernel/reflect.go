@@ -235,6 +235,10 @@ func registerReflection(k *Kernel) error {
 			{Name: "getSimpleName", Desc: "()Ljava/lang/String;", Flags: 0x0001, Native: natClassGetSimpleName},
 			{Name: "forName", Desc: "(Ljava/lang/String;)Ljava/lang/Class;", Flags: 0x0009, Native: natClassForName},
 			{Name: "getDeclaredFields", Desc: "()[Ljava/lang/reflect/Field;", Flags: 0x0001, Native: natClassDeclaredFields},
+			{Name: "getFields", Desc: "()[Ljava/lang/reflect/Field;", Flags: 0x0001, Native: natClassGetFields},
+			{Name: "getMethods", Desc: "()[Ljava/lang/reflect/Method;", Flags: 0x0001, Native: natClassGetMethods},
+			{Name: "getMethod", Desc: "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;", Flags: 0x0001, Native: natClassGetMethod},
+			{Name: "getConstructors", Desc: "()[Ljava/lang/reflect/Constructor;", Flags: 0x0001, Native: natClassGetConstructors},
 			{Name: "getField", Desc: "(Ljava/lang/String;)Ljava/lang/reflect/Field;", Flags: 0x0001, Native: natClassGetField},
 			{Name: "getDeclaredMethods", Desc: "()[Ljava/lang/reflect/Method;", Flags: 0x0001, Native: natClassDeclaredMethods},
 			{Name: "getDeclaredConstructors", Desc: "()[Ljava/lang/reflect/Constructor;", Flags: 0x0001, Native: natClassDeclaredConstructors},
@@ -252,6 +256,9 @@ func registerReflection(k *Kernel) error {
 		Methods: []MethodDef{
 			{Name: "getName", Desc: "()Ljava/lang/String;", Flags: 0x0001, Native: natFieldGetName},
 			{Name: "getType", Desc: "()Ljava/lang/Class;", Flags: 0x0001, Native: natFieldGetType},
+			{Name: "getDeclaringClass", Desc: "()Ljava/lang/Class;", Flags: 0x0001, Native: natFieldGetDeclaringClass},
+			{Name: "equals", Desc: "(Ljava/lang/Object;)Z", Flags: 0x0001, Native: natReflectEquals},
+			{Name: "hashCode", Desc: "()I", Flags: 0x0001, Native: natReflectHashCode},
 			{Name: "get", Desc: "(Ljava/lang/Object;)Ljava/lang/Object;", Flags: 0x0001, Native: natFieldGet},
 			{Name: "set", Desc: "(Ljava/lang/Object;Ljava/lang/Object;)V", Flags: 0x0001, Native: natFieldSet},
 		},
@@ -264,6 +271,8 @@ func registerReflection(k *Kernel) error {
 		Super: "java/lang/Object",
 		Methods: []MethodDef{
 			{Name: "getName", Desc: "()Ljava/lang/String;", Flags: 0x0001, Native: natMethodGetName},
+			{Name: "equals", Desc: "(Ljava/lang/Object;)Z", Flags: 0x0001, Native: natReflectEquals},
+			{Name: "hashCode", Desc: "()I", Flags: 0x0001, Native: natReflectHashCode},
 			{Name: "invoke", Desc: "(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;", Flags: 0x0001, Native: natMethodInvoke},
 		},
 	}); err != nil {
@@ -275,6 +284,8 @@ func registerReflection(k *Kernel) error {
 		Super: "java/lang/Object",
 		Methods: []MethodDef{
 			{Name: "getName", Desc: "()Ljava/lang/String;", Flags: 0x0001, Native: natConstructorGetName},
+			{Name: "equals", Desc: "(Ljava/lang/Object;)Z", Flags: 0x0001, Native: natReflectEquals},
+			{Name: "hashCode", Desc: "()I", Flags: 0x0001, Native: natReflectHashCode},
 			{Name: "newInstance", Desc: "([Ljava/lang/Object;)Ljava/lang/Object;", Flags: 0x0001, Native: natConstructorNewInstance},
 		},
 	})
@@ -345,6 +356,178 @@ func natClassForName(ctx *CallContext, recv Value, args []Value) (Value, error) 
 		return nil, ctx.Throw(reflectionException, dottedName)
 	}
 	return ctx.K.ClassObjectOf(c)
+}
+
+// walkPublicFields collects PUBLIC fields along the superclass chain,
+// nearest declaration winning on name shadowing (P-0012 inherited
+// traversal).
+func walkPublicFields(c *Class) []*Field {
+	var out []*Field
+	// NOTE: unlike method overriding, a shadowed field is a DISTINCT
+	// field in Java — getFields reports BOTH child.base and Base.base.
+	for x := c; x != nil; x = x.Super {
+		for _, f := range x.DeclaredFields {
+			if f.Static || f.Flags&0x0001 == 0 {
+				continue
+			}
+			out = append(out, f)
+		}
+	}
+	return out
+}
+
+// walkPublicMethods collects PUBLIC non-constructor methods along the
+// superclass chain, nearest declaration winning on name+descriptor.
+// Interface default/abstract methods are not included (v1 limitation,
+// DEV-0010).
+func walkPublicMethods(c *Class) []*Method {
+	seen := map[string]bool{}
+	var out []*Method
+	for x := c; x != nil; x = x.Super {
+		for _, m := range x.Methods {
+			if m.Name == "<init>" || m.Name == "<clinit>" || m.Flags&0x0001 == 0 {
+				continue
+			}
+			key := memberKey(m.Name, m.Desc)
+			if seen[key] {
+				continue
+			}
+			seen[key] = true
+			out = append(out, m)
+		}
+	}
+	return out
+}
+
+func natClassGetFields(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	c, err := classPayloadOrThrow(recv)
+	if err != nil {
+		return emptyArray(ctx.K, "Ljava/lang/reflect/Field;")
+	}
+	fs := walkPublicFields(c)
+	arr, aerr := ctx.K.NewArray("Ljava/lang/reflect/Field;", len(fs))
+	if aerr != nil {
+		return nil, aerr
+	}
+	for i, f := range fs {
+		in, ierr := newReflectInstance(ctx.K, "java/lang/reflect/Field", f)
+		if ierr != nil {
+			return nil, ierr
+		}
+		arr.Elems[i] = in
+	}
+	return arr, nil
+}
+
+func natClassGetMethods(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	c, err := classPayloadOrThrow(recv)
+	if err != nil {
+		if _, ok := err.(*primitiveSignal); ok {
+			return emptyArray(ctx.K, "Ljava/lang/reflect/Method;")
+		}
+		return nil, ctx.Throw("java/lang/RuntimeException", err.Error())
+	}
+	ms := walkPublicMethods(c)
+	sort.Slice(ms, func(i, j int) bool { return ms[i].Name < ms[j].Name })
+	arr, aerr := ctx.K.NewArray("Ljava/lang/reflect/Method;", len(ms))
+	if aerr != nil {
+		return nil, aerr
+	}
+	for i, m := range ms {
+		in, ierr := newReflectInstance(ctx.K, "java/lang/reflect/Method", m)
+		if ierr != nil {
+			return nil, ierr
+		}
+		arr.Elems[i] = in
+	}
+	return arr, nil
+}
+
+// natClassGetMethod resolves a public method by name + parameter Classes
+// along the superclass chain (reflection v2).
+func natClassGetMethod(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	c, cerr := classPayloadOrThrow(recv)
+	if cerr != nil {
+		return nil, ctx.Throw("java/lang/NoSuchMethodException", "primitive class")
+	}
+	js, _ := args[0].(*JString)
+	if js == nil {
+		return nil, ctx.Throw("java/lang/NullPointerException", "getMethod(null)")
+	}
+	var want []*Instance
+	if len(args) > 1 {
+		if arr, ok := args[1].(*ArrayObj); ok {
+			for _, e := range arr.Elems {
+				want = append(want, e.(*Instance))
+			}
+		}
+	}
+	for x := c; x != nil; x = x.Super {
+		for _, m := range x.Methods {
+			if m.Name != js.Go() || m.Flags&0x0001 == 0 ||
+				strings.HasPrefix(m.Name, "<") {
+				continue
+			}
+			pd, _, perr := ParseMethodDesc(m.Desc)
+			if perr != nil || len(pd) != len(want) {
+				continue
+			}
+			match := true
+			for i, w := range want {
+				dc, derr := ctx.K.descToClass(pd[i])
+				if derr != nil || dc != w {
+					match = false
+					break
+				}
+			}
+			if !match {
+				continue
+			}
+			in, ierr := newReflectInstance(ctx.K, "java/lang/reflect/Method", m)
+			if ierr != nil {
+				return nil, ctx.Throw("java/lang/RuntimeException", ierr.Error())
+			}
+			return in, nil
+		}
+	}
+	sig := js.Go() + "/"
+	for _, w := range want {
+		if pi, ok := w.Payload.(*primitiveInfo); ok {
+			sig += pi.desc
+		} else if cc, ok2 := w.Payload.(*Class); ok2 {
+			sig += "L" + cc.Name + ";"
+		} else {
+			sig += "?"
+		}
+	}
+	return nil, ctx.Throw("java/lang/NoSuchMethodException", sig)
+}
+
+func natClassGetConstructors(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	c, err := classPayloadOrThrow(recv)
+	if err != nil {
+		return emptyArray(ctx.K, "Ljava/lang/reflect/Constructor;")
+	}
+	var cs []*Method
+	for _, m := range c.Methods {
+		if m.Name == "<init>" && m.Flags&0x0001 != 0 {
+			cs = append(cs, m)
+		}
+	}
+	sort.Slice(cs, func(i, j int) bool { return cs[i].Desc < cs[j].Desc })
+	arr, aerr := ctx.K.NewArray("Ljava/lang/reflect/Constructor;", len(cs))
+	if aerr != nil {
+		return nil, aerr
+	}
+	for i, m := range cs {
+		in, ierr := newReflectInstance(ctx.K, "java/lang/reflect/Constructor",
+			&ctorRef{cls: c, m: m})
+		if ierr != nil {
+			return nil, ierr
+		}
+		arr.Elems[i] = in
+	}
+	return arr, nil
 }
 
 func natClassDeclaredFields(ctx *CallContext, recv Value, args []Value) (Value, error) {
@@ -521,6 +704,17 @@ func natFieldGetName(ctx *CallContext, recv Value, args []Value) (Value, error) 
 	return ctx.NewStringGo(f.Name), nil
 }
 
+func natFieldGetDeclaringClass(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	f, ferr := fieldPayload(recv)
+	if ferr != nil {
+		return nil, ctx.Throw("java/lang/RuntimeException", ferr.Error())
+	}
+	if f.Holder == nil {
+		return nil, ctx.Throw("java/lang/RuntimeException", "field without holder")
+	}
+	return ctx.K.ClassObjectOf(f.Holder)
+}
+
 func natFieldGetType(ctx *CallContext, recv Value, args []Value) (Value, error) {
 	f, err := fieldPayload(recv)
 	if err != nil {
@@ -597,6 +791,39 @@ func natMethodGetName(ctx *CallContext, recv Value, args []Value) (Value, error)
 		return nil, ctx.Throw("java/lang/RuntimeException", err.Error())
 	}
 	return ctx.NewStringGo(m.Name), nil
+}
+
+// natReflectEquals/natReflectHashCode back equals()/hashCode() on all
+// reflective mirror objects (Field/Method/Constructor): two mirrors are
+// equal iff they wrap the SAME runtime member — matching java.lang
+// reflection semantics where getMethod twice yields equal objects.
+func natReflectEquals(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	in, ok := recv.(*Instance)
+	if !ok {
+		return int32(0), nil
+	}
+	if len(args) == 0 || args[0] == nil {
+		return int32(0), nil
+	}
+	other, ok := args[0].(*Instance)
+	if !ok || other.Class != in.Class {
+		return int32(0), nil
+	}
+	if in.Payload == nil || other.Payload == nil {
+		return int32(0), nil
+	}
+	if in.Payload == other.Payload {
+		return int32(1), nil
+	}
+	return int32(0), nil
+}
+
+func natReflectHashCode(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	in, ok := recv.(*Instance)
+	if !ok {
+		return int32(0), nil
+	}
+	return int32(in.IdentityHash()), nil
 }
 
 func natMethodInvoke(ctx *CallContext, recv Value, args []Value) (Value, error) {
