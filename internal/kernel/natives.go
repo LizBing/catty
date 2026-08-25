@@ -410,6 +410,30 @@ func natArrayListInit(ctx *CallContext, recv Value, args []Value) (Value, error)
 	return nil, nil
 }
 
+func natArrayListAddAll(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	b := alOf(recv)
+	src := args[0].(*Instance)
+	buf, ok := src.Payload.(*alBuf)
+	if !ok {
+		return boolV(false), nil
+	}
+	b.data = append(b.data, buf.data...)
+	return boolV(true), nil
+}
+
+func natArrayListAddAllAt(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	b := alOf(recv)
+	idx := argI(args, 0)
+	src := args[1].(*Instance)
+	buf, ok := src.Payload.(*alBuf)
+	if !ok || idx < 0 || int(idx) > len(b.data) {
+		return boolV(false), nil
+	}
+	n := append([]Value(nil), buf.data...)
+	b.data = append(b.data[:idx], append(n, b.data[idx:]...)...)
+	return boolV(true), nil
+}
+
 func natArrayListAdd(ctx *CallContext, recv Value, args []Value) (Value, error) {
 	b := alOf(recv)
 	b.data = append(b.data, args[0])
@@ -1010,4 +1034,81 @@ func natSBAppendDouble(ctx *CallContext, recv Value, args []Value) (Value, error
 		b.buf = append(b.buf, uint16(r))
 	}
 	return recv, nil
+}
+
+// tlSlot backs the minimal ThreadLocal surface: one value per instance.
+// True thread isolation is not modeled (documented interop/runtime limit).
+type tlSlot struct{ v Value }
+
+// natStringFormat implements String.format with %s/%d/%f/%x passthrough —
+// sufficient for gson's internal assertion messages.
+func natStringFormat(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	js, _ := args[0].(*JString)
+	if js == nil {
+		return ctx.NewStringGo(""), nil
+	}
+	tmpl := js.Go()
+	vals := make([]interface{}, 0, 4)
+	if arr, ok := args[1].(*ArrayObj); ok {
+		for _, e := range arr.Elems {
+			switch x := e.(type) {
+			case *JString:
+				vals = append(vals, x.Go())
+			case int32:
+				vals = append(vals, x)
+			case int64:
+				vals = append(vals, x)
+			case float64:
+				vals = append(vals, x)
+			default:
+				if e != nil && e.(*Instance) != nil {
+					vals = append(vals, ctx.Stringify(e))
+				} else {
+					vals = append(vals, "null")
+				}
+			}
+		}
+	}
+	var sb strings.Builder
+	argi := 0
+	for i := 0; i < len(tmpl); i++ {
+		if tmpl[i] == '%' && i+1 < len(tmpl) {
+			switch tmpl[i+1] {
+			case 's':
+				if argi < len(vals) {
+					sb.WriteString(fmt.Sprintf("%v", vals[argi]))
+					argi++
+				}
+				i++
+				continue
+			case 'd':
+				if argi < len(vals) {
+					sb.WriteString(fmt.Sprintf("%d", vals[argi]))
+					argi++
+				}
+				i++
+				continue
+			case 'f':
+				if argi < len(vals) {
+					sb.WriteString(fmt.Sprintf("%v", vals[argi]))
+					argi++
+				}
+				i++
+				continue
+			case '%':
+				sb.WriteByte('%')
+				i++
+				continue
+			}
+		}
+		sb.WriteByte(tmpl[i])
+	}
+	return ctx.NewStringGo(sb.String()), nil
+}
+
+func natStringClone(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	js := recv.(*JString)
+	cp := &JString{Chars: append([]uint16(nil), js.Chars...)}
+	cp.Class = js.Class
+	return cp, nil
 }

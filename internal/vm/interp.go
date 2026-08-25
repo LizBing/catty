@@ -6,6 +6,7 @@ package vm
 
 import (
 	"errors"
+	"strings"
 	"fmt"
 	"math"
 	"os"
@@ -1055,7 +1056,14 @@ func (t *Thread) exec(m *kernel.Method, recv kernel.Value, args []kernel.Value) 
 				return nil, err
 			}
 			n := f.popI()
-			arr, err := t.K.NewArray(cls.Name, int(n))
+			// Component descriptor: array classes keep their descriptor
+			// form; plain classes must be wrapped as L<name>;
+			comp := cls.Name
+			if !cls.IsArray && !strings.HasPrefix(comp, "[") &&
+				!strings.ContainsRune(comp, ';') {
+				comp = "L" + comp + ";"
+			}
+			arr, err := t.K.NewArray(comp, int(n))
 			if err != nil {
 				if throwOrHandle(err, faultPc) {
 					continue
@@ -1107,6 +1115,12 @@ func (t *Thread) exec(m *kernel.Method, recv kernel.Value, args []kernel.Value) 
 				return nil, err
 			}
 			obj := f.stack[f.sp-1]
+			if t.K.GetenvDebug() {
+				if ao, ok := obj.(*kernel.ArrayObj); ok {
+					fmt.Fprintf(os.Stderr, "[dbg cc] obj.class=%p %q target=%p %q isa=%v\n",
+						ao.Class, ao.Class.Name, cls, cls.Name, t.K.IsInstance(obj, cls))
+				}
+			}
 			if obj != nil && !t.K.IsInstance(obj, cls) {
 				t.SetTopJavaLine(lineAt(m, faultPc))
 				th := t.throwNamed("java/lang/ClassCastException",

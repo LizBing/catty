@@ -142,6 +142,9 @@ func hashKey(v Value) jkey {
 	case *JString:
 		return jkey{kind: 'S', s: x.Go()}
 	case *Instance:
+		if len(x.Fields) == 0 {
+			return jkey{kind: 'R', p: x}
+		}
 		f := x.Fields[0]
 		switch n := f.(type) {
 		case int32:
@@ -367,4 +370,52 @@ func natStringStartsWith(ctx *CallContext, recv Value, args []Value) (Value, err
 
 func natStringEndsWith(ctx *CallContext, recv Value, args []Value) (Value, error) {
 	return boolV(strings.HasSuffix(javaStr(recv), javaStr(args[0]))), nil
+}
+
+func newBareInstance(k *Kernel, name string) *Instance {
+	c, _ := k.ClassByName(name)
+	in, _ := k.NewInstance(c)
+	return in
+}
+
+func natCollectionsEmptyList(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	in := newBareInstance(ctx.K, "java/util/ArrayList")
+	in.Payload = &alBuf{}
+	init, _ := ctx.K.ResolveMethod(in.Class, "<init>", "()V")
+	if init != nil {
+		if _, err := ctx.Invoke(init, in, nil); err != nil {
+			return nil, err
+		}
+	}
+	return in, nil
+}
+
+func natCollectionsEmptySet(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	in := newBareInstance(ctx.K, "java/util/HashSet")
+	in.Payload = &setBuf{data: map[jkey]bool{}, keys: map[jkey]Value{}}
+	return in, nil
+}
+
+func natCollectionsEmptyMap(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	in := newBareInstance(ctx.K, "java/util/HashMap")
+	in.Payload = &mapBuf{data: map[jkey]Value{}, keys: map[jkey]Value{}}
+	return in, nil
+}
+
+func natFloatParseString(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	js, _ := AsJString(args[0])
+	v, err := strconv.ParseFloat(strings.TrimSpace(js.Go()), 32)
+	if err != nil {
+		return nil, ctx.Throw("java/lang/NumberFormatException", js.Go())
+	}
+	return float32(v), nil
+}
+
+func natDoubleParseString(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	js, _ := AsJString(args[0])
+	v, err := strconv.ParseFloat(strings.TrimSpace(js.Go()), 64)
+	if err != nil {
+		return nil, ctx.Throw("java/lang/NumberFormatException", js.Go())
+	}
+	return v, nil
 }

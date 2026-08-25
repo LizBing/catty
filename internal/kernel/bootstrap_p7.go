@@ -80,6 +80,7 @@ func bootstrapP7(k *Kernel) {
 		[]MethodDef{{Name: "parseByte", Desc: "(Ljava/lang/String;)B", Flags: classfile.AccPublic | classfile.AccStatic, Native: natWrapperParse("java/lang/Byte")}}))
 	mustDefine(k, wrapperDef("java/lang/Character", "C", nil))
 
+
 	// Note: Long's Super is already set to Object via wrapperDef.
 	// Number hierarchy is a v2 concern.
 }
@@ -144,6 +145,24 @@ func bootstrapCollectionsP7(k *Kernel) {
 			{Name: "isEmpty", Desc: "()Z", Flags: classfile.AccPublic, Native: natHashSetIsEmpty},
 		},
 	})
+	// java.util.LinkedHashMap — insertion-order map. Backed by the same
+	// jkey store as HashMap; iteration order deviation registered (v1).
+	mustDefine(k, &ClassDef{
+		Name:   "java/util/LinkedHashMap",
+		Super:  "java/lang/Object",
+		Ifaces: []string{"java/util/Map"},
+		Flags:  classfile.AccPublic,
+		Methods: []MethodDef{
+			{Name: "<init>", Desc: "()V", Flags: classfile.AccPublic, Native: natHashMapInit},
+			{Name: "get", Desc: "(Ljava/lang/Object;)Ljava/lang/Object;", Flags: classfile.AccPublic, Native: natHashMapGet},
+			{Name: "put", Desc: "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", Flags: classfile.AccPublic, Native: natHashMapPut},
+			{Name: "remove", Desc: "(Ljava/lang/Object;)Ljava/lang/Object;", Flags: classfile.AccPublic, Native: natHashMapRemove},
+			{Name: "containsKey", Desc: "(Ljava/lang/Object;)Z", Flags: classfile.AccPublic, Native: natHashMapContainsKey},
+			{Name: "size", Desc: "()I", Flags: classfile.AccPublic, Native: natHashMapSize},
+			{Name: "isEmpty", Desc: "()Z", Flags: classfile.AccPublic, Native: natHashMapIsEmpty},
+			{Name: "clear", Desc: "()V", Flags: classfile.AccPublic, Native: natHashMapClear},
+		},
+	})
 	mustDefine(k, &ClassDef{
 		Name:   "java/util/ArrayList",
 		Super:  "java/lang/Object",
@@ -158,6 +177,8 @@ func bootstrapCollectionsP7(k *Kernel) {
 			{Name: "isEmpty", Desc: "()Z", Flags: classfile.AccPublic, Native: natArrayListIsEmpty},
 			{Name: "contains", Desc: "(Ljava/lang/Object;)Z", Flags: classfile.AccPublic, Native: natArrayListContains},
 			{Name: "iterator", Desc: "()Ljava/util/Iterator;", Flags: classfile.AccPublic, Native: natArrayListIterator},
+			{Name: "addAll", Desc: "(Ljava/util/Collection;)Z", Flags: classfile.AccPublic, Native: natArrayListAddAll},
+			{Name: "addAllAt", Desc: "(ILjava/util/Collection;)Z", Flags: classfile.AccPublic, Native: natArrayListAddAllAt},
 		},
 	})
 }

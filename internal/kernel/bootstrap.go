@@ -40,6 +40,10 @@ func bootstrap(k *Kernel) {
 		Flags: classfile.AccPublic | classfile.AccFinal,
 		Methods: []MethodDef{
 			{Name: "length", Desc: "()I", Flags: classfile.AccPublic, Native: natStringLength},
+			{Name: "format", Desc: "(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;", Flags: classfile.AccPublic | classfile.AccStatic | classfile.AccVarargs, Native: natStringFormat},
+			// clone() — arrays and Strings only (gson internals clone
+			// buffers); Object.clone semantics deferred.
+			{Name: "clone", Desc: "()Ljava/lang/Object;", Flags: 0x0001, Native: natStringClone},
 			{Name: "charAt", Desc: "(I)C", Flags: classfile.AccPublic, Native: natStringCharAt},
 			{Name: "equals", Desc: "(Ljava/lang/Object;)Z", Flags: classfile.AccPublic, Native: natStringEquals},
 			{Name: "hashCode", Desc: "()I", Flags: classfile.AccPublic, Native: natStringHashCode},
@@ -123,9 +127,102 @@ func bootstrap(k *Kernel) {
 
 	// Reflection classes first: wrapper TYPE statics and any getClass/ldc
 	// usage depend on java/lang/Class existing before other bootstrap pieces.
+	mustDefine(k, &ClassDef{
+		Name:  "java/lang/ThreadLocal",
+		Super: "java/lang/Object",
+		Methods: []MethodDef{
+			{Name: "<init>", Desc: "()V", Flags: 0x0001, Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+				recv.(*Instance).Payload = &tlSlot{}
+				return nil, nil
+			}},
+			{Name: "get", Desc: "()Ljava/lang/Object;", Flags: 0x0001,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					return recv.(*Instance).Payload.(*tlSlot).v, nil
+				}},
+			{Name: "set", Desc: "(Ljava/lang/Object;)V", Flags: 0x0001,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					recv.(*Instance).Payload.(*tlSlot).v = args[0]
+					return nil, nil
+				}},
+			{Name: "remove", Desc: "()V", Flags: 0x0001,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					recv.(*Instance).Payload.(*tlSlot).v = nil
+					return nil, nil
+				}},
+		},
+	})
+	// java.lang.StringBuffer — StringBuilder semantics over the same buf.
+	mustDefine(k, &ClassDef{
+		Name:  "java/lang/StringBuffer",
+		Super: "java/lang/Object",
+		Methods: []MethodDef{
+			{Name: "<init>", Desc: "()V", Flags: classfile.AccPublic, Native: natStringBuilderInit},
+			{Name: "<init>", Desc: "(Ljava/lang/String;)V", Flags: classfile.AccPublic, Native: natSBInitString},
+			{Name: "append", Desc: "(Ljava/lang/String;)Ljava/lang/StringBuilder;", Flags: classfile.AccPublic, Native: natSBAppendString},
+			{Name: "append", Desc: "(I)Ljava/lang/StringBuilder;", Flags: classfile.AccPublic, Native: natSBAppendInt},
+			{Name: "toString", Desc: "()Ljava/lang/String;", Flags: classfile.AccPublic, Native: natSBToString},
+			{Name: "length", Desc: "()I", Flags: classfile.AccPublic, Native: natSBLength},
+		},
+	})
+	mustDefine(k, &ClassDef{
+		Name:  "java/lang/Enum",
+		Super: "java/lang/Object",
+		Fields: []FieldDef{
+			{Name: "name", Desc: "Ljava/lang/String;", Flags: classfile.AccPrivate | classfile.AccFinal},
+			{Name: "ordinal", Desc: "I", Flags: classfile.AccPrivate | classfile.AccFinal},
+		},
+		Methods: []MethodDef{
+			{Name: "<init>", Desc: "(Ljava/lang/String;I)V", Flags: 0x0004, // protected
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					in := recv.(*Instance)
+					// Defensive: anonymous-subclass chains may reach here
+					// before generic allocation filled inherited slots.
+					for len(in.Fields) < 2 {
+						in.Fields = append(in.Fields, nil)
+					}
+					in.Fields[0] = args[0]
+					in.Fields[1] = args[1]
+					return nil, nil
+				}},
+			{Name: "valueOf", Desc: "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Enum;",
+				Flags: classfile.AccPublic | classfile.AccStatic, Native: natEnumValueOf},
+			{Name: "name", Desc: "()Ljava/lang/String;", Flags: classfile.AccPublic | classfile.AccFinal,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					return recv.(*Instance).Fields[0], nil
+				}},
+			{Name: "ordinal", Desc: "()I", Flags: classfile.AccPublic | classfile.AccFinal,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					return recv.(*Instance).Fields[1], nil
+				}},
+			{Name: "toString", Desc: "()Ljava/lang/String;", Flags: classfile.AccPublic,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					return recv.(*Instance).Fields[0], nil
+				}},
+		},
+	})
 	if err := registerReflection(k); err != nil {
 		panic("kernel bootstrap reflection: " + err.Error())
 	}
+	mustDefine(k, &ClassDef{
+		Name:  "java/io/Closeable",
+		Flags: classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
+	})
+	mustDefine(k, &ClassDef{
+		Name:  "java/io/Flushable",
+		Flags: classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
+	})
+	mustDefine(k, &ClassDef{
+		Name:  "java/lang/Cloneable",
+		Flags: classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
+	})
+	mustDefine(k, &ClassDef{
+		Name:  "java/lang/reflect/InvocationTargetException",
+		Super: "java/lang/Exception",
+	})
+	mustDefine(k, &ClassDef{
+		Name:  "java/lang/InstantiationException",
+		Super: "java/lang/Exception",
+	})
 	mustDefine(k, &ClassDef{
 		Name:  "java/lang/Integer",
 		Super: "java/lang/Object",
@@ -286,6 +383,18 @@ func bootstrap(k *Kernel) {
 				Flags: classfile.AccPublic | classfile.AccStatic, Native: natNanoTime},
 			{Name: "identityHashCode", Desc: "(Ljava/lang/Object;)I",
 				Flags: classfile.AccPublic | classfile.AccStatic, Native: natIdentityHashCode},
+			{Name: "getProperty", Desc: "(Ljava/lang/String;)Ljava/lang/String;", Flags: classfile.AccPublic | classfile.AccStatic,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					// Synthesized JDK-8 view so third-party version probes
+					// take the JDK8 code paths this runtime implements.
+					switch js, _ := args[0].(*JString); js.Go() {
+					case "java.version":
+						return ctx.NewStringGo("1.8.0_402"), nil
+					case "java.specification.version":
+						return ctx.NewStringGo("1.8"), nil
+					}
+					return nil, nil
+				}},
 		},
 	})
 

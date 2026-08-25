@@ -82,11 +82,11 @@ func (c *checker) simulateIrregular(m *classfile.MethodInfo, pc int, st *frame, 
 		case classfile.CString:
 			st.push(tObj("java/lang/String"))
 		case classfile.CClass:
-			cn, cnerr := c.cf.ClassName(idx)
-			if cnerr != nil {
-				return nil, fail("%v", cnerr)
-			}
-			st.push(tObj(cn)) // array-class constants carry their descriptor
+			// A class constant's runtime value is a java/lang/Class
+			// instance — NOT the target class itself. Modeling it as the
+			// target broke invokevirtual receivers (gson Excluder's
+			// ldc Enum → isAssignableFrom).
+			st.push(tObj("java/lang/Class"))
 		default:
 			return nil, fail("ldc on %s", e.Tag)
 		}

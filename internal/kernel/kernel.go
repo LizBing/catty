@@ -149,6 +149,16 @@ type Kernel struct {
 	intCls  atomic.Pointer[Class] // lazily cached bootstrap Integer class
 	primOnce sync.Map // desc → *Instance primitive Class constants (int.class …)
 
+	// classSelfCls is the *Class for java/lang/Class itself, captured by
+	// registerReflection so primitiveClass can reference it lock-free.
+	classSelfCls *Class
+
+	// Method-table snapshots for primitive mirrors, captured when
+	// registerReflection defines java/lang/Class (before any wrapper
+	// StaticInit runs, so primitiveClass never re-enters locked registry).
+	primObjMethods []*Method
+	primClsMethods []*Method
+
 	// Threads tracks java.lang.Thread identities and blocking operations.
 	Threads *ThreadRegistry
 
@@ -354,6 +364,20 @@ func (k *Kernel) ArrayClassOf(compDesc string) *Class {
 		CompDesc: compDesc,
 	}
 	c.setState(StateInitialized)
+	// Arrays expose clone() (JLS §10.7) — shallow copy via native.
+	cm := &Method{
+		Holder: c, Name: "clone", Desc: "()Ljava/lang/Object;", Flags: 0x0001,
+		Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+			arr := recv.(*ArrayObj)
+			cp := &ArrayObj{CompDesc: arr.CompDesc, Elems: append([]Value(nil), arr.Elems...)}
+			cp.Class = arr.Class
+			return cp, nil
+		},
+	}
+	c.Methods = append(c.Methods, cm)
+	c.methodsByKey = map[string]*Method{
+		memberKey(cm.Name, cm.Desc): cm,
+	}
 	k.classes[name] = c
 	return c
 }
@@ -1061,3 +1085,6 @@ func bool32(b bool) int32 {
 	}
 	return 0
 }
+
+// GetenvDebug exposes a debug flag for probe sessions (P-0013).
+func (k *Kernel) GetenvDebug() bool { return os.Getenv("CATTY_CCDBG") != "" }

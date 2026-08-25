@@ -42,25 +42,30 @@ func (k *Kernel) primitiveClass(desc, name string) (*Instance, error) {
 	if v, ok := k.primOnce.Load(desc); ok {
 		return v.(*Instance), nil
 	}
+	// The mirror INSTANCE is an instance of java/lang/Class itself (so
+	// gson's `type instanceof Class` works), carrying a primitiveInfo
+	// payload that getName/isPrimitive read. The pseudo-Class named after
+	// the keyword exists only so methodsByKey resolution has a home.
 	cls := &Class{Name: name, Flags: classfileAccPublicFinal}
-	// Primitive mirrors share java/lang/Class's method table so
-	// getName/getSimpleName/… resolve on them too (when defined already).
-	if cc := k.lookupClass("java/lang/Class"); cc != nil {
-		cls.Methods = cc.Methods
-		cls.methodsByKey = make(map[string]*Method, len(cc.Methods))
-		for _, m := range cc.Methods {
-			cls.methodsByKey[memberKey(m.Name, m.Desc)] = m
-		}
+	cls.Methods = append(cls.Methods, k.primObjMethods...)
+	cls.Methods = append(cls.Methods, k.primClsMethods...)
+	cls.methodsByKey = make(map[string]*Method, len(cls.Methods))
+	for _, m := range cls.Methods {
+		cls.methodsByKey[memberKey(m.Name, m.Desc)] = m
 	}
 	cls.setState(StateInitialized)
 	in := &Instance{}
-	in.Class = cls
-	in.Payload = &primitiveInfo{name: name, desc: desc}
+	in.Class = k.classSelfCls
+	in.Payload = &primitiveInfo{name: name, desc: desc, metaCls: cls}
 	actual, _ := k.primOnce.LoadOrStore(desc, in)
 	return actual.(*Instance), nil
 }
 
-type primitiveInfo struct{ name, desc string }
+type primitiveInfo struct {
+	name    string
+	desc    string
+	metaCls *Class // pseudo-Class named "int" etc. for method resolution
+}
 
 func classPayload(in *Instance) (*Class, bool) {
 	c, ok := in.Payload.(*Class)
@@ -215,7 +220,40 @@ func mustLookup(k *Kernel, name string) *Class {
 // ---- registration ----------------------------------------------------------
 
 func registerReflection(k *Kernel) error {
-	// ClassNotFoundException first: forName throws it.
+	// java.lang.reflect.Type — marker interface for gson's TypeToken world.
+	// Defined BEFORE java/lang/Class so the latter can declare it as an
+	// interface (Class implements Type per JVM semantics).
+	if _, err := k.DefineClass(&ClassDef{
+		Name:  "java/lang/reflect/Type",
+		Flags: classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
+	}); err != nil {
+		return err
+	}
+	if _, err := k.DefineClass(&ClassDef{
+		Name:  "java/lang/annotation/Annotation",
+		Flags: classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
+	}); err != nil {
+		return err
+	}
+	// GenericArrayType / ParameterizedType / WildcardType / TypeVariable —
+	// marker interfaces for the generic-type family (gson TypeToken).
+	for _, nm := range []string{
+		"java/lang/reflect/GenericArrayType",
+		"java/lang/reflect/ParameterizedType",
+		"java/lang/reflect/WildcardType",
+		"java/lang/reflect/TypeVariable",
+	} {
+		if _, err := k.DefineClass(&ClassDef{
+			Name:  nm,
+			Super: "java/lang/Object",
+			Ifaces: []string{"java/lang/reflect/Type"},
+			Flags: classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
+		}); err != nil {
+			return err
+		}
+	}
+
+	// ClassNotFoundException next: forName throws it.
 	if _, err := k.DefineClass(&ClassDef{
 		Name:  reflectionException,
 		Super: "java/lang/Exception",
@@ -228,11 +266,29 @@ func registerReflection(k *Kernel) error {
 	}
 
 	if _, err := k.DefineClass(&ClassDef{
-		Name:  "java/lang/Class",
-		Super: "java/lang/Object",
+		Name:   "java/lang/Class",
+		Super:  "java/lang/Object",
+		Ifaces: []string{"java/lang/reflect/Type"}, // Class implements Type (JVM)
 		Methods: []MethodDef{
 			{Name: "getName", Desc: "()Ljava/lang/String;", Flags: 0x0001, Native: natClassGetName},
 			{Name: "getSimpleName", Desc: "()Ljava/lang/String;", Flags: 0x0001, Native: natClassGetSimpleName},
+			{Name: "isArray", Desc: "()Z", Flags: 0x0001, Native: natClassIsArray},
+			{Name: "getModifiers", Desc: "()I", Flags: 0x0001, Native: natClassGetModifiers},
+			{Name: "isAnonymousClass", Desc: "()Z", Flags: 0x0001, Native: natClassIsAnonymousClass},
+			{Name: "isLocalClass", Desc: "()Z", Flags: 0x0001, Native: natClassIsLocalClass},
+			{Name: "isMemberClass", Desc: "()Z", Flags: 0x0001, Native: natClassIsMemberClass},
+			{Name: "getAnnotation", Desc: "(Ljava/lang/Class;)Ljava/lang/annotation/Annotation;", Flags: 0x0001,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					return nil, nil // no annotations retained in v1 (DEV-0010)
+				}},
+			{Name: "getAnnotations", Desc: "()[Ljava/lang/annotation/Annotation;", Flags: 0x0001,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					return emptyArray(ctx.K, "Ljava/lang/annotation/Annotation;")
+				}},
+			{Name: "isEnum", Desc: "()Z", Flags: 0x0001, Native: natClassIsEnum},
+			{Name: "isInterface", Desc: "()Z", Flags: 0x0001, Native: natClassIsInterface},
+			{Name: "isPrimitive", Desc: "()Z", Flags: 0x0001, Native: natClassIsPrimitive},
+			{Name: "getInterfaces", Desc: "()[Ljava/lang/Class;", Flags: 0x0001, Native: natClassGetInterfaces},
 			{Name: "forName", Desc: "(Ljava/lang/String;)Ljava/lang/Class;", Flags: 0x0009, Native: natClassForName},
 			{Name: "getDeclaredFields", Desc: "()[Ljava/lang/reflect/Field;", Flags: 0x0001, Native: natClassDeclaredFields},
 			{Name: "getFields", Desc: "()[Ljava/lang/reflect/Field;", Flags: 0x0001, Native: natClassGetFields},
@@ -242,7 +298,10 @@ func registerReflection(k *Kernel) error {
 			{Name: "getField", Desc: "(Ljava/lang/String;)Ljava/lang/reflect/Field;", Flags: 0x0001, Native: natClassGetField},
 			{Name: "getDeclaredMethods", Desc: "()[Ljava/lang/reflect/Method;", Flags: 0x0001, Native: natClassDeclaredMethods},
 			{Name: "getDeclaredConstructors", Desc: "()[Ljava/lang/reflect/Constructor;", Flags: 0x0001, Native: natClassDeclaredConstructors},
+			{Name: "getDeclaredConstructor", Desc: "([Ljava/lang/Class;)Ljava/lang/reflect/Constructor;", Flags: 0x0001, Native: natClassGetDeclaredConstructor},
+			{Name: "getConstructor", Desc: "([Ljava/lang/Class;)Ljava/lang/reflect/Constructor;", Flags: 0x0001, Native: natClassGetDeclaredConstructor},
 			{Name: "isInstance", Desc: "(Ljava/lang/Object;)Z", Flags: 0x0001, Native: natClassIsInstance},
+			{Name: "isAssignableFrom", Desc: "(Ljava/lang/Class;)Z", Flags: 0x0001, Native: natClassIsAssignableFrom},
 			{Name: "getSuperclass", Desc: "()Ljava/lang/Class;", Flags: 0x0001, Native: natClassGetSuperclass},
 			{Name: "newInstance", Desc: "()Ljava/lang/Object;", Flags: 0x0001, Native: natClassNewInstance},
 		},
@@ -250,12 +309,52 @@ func registerReflection(k *Kernel) error {
 		return err
 	}
 
+	// Snapshot method tables for primitive mirrors — AFTER java/lang/Class
+	// exists (its Methods list is what int.class etc. share).
+	k.primObjMethods = mustLookup(k, "java/lang/Object").Methods
+	k.primClsMethods = mustLookup(k, "java/lang/Class").Methods
+	k.classSelfCls = mustLookup(k, "java/lang/Class")
+
 	if _, err := k.DefineClass(&ClassDef{
 		Name:  "java/lang/reflect/Field",
 		Super: "java/lang/Object",
 		Methods: []MethodDef{
 			{Name: "getName", Desc: "()Ljava/lang/String;", Flags: 0x0001, Native: natFieldGetName},
+			{Name: "setAccessible", Desc: "(Z)V", Flags: 0x0001,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					return nil, nil
+				}},
+			{Name: "isAccessible", Desc: "()Z", Flags: 0x0001,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					return int32(1), nil
+				}},
 			{Name: "getType", Desc: "()Ljava/lang/Class;", Flags: 0x0001, Native: natFieldGetType},
+			{Name: "getGenericType", Desc: "()Ljava/lang/reflect/Type;", Flags: 0x0001, Native: natFieldGetType}, // v1: generic == declared
+			{Name: "getModifiers", Desc: "()I", Flags: 0x0001, Native: natFieldGetModifiers},
+			{Name: "isSynthetic", Desc: "()Z", Flags: 0x0001,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					f, ferr := fieldPayload(recv)
+					if ferr != nil {
+						return nil, ctx.Throw("java/lang/RuntimeException", ferr.Error())
+					}
+					return boolV(f.Flags&0x1000 != 0), nil // ACC_SYNTHETIC
+				}},
+			{Name: "getAnnotation", Desc: "(Ljava/lang/Class;)Ljava/lang/annotation/Annotation;", Flags: 0x0001,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					return nil, nil // no annotations retained in v1 (DEV-0010)
+				}},
+			{Name: "getAnnotations", Desc: "()[Ljava/lang/annotation/Annotation;", Flags: 0x0001,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					return emptyArray(ctx.K, "Ljava/lang/annotation/Annotation;")
+				}},
+			{Name: "isEnumConstant", Desc: "()Z", Flags: 0x0001,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					f, ferr := fieldPayload(recv)
+					if ferr != nil {
+						return nil, ctx.Throw("java/lang/RuntimeException", ferr.Error())
+					}
+					return boolV(f.Flags&0x4000 != 0), nil // ACC_ENUM
+				}},
 			{Name: "getDeclaringClass", Desc: "()Ljava/lang/Class;", Flags: 0x0001, Native: natFieldGetDeclaringClass},
 			{Name: "equals", Desc: "(Ljava/lang/Object;)Z", Flags: 0x0001, Native: natReflectEquals},
 			{Name: "hashCode", Desc: "()I", Flags: 0x0001, Native: natReflectHashCode},
@@ -271,6 +370,14 @@ func registerReflection(k *Kernel) error {
 		Super: "java/lang/Object",
 		Methods: []MethodDef{
 			{Name: "getName", Desc: "()Ljava/lang/String;", Flags: 0x0001, Native: natMethodGetName},
+			{Name: "isAccessible", Desc: "()Z", Flags: 0x0001,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					return int32(1), nil // access control not enforced (DEV-0010)
+				}},
+			{Name: "setAccessible", Desc: "(Z)V", Flags: 0x0001,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					return nil, nil // no-op: everything accessible
+				}},
 			{Name: "equals", Desc: "(Ljava/lang/Object;)Z", Flags: 0x0001, Native: natReflectEquals},
 			{Name: "hashCode", Desc: "()I", Flags: 0x0001, Native: natReflectHashCode},
 			{Name: "invoke", Desc: "(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;", Flags: 0x0001, Native: natMethodInvoke},
@@ -284,6 +391,14 @@ func registerReflection(k *Kernel) error {
 		Super: "java/lang/Object",
 		Methods: []MethodDef{
 			{Name: "getName", Desc: "()Ljava/lang/String;", Flags: 0x0001, Native: natConstructorGetName},
+			{Name: "isAccessible", Desc: "()Z", Flags: 0x0001,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					return int32(1), nil
+				}},
+			{Name: "setAccessible", Desc: "(Z)V", Flags: 0x0001,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					return nil, nil
+				}},
 			{Name: "equals", Desc: "(Ljava/lang/Object;)Z", Flags: 0x0001, Native: natReflectEquals},
 			{Name: "hashCode", Desc: "()I", Flags: 0x0001, Native: natReflectHashCode},
 			{Name: "newInstance", Desc: "([Ljava/lang/Object;)Ljava/lang/Object;", Flags: 0x0001, Native: natConstructorNewInstance},
@@ -318,6 +433,171 @@ func natClassGetSimpleName(ctx *CallContext, recv Value, args []Value) (Value, e
 		n = n[i+1:]
 	}
 	return ctx.NewStringGo(n), nil
+}
+
+// Anonymous/local/member detection via the binary-name conventions javac
+// emits: Outer$1 (anonymous), Outer$1Local (local), Outer$Inner (member).
+func anonLocalMember(name string) (anon, local, member bool) {
+	i := strings.LastIndex(name, "$")
+	if i < 0 {
+		return false, false, strings.Contains(name, ".") || name != ""
+	}
+	tail := name[i+1:]
+	if tail == "" {
+		return false, false, true
+	}
+	c := tail[0]
+	if c >= '0' && c <= '9' {
+		return true, false, true
+	}
+	// $1Local style: digit followed by identifier → local
+	for j := 1; j < len(tail); j++ {
+		if tail[j] >= '0' && tail[j] <= '9' {
+			continue
+		}
+		if j > 1 || !(tail[j] >= 'A' && tail[j] <= 'Z') {
+			break
+		}
+	}
+	if len(tail) > 1 && tail[0] >= '0' && tail[0] <= '9' {
+		rest := tail[1:]
+		isDigits := true
+		for k := range rest {
+			if rest[k] < '0' || rest[k] > '9' {
+				isDigits = false
+				break
+			}
+		}
+		if isDigits {
+			return true, false, true // pure numeric: anonymous
+		}
+		return false, true, true // local class: digits + name
+	}
+	return false, false, true
+}
+
+func natClassIsAnonymousClass(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	in, ok := recv.(*Instance)
+	if !ok {
+		return int32(0), nil
+	}
+	c, ok2 := in.Payload.(*Class)
+	if !ok2 {
+		return int32(0), nil
+	}
+	a, _, _ := anonLocalMember(c.Name)
+	return boolV(a), nil
+}
+
+func natClassIsLocalClass(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	in, ok := recv.(*Instance)
+	if !ok {
+		return int32(0), nil
+	}
+	c, ok2 := in.Payload.(*Class)
+	if !ok2 {
+		return int32(0), nil
+	}
+	_, l, _ := anonLocalMember(c.Name)
+	return boolV(l), nil
+}
+
+func natClassIsMemberClass(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	in, ok := recv.(*Instance)
+	if !ok {
+		return int32(0), nil
+	}
+	c, ok2 := in.Payload.(*Class)
+	if !ok2 {
+		return int32(0), nil
+	}
+	m, _, _ := anonLocalMember(c.Name)
+	return boolV(m && !c.IsArray), nil
+}
+
+func natClassGetModifiers(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	in, ok := recv.(*Instance)
+	if !ok {
+		return int32(1), nil // public fallback
+	}
+	if c, ok2 := in.Payload.(*Class); ok2 {
+		return int32(c.Flags), nil
+	}
+	return int32(0x0011), nil // public+final for primitives
+}
+
+func natClassIsPrimitive(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	in, ok := recv.(*Instance)
+	if !ok {
+		return int32(0), nil
+	}
+	_, ok2 := in.Payload.(*primitiveInfo)
+	return boolV(ok2), nil
+}
+
+func natClassIsInterface(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	in, ok := recv.(*Instance)
+	if !ok {
+		return int32(0), nil
+	}
+	c, ok2 := in.Payload.(*Class)
+	if !ok2 {
+		return int32(0), nil
+	}
+	return boolV(c.Flags&classfile.AccInterface != 0), nil
+}
+
+func natClassGetInterfaces(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	in, ok := recv.(*Instance)
+	if !ok {
+		return emptyArray(ctx.K, "Ljava/lang/Class;")
+	}
+	c, ok2 := in.Payload.(*Class)
+	if !ok2 {
+		return emptyArray(ctx.K, "Ljava/lang/Class;")
+	}
+	arr, aerr := ctx.K.NewArray("Ljava/lang/Class;", len(c.Ifaces))
+	if aerr != nil {
+		return nil, aerr
+	}
+	for i, ic := range c.Ifaces {
+		mirror, err := ctx.K.ClassObjectOf(ic)
+		if err != nil {
+			return nil, err
+		}
+		arr.Elems[i] = mirror
+	}
+	return arr, nil
+}
+
+func natClassIsArray(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	in, ok := recv.(*Instance)
+	if !ok {
+		return int32(0), nil
+	}
+	c, ok3 := in.Payload.(*Class)
+	if !ok3 {
+		return int32(0), nil
+	}
+	if c.IsArray {
+		return int32(1), nil
+	}
+	return int32(0), nil
+}
+
+func natClassIsEnum(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	in, ok := recv.(*Instance)
+	if !ok {
+		return int32(0), nil
+	}
+	c, ok2 := in.Payload.(*Class)
+	if !ok2 || c.Super == nil {
+		return int32(0), nil
+	}
+	if c.Super.Name == "java/lang/Enum" {
+		return int32(1), nil
+	}
+	return int32(0), nil
 }
 
 func classPayloadOrThrow(recv Value) (*Class, error) {
@@ -638,6 +918,67 @@ func natClassDeclaredConstructors(ctx *CallContext, recv Value, args []Value) (V
 	return arr, nil
 }
 
+func matchParams(m *Method, want []*Instance, k *Kernel) bool {
+	pd, _, err := ParseMethodDesc(m.Desc)
+	if err != nil || len(pd) != len(want) {
+		return false
+	}
+	for i, w := range want {
+		dc, derr := k.descToClass(pd[i])
+		if derr != nil || dc != w {
+			return false
+		}
+	}
+	return true
+}
+
+func findCtor(k *Kernel, c *Class, want []*Instance) *Method {
+	for _, m := range c.Methods {
+		if m.Name != "<init>" {
+			continue
+		}
+		if len(want) == 0 && len(m.Desc) > 3 && m.Desc[1] == ')' {
+			return m // ()V-style no-arg
+		}
+		if matchParams(m, want, k) {
+			return m
+		}
+	}
+	return nil
+}
+
+func ctorArrayArg(args []Value) []*Instance {
+	var want []*Instance
+	if len(args) > 0 {
+		if arr, ok := args[0].(*ArrayObj); ok {
+			for _, e := range arr.Elems {
+				if in, ok2 := e.(*Instance); ok2 {
+					want = append(want, in)
+				}
+			}
+		}
+	}
+	return want
+}
+
+func natClassGetDeclaredConstructor(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	c, cerr := classPayloadOrThrow(recv)
+	if cerr != nil {
+		return nil, ctx.Throw("java/lang/NoSuchMethodException", "primitive")
+	}
+	want := ctorArrayArg(args)
+	m := findCtor(kFor(ctx), c, want)
+	if m == nil {
+		return nil, ctx.Throw("java/lang/NoSuchMethodException", c.Name)
+	}
+	in, ierr := newReflectInstance(ctx.K, "java/lang/reflect/Constructor",
+		&ctorRef{cls: c, m: m})
+	if ierr != nil {
+		return nil, ctx.Throw("java/lang/RuntimeException", ierr.Error())
+	}
+	return in, nil
+}
+
 func natClassIsInstance(ctx *CallContext, recv Value, args []Value) (Value, error) {
 	c, err := classPayloadOrThrow(recv)
 	if err != nil {
@@ -647,6 +988,29 @@ func natClassIsInstance(ctx *CallContext, recv Value, args []Value) (Value, erro
 		return int32(0), nil
 	}
 	if ctx.K.IsInstance(args[0], c) {
+		return int32(1), nil
+	}
+	return int32(0), nil
+}
+
+func natClassIsAssignableFrom(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	in, ok := recv.(*Instance)
+	if !ok || len(args) == 0 || args[0] == nil {
+		return int32(0), nil
+	}
+	c, ok := in.Payload.(*Class)
+	if !ok {
+		return int32(0), nil
+	}
+	argCls, ok2 := args[0].(*Instance)
+	if !ok2 {
+		return int32(0), nil
+	}
+	ac, ok3 := argCls.Payload.(*Class)
+	if !ok3 {
+		return int32(0), nil
+	}
+	if c == ac || ctx.K.classIsa(ac, c) {
 		return int32(1), nil
 	}
 	return int32(0), nil
@@ -702,6 +1066,14 @@ func natFieldGetName(ctx *CallContext, recv Value, args []Value) (Value, error) 
 		return nil, ctx.Throw("java/lang/RuntimeException", err.Error())
 	}
 	return ctx.NewStringGo(f.Name), nil
+}
+
+func natFieldGetModifiers(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	f, ferr := fieldPayload(recv)
+	if ferr != nil {
+		return nil, ctx.Throw("java/lang/RuntimeException", ferr.Error())
+	}
+	return int32(f.Flags), nil
 }
 
 func natFieldGetDeclaringClass(ctx *CallContext, recv Value, args []Value) (Value, error) {
@@ -967,3 +1339,45 @@ func declaringClassOf(fieldInst Value) *Class {
 	}
 	panic("reflect: Field without holder")
 }
+
+// natEnumValueOf implements Enum.valueOf(Class,String) by reading the
+// enum class's synthetic static $VALUES array directly from the registry —
+// no Java-level reflection API needed (the kernel owns the storage).
+func natEnumValueOf(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	cInst, _ := args[0].(*Instance)
+	js, _ := args[1].(*JString)
+	if cInst == nil || js == nil {
+		return nil, ctx.Throw("java/lang/NullPointerException", "Enum.valueOf")
+	}
+	c, ok := cInst.Payload.(*Class)
+	if !ok {
+		return nil, ctx.Throw("java/lang/NullPointerException", "Enum.valueOf: not an enum class")
+	}
+	f := c.fieldsByKey[memberKey("$VALUES", "[L"+c.Name+";")]
+	if f == nil {
+		return nil, ctx.Throw("java/lang/IllegalArgumentException",
+			"No enum constants in "+c.Name)
+	}
+	arr, ok := c.Statics[f.StaticSlot].(*ArrayObj)
+	if !ok {
+		return nil, ctx.Throw("java/lang/IllegalArgumentException",
+			"No enum constants in "+c.Name)
+	}
+	for _, e := range arr.Elems {
+		in, ok := e.(*Instance)
+		if !ok || in.Class != c {
+			continue
+		}
+		name := ""
+		if jsn, ok := in.Fields[0].(*JString); ok && jsn != nil {
+			name = jsn.Go()
+		}
+		if name == js.Go() {
+			return e, nil
+		}
+	}
+	return nil, ctx.Throw("java/lang/IllegalArgumentException",
+		"No enum constant "+c.Name+"."+js.Go())
+}
+
+func kFor(ctx *CallContext) *Kernel { return ctx.K }
