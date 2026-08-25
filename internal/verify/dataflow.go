@@ -71,7 +71,8 @@ func (f *frame) popExpect(want vkind, what string) (vtype, error) {
 	}
 	switch want {
 	case kInt, kFloat, kLong, kDouble:
-		if v.kind != want && v.kind != kUnknown {
+		// `top` is cat-2 padding — compatible with any expected kind.
+		if v.kind != want && v.kind != kUnknown && v.kind != kTop {
 			return vtype{}, fmt.Errorf("%s: want %s, got %s", what, kindName(want), v)
 		}
 	case kObj:

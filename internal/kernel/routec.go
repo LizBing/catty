@@ -38,6 +38,19 @@ func bootstrapRouteC(k *Kernel) {
 			{Name: "<init>", Desc: "()V", Flags: classfile.AccPublic, Native: natStringWriterInit},
 			{Name: "write", Desc: "(Ljava/lang/String;)V", Flags: classfile.AccPublic, Native: natStringWriterWrite},
 			{Name: "write", Desc: "([CII)V", Flags: classfile.AccPublic, Native: natStringWriterWriteCII},
+			{Name: "write", Desc: "(Ljava/lang/String;II)V", Flags: classfile.AccPublic,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					b := recv.(*Instance).Payload.(*strings.Builder)
+					js, _ := args[0].(*JString)
+					if js == nil { return nil, nil }
+					s := js.Go()
+					off := int(argI(args, 1))
+					length := int(argI(args, 2))
+					if off >= 0 && off+length <= len(s) {
+						b.WriteString(s[off : off+length])
+					}
+					return nil, nil
+				}},
 			{Name: "write", Desc: "(I)V", Flags: classfile.AccPublic, Native: natStringWriterWriteChar},
 			{Name: "toString", Desc: "()Ljava/lang/String;", Flags: classfile.AccPublic, Native: natStringWriterToString},
 			{Name: "close", Desc: "()V", Flags: classfile.AccPublic, Native: natObjectInit},

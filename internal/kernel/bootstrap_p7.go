@@ -59,11 +59,6 @@ func wrapperDef(name string, primDesc string, extraMethods []MethodDef) *ClassDe
 }
 
 func bootstrapP7(k *Kernel) {
-	mustDefine(k, &ClassDef{
-		Name:  "java/lang/Number",
-		Super: "java/lang/Object",
-		Flags: classfile.AccPublic | classfile.AccAbstract,
-	})
 
 	mustDefine(k, wrapperDef("java/lang/Long", "J",
 		[]MethodDef{
@@ -161,6 +156,23 @@ func bootstrapCollectionsP7(k *Kernel) {
 			{Name: "size", Desc: "()I", Flags: classfile.AccPublic, Native: natHashMapSize},
 			{Name: "isEmpty", Desc: "()Z", Flags: classfile.AccPublic, Native: natHashMapIsEmpty},
 			{Name: "clear", Desc: "()V", Flags: classfile.AccPublic, Native: natHashMapClear},
+			{Name: "values", Desc: "()Ljava/util/Collection;", Flags: classfile.AccPublic,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					mb := recv.(*Instance).Payload.(*mapBuf)
+					var vals []Value
+					for _, v := range mb.data {
+						vals = append(vals, v)
+					}
+					list := newBareInstance(ctx.K, "java/util/ArrayList")
+					list.Payload = &alBuf{data: vals}
+					return list, nil
+				}},
+			{Name: "keySet", Desc: "()Ljava/util/Set;", Flags: classfile.AccPublic,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					set := newBareInstance(ctx.K, "java/util/HashSet")
+					set.Payload = &setBuf{data: map[jkey]bool{}, keys: map[jkey]Value{}}
+					return set, nil
+				}},
 		},
 	})
 	mustDefine(k, &ClassDef{

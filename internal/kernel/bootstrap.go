@@ -224,8 +224,26 @@ func bootstrap(k *Kernel) {
 		Super: "java/lang/Exception",
 	})
 	mustDefine(k, &ClassDef{
-		Name:  "java/lang/Integer",
+		Name:  "java/lang/Void",
 		Super: "java/lang/Object",
+		Fields: []FieldDef{{Name: "TYPE", Desc: "Ljava/lang/Class;", Flags: 0x0019}},
+		StaticInit: func(k *Kernel, c *Class) error {
+			prim, err := k.primitiveClass("V", "void")
+			if err != nil { return err }
+			if f := c.fieldsByKey[memberKey("TYPE", "Ljava/lang/Class;")]; f != nil {
+				c.Statics[f.StaticSlot] = prim
+			}
+			return nil
+		},
+	})
+	mustDefine(k, &ClassDef{
+		Name:  "java/lang/Number",
+		Super: "java/lang/Object",
+		Flags: classfile.AccPublic | classfile.AccAbstract,
+	})
+	mustDefine(k, &ClassDef{
+		Name:  "java/lang/Integer",
+		Super: "java/lang/Number",
 		Flags: classfile.AccPublic | classfile.AccFinal,
 		Fields: []FieldDef{
 			{Name: "value", Desc: "I", Flags: classfile.AccPrivate | classfile.AccFinal},

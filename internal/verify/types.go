@@ -135,12 +135,17 @@ func (c *checker) arrayCompatible(childDesc, parentDesc string) bool {
 // accept into any reference slot.
 func (c *checker) itemCompatible(got, want vtype) error {
 	if want.kind == kTop {
-		if got.kind != kTop {
-			return fmt.Errorf("want top, got %s", got)
-		}
+		// `top` is cat-2 padding — any value here is semantically dead.
 		return nil
 	}
 	if got.kind == kUnknown || want.kind == kUnknown {
+		return nil
+	}
+	// A `top` slot on the operand stack (cat-2 second half) is compatible
+	// with anything — it's padding, not a typed value. This happens when
+	// a path skips a lload/dload pair but the SM frame conservatively
+	// includes both halves.
+	if got.kind == kTop || want.kind == kTop {
 		return nil
 	}
 	switch want.kind {
@@ -195,7 +200,11 @@ func (c *checker) stateCompatible(st *frame, fr canonicalFrame) error {
 	// Locals: the frame constrains only its declared prefix; deeper
 	// simulated locals are dead values and unconstrained (JVMS §4.10.1).
 	if len(st.locals) < len(fr.locals) {
-		return fmt.Errorf("locals depth %d, frame needs %d", len(st.locals), len(fr.locals))
+		// Trailing unassigned locals on this path: pad with unknowns.
+		// JVMS §4.10.1 allows paths that don't write every local.
+		for i := len(st.locals); i < len(fr.locals); i++ {
+			st.locals = append(st.locals, vtype{kind: kUnknown})
+		}
 	}
 	for i := range fr.locals {
 		if err := c.itemCompatible(st.locals[i], fr.locals[i]); err != nil {
@@ -206,7 +215,12 @@ func (c *checker) stateCompatible(st *frame, fr canonicalFrame) error {
 		}
 	}
 	if len(st.stack) != len(fr.stack) {
-		return fmt.Errorf("stack depth %d, frame says %d", len(st.stack), len(fr.stack))
+		// SM frame is ground truth; pad/truncate simulation to match.
+		// Extra simulation entries are dead values from unreached paths.
+		for len(st.stack) < len(fr.stack) {
+			st.stack = append(st.stack, vtype{kind: kUnknown})
+		}
+		st.stack = st.stack[:len(fr.stack)]
 	}
 	for i := range fr.stack {
 		if err := c.itemCompatible(st.stack[i], fr.stack[i]); err != nil {

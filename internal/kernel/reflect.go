@@ -303,7 +303,21 @@ func registerReflection(k *Kernel) error {
 			{Name: "isInstance", Desc: "(Ljava/lang/Object;)Z", Flags: 0x0001, Native: natClassIsInstance},
 			{Name: "isAssignableFrom", Desc: "(Ljava/lang/Class;)Z", Flags: 0x0001, Native: natClassIsAssignableFrom},
 			{Name: "getSuperclass", Desc: "()Ljava/lang/Class;", Flags: 0x0001, Native: natClassGetSuperclass},
+			{Name: "getGenericSuperclass", Desc: "()Ljava/lang/reflect/Type;", Flags: 0x0001, Native: natClassGetSuperclass},
 			{Name: "newInstance", Desc: "()Ljava/lang/Object;", Flags: 0x0001, Native: natClassNewInstance},
+			{Name: "cast", Desc: "(Ljava/lang/Object;)Ljava/lang/Object;", Flags: 0x0001,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					in, ok := recv.(*Instance)
+					if !ok { return nil, ctx.Throw("java/lang/RuntimeException", "bad Class recv") }
+					c, ok2 := in.Payload.(*Class)
+					if !ok2 { return args[0], nil } // primitives: pass through
+					if len(args) > 0 && args[0] != nil && !ctx.K.IsInstance(args[0], c) {
+						return nil, ctx.Throw("java/lang/ClassCastException",
+							in.Class.Name + " cannot be cast to class " + c.Name)
+					}
+					if len(args) > 0 { return args[0], nil }
+					return nil, nil
+				}},
 		},
 	}); err != nil {
 		return err
