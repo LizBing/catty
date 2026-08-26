@@ -24,10 +24,11 @@ const (
 // Code != nil), native (Native != nil), or emitter-generated
 // (EmitBody != nil, the direct fast twin of Native).
 type Method struct {
-	Holder *Class
-	Name   string
-	Desc   string
-	Flags  uint16
+	Holder      *Class
+	Name        string
+	Desc        string
+	Flags       uint16
+	Annotations []ParsedAnnotation
 
 	CF     *classfile.ClassFile // interpreted: owner's constant pool
 	Code   *classfile.Code      // interpreted: bytecode
@@ -53,14 +54,17 @@ func memberKey(name, desc string) string { return name + "|" + desc }
 // Field is a resolved field. Instance fields carry an absolute slot in the
 // object layout (supers first); static fields carry an index into the
 // declaring class's Statics.
+type ParsedAnnotation = classfile.ParsedAnnotation
+
 type Field struct {
-	Holder     *Class
-	Name       string
-	Desc       string
-	Flags      uint16
-	Slot       int // instance slot (valid if !Static)
-	Static     bool
-	StaticSlot int // index into Holder.Statics (valid if Static)
+	Holder      *Class
+	Name        string
+	Desc        string
+	Flags       uint16
+	Slot        int // instance slot (valid if !Static)
+	Static      bool
+	StaticSlot  int // index into Holder.Statics (valid if Static)
+	Annotations []ParsedAnnotation
 }
 
 // Class is runtime class metadata.

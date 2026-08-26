@@ -459,6 +459,21 @@ func (k *Kernel) DefineClass(def *ClassDef) (*Class, error) {
 	}
 	slot := 0
 	for _, x := range chain {
+		// Loaded classes (from JAR/classpath) have DeclaredFields populated
+		// by the parser; synthesized classes use def.Fields.
+		var declared []FieldDef
+		if x.CF != nil {
+			for i := range x.CF.Fields {
+				fi := &x.CF.Fields[i]
+				declared = append(declared, FieldDef{
+					Name: fi.Name, Desc: fi.Desc, Flags: fi.AccessFlags,
+									})
+			}
+			x.def = &ClassDef{Fields: declared}
+		}
+		if x.def == nil {
+			continue
+		}
 		for _, fd := range x.def.Fields {
 			f := &Field{Holder: x, Name: fd.Name, Desc: fd.Desc, Flags: fd.Flags}
 			if fd.Flags&classfile.AccStatic != 0 {
@@ -572,7 +587,7 @@ func (k *Kernel) LoadClassBytesWith(data []byte, dep func(name string) (*Class, 
 		}
 		for i := range x.CF.Fields {
 			fd := &x.CF.Fields[i]
-			f := &Field{Holder: x, Name: fd.Name, Desc: fd.Desc, Flags: fd.AccessFlags}
+			f := &Field{Holder: x, Name: fd.Name, Desc: fd.Desc, Flags: fd.AccessFlags, Annotations: fd.Annotations}
 			if fd.AccessFlags&classfile.AccStatic != 0 {
 				f.Static = true
 				f.StaticSlot = len(x.Statics)
@@ -601,7 +616,7 @@ func (k *Kernel) LoadClassBytesWith(data []byte, dep func(name string) (*Class, 
 
 	for i := range cf.Methods {
 		md := &cf.Methods[i]
-		m := &Method{Holder: c, Name: md.Name, Desc: md.Desc, Flags: md.AccessFlags, CF: cf, Code: md.Code}
+		m := &Method{Holder: c, Name: md.Name, Desc: md.Desc, Flags: md.AccessFlags, CF: cf, Code: md.Code, Annotations: md.Annotations}
 		c.Methods = append(c.Methods, m)
 		c.methodsByKey[memberKey(m.Name, m.Desc)] = m
 	}
@@ -1088,3 +1103,11 @@ func bool32(b bool) int32 {
 
 // GetenvDebug exposes a debug flag for probe sessions (P-0013).
 func (k *Kernel) GetenvDebug() bool { return os.Getenv("CATTY_CCDBG") != "" }
+
+
+// RegisterSynthetic inserts a manually constructed Class into the registry.
+func (k *Kernel) RegisterSynthetic(c *Class) {
+	k.mu.Lock()
+	defer k.mu.Unlock()
+	k.classes[c.Name] = c
+}

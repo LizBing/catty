@@ -152,11 +152,28 @@ type LineNum struct {
 	Line    uint16
 }
 
+// ParsedAnnotation is one decoded runtime annotation.
+type ParsedAnnotation struct {
+	TypeDesc string            // e.g. "Lcom/google/gson/annotations/SerializedName;"
+	Elements map[string]ElementValue
+}
+
+// ElementValue is one element_value in an annotation (JVMS §4.7.16.1).
+type ElementValue struct {
+	Tag       byte   // 'B','C','D','I','J','S','Z','s','e','c','@','['
+	ConstIdx  uint16 // for primitive/String tags: const pool idx
+	EnumType  string // for 'e': type descriptor
+	EnumName  string // for 'e': constant name
+	ClassDesc string // for 'c': return descriptor
+	Array     []ElementValue // for '['
+}
+
 // FieldInfo is a parsed field.
 type FieldInfo struct {
 	AccessFlags uint16
 	Name        string
 	Desc        string
+	Annotations []ParsedAnnotation
 	Attributes  []Attribute
 }
 
@@ -174,6 +191,7 @@ func (f *FieldInfo) ConstantValue() uint16 {
 type MethodInfo struct {
 	AccessFlags uint16
 	Name        string
+	Annotations []ParsedAnnotation
 	Desc        string
 	Code        *Code // nil for abstract/native methods
 	Attributes  []Attribute
@@ -187,6 +205,7 @@ type ClassFile struct {
 	AccessFlags  uint16
 	ThisClass    string
 	SuperClass   string // "" for java/lang/Object itself
+	Annotations  []ParsedAnnotation
 	SourceFile   string // SourceFile attribute, "" when absent
 	Interfaces   []string
 	Fields       []FieldInfo

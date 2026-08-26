@@ -263,10 +263,10 @@ func registerReflection(k *Kernel) error {
 		"java/lang/reflect/TypeVariable",
 	} {
 		if _, err := k.DefineClass(&ClassDef{
-			Name:  nm,
-			Super: "java/lang/Object",
+			Name:   nm,
+			Super:  "java/lang/Object",
 			Ifaces: []string{"java/lang/reflect/Type"},
-			Flags: classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
+			Flags:  classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
 		}); err != nil {
 			return err
 		}
@@ -297,13 +297,9 @@ func registerReflection(k *Kernel) error {
 			{Name: "isLocalClass", Desc: "()Z", Flags: 0x0001, Native: natClassIsLocalClass},
 			{Name: "isMemberClass", Desc: "()Z", Flags: 0x0001, Native: natClassIsMemberClass},
 			{Name: "getAnnotation", Desc: "(Ljava/lang/Class;)Ljava/lang/annotation/Annotation;", Flags: 0x0001,
-				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
-					return nil, nil // no annotations retained in v1 (DEV-0010)
-				}},
+				Native: natReflectGetAnnotation},
 			{Name: "getAnnotations", Desc: "()[Ljava/lang/annotation/Annotation;", Flags: 0x0001,
-				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
-					return emptyArray(ctx.K, "Ljava/lang/annotation/Annotation;")
-				}},
+				Native: natReflectGetAnnotations},
 			{Name: "isEnum", Desc: "()Z", Flags: 0x0001, Native: natClassIsEnum},
 			{Name: "isInterface", Desc: "()Z", Flags: 0x0001, Native: natClassIsInterface},
 			{Name: "isPrimitive", Desc: "()Z", Flags: 0x0001, Native: natClassIsPrimitive},
@@ -328,14 +324,20 @@ func registerReflection(k *Kernel) error {
 			{Name: "cast", Desc: "(Ljava/lang/Object;)Ljava/lang/Object;", Flags: 0x0001,
 				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
 					in, ok := recv.(*Instance)
-					if !ok { return nil, ctx.Throw("java/lang/RuntimeException", "bad Class recv") }
+					if !ok {
+						return nil, ctx.Throw("java/lang/RuntimeException", "bad Class recv")
+					}
 					c, ok2 := in.Payload.(*Class)
-					if !ok2 { return args[0], nil } // primitives: pass through
+					if !ok2 {
+						return args[0], nil
+					} // primitives: pass through
 					if len(args) > 0 && args[0] != nil && !ctx.K.IsInstance(args[0], c) {
 						return nil, ctx.Throw("java/lang/ClassCastException",
-							in.Class.Name + " cannot be cast to class " + c.Name)
+							in.Class.Name+" cannot be cast to class "+c.Name)
 					}
-					if len(args) > 0 { return args[0], nil }
+					if len(args) > 0 {
+						return args[0], nil
+					}
 					return nil, nil
 				}},
 		},
@@ -374,13 +376,9 @@ func registerReflection(k *Kernel) error {
 					return boolV(f.Flags&0x1000 != 0), nil // ACC_SYNTHETIC
 				}},
 			{Name: "getAnnotation", Desc: "(Ljava/lang/Class;)Ljava/lang/annotation/Annotation;", Flags: 0x0001,
-				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
-					return nil, nil // no annotations retained in v1 (DEV-0010)
-				}},
+				Native: natReflectGetAnnotation},
 			{Name: "getAnnotations", Desc: "()[Ljava/lang/annotation/Annotation;", Flags: 0x0001,
-				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
-					return emptyArray(ctx.K, "Ljava/lang/annotation/Annotation;")
-				}},
+				Native: natReflectGetAnnotations},
 			{Name: "isEnumConstant", Desc: "()Z", Flags: 0x0001,
 				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
 					f, ferr := fieldPayload(recv)
@@ -1436,3 +1434,165 @@ func natEnumValueOf(ctx *CallContext, recv Value, args []Value) (Value, error) {
 }
 
 func kFor(ctx *CallContext) *Kernel { return ctx.K }
+
+// ---- annotation metadata access (P-0013 v3) -------------------------------
+
+type ElementValue = classfile.ElementValue
+
+func annDataFrom(recv Value) []ParsedAnnotation {
+	in, ok := recv.(*Instance)
+	if !ok || in.Payload == nil {
+		return nil
+	}
+	switch p := in.Payload.(type) {
+	case *Field:
+		return p.Annotations
+	case *Method:
+		return p.Annotations
+	}
+	return nil
+}
+
+// natReflectGetAnnotation returns the first annotation whose type matches
+// the wanted Class mirror. Works for Class, Field, and Method receivers.
+func natReflectGetAnnotation(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	anns := annDataFrom(recv)
+	if len(anns) == 0 || len(args) == 0 {
+		return nil, nil
+	}
+	wantIn, ok := args[0].(*Instance)
+	if !ok {
+		return nil, nil
+	}
+	wantC, hasPayload := classPayloadOf(wantIn)
+	if !hasPayload {
+		return nil, nil
+	}
+	target := "L" + wantC.Name + ";"
+	for i := range anns {
+		if anns[i].TypeDesc != target {
+			continue
+		}
+		inst, berr := buildAnnotationMirror(ctx.K, &anns[i])
+		if berr != nil {
+			return nil, ctx.Throw("java/lang/RuntimeException", berr.Error())
+		}
+		return inst, nil
+	}
+	return nil, nil
+}
+
+func natReflectGetAnnotations(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	anns := annDataFrom(recv)
+	arr, aerr := ctx.K.NewArray("Ljava/lang/annotation/Annotation;", len(anns))
+	if aerr != nil {
+		return nil, aerr
+	}
+	for i := range anns {
+		inst, berr := buildAnnotationMirror(ctx.K, &anns[i])
+		if berr != nil {
+			continue
+		}
+		arr.Elems[i] = inst
+	}
+	return arr, nil
+}
+
+// buildAnnotationMirror creates a Java object implementing the annotation
+// interface by registering a synthetic concrete companion class and creating
+// an instance of it. Avoids DefineClass entirely for maximum simplicity.
+func buildAnnotationMirror(k *Kernel, pa *ParsedAnnotation) (*Instance, error) {
+	internalName := strings.TrimSuffix(strings.TrimPrefix(pa.TypeDesc, "L"), ";")
+	implName := internalName + "$CattyImpl"
+
+	// Check if already registered.
+	if c, ok := k.ClassByName(implName); ok {
+		in, err := k.NewInstance(c)
+		if err != nil {
+			return nil, err
+		}
+		pl := map[string]ElementValue{}
+		for k2, v2 := range pa.Elements {
+			pl[k2] = v2
+		}
+		in.Payload = pl
+		return in, nil
+	}
+
+	iface, ok := k.ClassByName(internalName)
+	if !ok {
+		return nil, fmt.Errorf("annotation class %s not loaded", internalName)
+	}
+
+	// Build the synthetic class directly.
+	c := &Class{
+		Name:  implName,
+		Super: iface,
+		Flags: 0x0001, // public
+	}
+	c.setState(StateInitialized)
+
+	methodsByKey := map[string]*Method{}
+	for _, m := range iface.Methods {
+		elemName := m.Name
+		cm := &Method{
+			Holder: c, Name: elemName, Desc: m.Desc,
+			Flags: 0x0001,
+			Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+				in, ok3 := recv.(*Instance)
+				if !ok3 {
+					return nil, nil
+				}
+				pl, ok4 := in.Payload.(map[string]ElementValue)
+				if !ok4 {
+					return nil, nil
+				}
+				ev, exists := pl[elemName]
+				if !exists {
+					return nil, nil
+				}
+				switch ev.Tag {
+				case 's':
+					return ctx.NewStringGo(ev.EnumName), nil
+				case 'I', 'B', 'S':
+					return int32(int32(ev.ConstIdx)), nil
+				case 'Z':
+					if ev.ConstIdx != 0 {
+						return int32(1), nil
+					}
+					return int32(0), nil
+				default:
+					return nil, nil
+				}
+			},
+		}
+		c.Methods = append(c.Methods, cm)
+		methodsByKey[memberKey(elemName, m.Desc)] = cm
+	}
+	c.methodsByKey = methodsByKey
+
+	// Register in the kernel so ResolveMethod/findMethod can find it.
+	k.RegisterSynthetic(c)
+
+	in, ierr := k.NewInstance(c)
+	if ierr != nil {
+		return nil, ierr
+	}
+	pl := map[string]ElementValue{}
+	for k2, v2 := range pa.Elements {
+		pl[k2] = v2
+	}
+	in.Payload = pl
+	return in, nil
+}
+
+func parseConstIntVal(idx uint16) int32 { return int32(idx) }
+
+func classPayloadOf(in *Instance) (*Class, bool) {
+	c, ok := in.Payload.(*Class)
+	return c, ok
+}
+
+var _ = fmt.Sprintf // suppress unused import if needed
+
+func idx32(v uint16) int32 { return int32(v) }

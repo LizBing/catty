@@ -163,6 +163,9 @@ func Parse(data []byte) (cf *ClassFile, err error) {
 		return nil, err
 	}
 	for _, a := range cf.Attributes {
+		if a.Name == "RuntimeVisibleAnnotations" || a.Name == "RuntimeInvisibleAnnotations" {
+			cf.Annotations = append(cf.Annotations, parseAnnotations(cf, a.Data)...)
+		}
 		if a.Name == "SourceFile" && len(a.Data) == 2 {
 			idx := uint16(a.Data[0])<<8 | uint16(a.Data[1])
 			cf.SourceFile, _ = cf.UTF8(idx)
@@ -186,6 +189,11 @@ func parseField(r *reader, cf *ClassFile) (*FieldInfo, error) {
 	}
 	if fd.Attributes, err = parseAttributes(r, cf); err != nil {
 		return nil, err
+	}
+	for _, a := range fd.Attributes {
+		if a.Name == "RuntimeVisibleAnnotations" || a.Name == "RuntimeInvisibleAnnotations" {
+			fd.Annotations = append(fd.Annotations, parseAnnotations(cf, a.Data)...)
+		}
 	}
 	return fd, nil
 }
@@ -212,6 +220,11 @@ func parseMethod(r *reader, cf *ClassFile) (*MethodInfo, error) {
 			}
 			mi.Code = c
 			break
+		}
+	}
+		for _, a := range attrs {
+		if a.Name == "RuntimeVisibleAnnotations" || a.Name == "RuntimeInvisibleAnnotations" {
+			mi.Annotations = append(mi.Annotations, parseAnnotations(cf, a.Data)...)
 		}
 	}
 	return mi, nil
@@ -267,6 +280,104 @@ func parseCode(cf *ClassFile, data []byte) (*Code, error) {
 
 // parseAttributes reads an attribute table, resolving names and capturing
 // raw payloads. Unknown attributes are preserved but not interpreted.
+// parseAnnotations decodes a Runtime{Visible,Invisible}Annotations payload
+// (JVMS §4.7.16-17).
+func parseAnnotations(cf *ClassFile, data []byte) []ParsedAnnotation {
+	if len(data) < 2 {
+		return nil
+	}
+	n := int(uint16(data[0])<<8 | uint16(data[1]))
+	out := make([]ParsedAnnotation, 0, n)
+	pos := 2
+	for i := 0; i < n && pos+4 <= len(data); i++ {
+		typeIdx := uint16(data[pos])<<8 | uint16(data[pos+1])
+		pos += 2
+		td, err := cf.UTF8(typeIdx)
+		if err != nil {
+			break
+		}
+		pa := ParsedAnnotation{TypeDesc: td, Elements: map[string]ElementValue{}}
+		numPairs := int(uint16(data[pos])<<8 | uint16(data[pos+1]))
+		pos += 2
+		for j := 0; j < numPairs && pos+3 <= len(data); j++ {
+			nameIdx := uint16(data[pos])<<8 | uint16(data[pos+1])
+			pos += 2
+			elemName, err := cf.UTF8(nameIdx)
+			if err != nil {
+				break
+			}
+			ev, consumed := decodeElementValue(cf, data, pos)
+			if consumed == 0 {
+				break
+			}
+			pos += consumed
+			pa.Elements[elemName] = ev
+		}
+		out = append(out, pa)
+	}
+	return out
+}
+
+func decodeElementValue(cf *ClassFile, data []byte, pos int) (ElementValue, int) {
+	if pos >= len(data) {
+		return ElementValue{}, 0
+	}
+	tag := data[pos]
+	pos++
+	switch tag {
+	case 'B', 'C', 'D', 'I', 'J', 'S', 'Z', 's':
+		if pos+2 > len(data) {
+			return ElementValue{}, 0
+		}
+		idx := uint16(data[pos])<<8 | uint16(data[pos+1])
+		ev := ElementValue{Tag: tag, ConstIdx: idx}
+		if tag == 's' {
+			if sv, err := cf.UTF8(idx); err == nil {
+				ev.EnumName = sv // reuse field for string value
+			}
+		}
+		return ev, 3
+	case 'e':
+		if pos+4 > len(data) {
+			return ElementValue{}, 0
+		}
+		typeIdx := uint16(data[pos])<<8 | uint16(data[pos+1])
+		nameIdx := uint16(data[pos+2])<<8 | uint16(data[pos+3])
+		td, _ := cf.UTF8(typeIdx)
+		en, _ := cf.UTF8(nameIdx)
+		return ElementValue{Tag: 'e', EnumType: td, EnumName: en}, 5
+	case 'c':
+		if pos+2 > len(data) {
+			return ElementValue{}, 0
+		}
+		idx := uint16(data[pos])<<8 | uint16(data[pos+1])
+		cd, _ := cf.UTF8(idx)
+		return ElementValue{Tag: 'c', ClassDesc: cd}, 3
+	case '@':
+		// nested annotation — v1 skips (returns empty marker)
+		return ElementValue{Tag: '@'}, 0 // 0 = abort outer parse
+	case '[':
+		if pos+2 > len(data) {
+			return ElementValue{}, 0
+		}
+		count := int(uint16(data[pos])<<8 | uint16(data[pos+1]))
+		startPos := pos
+		pos += 2
+		arr := ElementValue{Tag: '[', Array: make([]ElementValue, 0, count)}
+		for i := 0; i < count; i++ {
+			ev, used := decodeElementValue(cf, data, pos)
+			if used == 0 {
+				break
+			}
+			arr.Array = append(arr.Array, ev)
+			pos += used
+		}
+		return arr, pos - startPos
+	default:
+		return ElementValue{}, 0
+	}
+}
+
 func parseAttributes(r *reader, cf *ClassFile) ([]Attribute, error) {
 	count := int(r.u2())
 	if count == 0 {
