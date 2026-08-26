@@ -13,10 +13,10 @@
 | P2 | toJson(简单 POJO) | ✅ | ✅ | boolean 已修 |
 | P3 | fromJson(json, Class) 反射反序列化 | ✅ | ✅ | 无 |
 | P4 | 嵌套对象序列化 | ✅ | ✅ | 无 |
-| P5 | @SerializedName 注解 | ⚠️ 回退到字段名 | 用注解名 | DEV-0010 |
-| P6 | 泛型 TypeToken<List<String>> | ❌ "Missing type parameter" | ✅ list_size=2 | 边界 |
+| P5 | @SerializedName 注解 | ✅ user_name/age_years | ✅ | **已修复** |
+| P6 | 泛型 TypeToken<List<String>> | ❌ "Missing type parameter" | ✅ list_size=2 | 边界（需 ParameterizedType 模型） |
 
-**结论：基本序列化/反序列化路径全通；注解与泛型为登记边界。**
+**结论：基本序列化/反序列化路径全通；@SerializedName 注解已支持；泛型 TypeToken 为唯一登记边界。**
 
 ## 新增内核表面清单（本轮 + 上轮合计）
 
@@ -79,7 +79,7 @@ Object: getClass(已有)
 └─ Method.invoke / Constructor.newInstance
 
 ⚠️ 受限（有 workaround 或降级）
-├─ @SerializedName → 回退字段名（DEV-0010）
+├─ ~~@SerializedName → 已修复，输出与 JVM 一致~~
 ├─ getMethods 不含接口方法
 └─ boolean 装箱走 Boolean.valueOf（已修）
 

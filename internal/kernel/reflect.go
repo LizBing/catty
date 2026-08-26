@@ -1549,6 +1549,18 @@ func buildAnnotationMirror(k *Kernel, pa *ParsedAnnotation) (*Instance, error) {
 				}
 				ev, exists := pl[elemName]
 				if !exists {
+					// Element has a default value or is absent — return
+					// type-appropriate zero. Check the method's descriptor.
+					if strings.HasSuffix(m.Desc, "[Ljava/lang/String;") {
+						arr, _ := ctx.K.NewArray("Ljava/lang/String;", 0)
+						return arr, nil
+					}
+					if strings.HasSuffix(m.Desc, "Z") {
+						return int32(0), nil
+					}
+					if strings.HasSuffix(m.Desc, "I") {
+						return int32(0), nil
+					}
 					return nil, nil
 				}
 				switch ev.Tag {
