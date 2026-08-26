@@ -78,6 +78,7 @@ type Class struct {
 	OwnFields      []*Field // instance fields declared by this class itself
 	DeclaredFields []*Field // ALL declared fields (incl. statics), declaration order — reflection view
 	Statics   []Value  // static storage declared here
+	Signature string   // generic signature from classfile
 
 	CF  *classfile.ClassFile // nil for synthesized classes
 	def *ClassDef            // synthesized origin (nil for CF classes)

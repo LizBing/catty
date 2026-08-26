@@ -166,6 +166,10 @@ func Parse(data []byte) (cf *ClassFile, err error) {
 		if a.Name == "RuntimeVisibleAnnotations" || a.Name == "RuntimeInvisibleAnnotations" {
 			cf.Annotations = append(cf.Annotations, parseAnnotations(cf, a.Data)...)
 		}
+		if a.Name == "Signature" && len(a.Data) >= 2 {
+			idx := uint16(a.Data[0])<<8 | uint16(a.Data[1])
+			cf.Signature, _ = cf.UTF8(idx)
+		}
 		if a.Name == "SourceFile" && len(a.Data) == 2 {
 			idx := uint16(a.Data[0])<<8 | uint16(a.Data[1])
 			cf.SourceFile, _ = cf.UTF8(idx)

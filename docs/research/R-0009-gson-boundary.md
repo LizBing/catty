@@ -14,7 +14,7 @@
 | P3 | fromJson(json, Class) 反射反序列化 | ✅ | ✅ | 无 |
 | P4 | 嵌套对象序列化 | ✅ | ✅ | 无 |
 | P5 | @SerializedName 注解 | ✅ user_name/age_years | ✅ | **已修复** |
-| P6 | 泛型 TypeToken<List<String>> | ❌ "Missing type parameter" | ✅ list_size=2 | 边界（需 ParameterizedType 模型） |
+| P6 | 泛型 TypeToken<List<String>> | ✅ list_size=2 | ✅ list_size=2 | **已修复** |
 
 **结论：基本序列化/反序列化路径全通；@SerializedName 注解已支持；泛型 TypeToken 为唯一登记边界。**
 
@@ -84,7 +84,7 @@ Object: getClass(已有)
 └─ boolean 装箱走 Boolean.valueOf（已修）
 
 ❌ 不可用（精确边界）
-├─ TypeToken<泛型> → 需要 ParameterizedType 完整模型
+├─ ~~TypeToken<泛型> → 已修复：ParameterizedType 模型已实现~~
 ├─ 注解元数据保留/读取
 ├─ sun.misc.Unsafe 分配器路径
 └─ EnumSet/EnumMap 等枚举容器
@@ -93,7 +93,7 @@ Object: getClass(已有)
 ## 结论
 
 反射最小面在 gson 2.8.9 的核心序列化/反序列化路径上实战可用。
-泛型 TypeToken 是最大的单一缺口——需要实现 ParameterizedType 完整模型
-（含 owner type、actual type arguments、raw type 三元组），估算 M 大小，
-按真实需求排期。注解保留需要 classfile 解析层存储 RuntimeVisible/
+泛型 TypeToken 原为最大缺口，现已通过 Signature 属性解析 +
+ParameterizedTypeImpl 合成类解决。剩余边界仅为注解元数据保留与
+继承成员完整遍历（均按需排期）。注解保留需要 classfile 解析层存储 RuntimeVisible/
 InvisibleAnnotations 属性，估算 S-M。

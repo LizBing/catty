@@ -657,6 +657,30 @@ func bootstrapRouteC(k *Kernel) {
 		},
 	})
 	mustDefine(k, &ClassDef{
+		Name:  "java/util/EnumSet",
+		Super: "java/lang/Object",
+		Ifaces: []string{"java/util/Set"},
+		Flags:  classfile.AccPublic | classfile.AccAbstract,
+	})
+	mustDefine(k, &ClassDef{
+		Name:  "java/util/SortedSet",
+		Super: "java/lang/Object",
+		Ifaces: []string{"java/util/Set"},
+		Flags:  classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
+	})
+	mustDefine(k, &ClassDef{
+		Name:  "java/util/SortedMap",
+		Super: "java/lang/Object",
+		Ifaces: []string{"java/util/Map"},
+		Flags:  classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
+	})
+	mustDefine(k, &ClassDef{
+		Name:  "java/util/Queue",
+		Super: "java/lang/Object",
+		Ifaces: []string{"java/util/Collection"},
+		Flags:  classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
+	})
+	mustDefine(k, &ClassDef{
 		Name:  "java/util/Collections",
 		Super: "java/lang/Object",
 		Flags: classfile.AccPublic,

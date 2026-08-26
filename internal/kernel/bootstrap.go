@@ -102,6 +102,8 @@ func bootstrap(k *Kernel) {
 		{"java/lang/InterruptedException", "java/lang/Exception"},
 		{"java/lang/VirtualMachineError", "java/lang/Error"},
 		{"java/lang/StackOverflowError", "java/lang/VirtualMachineError"},
+		{"java/lang/NoSuchMethodException", "java/lang/Exception"},
+		{"java/lang/NoSuchFieldException", "java/lang/Exception"},
 	}
 	for _, t := range throwables {
 		def := &ClassDef{
@@ -203,6 +205,7 @@ func bootstrap(k *Kernel) {
 	if err := registerReflection(k); err != nil {
 		panic("kernel bootstrap reflection: " + err.Error())
 	}
+	registerParameterizedType(k)
 	mustDefine(k, &ClassDef{
 		Name:  "java/io/Closeable",
 		Flags: classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,

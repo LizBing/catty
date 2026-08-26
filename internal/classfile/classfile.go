@@ -206,6 +206,7 @@ type ClassFile struct {
 	ThisClass    string
 	SuperClass   string // "" for java/lang/Object itself
 	Annotations  []ParsedAnnotation
+	Signature    string // generic signature
 	SourceFile   string // SourceFile attribute, "" when absent
 	Interfaces   []string
 	Fields       []FieldInfo

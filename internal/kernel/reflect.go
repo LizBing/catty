@@ -258,7 +258,6 @@ func registerReflection(k *Kernel) error {
 	// marker interfaces for the generic-type family (gson TypeToken).
 	for _, nm := range []string{
 		"java/lang/reflect/GenericArrayType",
-		"java/lang/reflect/ParameterizedType",
 		"java/lang/reflect/WildcardType",
 		"java/lang/reflect/TypeVariable",
 	} {
@@ -304,6 +303,7 @@ func registerReflection(k *Kernel) error {
 			{Name: "isInterface", Desc: "()Z", Flags: 0x0001, Native: natClassIsInterface},
 			{Name: "isPrimitive", Desc: "()Z", Flags: 0x0001, Native: natClassIsPrimitive},
 			{Name: "getInterfaces", Desc: "()[Ljava/lang/Class;", Flags: 0x0001, Native: natClassGetInterfaces},
+			{Name: "getGenericInterfaces", Desc: "()[Ljava/lang/reflect/Type;", Flags: 0x0001, Native: natClassGetInterfaces},
 			{Name: "forName", Desc: "(Ljava/lang/String;)Ljava/lang/Class;", Flags: 0x0009, Native: natClassForName},
 			{Name: "getDeclaredFields", Desc: "()[Ljava/lang/reflect/Field;", Flags: 0x0001, Native: natClassDeclaredFields},
 			{Name: "getFields", Desc: "()[Ljava/lang/reflect/Field;", Flags: 0x0001, Native: natClassGetFields},
@@ -1077,6 +1077,9 @@ func natClassGetSuperclass(ctx *CallContext, recv Value, args []Value) (Value, e
 	if c.Super == nil {
 		return nil, nil
 	}
+	if pt := ctx.K.buildParameterizedSuper(c); pt != nil {
+		return pt, nil
+	}
 	return ctx.K.ClassObjectOf(c.Super)
 }
 
@@ -1608,3 +1611,126 @@ func classPayloadOf(in *Instance) (*Class, bool) {
 var _ = fmt.Sprintf // suppress unused import if needed
 
 func idx32(v uint16) int32 { return int32(v) }
+
+// registerParameterizedType registers ParameterizedType interface and
+// ParameterizedTypeImpl concrete class for generic type support (P-0012).
+func registerParameterizedType(k *Kernel) {
+	mustDefine(k, &ClassDef{
+		Name:   "java/lang/reflect/ParameterizedType",
+		Super:  "java/lang/Object",
+		Ifaces: []string{"java/lang/reflect/Type"},
+		Flags:  classfile.AccPublic | classfile.AccInterface | classfile.AccAbstract,
+	})
+	mustDefine(k, &ClassDef{
+		Name:   "java/lang/reflect/ParameterizedTypeImpl",
+		Super:  "java/lang/Object",
+		Ifaces: []string{"java/lang/reflect/ParameterizedType"},
+		Fields: []FieldDef{
+			{Name: "rawType", Desc: "Ljava/lang/Class;", Flags: 0x0002},
+			{Name: "actualArgs", Desc: "[Ljava/lang/reflect/Type;", Flags: 0x0002},
+			{Name: "ownerType", Desc: "Ljava/lang/reflect/Type;", Flags: 0x0002},
+		},
+		Methods: []MethodDef{
+			{Name: "getRawType", Desc: "()Ljava/lang/Class;", Flags: 0x0001,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					return recv.(*Instance).Fields[0], nil
+				}},
+			{Name: "getActualTypeArguments", Desc: "()[Ljava/lang/reflect/Type;", Flags: 0x0001,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					f := recv.(*Instance).Class.FindField("actualArgs", "[Ljava/lang/reflect/Type;")
+					if f != nil && f.Slot < len(recv.(*Instance).Fields) && recv.(*Instance).Fields[f.Slot] != nil {
+						return recv.(*Instance).Fields[f.Slot], nil
+					}
+					return ctx.K.NewArray("Ljava/lang/reflect/Type;", 0)
+				}},
+			{Name: "getOwnerType", Desc: "()Ljava/lang/reflect/Type;", Flags: 0x0001,
+				Native: func(ctx *CallContext, recv Value, args []Value) (Value, error) {
+					return nil, nil
+				}},
+		},
+	})
+}
+
+// buildParameterizedSuper creates a ParameterizedType instance when the
+// class's Signature encodes a parameterized superclass (P-0012).
+func (k *Kernel) buildParameterizedSuper(c *Class) *Instance {
+	sig := c.Signature
+	if sig == "" || !strings.Contains(sig, "<") {
+		return nil
+	}
+	if strings.HasPrefix(sig, "<") {
+		end := strings.Index(sig, ">")
+		if end < 0 {
+			return nil
+		}
+		sig = sig[end+1:]
+	}
+	bracket := strings.Index(sig, "<")
+	if bracket <= 1 {
+		return nil
+	}
+	superInternal := strings.TrimPrefix(sig[:bracket], "L")
+	superCls := k.lookupClass(superInternal)
+	if superCls == nil {
+		return nil
+	}
+	argsStart := bracket + 1
+	argsEnd := strings.LastIndex(sig, ">")
+	if argsEnd <= argsStart {
+		return nil
+	}
+	argStr := sig[argsStart:argsEnd]
+
+	var typeArgs []Value
+	for len(argStr) > 0 {
+		if argStr[0] != 'L' {
+			break
+		}
+		end := 1
+		depth := 0
+		for end < len(argStr) {
+			ch := argStr[end]
+			if ch == '<' {
+				depth++
+			} else if ch == '>' {
+				depth--
+			} else if ch == ';' && depth == 0 {
+				break
+			}
+			end++
+		}
+		internal := argStr[1:end]
+		if i := strings.Index(internal, "<"); i >= 0 {
+			internal = internal[:i]
+		}
+		tc, tcErr := k.ResolveClass(internal)
+		if tcErr != nil {
+			return nil
+		}
+		mirror, mErr := k.ClassObjectOf(tc)
+		if mErr != nil {
+			return nil
+		}
+		typeArgs = append(typeArgs, mirror)
+		argStr = argStr[end+1:]
+	}
+
+	ptCls, ok := k.ClassByName("java/lang/reflect/ParameterizedTypeImpl")
+	if !ok {
+		return nil
+	}
+	in, ierr := k.NewInstance(ptCls)
+	if ierr != nil {
+		return nil
+	}
+	if f := ptCls.FindField("rawType", "Ljava/lang/Class;"); f != nil && f.Slot < len(in.Fields) {
+		obj, _ := k.ClassObjectOf(superCls)
+		in.Fields[f.Slot] = obj
+	}
+	if f := ptCls.FindField("actualArgs", "[Ljava/lang/reflect/Type;"); f != nil && f.Slot < len(in.Fields) {
+		arr, _ := k.NewArray("Ljava/lang/reflect/Type;", len(typeArgs))
+		copy(arr.Elems, typeArgs)
+		in.Fields[f.Slot] = arr
+	}
+	return in
+}

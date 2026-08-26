@@ -534,7 +534,7 @@ func (k *Kernel) LoadClassBytesWith(data []byte, dep func(name string) (*Class, 
 		k.mu.Unlock()
 		return nil, fmt.Errorf("class %s already loaded", cf.ThisClass)
 	}
-	c := &Class{Name: cf.ThisClass, Flags: cf.AccessFlags, CF: cf,
+	c := &Class{Name: cf.ThisClass, Flags: cf.AccessFlags, CF: cf, Signature: cf.Signature,
 		methodsByKey: make(map[string]*Method), fieldsByKey: make(map[string]*Field)}
 	c.setState(StateDefined)
 	k.classes[c.Name] = c
