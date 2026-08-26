@@ -51,8 +51,11 @@ U3 堆栈叶帧行号       SetLine 行段发射+调用点捕获+源文件渲染
                      TraceProbe 双路径与 JVM oracle 逐字节一致
 U7 反射最小面         Class.forName/getDeclared*/Field/Method/Constructor     ✅
                      （P-0011 单列轮次完成，迷你序列化器=JVM 逐字节）
+                     v2: getFields/getMethods/getConstructors 继承遍历        ✅
 U8 JAR 加载           .jar 条目索引+流式读取（DEBT-0008 关闭）                 ✅
 U9 装箱快路径         26ns vs 57-67ns（-55%，微观基准 BoxedInt*）             ✅
+U10 gson 战役         P1-P3 全通（forName/toJson/fromJson），P5 注解边界      ✅
+                     P6 泛型边界；R-0009 边界报告落盘                        
 U4 p99 持续负载采样   P99Bench 单线程分位 + embeddemo 嵌入服务形态           ✅
                      （4/8/16 worker 吞吐 43k→65k req/s，p99<1ms，
                       R-0007 附录②）

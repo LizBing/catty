@@ -107,10 +107,7 @@ func (k *Kernel) boxValue(ctx *CallContext, descByte byte, v Value) Value {
 	case 'J':
 		return k.boxLong(v.(int64))
 	case 'Z':
-		if v.(int32) != 0 {
-			return k.IntegerOf(1)
-		}
-		return k.IntegerOf(0)
+		return k.boxViaWrapper("java/lang/Boolean", int64(v.(int32)))
 	case 'B':
 		return k.boxViaWrapper("java/lang/Byte", int64(v.(int32)))
 	case 'C':
@@ -202,12 +199,34 @@ func (k *Kernel) boxDouble(v float64) Value {
 }
 
 func (k *Kernel) boxViaWrapper(cls string, v int64) Value {
-	if m, err := k.ResolveMethod(mustLookup(k, cls), "valueOf", "(J)"+wrapperDesc(cls)); err == nil {
-		if out, ierr := k.InvokeAs(nil, m, nil, []Value{v}); ierr == nil {
-			return out
-		}
+	// Map class name to its primitive descriptor for valueOf lookup.
+	primDescs := map[string]string{
+		"java/lang/Byte":      "B",
+		"java/lang/Short":     "S",
+		"java/lang/Character": "C",
+		"java/lang/Boolean":   "Z",
+		"java/lang/Long":      "J",
 	}
-	return v
+	pd, ok := primDescs[cls]
+	if !ok {
+		pd = "J"
+	}
+	m, err := k.ResolveMethod(mustLookup(k, cls), "valueOf", "("+pd+")"+wrapperDesc(cls))
+	if err != nil {
+		return k.IntegerOf(int32(v)) // fallback
+	}
+	var arg Value
+	switch pd {
+	case "Z":
+		arg = int32(v)
+	default:
+		arg = v
+	}
+	out, ierr := k.InvokeAs(nil, m, nil, []Value{arg})
+	if ierr != nil {
+		return k.IntegerOf(int32(v))
+	}
+	return out
 }
 
 func wrapperDesc(cls string) string { return "L" + cls + ";" }
@@ -296,6 +315,7 @@ func registerReflection(k *Kernel) error {
 			{Name: "getMethod", Desc: "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;", Flags: 0x0001, Native: natClassGetMethod},
 			{Name: "getConstructors", Desc: "()[Ljava/lang/reflect/Constructor;", Flags: 0x0001, Native: natClassGetConstructors},
 			{Name: "getField", Desc: "(Ljava/lang/String;)Ljava/lang/reflect/Field;", Flags: 0x0001, Native: natClassGetField},
+			{Name: "getDeclaredField", Desc: "(Ljava/lang/String;)Ljava/lang/reflect/Field;", Flags: 0x0001, Native: natClassGetDeclaredField},
 			{Name: "getDeclaredMethods", Desc: "()[Ljava/lang/reflect/Method;", Flags: 0x0001, Native: natClassDeclaredMethods},
 			{Name: "getDeclaredConstructors", Desc: "()[Ljava/lang/reflect/Constructor;", Flags: 0x0001, Native: natClassDeclaredConstructors},
 			{Name: "getDeclaredConstructor", Desc: "([Ljava/lang/Class;)Ljava/lang/reflect/Constructor;", Flags: 0x0001, Native: natClassGetDeclaredConstructor},
@@ -870,6 +890,27 @@ func natClassGetField(ctx *CallContext, recv Value, args []Value) (Value, error)
 		}
 	}
 	return nil, ctx.Throw("java/lang.NoSuchFieldException", js.Go())
+}
+
+func natClassGetDeclaredField(ctx *CallContext, recv Value, args []Value) (Value, error) {
+	c, cerr := classPayloadOrThrow(recv)
+	if cerr != nil {
+		return nil, ctx.Throw("java/lang/NoSuchFieldException", "primitive")
+	}
+	js, _ := args[0].(*JString)
+	if js == nil {
+		return nil, ctx.Throw("java/lang/NoSuchFieldException", "null")
+	}
+	for _, f := range c.DeclaredFields {
+		if f.Name == js.Go() {
+			in, ierr := newReflectInstance(ctx.K, "java/lang/reflect/Field", f)
+			if ierr != nil {
+				return nil, ctx.Throw("java/lang/RuntimeException", ierr.Error())
+			}
+			return in, nil
+		}
+	}
+	return nil, ctx.Throw("java/lang/NoSuchFieldException", js.Go())
 }
 
 func natClassDeclaredMethods(ctx *CallContext, recv Value, args []Value) (Value, error) {

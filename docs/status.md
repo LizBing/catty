@@ -22,6 +22,7 @@
 | 执行引擎 | v52 指令集：解释执行 + **AOT 发射双路径**（invokedynamic 构建期脱糖；jsr/ret 非法） |
 | AOT 发射器 | genemit→gen.go 整体编译（48 类）；installTable+懒加载钩子混合执行零成本回退；异常通道=旗标返回（ADR-0009）；统一表示（ADR-0010） |
 | 分发与分配性能 | 内联缓存+免锁计量+EmitBody 直调（R-0006）；JString 缓存/jkey 键/CallContext 池/SB 折叠(增长链守卫)（R-0007）：vcall **2.86×**、mapops **2.49×** 于解释器 |
+| gson 实战 | toJson/fromJson/嵌套对象全通（P1-P4 ✅）；注解+泛型为登记边界（R-0009） |
 | Java↔Go 互操作 | `interop.Bind` 反射绑定（ADR-0011）：一行注册 Go 函数为 Java 静态方法，类型映射全格钉扎，调用税 ~82ns；演示 cmd/embeddemo（Go 宿主内嵌 + 本地 HTTP + md5） |
 | 反射最小面 | Class.forName/getDeclared*/isInstance/newInstance + Field.get/set + Method.invoke + Constructor.newInstance（含基本类型装箱、静态字段、TYPE 常量）；迷你序列化器双引擎=JVM 逐字节（DEV-0010 边界已登记） |
 | JAR classpath | `.jar` 条目自动索引加载（DEBT-0008 关闭） |
