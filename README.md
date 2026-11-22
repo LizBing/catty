@@ -69,6 +69,17 @@ A successful run ends with:
 Gate 2 passed.
 ```
 
+The positive Gate 2 corpus can also run under the Gate 3 profile to exercise
+the shared runtime helpers:
+
+```sh
+python3 -B tests/gate2.py --java-home /path/to/jdk-21 --enable-plugins
+```
+
+It ends `Gate 2 positive corpus passed with Gate 3 enabled.` and skips the
+Gate 2-specific wrong-profile/negative checks and the separately-run Gate 1
+suite.
+
 `--prepare-only` compiles the fixtures and checks the OpenJDK results without
 building Catty. `--case NAME` runs one corpus case without the full gate checks:
 
