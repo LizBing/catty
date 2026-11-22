@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-9fedbnvr/catty",
+    "build",
+    "--classpath",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-9fedbnvr/classes/bad-stack-shape",
+    "--main",
+    "NumericEdgeCases",
+    "--mode",
+    "auto",
+    "--report",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-9fedbnvr/builds/bad-stack-shape/report.json",
+    "--output",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-9fedbnvr/builds/bad-stack-shape/app"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "JAVA_HOME": "/private/tmp/catty-java21.Nbj57G/jdk-21.0.13.1+2/Contents/Home",
+    "PATH": "/private/tmp/catty-java21.Nbj57G/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/private/tmp/catty-java21.Nbj57G/jdk-21.0.13.1+2/Contents/Home/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C"
+  },
+  "pid": 45774,
+  "status": 1,
+  "stdout": "",
+  "stderr": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-9fedbnvr/classes/bad-stack-shape/NumericEdgeCases.class: NumericEdgeCases.intArith(II)I: pc 2: expected long on the operand stack, found int\n"
+}

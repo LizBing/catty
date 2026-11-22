@@ -73,19 +73,21 @@ class Build:
 
 
 class Suite:
-    def __init__(self, work):
+    def __init__(self, work, *, env=None):
         self.work = work
+        self.env = env or {}
         self.bin = work / ("catty.exe" if os.name == "nt" else "catty")
 
     def run(self, label, args, *, cwd=ROOT, env=None, timeout=120):
         log = self.work / "logs" / f"{label}.json"
         log.parent.mkdir(parents=True, exist_ok=True)
-        relevant_env = {"PATH", "CATTY_TRACE", "LC_ALL", "JAVA_HOME", "CLASSPATH"}
+        relevant_env = {"PATH", "CATTY_TRACE", "LC_ALL", "JAVA_HOME", "JDK_HOME", "CLASSPATH"}
         options = os.environ.copy()
         for key in ("CATTY_TRACE", "JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS", "_JAVA_OPTIONS", "CLASSPATH"):
             options.pop(key, None)
         options["LC_ALL"] = "C"
         options.setdefault("GOCACHE", str(self.work / "go-cache"))
+        options.update(self.env)
         options.update(env or {})
         command = [str(arg) for arg in args]
         details = {"command": command, "cwd": str(cwd),
@@ -280,13 +282,17 @@ class Suite:
             require(result.report.is_file(), f"missing {result.report}. See {run.log}")
         return result
 
-    def launch(self, label, binary, oracle, args=(), *, isolated=False):
+    def traced_run(self, label, binary, args=(), *, isolated=False):
         trace = self.work / "traces" / f"{label}.jsonl"
         trace.parent.mkdir(exist_ok=True)
         env = {"CATTY_TRACE": str(trace)}
         if isolated:
             env.update(PATH="", JAVA_HOME="", JDK_HOME="")
         result = self.run(f"launch-{label}", [binary, *args], cwd=binary.parent, env=env)
+        return result, trace
+
+    def launch(self, label, binary, oracle, args=(), *, isolated=False):
+        result, trace = self.traced_run(label, binary, args, isolated=isolated)
         if oracle.status == 0:
             result.succeeded()
         else:

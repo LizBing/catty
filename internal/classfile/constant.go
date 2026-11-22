@@ -6,6 +6,7 @@ package classfile
 import (
 	"encoding/binary"
 	"fmt"
+	"math"
 	"unicode/utf16"
 )
 
@@ -20,6 +21,7 @@ type cpEntry struct {
 	first           uint16
 	second          uint16
 	intVal          int32
+	bits            uint64
 	nameIndex       uint16
 	descriptorIndex uint16
 	bootstrapIndex  uint16
@@ -116,17 +118,6 @@ func (cp *constantPool) ldcString(i uint16) ([]uint16, error) {
 	return units, err
 }
 
-func (cp *constantPool) ldcInt(i uint16) (int32, error) {
-	e, err := cp.entry(i)
-	if err != nil {
-		return 0, err
-	}
-	if e.tag != 3 {
-		return 0, fmt.Errorf("constant pool index %d is not an Integer constant", i)
-	}
-	return e.intVal, nil
-}
-
 type reader struct {
 	data []byte
 	off  int
@@ -211,3 +202,12 @@ func decodeMUTF8(b []byte) ([]uint16, error) {
 func unitsText(units []uint16) string {
 	return string(utf16.Decode(units))
 }
+
+// floatValue decodes a CONSTANT_Float payload.
+func (e *cpEntry) floatValue() float32 { return math.Float32frombits(uint32(e.bits)) }
+
+// doubleValue decodes a CONSTANT_Double payload.
+func (e *cpEntry) doubleValue() float64 { return math.Float64frombits(e.bits) }
+
+// longValue decodes a CONSTANT_Long payload.
+func (e *cpEntry) longValue() int64 { return int64(e.bits) }

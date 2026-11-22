@@ -1,0 +1,10 @@
+{"depth":0,"descriptor":"([Ljava/lang/String;)V","engine":"aot","event":"enter","name":"main","owner":"LongCrossing","pid":45500,"thread":1}
+{"depth":1,"descriptor":"(JI)J","engine":"interp","event":"enter","name":"bridge","owner":"LongCrossing","pid":45500,"thread":1}
+{"depth":2,"descriptor":"(JI)J","engine":"aot","event":"enter","name":"leaf","owner":"LongCrossing","pid":45500,"thread":1}
+{"depth":2,"descriptor":"(JI)J","event":"return","name":"leaf","owner":"LongCrossing","pid":45500,"thread":1}
+{"depth":1,"descriptor":"(JI)J","event":"return","name":"bridge","owner":"LongCrossing","pid":45500,"thread":1}
+{"depth":1,"descriptor":"(I)V","engine":"intrinsic","event":"enter","name":"println","owner":"java/io/PrintStream","pid":45500,"thread":1}
+{"depth":1,"descriptor":"(I)V","event":"return","name":"println","owner":"java/io/PrintStream","pid":45500,"thread":1}
+{"depth":1,"descriptor":"(I)V","engine":"intrinsic","event":"enter","name":"println","owner":"java/io/PrintStream","pid":45500,"thread":1}
+{"depth":1,"descriptor":"(I)V","event":"return","name":"println","owner":"java/io/PrintStream","pid":45500,"thread":1}
+{"depth":0,"descriptor":"([Ljava/lang/String;)V","event":"return","name":"main","owner":"LongCrossing","pid":45500,"thread":1}

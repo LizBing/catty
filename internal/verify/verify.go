@@ -1,6 +1,7 @@
-// Package verify performs Gate 1 structural verification and stack-height
+// Package verify performs Gate 2 structural verification and typed data-flow
 // analysis over decoded method bodies. Both engines consume the same verified
-// representation.
+// representation; the analysis also produces the logical operand-stack height
+// at every reachable instruction for the generated Go emitter.
 package verify
 
 import (
@@ -12,13 +13,16 @@ import (
 	"catty/rt"
 )
 
-// Context provides the class set needed to resolve verification dependencies.
+// Context provides the class set needed to resolve verification dependencies
+// and collects the verified stack heights used by code generation.
 type Context struct {
 	Classes map[string]*classfile.Class
+	Heights map[*classfile.Method]map[int32]int
+	Shapes  map[*classfile.Method]map[int32][]int
 }
 
 // ClassExists reports whether name is an admitted application class, a
-// supported bootstrap class, or a valid reference array descriptor.
+// supported bootstrap class, or a valid array descriptor.
 func (c *Context) ClassExists(name string) bool {
 	if strings.HasPrefix(name, "[") {
 		_, err := rt.ParseFieldType(name)
@@ -31,12 +35,53 @@ func (c *Context) ClassExists(name string) bool {
 	return ok
 }
 
+func (c *Context) ensureHeights() {
+	if c.Heights == nil {
+		c.Heights = map[*classfile.Method]map[int32]int{}
+	}
+	if c.Shapes == nil {
+		c.Shapes = map[*classfile.Method]map[int32][]int{}
+	}
+}
+
+// Heights returns the verified logical stack height at each reachable
+// instruction offset for m.
+func (c *Context) HeightsOf(m *classfile.Method) (map[int32]int, bool) {
+	h, ok := c.Heights[m]
+	return h, ok
+}
+
+// ShapesOf returns the verified logical operand widths at instruction entry.
+func (c *Context) ShapesOf(m *classfile.Method) (map[int32][]int, bool) {
+	s, ok := c.Shapes[m]
+	return s, ok
+}
+
+func isThrowable(ctx *Context, name string) bool {
+	seen := map[string]bool{}
+	for name != "" && !seen[name] {
+		seen[name] = true
+		if name == "java/lang/Throwable" {
+			return true
+		}
+		if c, ok := ctx.Classes[name]; ok {
+			name = c.Super
+			continue
+		}
+		if info, ok := rt.BootstrapClassDef(name); ok {
+			name = info.Super
+			continue
+		}
+		return false
+	}
+	return false
+}
+
 // VerifyClass checks one class's member descriptors, methods, exception tables
 // and stack maps. It does not resolve inherited members; the linker does that.
 func VerifyClass(c *classfile.Class, ctx *Context) error {
+	ctx.ensureHeights()
 	if c.Flags&rt.AccInterface != 0 {
-		// Interface method bodies are outside the profile (only abstract
-		// declarations are admitted).
 		if c.Super != "" && c.Super != "java/lang/Object" {
 			return fmt.Errorf("%s: interface superclass %s is unsupported", c.Name, c.Super)
 		}
@@ -44,6 +89,11 @@ func VerifyClass(c *classfile.Class, ctx *Context) error {
 	for _, f := range c.Fields {
 		if _, err := rt.ParseFieldType(f.Descriptor); err != nil {
 			return fmt.Errorf("%s.%s: %w", c.Name, f.Name, err)
+		}
+	}
+	for _, f := range c.Fields {
+		if f.Constant != nil && f.Flags&rt.AccStatic == 0 {
+			return fmt.Errorf("%s.%s: ConstantValue requires a static field", c.Name, f.Name)
 		}
 	}
 	for _, m := range c.Methods {
@@ -84,6 +134,11 @@ func verifyMethod(c *classfile.Class, m *classfile.Method, ctx *Context) error {
 		return fmt.Errorf("%s: max_locals %d is smaller than the %d argument slots", display, m.MaxLocals, needLocals)
 	}
 
+	for _, insn := range m.Insns {
+		if insn.Op == rt.OpInvokedynamic {
+			return fmt.Errorf("%s: pc %d: invokedynamic/bootstrap constants are unsupported", display, insn.PC)
+		}
+	}
 	index := map[int32]int{}
 	for i, insn := range m.Insns {
 		if insn.PC < 0 {
@@ -94,7 +149,6 @@ func verifyMethod(c *classfile.Class, m *classfile.Method, ctx *Context) error {
 		}
 		index[insn.PC] = i
 	}
-	// Instructions must cover the code array exactly and contiguously.
 	next := int32(0)
 	for _, insn := range m.Insns {
 		if insn.PC != next {
@@ -119,7 +173,6 @@ func verifyMethod(c *classfile.Class, m *classfile.Method, ctx *Context) error {
 		return ok
 	}
 
-	// Exception table structure.
 	for _, h := range m.Handlers {
 		if h.StartPC < 0 || h.EndPC > int32(m.CodeLength) || h.HandlerPC < 0 || h.HandlerPC >= int32(m.CodeLength) {
 			return fmt.Errorf("%s: exception handler range [%d,%d)->%d is outside the code", display, h.StartPC, h.EndPC, h.HandlerPC)
@@ -136,12 +189,16 @@ func verifyMethod(c *classfile.Class, m *classfile.Method, ctx *Context) error {
 		if _, ok := index[h.HandlerPC]; !ok {
 			return fmt.Errorf("%s: exception handler target %d is not an instruction boundary", display, h.HandlerPC)
 		}
-		if h.CatchType != "" && !ctx.ClassExists(h.CatchType) {
-			return fmt.Errorf("%s: exception handler catch type %s is not available", display, h.CatchType)
+		if h.CatchType != "" {
+			if !ctx.ClassExists(h.CatchType) {
+				return fmt.Errorf("%s: exception handler catch type %s is not available", display, h.CatchType)
+			}
+			if !isThrowable(ctx, h.CatchType) {
+				return fmt.Errorf("%s: exception handler catch type %s is not a Throwable", display, h.CatchType)
+			}
 		}
 	}
 
-	// Stack map frames must point at instruction boundaries and be ordered.
 	frameAt := map[int32]*classfile.Frame{}
 	for i := range m.Frames {
 		f := &m.Frames[i]
@@ -154,314 +211,182 @@ func verifyMethod(c *classfile.Class, m *classfile.Method, ctx *Context) error {
 		frameAt[f.Offset] = f
 	}
 
-	// Stack-height data-flow. Gate 1 has category-one values only.
-	heights := map[int32]int{}
-	queue := []int32{0}
-	setState := func(pc int32, h int) error {
-		if pc < 0 || pc >= int32(m.CodeLength) {
-			return fmt.Errorf("%s: control transfers to invalid offset %d", display, pc)
-		}
-		if h < 0 || h > m.MaxStack {
-			return fmt.Errorf("%s: pc %d: operand stack depth %d exceeds max_stack %d", display, pc, h, m.MaxStack)
-		}
-		if old, ok := heights[pc]; ok {
-			if old != h {
-				return fmt.Errorf("%s: pc %d: inconsistent operand stack depth %d versus %d", display, pc, h, old)
-			}
-			return nil
-		}
-		heights[pc] = h
-		queue = append(queue, pc)
-		return nil
-	}
-	if err := setState(0, 0); err != nil {
-		return err
-	}
-	// Exception handlers are reachable with exactly the throwable on the stack.
-	for _, h := range m.Handlers {
-		if err := setState(h.HandlerPC, 1); err != nil {
-			return err
-		}
-	}
-
-	for len(queue) > 0 {
-		pc := queue[0]
-		queue = queue[1:]
-		i, ok := index[pc]
-		if !ok {
-			continue
-		}
-		insn := m.Insns[i]
-		h := heights[pc]
-		pops, pushes, terminal, err := stackEffect(insn, m)
-		if err != nil {
-			return fmt.Errorf("%s: pc %d: %w", display, pc, err)
-		}
-		if h < pops {
-			return fmt.Errorf("%s: pc %d: operand stack underflow", display, pc)
-		}
-		nh := h - pops + pushes
-		if nh < 0 || nh > m.MaxStack {
-			return fmt.Errorf("%s: pc %d: operand stack depth %d exceeds max_stack %d", display, pc, nh, m.MaxStack)
-		}
-		if insn.Op == rt.OpInvokedynamic {
-			return fmt.Errorf("%s: pc %d: invokedynamic/bootstrap is unsupported", display, pc)
-		}
-		target, hasTarget := classfile.BranchTarget(insn)
-		switch insn.Op {
-		case rt.OpGoto:
-			if _, ok := index[target]; !ok {
-				return fmt.Errorf("%s: pc %d: branch target %d is not an instruction boundary", display, pc, target)
-			}
-			if err := setState(target, nh); err != nil {
-				return err
-			}
-			continue
-		case rt.OpIfeq, rt.OpIfne, rt.OpIfIcmpeq, rt.OpIfIcmpne, rt.OpIfAcmpeq, rt.OpIfAcmpne:
-			if _, ok := index[target]; !ok {
-				return fmt.Errorf("%s: pc %d: branch target %d is not an instruction boundary", display, pc, target)
-			}
-			if err := setState(target, nh); err != nil {
-				return err
-			}
-		}
-		_ = hasTarget
-		if terminal {
-			continue
-		}
-		nextPC := pc + insn.Len
-		if int(nextPC) >= m.CodeLength {
-			return fmt.Errorf("%s: pc %d: control falls off the end of the method", display, pc)
-		}
-		if err := setState(nextPC, nh); err != nil {
-			return err
-		}
-	}
-
-	// Validate declared frames against computed heights where reachable, and
-	// require frames at every branch target and handler when a table exists.
 	if m.HasStackMap {
-		for _, f := range m.Frames {
-			if got, ok := heights[f.Offset]; ok && got != len(f.Stack) {
-				return fmt.Errorf("%s: stack map frame at offset %d declares stack size %d but control reaches it with %d", display, f.Offset, len(f.Stack), got)
-			}
-		}
 		for _, h := range m.Handlers {
 			if _, ok := frameAt[h.HandlerPC]; !ok {
 				return fmt.Errorf("%s: stack map has no frame at exception handler %d", display, h.HandlerPC)
 			}
 		}
 		for _, insn := range m.Insns {
-			if t, ok := classfile.BranchTarget(insn); ok {
-				if t == 0 {
+			if target, ok := classfile.BranchTarget(insn); ok {
+				if target == 0 {
 					continue
 				}
-				if t < int32(m.CodeLength) {
-					if _, ok := frameAt[t]; !ok {
-						return fmt.Errorf("%s: pc %d: stack map has no frame at branch target %d", display, insn.PC, t)
+				if target >= 0 && target < int32(m.CodeLength) {
+					if _, ok := frameAt[target]; !ok {
+						return fmt.Errorf("%s: pc %d: stack map has no frame at branch target %d", display, insn.PC, target)
+					}
+				}
+			}
+			if _, targets, ok := classfile.SwitchTargets(insn); ok {
+				for _, target := range targets {
+					if target == 0 {
+						continue
+					}
+					if target >= 0 && target < int32(m.CodeLength) {
+						if _, ok := frameAt[target]; !ok {
+							return fmt.Errorf("%s: pc %d: stack map has no frame at switch target %d", display, insn.PC, target)
+						}
+					}
+				}
+				if def := insn.A; def != 0 && def >= 0 && def < int32(m.CodeLength) {
+					if _, ok := frameAt[def]; !ok {
+						return fmt.Errorf("%s: pc %d: stack map has no frame at switch default %d", display, insn.PC, def)
 					}
 				}
 			}
 		}
 	}
 
-	// Return instructions must agree with the method descriptor.
-	for _, insn := range m.Insns {
-		switch insn.Op {
-		case rt.OpReturn:
-			if mt.Return.Kind != 'V' {
-				return fmt.Errorf("%s: pc %d: return in a non-void method", display, insn.PC)
-			}
-		case rt.OpIreturn:
-			if mt.Return.Kind != 'I' {
-				return fmt.Errorf("%s: pc %d: ireturn in a method returning %s", display, insn.PC, mt.Return.Descriptor)
-			}
-		case rt.OpAreturn:
-			if mt.Return.Kind != 'L' && mt.Return.Kind != 'A' {
-				return fmt.Errorf("%s: pc %d: areturn in a method returning %s", display, insn.PC, mt.Return.Descriptor)
-			}
-		}
-	}
-	if err := verifyTypes(c, m, mt, ctx, heights, frameAt); err != nil {
+	heights, shapes, err := analyzeMethod(c, m, mt, ctx, index, frameAt)
+	if err != nil {
 		return fmt.Errorf("%s: %w", display, err)
 	}
+	ctx.Heights[m] = heights
+	ctx.Shapes[m] = shapes
 	return nil
 }
 
-// Heights recomputes verified operand-stack heights for AOT lowering.
-func Heights(m *classfile.Method) (map[int32]int, error) {
-	index := map[int32]int{}
-	for i, insn := range m.Insns {
-		index[insn.PC] = i
+// analyzeMethod runs the typed worklist over reachable instructions and
+// returns the logical operand-stack height at each reachable instruction.
+func analyzeMethod(c *classfile.Class, m *classfile.Method, mt *rt.MethodType,
+	ctx *Context, index map[int32]int, frameAt map[int32]*classfile.Frame) (map[int32]int, map[int32][]int, error) {
+	initial, err := initialState(c, m, mt)
+	if err != nil {
+		return nil, nil, err
 	}
-	heights := map[int32]int{0: 0}
-	queue := []int32{0}
-	set := func(pc int32, h int) error {
-		if h < 0 || h > m.MaxStack {
-			return fmt.Errorf("pc %d: operand stack depth %d exceeds max_stack %d", pc, h, m.MaxStack)
+	heights := map[int32]int{}
+	shapes := map[int32][]int{}
+	states := map[int32]*frameState{}
+	processed := map[int32]bool{}
+	var queue []int32
+
+	seed := func(pc int32, state *frameState) {
+		if _, ok := states[pc]; ok {
+			return
 		}
-		if old, ok := heights[pc]; ok {
-			if old != h {
-				return fmt.Errorf("pc %d: inconsistent stack depth %d versus %d", pc, h, old)
+		states[pc] = state
+		queue = append(queue, pc)
+	}
+
+	start := initial
+	if f := frameAt[0]; f != nil {
+		fs, err := frameStateFrom(f, m.MaxLocals)
+		if err != nil {
+			return nil, nil, fmt.Errorf("pc 0: %w", err)
+		}
+		if err := checkAssignableState(ctx, initial, fs); err != nil {
+			return nil, nil, fmt.Errorf("pc 0: initial state does not match stack map: %w", err)
+		}
+		start = fs
+	}
+	seed(0, start)
+
+	// Exception handlers are reachable with exactly the throwable on the
+	// operand stack and a local state described by their stack map frame.
+	handlerSeeded := map[int32]bool{}
+	for _, h := range m.Handlers {
+		if handlerSeeded[h.HandlerPC] {
+			continue
+		}
+		handlerSeeded[h.HandlerPC] = true
+		var hs *frameState
+		if f := frameAt[h.HandlerPC]; f != nil {
+			fs, err := frameStateFrom(f, m.MaxLocals)
+			if err != nil {
+				return nil, nil, fmt.Errorf("handler pc %d: %w", h.HandlerPC, err)
+			}
+			if len(fs.stack) != 1 {
+				return nil, nil, fmt.Errorf("handler pc %d: stack map declares %d operand values, want exactly the throwable", h.HandlerPC, len(fs.stack))
+			}
+			if !(fs.stack[0].kind == vtNull || (fs.stack[0].kind == vtRef && classAssignable(ctx, fs.stack[0].class, "java/lang/Throwable"))) {
+				return nil, nil, fmt.Errorf("handler pc %d: stack map declares %s, not a Throwable", h.HandlerPC, fs.stack[0])
+			}
+			hs = fs
+		} else if m.HasStackMap {
+			return nil, nil, fmt.Errorf("handler pc %d: missing stack map frame", h.HandlerPC)
+		} else {
+			hs = copyState(initial)
+			hs.stack = nil
+			hs.stack = append(hs.stack, vtype{kind: vtRef, class: "java/lang/Throwable"})
+		}
+		seed(h.HandlerPC, hs)
+	}
+
+	propagate := func(fromPC int32, target int32, state *frameState) error {
+		if target < 0 || int(target) >= m.CodeLength {
+			return fmt.Errorf("pc %d: control transfers to invalid offset %d", fromPC, target)
+		}
+		if _, ok := index[target]; !ok {
+			return fmt.Errorf("pc %d: branch target %d is not an instruction boundary", fromPC, target)
+		}
+		if f := frameAt[target]; f != nil {
+			fs, err := frameStateFrom(f, m.MaxLocals)
+			if err != nil {
+				return fmt.Errorf("pc %d: target %d: %w", fromPC, target, err)
+			}
+			if err := checkAssignableState(ctx, state, fs); err != nil {
+				return fmt.Errorf("pc %d: branch to %d: %w", fromPC, target, err)
+			}
+			if !processed[target] {
+				if _, ok := states[target]; !ok {
+					states[target] = fs
+					queue = append(queue, target)
+				}
 			}
 			return nil
 		}
-		heights[pc] = h
-		queue = append(queue, pc)
+		if existing, ok := states[target]; ok {
+			if !statesEqual(existing, state) {
+				return fmt.Errorf("pc %d: control-flow join at %d has no stack map frame and the incoming states differ", fromPC, target)
+			}
+			return nil
+		}
+		states[target] = copyState(state)
+		queue = append(queue, target)
 		return nil
 	}
-	for _, h := range m.Handlers {
-		if err := set(h.HandlerPC, 1); err != nil {
-			return nil, err
-		}
-	}
+
 	for len(queue) > 0 {
 		pc := queue[0]
 		queue = queue[1:]
-		i, ok := index[pc]
-		if !ok {
+		if processed[pc] {
 			continue
 		}
-		insn := m.Insns[i]
-		pops, pushes, terminal, err := stackEffect(insn, m)
+		processed[pc] = true
+		state := states[pc]
+		heights[pc] = len(state.stack)
+		widths := make([]int, len(state.stack))
+		for i, v := range state.stack {
+			widths[i] = v.width()
+		}
+		shapes[pc] = widths
+		insn := m.Insns[index[pc]]
+		t := &typeChecker{ctx: ctx, class: c, method: m, mt: mt, state: copyState(state), pc: pc, insn: insn}
+		succs, terminal, err := t.applyStep()
 		if err != nil {
-			return nil, fmt.Errorf("pc %d: %w", pc, err)
-		}
-		h := heights[pc]
-		if h < pops {
-			return nil, fmt.Errorf("pc %d: operand stack underflow", pc)
-		}
-		nh := h - pops + pushes
-		if target, ok := classfile.BranchTarget(insn); ok {
-			if _, exists := index[target]; !exists {
-				return nil, fmt.Errorf("pc %d: branch target %d is not an instruction boundary", pc, target)
-			}
-			if err := set(target, nh); err != nil {
-				return nil, err
-			}
-			if insn.Op == rt.OpGoto {
-				continue
-			}
+			return nil, nil, fmt.Errorf("pc %d: %w", pc, err)
 		}
 		if terminal {
 			continue
 		}
-		next := pc + insn.Len
-		if int(next) >= m.CodeLength {
-			return nil, fmt.Errorf("pc %d: control falls off the end of the method", pc)
-		}
-		if err := set(next, nh); err != nil {
-			return nil, err
+		for _, succ := range succs {
+			if err := propagate(pc, succ.pc, succ.state); err != nil {
+				return nil, nil, err
+			}
 		}
 	}
-	return heights, nil
-}
-
-func stackEffect(insn rt.Insn, m *classfile.Method) (pops, pushes int, terminal bool, err error) {
-	switch insn.Op {
-	case rt.OpAconstNull, rt.OpIconstM1, rt.OpIconst0, rt.OpIconst1, rt.OpIconst2,
-		rt.OpIconst3, rt.OpIconst4, rt.OpIconst5, rt.OpBipush, rt.OpSipush,
-		rt.OpLdc, rt.OpLdcW:
-		return 0, 1, false, nil
-	case 0x1a, 0x1b, 0x1c, 0x1d, 0x2a, 0x2b, 0x2c, 0x2d, rt.OpIload, rt.OpAload:
-		idx, _ := localIndex(insn.Op, insn.A)
-		if int(idx) >= m.MaxLocals {
-			return 0, 0, false, fmt.Errorf("local index %d exceeds max_locals %d", idx, m.MaxLocals)
-		}
-		return 0, 1, false, nil
-	case 0x3b, 0x3c, 0x3d, 0x3e, 0x4b, 0x4c, 0x4d, 0x4e, rt.OpIstore, rt.OpAstore:
-		idx, _ := localIndex(insn.Op, insn.A)
-		if int(idx) >= m.MaxLocals {
-			return 0, 0, false, fmt.Errorf("local index %d exceeds max_locals %d", idx, m.MaxLocals)
-		}
-		return 1, 0, false, nil
-	case rt.OpPop:
-		return 1, 0, false, nil
-	case rt.OpDup:
-		return 1, 2, false, nil
-	case rt.OpIadd, rt.OpIrem:
-		return 2, 1, false, nil
-	case rt.OpNew:
-		return 0, 1, false, nil
-	case rt.OpGetfield:
-		return 1, 1, false, nil
-	case rt.OpPutfield:
-		return 2, 0, false, nil
-	case rt.OpGetstatic:
-		return 0, 1, false, nil
-	case rt.OpPutstatic:
-		return 1, 0, false, nil
-	case rt.OpAnewarray:
-		return 1, 1, false, nil
-	case rt.OpAaload:
-		return 2, 1, false, nil
-	case rt.OpAastore:
-		return 3, 0, false, nil
-	case rt.OpArraylength:
-		return 1, 1, false, nil
-	case rt.OpAthrow:
-		return 1, 0, true, nil
-	case rt.OpReturn:
-		return 0, 0, true, nil
-	case rt.OpIreturn, rt.OpAreturn:
-		return 1, 0, true, nil
-	case rt.OpIfeq, rt.OpIfne:
-		return 1, 0, false, nil
-	case rt.OpIfIcmpeq, rt.OpIfIcmpne, rt.OpIfAcmpeq, rt.OpIfAcmpne:
-		return 2, 0, false, nil
-	case rt.OpGoto:
-		return 0, 0, true, nil
-	case rt.OpInvokestatic, rt.OpInvokevirtual, rt.OpInvokespecial, rt.OpInvokeinterface:
-		ref, err := methodRefOf(m, insn)
-		if err != nil {
-			return 0, 0, false, err
-		}
-		mt, err := rt.ParseMethodType(ref.Descriptor)
-		if err != nil {
-			return 0, 0, false, err
-		}
-		pops = mt.ArgCount
-		if insn.Op != rt.OpInvokestatic {
-			pops++
-		}
-		if mt.Return.Kind != 'V' {
-			pushes = 1
-		}
-		return pops, pushes, false, nil
-	case rt.OpInvokedynamic:
-		return 0, 0, false, nil
-	default:
-		return 0, 0, false, fmt.Errorf("unsupported opcode 0x%02x", insn.Op)
-	}
-}
-
-func localIndex(op byte, operand int32) (int32, bool) {
-	switch op {
-	case rt.OpIload, rt.OpAload, rt.OpIstore, rt.OpAstore:
-		return operand, true
-	}
-	switch {
-	case op >= 0x1a && op <= 0x1d:
-		return int32(op - 0x1a), true
-	case op >= 0x2a && op <= 0x2d:
-		return int32(op - 0x2a), true
-	case op >= 0x3b && op <= 0x3e:
-		return int32(op - 0x3b), true
-	case op >= 0x4b && op <= 0x4e:
-		return int32(op - 0x4b), true
-	}
-	return 0, false
-}
-
-func methodRefOf(m *classfile.Method, insn rt.Insn) (rt.Ref, error) {
-	if insn.Ref < 0 || int(insn.Ref) >= len(m.Refs) {
-		return rt.Ref{}, fmt.Errorf("missing method reference")
-	}
-	ref := m.Refs[insn.Ref]
-	if ref.Kind != rt.RefMethod {
-		return rt.Ref{}, fmt.Errorf("instruction does not reference a method")
-	}
-	return ref, nil
+	return heights, shapes, nil
 }
 
 // SortedFrames is a helper for deterministic diagnostics.

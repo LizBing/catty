@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-9fedbnvr/catty",
+    "build",
+    "--classpath",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-9fedbnvr/classes/bad-control-flow",
+    "--main",
+    "SwitchWide",
+    "--mode",
+    "auto",
+    "--report",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-9fedbnvr/builds/bad-control-flow/report.json",
+    "--output",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-9fedbnvr/builds/bad-control-flow/app"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "JAVA_HOME": "/private/tmp/catty-java21.Nbj57G/jdk-21.0.13.1+2/Contents/Home",
+    "PATH": "/private/tmp/catty-java21.Nbj57G/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/private/tmp/catty-java21.Nbj57G/jdk-21.0.13.1+2/Contents/Home/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C"
+  },
+  "pid": 45776,
+  "status": 1,
+  "stdout": "",
+  "stderr": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-9fedbnvr/classes/bad-control-flow/SwitchWide.class: SwitchWide.dense(I)I: pc 1: stack map has no frame at switch default 58\n"
+}

@@ -27,10 +27,25 @@ type VType struct {
 }
 
 // Frame is one decoded StackMapTable frame with its absolute bytecode offset.
+// Locals and Stack are verification-type entries; a long or double occupies a
+// single entry but two local/operand slots.
 type Frame struct {
 	Offset int32
 	Locals []VType
 	Stack  []VType
+}
+
+// VTypeSlots returns the number of Java slots occupied by entries.
+func VTypeSlots(entries []VType) int {
+	slots := 0
+	for _, v := range entries {
+		if v.Kind == VTLong || v.Kind == VTDouble {
+			slots += 2
+		} else {
+			slots++
+		}
+	}
+	return slots
 }
 
 func parseStackMapTable(cp *constantPool, body []byte, m *Method) ([]Frame, error) {
@@ -150,11 +165,11 @@ func parseStackMapTable(cp *constantPool, body []byte, m *Method) ([]Frame, erro
 		if offset <= prevOffset {
 			return nil, fmt.Errorf("malformed stack map frame %d: offset %d does not increase", i, offset)
 		}
-		if len(nextLocals) > m.MaxLocals {
-			return nil, fmt.Errorf("malformed stack map frame %d: %d locals exceed max_locals %d", i, len(nextLocals), m.MaxLocals)
+		if slots := VTypeSlots(nextLocals); slots > m.MaxLocals {
+			return nil, fmt.Errorf("malformed stack map frame %d: %d local slots exceed max_locals %d", i, slots, m.MaxLocals)
 		}
-		if len(stack) > m.MaxStack {
-			return nil, fmt.Errorf("malformed stack map frame %d: stack %d exceeds max_stack %d", i, len(stack), m.MaxStack)
+		if slots := VTypeSlots(stack); slots > m.MaxStack {
+			return nil, fmt.Errorf("malformed stack map frame %d: %d operand slots exceed max_stack %d", i, slots, m.MaxStack)
 		}
 		frames = append(frames, Frame{Offset: offset, Locals: append([]VType(nil), nextLocals...), Stack: append([]VType(nil), stack...)})
 		locals = nextLocals
@@ -193,6 +208,12 @@ func vtypeFromType(t rt.Type) (VType, error) {
 	switch t.Kind {
 	case 'I':
 		return VType{Kind: VTInteger}, nil
+	case 'J':
+		return VType{Kind: VTLong}, nil
+	case 'F':
+		return VType{Kind: VTFloat}, nil
+	case 'D':
+		return VType{Kind: VTDouble}, nil
 	case 'L':
 		return VType{Kind: VTObject, Class: t.ClassName}, nil
 	case 'A':
@@ -214,6 +235,12 @@ func readVType(r *reader, cp *constantPool) (VType, error) {
 		return VType{Kind: VTTop}, nil
 	case 1:
 		return VType{Kind: VTInteger}, nil
+	case 2:
+		return VType{Kind: VTFloat}, nil
+	case 3:
+		return VType{Kind: VTDouble}, nil
+	case 4:
+		return VType{Kind: VTLong}, nil
 	case 5:
 		return VType{Kind: VTNull}, nil
 	case 6:
@@ -234,8 +261,6 @@ func readVType(r *reader, cp *constantPool) (VType, error) {
 			return VType{}, err
 		}
 		return VType{Kind: VTUninitialized, Offset: int32(off)}, nil
-	case 2, 3, 4:
-		return VType{}, fmt.Errorf("category-two/floating verification type %d is outside the Gate 1 profile", tag)
 	default:
 		return VType{}, fmt.Errorf("unknown verification type tag %d", tag)
 	}

@@ -1,0 +1,21 @@
+Acceptance artifacts in /private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-acceptance-j8dl0cxw
+go version go1.27.1 darwin/arm64
+openjdk version "21.0.13.1" 2026-11-17 LTS
+OpenJDK Runtime Environment Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS, mixed mode, sharing)
+javac 21.0.13.1
+21.0.13.1
+jar 21.0.13.1
+test_class_initialization_and_hidden_fields (__main__.Acceptance) ... ok
+test_crossing_and_standalone (__main__.Acceptance) ... ok
+test_dispatch_and_reflection (__main__.Acceptance) ... ok
+test_exceptions_and_exclusive_range (__main__.Acceptance) ... ok
+test_fallback_and_failed_replacement (__main__.Acceptance) ... ok
+test_invalid_inputs (__main__.Acceptance) ... ok
+test_packaging_and_classpath (__main__.Acceptance) ... ok
+test_runtime_and_go_packages (__main__.Acceptance) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 9.884s
+
+OK

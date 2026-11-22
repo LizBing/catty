@@ -13,6 +13,8 @@ type Field struct {
 	Name       string
 	Descriptor string
 	Flags      uint16
+	// Constant is the validated ConstantValue payload, or nil.
+	Constant *rt.Constant
 }
 
 // LineNumber is one source line entry.
@@ -41,16 +43,18 @@ type Method struct {
 
 // Class is a parsed class definition.
 type Class struct {
-	Name       string
-	Super      string
-	Interfaces []string
-	Flags      uint16
-	Fields     []*Field
-	Methods    []*Method
-	SourceFile string
-	Major      uint16
-	Minor      uint16
-	Origin     string
+	Name        string
+	Super       string
+	Interfaces  []string
+	Flags       uint16
+	NestHost    string
+	NestMembers []string
+	Fields      []*Field
+	Methods     []*Method
+	SourceFile  string
+	Major       uint16
+	Minor       uint16
+	Origin      string
 }
 
 // Parse reads one class file. The caller supplies the origin used in
@@ -145,17 +149,38 @@ func Parse(data []byte, origin string) (*Class, error) {
 		c.Methods = append(c.Methods, m)
 	}
 	err = parseAttributes(r, cp, func(attrName string, body []byte) error {
-		if attrName != "SourceFile" {
-			return nil
+		switch attrName {
+		case "SourceFile":
+			if len(body) != 2 {
+				return fmt.Errorf("malformed SourceFile attribute")
+			}
+			text, _, err := cp.utf8(binary.BigEndian.Uint16(body))
+			if err != nil {
+				return err
+			}
+			c.SourceFile = text
+		case "NestHost":
+			if len(body) != 2 {
+				return fmt.Errorf("malformed NestHost attribute")
+			}
+			host, err := cp.className(binary.BigEndian.Uint16(body))
+			if err != nil {
+				return err
+			}
+			c.NestHost = host
+		case "NestMembers":
+			if len(body) < 2 || len(body) != 2+2*int(binary.BigEndian.Uint16(body)) {
+				return fmt.Errorf("malformed NestMembers attribute")
+			}
+			count := int(binary.BigEndian.Uint16(body))
+			for i := 0; i < count; i++ {
+				member, err := cp.className(binary.BigEndian.Uint16(body[2+i*2:]))
+				if err != nil {
+					return err
+				}
+				c.NestMembers = append(c.NestMembers, member)
+			}
 		}
-		if len(body) != 2 {
-			return fmt.Errorf("malformed SourceFile attribute")
-		}
-		text, _, err := cp.utf8(binary.BigEndian.Uint16(body))
-		if err != nil {
-			return err
-		}
-		c.SourceFile = text
 		return nil
 	})
 	if err != nil {
@@ -199,13 +224,17 @@ func parseConstantPool(r *reader) (*constantPool, error) {
 			}
 			e.intVal = int32(v)
 		case 4:
-			if _, err := r.u4(); err != nil {
+			v, err := r.u4()
+			if err != nil {
 				return nil, err
 			}
+			e.bits = uint64(v)
 		case 5, 6:
-			if _, err := r.bytes(8); err != nil {
+			raw, err := r.bytes(8)
+			if err != nil {
 				return nil, err
 			}
+			e.bits = binary.BigEndian.Uint64(raw)
 			cp.entries[i] = e
 			i++
 			if i >= int(count) {
@@ -235,6 +264,9 @@ func parseConstantPool(r *reader) (*constantPool, error) {
 			if tag == 12 {
 				e.nameIndex = a
 				e.descriptorIndex = b
+			}
+			if tag == 17 || tag == 18 {
+				e.bootstrapIndex = a
 			}
 		case 15:
 			k, err := r.u1()
@@ -286,11 +318,85 @@ func parseField(r *reader, cp *constantPool, owner string) (*Field, error) {
 	if err != nil {
 		return nil, err
 	}
+	ft, err := rt.ParseFieldType(desc)
+	if err != nil {
+		return nil, err
+	}
 	f := &Field{Owner: owner, Name: name, Descriptor: desc, Flags: flags}
-	if err := parseAttributes(r, cp, nil); err != nil {
+	seenConstant := false
+	err = parseAttributes(r, cp, func(attrName string, body []byte) error {
+		if attrName != "ConstantValue" {
+			return nil
+		}
+		if seenConstant {
+			return fmt.Errorf("duplicate ConstantValue attribute on %s", name)
+		}
+		seenConstant = true
+		if len(body) != 2 {
+			return fmt.Errorf("malformed ConstantValue attribute on %s", name)
+		}
+		if flags&rt.AccStatic == 0 {
+			return fmt.Errorf("ConstantValue on non-static field %s", name)
+		}
+		idx := binary.BigEndian.Uint16(body)
+		e, err := cp.entry(idx)
+		if err != nil {
+			return err
+		}
+		value, err := constantValueFor(ft, e, cp, idx)
+		if err != nil {
+			return fmt.Errorf("field %s: %w", name, err)
+		}
+		f.Constant = value
+		return nil
+	})
+	if err != nil {
 		return nil, err
 	}
 	return f, nil
+}
+
+// constantValueFor validates that a ConstantValue constant matches the field
+// descriptor and converts it to the image representation.
+func constantValueFor(ft rt.Type, e *cpEntry, cp *constantPool, idx uint16) (*rt.Constant, error) {
+	switch ft.Kind {
+	case 'I':
+		if e.tag != 3 {
+			return nil, fmt.Errorf("ConstantValue tag %d does not match descriptor %s", e.tag, ft.Descriptor)
+		}
+		return &rt.Constant{Kind: "int", Bits: uint64(uint32(e.intVal))}, nil
+	case 'J':
+		if e.tag != 5 {
+			return nil, fmt.Errorf("ConstantValue tag %d does not match descriptor %s", e.tag, ft.Descriptor)
+		}
+		return &rt.Constant{Kind: "long", Bits: e.bits}, nil
+	case 'F':
+		if e.tag != 4 {
+			return nil, fmt.Errorf("ConstantValue tag %d does not match descriptor %s", e.tag, ft.Descriptor)
+		}
+		return &rt.Constant{Kind: "float", Bits: e.bits}, nil
+	case 'D':
+		if e.tag != 6 {
+			return nil, fmt.Errorf("ConstantValue tag %d does not match descriptor %s", e.tag, ft.Descriptor)
+		}
+		return &rt.Constant{Kind: "double", Bits: e.bits}, nil
+	case 'L':
+		if ft.ClassName != "java/lang/String" {
+			return nil, fmt.Errorf("ConstantValue is not supported for descriptor %s", ft.Descriptor)
+		}
+		if e.tag != 8 {
+			return nil, fmt.Errorf("ConstantValue tag %d does not match descriptor %s", e.tag, ft.Descriptor)
+		}
+		units, err := cp.ldcString(idx)
+		if err != nil {
+			return nil, err
+		}
+		return &rt.Constant{Kind: "string", Units: append([]uint16(nil), units...)}, nil
+	case 'A':
+		return nil, fmt.Errorf("ConstantValue is not supported for array descriptor %s", ft.Descriptor)
+	default:
+		return nil, fmt.Errorf("unsupported ConstantValue descriptor %s", ft.Descriptor)
+	}
 }
 
 func parseMethod(r *reader, cp *constantPool, owner string) (*Method, error) {

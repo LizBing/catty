@@ -34,7 +34,7 @@ func (b *Build) generateSource() (mainSource, generatedSource string, err error)
 		if entry.symbol != fmt.Sprintf("cattyMethod%d", i) {
 			return "", "", fmt.Errorf("catty: internal error: AOT entry order mismatch")
 		}
-		code, err := aot.Generate(entry.symbol, entry.method, entry.heights)
+		code, err := aot.Generate(entry.symbol, entry.method, entry.heights, entry.shapes)
 		if err != nil {
 			return "", "", fmt.Errorf("catty: %s.%s%s: %w", entry.class.Name, entry.method.Name, entry.method.Descriptor, err)
 		}

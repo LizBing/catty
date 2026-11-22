@@ -8,18 +8,26 @@ import (
 )
 
 // Runtime owns loader state, class metadata, static storage, mirrors, strings
-// and the single logical Java thread used by the Gate 1 launcher.
+// and the single logical Java thread used by the launcher.
 type Runtime struct {
 	Image     *Image
 	Classes   map[string]*Class
 	Bootstrap map[string]*Class
 	Loader    *Loader
 
-	intClass     *Class
+	primitives   map[byte]*Class
 	arrayClasses map[string]*Class
 	strings      map[string]*Object
 	boxedInts    map[int32]*Object
+	boxedLongs   map[int64]*Object
+	boxedShorts  map[int16]*Object
+	boxedBytes   map[int8]*Object
+	boxedChars   map[uint16]*Object
+	boxedBools   map[bool]*Object
 	classOrder   []*Class
+	primitiveOrder []*Class
+
+	resolutions map[string]*Resolution
 
 	nextIdentity uint64
 	nextThread   int64
@@ -34,15 +42,30 @@ type Runtime struct {
 	AllocHook func(o *Object)
 }
 
+// Resolution is one cached symbolic-resolution outcome. A non-nil Thrown is a
+// persistent failure outcome rethrown by later uses of the same symbol.
+type Resolution struct {
+	Method *Method
+	Field  *Field
+	Thrown *Object
+}
+
 // NewRuntime creates an uninstalled runtime for img.
 func NewRuntime(img *Image) *Runtime {
 	r := &Runtime{
 		Image:        img,
 		Classes:      map[string]*Class{},
 		Bootstrap:    map[string]*Class{},
+		primitives:   map[byte]*Class{},
 		arrayClasses: map[string]*Class{},
 		strings:      map[string]*Object{},
 		boxedInts:    map[int32]*Object{},
+		boxedLongs:   map[int64]*Object{},
+		boxedShorts:  map[int16]*Object{},
+		boxedBytes:   map[int8]*Object{},
+		boxedChars:   map[uint16]*Object{},
+		boxedBools:   map[bool]*Object{},
+		resolutions:  map[string]*Resolution{},
 	}
 	r.Loader = &Loader{Name: "app", Runtime: r}
 	return r
@@ -51,9 +74,17 @@ func NewRuntime(img *Image) *Runtime {
 // Installed reports whether Install completed.
 func (r *Runtime) Installed() bool { return r.installed }
 
-// Install validates the image ABI/profile and materializes immutable class
-// definitions, static storage, mirrors and method metadata. No Java
-// initializer runs here.
+func supportedOpcodeSet() map[string]bool {
+	out := map[string]bool{}
+	for _, name := range SupportedOpcodeNames() {
+		out[name] = true
+	}
+	return out
+}
+
+// Install validates the image ABI, profile and opcode inventory and
+// materializes immutable class definitions, static storage, mirrors and method
+// metadata. No Java initializer runs here.
 func (r *Runtime) Install() error {
 	if r.installed {
 		return fmt.Errorf("catty: runtime already installed")
@@ -67,17 +98,39 @@ func (r *Runtime) Install() error {
 	if r.Image.Profile != ProfileID {
 		return fmt.Errorf("catty: unsupported image profile %q (runtime profile %q)", r.Image.Profile, ProfileID)
 	}
+	if len(r.Image.Opcodes) > 0 {
+		supported := supportedOpcodeSet()
+		for _, name := range r.Image.Opcodes {
+			if !supported[name] {
+				return fmt.Errorf("catty: image opcode inventory contains unsupported opcode %q", name)
+			}
+		}
+	}
 
 	for _, bc := range bootstrapInventory {
 		c := &Class{
 			Name:        bc.name,
-			Flags:       bc.flags,
+			Flags:       bc.flags | AccPublic,
 			MethodIndex: map[string]*Method{},
 			State:       classInitialized,
 			Loader:      r.Loader,
 		}
 		r.Bootstrap[bc.name] = c
 		r.classOrder = append(r.classOrder, c)
+	}
+	for _, pc := range PrimitiveClasses {
+		c := &Class{
+			Name:        pc.Name,
+			Descriptor:  pc.Descriptor,
+			IsPrimitive: true,
+			Flags:       AccPublic | AccFinal,
+			MethodIndex: map[string]*Method{},
+			State:       classInitialized,
+			Loader:      r.Loader,
+		}
+		r.primitives[pc.Descriptor[0]] = c
+		r.classOrder = append(r.classOrder, c)
+		r.primitiveOrder = append(r.primitiveOrder, c)
 	}
 
 	seen := map[string]bool{}
@@ -94,14 +147,13 @@ func (r *Runtime) Install() error {
 		if seen[def.Name] {
 			return fmt.Errorf("catty: duplicate class definition %q in image", def.Name)
 		}
-		if _, ok := r.Classes[def.Name]; ok {
-			return fmt.Errorf("catty: duplicate class definition %q in image", def.Name)
-		}
 		seen[def.Name] = true
 		c := &Class{
 			Name:        def.Name,
 			Flags:       def.Flags,
 			MethodIndex: map[string]*Method{},
+			NestHost:    def.NestHost,
+			NestMembers: append([]string(nil), def.NestMembers...),
 			Loader:      r.Loader,
 		}
 		r.Classes[def.Name] = c
@@ -169,6 +221,11 @@ func (r *Runtime) Install() error {
 			size = c.Super.InstanceSize
 		}
 		c.InstanceField = nil
+		if c.Super != nil {
+			c.InstanceKinds = append([]string(nil), c.Super.InstanceKinds...)
+		} else {
+			c.InstanceKinds = nil
+		}
 		c.StaticField = nil
 		if bc, ok := bootstrapByName[c.Name]; ok {
 			for _, f := range bc.fields {
@@ -186,6 +243,12 @@ func (r *Runtime) Install() error {
 			layoutState[c] = 2
 			return nil
 		}
+		if c.IsPrimitive {
+			c.Statics = nil
+			c.InstanceSize = 0
+			layoutState[c] = 2
+			return nil
+		}
 		for _, def := range r.Image.Classes {
 			if def.Name != c.Name {
 				continue
@@ -199,6 +262,7 @@ func (r *Runtime) Install() error {
 					Owner: c, Name: f.Name, Descriptor: f.Descriptor, Flags: f.Flags,
 					Offset: size, Type: ft,
 				})
+				c.InstanceKinds = append(c.InstanceKinds, f.Descriptor)
 				size++
 			}
 			c.InstanceSize = size
@@ -209,7 +273,7 @@ func (r *Runtime) Install() error {
 				}
 				c.StaticField = append(c.StaticField, &Field{
 					Owner: c, Name: f.Name, Descriptor: f.Descriptor, Flags: f.Flags,
-					Static: true, Index: len(c.StaticField), Type: ft,
+					Static: true, Index: len(c.StaticField), Type: ft, Constant: f.Constant,
 				})
 			}
 			c.Statics = make([]Value, len(c.StaticField))
@@ -225,6 +289,11 @@ func (r *Runtime) Install() error {
 	}
 	for _, bc := range bootstrapInventory {
 		if err := layout(r.Bootstrap[bc.name]); err != nil {
+			return err
+		}
+	}
+	for _, c := range r.primitiveOrder {
+		if err := layout(c); err != nil {
 			return err
 		}
 	}
@@ -270,10 +339,7 @@ func (r *Runtime) Install() error {
 				if m.Entry == nil {
 					return fmt.Errorf("catty: AOT method %s.%s%s has no compiled entry", c.Name, md.Name, md.Descriptor)
 				}
-				if len(m.Insns) != 0 && m.CodeSize != 0 {
-					// Generated code must execute its own lowered control flow;
-					// retaining an interpreter body for AOT methods is a build
-					// error in this profile.
+				if len(m.Insns) != 0 || m.CodeSize != 0 {
 					return fmt.Errorf("catty: AOT method %s.%s%s also retains an interpreter body", c.Name, md.Name, md.Descriptor)
 				}
 			case "interp":
@@ -308,17 +374,8 @@ func (r *Runtime) Install() error {
 		}
 	}
 
-	// The primitive int class is needed while resolving parameter classes.
-	r.intClass = &Class{
-		Name:        "int",
-		Descriptor:  "I",
-		IsPrimitive: true,
-		Flags:       AccPublic | AccFinal,
-		State:       classInitialized,
-		Loader:      r.Loader,
-	}
-
-	// Resolve parameter classes now that all class shells exist.
+	// Resolve parameter classes now that all class shells, primitives and
+	// bootstrap classes exist.
 	for _, c := range r.allClasses() {
 		for _, m := range c.Methods {
 			m.ParamClass = make([]*Class, len(m.Type.Params))
@@ -351,7 +408,6 @@ func (r *Runtime) Install() error {
 		c := r.Classes[def.Name]
 		c.Mirror = &Object{Class: classClass, Payload: c, Identity: r.newIdentity()}
 	}
-	r.intClass.Mirror = &Object{Class: classClass, Payload: r.intClass, Identity: r.newIdentity()}
 
 	// Bootstrap static storage.
 	for _, bc := range bootstrapInventory {
@@ -364,9 +420,13 @@ func (r *Runtime) Install() error {
 			}
 		}
 	}
-	for _, c := range r.allClasses() {
+	// Application static storage: preparation initializes each slot to its type
+	// default. ConstantValue attributes are applied by the initialization
+	// procedure of JVMS 5.5, not during installation.
+	for _, def := range r.Image.Classes {
+		c := r.Classes[def.Name]
 		for i, f := range c.StaticField {
-			if c.Statics[i].Kind == 0 && !c.IsPrimitive {
+			if i < len(c.Statics) {
 				c.Statics[i] = zeroValueFor(f.Descriptor)
 			}
 		}
@@ -376,9 +436,35 @@ func (r *Runtime) Install() error {
 	return nil
 }
 
+func (r *Runtime) constantValue(c *Constant) (Value, error) {
+	switch c.Kind {
+	case "int":
+		return IntValue(int32(uint32(c.Bits))), nil
+	case "long":
+		return LongValue(int64(c.Bits)), nil
+	case "float":
+		return FloatBitsValue(uint32(c.Bits)), nil
+	case "double":
+		return DoubleBitsValue(c.Bits), nil
+	case "string":
+		return RefValue(r.NewStringUnits(c.Units, true)), nil
+	}
+	return Value{}, fmt.Errorf("unsupported ConstantValue kind %q", c.Kind)
+}
+
 func zeroValueFor(desc string) Value {
-	if desc == "I" {
+	if desc == "" {
+		return RefValue(nil)
+	}
+	switch desc[0] {
+	case 'Z', 'B', 'C', 'S', 'I':
 		return IntValue(0)
+	case 'J':
+		return LongValue(0)
+	case 'F':
+		return FloatValue(0)
+	case 'D':
+		return DoubleValue(0)
 	}
 	return RefValue(nil)
 }
@@ -389,6 +475,11 @@ func (r *Runtime) lookupClassShell(name string) (*Class, bool) {
 	}
 	if c, ok := r.Bootstrap[name]; ok {
 		return c, true
+	}
+	if desc, ok := PrimitiveDescriptor(name); ok {
+		if c, ok := r.primitives[desc]; ok {
+			return c, true
+		}
 	}
 	return nil, false
 }
@@ -443,6 +534,9 @@ func (r *Runtime) checkHierarchies() error {
 		return nil
 	}
 	for _, c := range r.classOrder {
+		if c.IsPrimitive {
+			continue
+		}
 		if err := visit(c); err != nil {
 			return err
 		}
@@ -477,19 +571,36 @@ func (r *Runtime) mustClass(name string) *Class {
 	return c
 }
 
-// IntClass returns the canonical primitive int mirror class.
-func (r *Runtime) IntClass() *Class { return r.intClass }
+// PrimitiveClass returns the canonical primitive class for a descriptor
+// letter.
+func (r *Runtime) PrimitiveClass(desc byte) *Class {
+	c, ok := r.primitives[desc]
+	if !ok {
+		panic(fmt.Sprintf("catty: missing primitive class %q", desc))
+	}
+	return c
+}
+
+// PrimitiveMirror returns the canonical mirror of a primitive type.
+func (r *Runtime) PrimitiveMirror(desc byte) *Object {
+	return r.PrimitiveClass(desc).Mirror
+}
 
 // classForType resolves a parsed type to its runtime class.
 func (r *Runtime) classForType(t Type) (*Class, error) {
 	switch t.Kind {
 	case 'V':
 		return nil, nil
-	case 'I':
-		if r.intClass == nil {
-			return nil, fmt.Errorf("primitive int class is not installed")
+	case 'I', 'J', 'F', 'D':
+		desc := t.Descriptor
+		if desc == "" || len(desc) != 1 {
+			return nil, fmt.Errorf("malformed primitive descriptor %q", desc)
 		}
-		return r.intClass, nil
+		c, ok := r.primitives[desc[0]]
+		if !ok {
+			return nil, fmt.Errorf("unknown primitive descriptor %q", desc)
+		}
+		return c, nil
 	case 'L', 'A':
 		return r.classForName(t.DescriptorOrName())
 	default:
@@ -516,6 +627,11 @@ func (r *Runtime) classForName(name string) (*Class, error) {
 	if c, ok := r.Bootstrap[name]; ok {
 		return c, nil
 	}
+	if desc, ok := PrimitiveDescriptor(name); ok {
+		if c, ok := r.primitives[desc]; ok {
+			return c, nil
+		}
+	}
 	return nil, fmt.Errorf("unknown class %s", name)
 }
 
@@ -525,6 +641,9 @@ func (r *Runtime) arrayClassFromDescriptor(desc string) (*Class, error) {
 	}
 	if !strings.HasPrefix(desc, "[") {
 		return nil, fmt.Errorf("not an array descriptor: %s", desc)
+	}
+	if _, err := ParseFieldType(desc); err != nil {
+		return nil, fmt.Errorf("malformed array descriptor %s: %w", desc, err)
 	}
 	componentDesc := desc[1:]
 	var component *Class
@@ -537,10 +656,12 @@ func (r *Runtime) arrayClassFromDescriptor(desc string) (*Class, error) {
 			return nil, fmt.Errorf("malformed array descriptor: %s", desc)
 		}
 		component, err = r.classForName(componentDesc[1 : len(componentDesc)-1])
-	case 'I':
-		return nil, fmt.Errorf("primitive array %s is outside the Gate 1 profile", desc)
 	default:
-		return nil, fmt.Errorf("unsupported array descriptor: %s", desc)
+		primitive, ok := r.primitives[componentDesc[0]]
+		if !ok {
+			return nil, fmt.Errorf("unsupported array descriptor: %s", desc)
+		}
+		component = primitive
 	}
 	if err != nil {
 		return nil, err
@@ -570,7 +691,11 @@ func (r *Runtime) NewInstance(c *Class) *Object {
 		Identity: r.newIdentity(),
 	}
 	for i := range o.Fields {
-		o.Fields[i] = Value{}
+		desc := ""
+		if i < len(c.InstanceKinds) {
+			desc = c.InstanceKinds[i]
+		}
+		o.Fields[i] = zeroValueFor(desc)
 	}
 	if r.AllocHook != nil {
 		r.AllocHook(o)
@@ -578,7 +703,7 @@ func (r *Runtime) NewInstance(c *Class) *Object {
 	return o
 }
 
-// NewArray allocates a reference array.
+// NewArray allocates a reference array whose component is component.
 func (r *Runtime) NewArray(component *Class, length int) *Object {
 	ac, err := r.arrayClassFor(component)
 	if err != nil {
@@ -586,26 +711,68 @@ func (r *Runtime) NewArray(component *Class, length int) *Object {
 	}
 	o := &Object{
 		Class:    ac,
-		Array:    &ArrayData{Component: component, Elems: make([]Value, length)},
+		Array:    &ArrayData{Component: component, Kind: 'L', Elems: make([]Value, length)},
 		Identity: r.newIdentity(),
 	}
 	return o
 }
 
-func (r *Runtime) arrayClassFor(component *Class) (*Class, error) {
-	desc := ""
-	if component.IsArray {
-		desc = "[" + component.Descriptor
+// NewArrayOfClass allocates an array of the given array class. The element
+// storage is chosen from the component type.
+func (r *Runtime) NewArrayOfClass(arrayClass *Class, length int) *Object {
+	component := arrayClass.Component
+	a := &ArrayData{Component: component}
+	if !component.IsPrimitive {
+		a.Kind = 'L'
+		a.Elems = make([]Value, length)
 	} else {
-		desc = "[L" + component.Name + ";"
+		switch component.Descriptor[0] {
+		case 'Z', 'B':
+			a.Kind = component.Descriptor[0]
+			a.Bytes = make([]int8, length)
+		case 'C':
+			a.Kind = 'C'
+			a.Chars = make([]uint16, length)
+		case 'S':
+			a.Kind = 'S'
+			a.Shorts = make([]int16, length)
+		case 'I':
+			a.Kind = 'I'
+			a.Ints = make([]int32, length)
+		case 'J':
+			a.Kind = 'J'
+			a.Longs = make([]int64, length)
+		case 'F':
+			a.Kind = 'F'
+			a.Floats = make([]float32, length)
+		case 'D':
+			a.Kind = 'D'
+			a.Doubles = make([]float64, length)
+		default:
+			panic("catty: unsupported array component " + component.Descriptor)
+		}
 	}
-	return r.arrayClassFromDescriptor(desc)
+	return &Object{Class: arrayClass, Array: a, Identity: r.newIdentity()}
 }
 
-// IsAssignable implements the reference/array assignability subset.
+func (r *Runtime) arrayClassFor(component *Class) (*Class, error) {
+	return r.arrayClassFromDescriptor(arrayDescriptorOf(component))
+}
+
+func arrayDescriptorOf(component *Class) string {
+	if component.IsArray {
+		return "[" + component.Descriptor
+	}
+	if component.IsPrimitive {
+		return "[" + component.Descriptor
+	}
+	return "[L" + component.Name + ";"
+}
+
+// IsAssignable implements reference/array assignability.
 func (r *Runtime) IsAssignable(from, to *Class) bool {
 	if from == nil || to == nil {
-		return from == nil || from == to
+		return from == nil && to == nil
 	}
 	if from == to {
 		return true
@@ -618,6 +785,9 @@ func (r *Runtime) IsAssignable(from, to *Class) bool {
 	}
 	if from.IsArray {
 		if to.IsArray {
+			if from.Component.IsPrimitive || to.Component.IsPrimitive {
+				return from.Component == to.Component
+			}
 			return r.IsAssignable(from.Component, to.Component)
 		}
 		if to.IsInterface() {
@@ -659,6 +829,18 @@ func (r *Runtime) implementsInterface(from, to *Class) bool {
 
 // IsInterface reports whether c has ACC_INTERFACE.
 func (c *Class) IsInterface() bool { return c != nil && c.Flags&AccInterface != 0 }
+
+// PackageName returns the runtime package of a class ("" for the default
+// package).
+func (c *Class) PackageName() string {
+	if c == nil || c.IsArray || c.IsPrimitive {
+		return ""
+	}
+	if i := strings.LastIndex(c.Name, "/"); i >= 0 {
+		return c.Name[:i]
+	}
+	return ""
+}
 
 func (c *Class) addMethod(m *Method) error {
 	key := m.Name + m.Descriptor
@@ -744,6 +926,156 @@ func (r *Runtime) NewStringArray(args []string) *Object {
 	return arr
 }
 
+// boxData is the payload of every boxed primitive value.
+type boxData struct {
+	Kind byte // primitive descriptor letter
+	Bits uint64
+}
+
+func boxedClassName(desc byte) string {
+	switch desc {
+	case 'Z':
+		return "java/lang/Boolean"
+	case 'B':
+		return "java/lang/Byte"
+	case 'C':
+		return "java/lang/Character"
+	case 'S':
+		return "java/lang/Short"
+	case 'I':
+		return "java/lang/Integer"
+	case 'J':
+		return "java/lang/Long"
+	case 'F':
+		return "java/lang/Float"
+	case 'D':
+		return "java/lang/Double"
+	}
+	return ""
+}
+
+func primitiveDescOfBox(class string) byte {
+	switch class {
+	case "java/lang/Boolean":
+		return 'Z'
+	case "java/lang/Byte":
+		return 'B'
+	case "java/lang/Character":
+		return 'C'
+	case "java/lang/Short":
+		return 'S'
+	case "java/lang/Integer":
+		return 'I'
+	case "java/lang/Long":
+		return 'J'
+	case "java/lang/Float":
+		return 'F'
+	case "java/lang/Double":
+		return 'D'
+	}
+	return 0
+}
+
+// BoxValue boxes v as the boxed class of the given primitive descriptor.
+func (r *Runtime) BoxValue(desc byte, v Value) *Object {
+	switch desc {
+	case 'Z':
+		b := AsInt(v) != 0
+		if o, ok := r.boxedBools[b]; ok {
+			return o
+		}
+		o := r.boxedObject(desc, uint64(boolBits(b)))
+		r.boxedBools[b] = o
+		return o
+	case 'B':
+		b := int8(AsInt(v))
+		if o, ok := r.boxedBytes[b]; ok {
+			return o
+		}
+		o := r.boxedObject(desc, uint64(uint8(b)))
+		r.boxedBytes[b] = o
+		return o
+	case 'C':
+		c := uint16(AsInt(v))
+		if o, ok := r.boxedChars[c]; ok {
+			return o
+		}
+		o := r.boxedObject(desc, uint64(c))
+		r.boxedChars[c] = o
+		return o
+	case 'S':
+		s := int16(AsInt(v))
+		if o, ok := r.boxedShorts[s]; ok {
+			return o
+		}
+		o := r.boxedObject(desc, uint64(uint16(s)))
+		r.boxedShorts[s] = o
+		return o
+	case 'I':
+		return r.BoxedInteger(AsInt(v))
+	case 'J':
+		l := AsLong(v)
+		if o, ok := r.boxedLongs[l]; ok {
+			return o
+		}
+		o := r.boxedObject(desc, uint64(l))
+		r.boxedLongs[l] = o
+		return o
+	case 'F':
+		return r.boxedObject(desc, uint64(AsFloatBits(v)))
+	case 'D':
+		return r.boxedObject(desc, AsDoubleBits(v))
+	}
+	panic("catty: cannot box descriptor " + string(desc))
+}
+
+func boolBits(b bool) uint64 {
+	if b {
+		return 1
+	}
+	return 0
+}
+
+func (r *Runtime) boxedObject(desc byte, bits uint64) *Object {
+	name := boxedClassName(desc)
+	o := r.NewInstance(r.mustClass(name))
+	o.Payload = &boxData{Kind: desc, Bits: bits}
+	return o
+}
+
+// BoxValueOf boxes v into the class identified by a boxed class name.
+func (r *Runtime) BoxValueOf(class string, v Value) *Object {
+	desc := primitiveDescOfBox(class)
+	return r.BoxValue(desc, v)
+}
+
+// UnboxValue reads a boxed primitive value.
+func UnboxValue(o *Object) (boxData, bool) {
+	if o == nil {
+		return boxData{}, false
+	}
+	d, ok := o.Payload.(*boxData)
+	if !ok {
+		return boxData{}, false
+	}
+	return *d, true
+}
+
+// BoxedValue converts a box data payload into the engine Value.
+func (d boxData) Value() Value {
+	switch d.Kind {
+	case 'Z', 'B', 'C', 'S', 'I':
+		return IntValue(int32(uint32(d.Bits)))
+	case 'J':
+		return LongValue(int64(d.Bits))
+	case 'F':
+		return FloatBitsValue(uint32(d.Bits))
+	case 'D':
+		return DoubleBitsValue(d.Bits)
+	}
+	return Value{}
+}
+
 // BoxedInteger returns a java.lang.Integer for v. Java guarantees identity for
 // the standard cache range; values outside it receive a fresh box.
 func (r *Runtime) BoxedInteger(v int32) *Object {
@@ -752,28 +1084,24 @@ func (r *Runtime) BoxedInteger(v int32) *Object {
 			return o
 		}
 	}
-	o := r.NewInstance(r.mustClass("java/lang/Integer"))
-	o.Payload = &integerData{Value: v}
+	o := r.boxedObject('I', uint64(uint32(v)))
 	if v >= -128 && v <= 127 {
 		r.boxedInts[v] = o
 	}
 	return o
 }
 
-type integerData struct {
-	Value int32
-}
-
 // IntegerValue reads a boxed int.
 func IntegerValue(o *Object) (int32, bool) {
-	if o == nil {
-		return 0, false
-	}
-	d, ok := o.Payload.(*integerData)
+	d, ok := UnboxValue(o)
 	if !ok {
 		return 0, false
 	}
-	return d.Value, true
+	switch d.Kind {
+	case 'Z', 'B', 'C', 'S', 'I':
+		return int32(uint32(d.Bits)), true
+	}
+	return 0, false
 }
 
 // ThrowableData carries the cause and Java frames captured at construction.
@@ -835,4 +1163,54 @@ func (t *Thread) FramesSnapshot() []FrameInfo {
 	out := make([]FrameInfo, len(t.frames))
 	copy(out, t.frames)
 	return out
+}
+
+// ArrayValue reads one array element as an engine Value.
+func ArrayValue(a *ArrayData, index int) Value {
+	switch a.Kind {
+	case 'L':
+		return a.Elems[index]
+	case 'Z', 'B':
+		return IntValue(int32(a.Bytes[index]))
+	case 'C':
+		return IntValue(int32(a.Chars[index]))
+	case 'S':
+		return IntValue(int32(a.Shorts[index]))
+	case 'I':
+		return IntValue(a.Ints[index])
+	case 'J':
+		return LongValue(a.Longs[index])
+	case 'F':
+		return FloatValue(a.Floats[index])
+	case 'D':
+		return DoubleValue(a.Doubles[index])
+	}
+	panic("catty: unknown array storage kind")
+}
+
+// SetArrayValue writes one array element after masking it to the element
+// width; callers have already performed reference assignability checks.
+func SetArrayValue(a *ArrayData, index int, v Value) {
+	switch a.Kind {
+	case 'L':
+		a.Elems[index] = v
+	case 'Z':
+		a.Bytes[index] = int8(AsInt(v) & 1)
+	case 'B':
+		a.Bytes[index] = int8(AsInt(v))
+	case 'C':
+		a.Chars[index] = uint16(AsInt(v))
+	case 'S':
+		a.Shorts[index] = int16(AsInt(v))
+	case 'I':
+		a.Ints[index] = AsInt(v)
+	case 'J':
+		a.Longs[index] = AsLong(v)
+	case 'F':
+		a.Floats[index] = AsFloat(v)
+	case 'D':
+		a.Doubles[index] = AsDouble(v)
+	default:
+		panic("catty: unknown array storage kind")
+	}
 }

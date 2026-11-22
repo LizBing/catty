@@ -17,6 +17,7 @@ type Selection struct {
 	EntryIndex int
 	Symbol     string
 	Heights    map[int32]int
+	Shapes     map[int32][]int
 }
 
 type aotEntry struct {
@@ -24,6 +25,7 @@ type aotEntry struct {
 	method  *classfile.Method
 	symbol  string
 	heights map[int32]int
+	shapes  map[int32][]int
 }
 
 // Build holds the staged build state.
@@ -35,6 +37,7 @@ type Build struct {
 	aot        []*aotEntry
 	image      *rt.Image
 	report     *Report
+	unresolved []UnresolvedRecord
 }
 
 func newBuild(opts Options) *Build {
@@ -272,14 +275,19 @@ func (b *Build) selectEngines(p *Policy) error {
 				}
 			}
 			if sel.Engine == "aot" {
-				heights, err := verify.Heights(m)
-				if err != nil {
-					return fmt.Errorf("catty: %s.%s%s: %w", c.Name, m.Name, m.Descriptor, err)
+				heights, ok := b.ctx.HeightsOf(m)
+				if !ok {
+					return fmt.Errorf("catty: %s.%s%s has no verified stack heights", c.Name, m.Name, m.Descriptor)
+				}
+				shapes, ok := b.ctx.ShapesOf(m)
+				if !ok {
+					return fmt.Errorf("catty: %s.%s%s has no verified stack shapes", c.Name, m.Name, m.Descriptor)
 				}
 				sel.Heights = heights
+				sel.Shapes = shapes
 				sel.EntryIndex = len(b.aot)
 				sel.Symbol = fmt.Sprintf("cattyMethod%d", sel.EntryIndex)
-				b.aot = append(b.aot, &aotEntry{class: c, method: m, symbol: sel.Symbol, heights: heights})
+				b.aot = append(b.aot, &aotEntry{class: c, method: m, symbol: sel.Symbol, heights: heights, shapes: shapes})
 			}
 			b.selections[m] = sel
 		}
@@ -287,38 +295,37 @@ func (b *Build) selectEngines(p *Policy) error {
 	return nil
 }
 
-// resolveReferences validates every symbolic reference and catches profile
-// gaps before code generation. This is a build-time linkage check; unresolved
-// optional references remain a Java linkage error only for classes outside the
-// image, which the Gate 1 closed-world profile rejects here.
+// resolveReferences validates every symbolic reference. A reference to an
+// unavailable bootstrap facility is a build error. An application reference
+// whose absence does not prevent verification is retained in the report and
+// resolved lazily by the executing instruction, exactly as Java resolves it.
 func (b *Build) resolveReferences() error {
+	seenUnresolved := map[string]bool{}
 	for _, c := range b.loaded.Classes {
 		for _, m := range c.Methods {
-			for _, ref := range m.Refs {
-				switch ref.Kind {
-				case rt.RefInt, rt.RefString:
-				case rt.RefClass:
-					if !b.classAvailable(ref.Class) {
-						return fmt.Errorf("%s: %s.%s%s pc-constant class %s is unavailable",
-							c.Origin, c.Name, m.Name, m.Descriptor, ref.Class)
-					}
-				case rt.RefField:
-					if _, err := rt.ParseFieldType(ref.Descriptor); err != nil {
-						return fmt.Errorf("%s: %s.%s%s field %s.%s: %w", c.Origin, c.Name, m.Name, m.Descriptor, ref.Owner, ref.Name, err)
-					}
-					if !b.fieldExists(ref.Owner, ref.Name, ref.Descriptor) {
-						return fmt.Errorf("%s: %s.%s%s: missing field %s.%s:%s",
-							c.Origin, c.Name, m.Name, m.Descriptor, ref.Owner, ref.Name, ref.Descriptor)
-					}
-				case rt.RefMethod:
-					if _, err := rt.ParseMethodType(ref.Descriptor); err != nil {
-						return fmt.Errorf("%s: %s.%s%s method %s.%s: %w", c.Origin, c.Name, m.Name, m.Descriptor, ref.Owner, ref.Name, err)
-					}
-					if !b.methodExists(ref.Owner, ref.Name, ref.Descriptor) {
-						return fmt.Errorf("%s: %s.%s%s: missing method %s.%s%s",
-							c.Origin, c.Name, m.Name, m.Descriptor, ref.Owner, ref.Name, ref.Descriptor)
+			pcOf := map[int32]int32{}
+			for _, insn := range m.Insns {
+				if insn.Ref >= 0 {
+					if _, ok := pcOf[insn.Ref]; !ok {
+						pcOf[insn.Ref] = insn.PC
 					}
 				}
+			}
+			for index, ref := range m.Refs {
+				unresolved, err := b.checkReference(c, m, ref)
+				if err != nil {
+					return err
+				}
+				if unresolved == nil {
+					continue
+				}
+				unresolved.PC = int(pcOf[int32(index)])
+				key := fmt.Sprintf("%s.%s%s|%d", unresolved.Owner, unresolved.Name, unresolved.Descriptor, unresolved.PC)
+				if seenUnresolved[key] {
+					continue
+				}
+				seenUnresolved[key] = true
+				b.unresolved = append(b.unresolved, *unresolved)
 			}
 			for _, h := range m.Handlers {
 				if h.CatchType == "" {
@@ -334,6 +341,66 @@ func (b *Build) resolveReferences() error {
 		}
 	}
 	return nil
+}
+
+func (b *Build) checkReference(c *classfile.Class, m *classfile.Method, ref rt.Ref) (*UnresolvedRecord, error) {
+	switch ref.Kind {
+	case rt.RefInt, rt.RefLong, rt.RefFloat, rt.RefDouble, rt.RefString:
+		return nil, nil
+	case rt.RefClass:
+		if !b.classAvailable(ref.Class) {
+			return nil, fmt.Errorf("%s: %s.%s%s class constant %s is unavailable",
+				c.Origin, c.Name, m.Name, m.Descriptor, ref.Class)
+		}
+		return nil, nil
+	case rt.RefField:
+		if _, err := rt.ParseFieldType(ref.Descriptor); err != nil {
+			return nil, fmt.Errorf("%s: %s.%s%s field %s.%s: %w", c.Origin, c.Name, m.Name, m.Descriptor, ref.Owner, ref.Name, err)
+		}
+		if rt.BootstrapHasClass(ref.Owner) {
+			if !rt.BootstrapHasField(ref.Owner, ref.Name, ref.Descriptor) {
+				return nil, fmt.Errorf("%s: %s.%s%s needs unavailable bootstrap field %s.%s:%s",
+					c.Origin, c.Name, m.Name, m.Descriptor, ref.Owner, ref.Name, ref.Descriptor)
+			}
+			return nil, nil
+		}
+		if reservedClassName(ref.Owner) {
+			return nil, fmt.Errorf("%s: %s.%s%s needs unavailable bootstrap field %s.%s:%s",
+				c.Origin, c.Name, m.Name, m.Descriptor, ref.Owner, ref.Name, ref.Descriptor)
+		}
+		if b.fieldExists(ref.Owner, ref.Name, ref.Descriptor) {
+			return nil, nil
+		}
+		return &UnresolvedRecord{
+			Kind: "field", Owner: ref.Owner, Name: ref.Name, Descriptor: ref.Descriptor,
+			Referrer: c.Name, ReferrerMethod: m.Name, ReferrerDescriptor: m.Descriptor,
+			ClassMissing: b.loaded.ByName[ref.Owner] == nil,
+		}, nil
+	case rt.RefMethod:
+		if _, err := rt.ParseMethodType(ref.Descriptor); err != nil {
+			return nil, fmt.Errorf("%s: %s.%s%s method %s.%s: %w", c.Origin, c.Name, m.Name, m.Descriptor, ref.Owner, ref.Name, err)
+		}
+		if rt.BootstrapHasClass(ref.Owner) {
+			if !rt.BootstrapHasMethod(ref.Owner, ref.Name, ref.Descriptor) {
+				return nil, fmt.Errorf("%s: %s.%s%s needs unavailable bootstrap method %s.%s%s",
+					c.Origin, c.Name, m.Name, m.Descriptor, ref.Owner, ref.Name, ref.Descriptor)
+			}
+			return nil, nil
+		}
+		if reservedClassName(ref.Owner) {
+			return nil, fmt.Errorf("%s: %s.%s%s needs unavailable bootstrap method %s.%s%s",
+				c.Origin, c.Name, m.Name, m.Descriptor, ref.Owner, ref.Name, ref.Descriptor)
+		}
+		if b.methodExists(ref.Owner, ref.Name, ref.Descriptor) {
+			return nil, nil
+		}
+		return &UnresolvedRecord{
+			Kind: "method", Owner: ref.Owner, Name: ref.Name, Descriptor: ref.Descriptor,
+			Referrer: c.Name, ReferrerMethod: m.Name, ReferrerDescriptor: m.Descriptor,
+			ClassMissing: b.loaded.ByName[ref.Owner] == nil,
+		}, nil
+	}
+	return nil, nil
 }
 
 func (b *Build) fieldExists(owner, name, descriptor string) bool {
@@ -421,16 +488,19 @@ func (b *Build) buildImage() error {
 	classes := make([]*rt.ClassDef, 0, len(b.loaded.Classes))
 	for _, c := range b.loaded.Classes {
 		def := &rt.ClassDef{
-			Name:       c.Name,
-			Super:      c.Super,
-			Interfaces: append([]string(nil), c.Interfaces...),
-			Flags:      c.Flags,
+			Name:        c.Name,
+			Super:       c.Super,
+			Interfaces:  append([]string(nil), c.Interfaces...),
+			Flags:       c.Flags,
+			NestHost:    c.NestHost,
+			NestMembers: append([]string(nil), c.NestMembers...),
 		}
 		for _, f := range c.Fields {
+			fd := rt.FieldDef{Name: f.Name, Descriptor: f.Descriptor, Flags: f.Flags, Constant: f.Constant}
 			if f.Flags&rt.AccStatic != 0 {
-				def.StaticFields = append(def.StaticFields, rt.FieldDef{Name: f.Name, Descriptor: f.Descriptor, Flags: f.Flags})
+				def.StaticFields = append(def.StaticFields, fd)
 			} else {
-				def.InstanceFields = append(def.InstanceFields, rt.FieldDef{Name: f.Name, Descriptor: f.Descriptor, Flags: f.Flags})
+				def.InstanceFields = append(def.InstanceFields, fd)
 			}
 		}
 		for _, m := range c.Methods {
@@ -445,13 +515,13 @@ func (b *Build) buildImage() error {
 				MaxStack:   m.MaxStack,
 				MaxLocals:  m.MaxLocals,
 				Handlers:   append([]rt.Handler(nil), m.Handlers...),
+				Refs:       append([]rt.Ref(nil), m.Refs...),
 				EntryIndex: -1,
 			}
 			switch sel.Engine {
 			case "interp":
 				md.CodeSize = m.CodeLength
 				md.Insns = append([]rt.Insn(nil), m.Insns...)
-				md.Refs = append([]rt.Ref(nil), m.Refs...)
 			case "aot":
 				md.EntryIndex = sel.EntryIndex
 			case "abstract":
@@ -464,6 +534,7 @@ func (b *Build) buildImage() error {
 	b.image = &rt.Image{
 		ABI:     rt.ABIRevision,
 		Profile: rt.ProfileID,
+		Opcodes: rt.SupportedOpcodeNames(),
 		Classes: classes,
 		Main: rt.MethodKey{
 			Owner:      strings.ReplaceAll(b.opts.Main, ".", "/"),
@@ -474,15 +545,18 @@ func (b *Build) buildImage() error {
 	return nil
 }
 
-// Report types mirror ACCEPTANCE.md's required fields.
+// Report types mirror the published Gate 2 build contract.
 type Report struct {
-	Profile    string         `json:"profile"`
-	ImageABI   int            `json:"imageABI"`
-	Main       string         `json:"main"`
-	Toolchains Toolchains     `json:"toolchains"`
-	Inputs     []Input        `json:"inputs"`
-	Classes    []ClassRecord  `json:"classes"`
-	Methods    []MethodRecord `json:"methods"`
+	Profile    string             `json:"profile"`
+	ImageABI   int                `json:"imageABI"`
+	Main       string             `json:"main"`
+	Toolchains Toolchains         `json:"toolchains"`
+	Inputs     []Input            `json:"inputs"`
+	Classes    []ClassRecord      `json:"classes"`
+	Methods    []MethodRecord     `json:"methods"`
+	Opcodes    []string           `json:"opcodes"`
+	Bootstrap  BootstrapInventory `json:"bootstrap"`
+	Unresolved []UnresolvedRecord `json:"unresolved,omitempty"`
 }
 
 type Toolchains struct {
@@ -510,6 +584,40 @@ type GeneratedRecord struct {
 	Symbol string `json:"symbol"`
 }
 
+// BootstrapInventory publishes the supported bootstrap classes and members.
+type BootstrapInventory struct {
+	Classes []BootstrapClassRecord  `json:"classes"`
+	Methods []BootstrapMemberRecord `json:"methods"`
+	Fields  []BootstrapMemberRecord `json:"fields"`
+}
+
+type BootstrapClassRecord struct {
+	Name       string   `json:"name"`
+	Super      string   `json:"super,omitempty"`
+	Interfaces []string `json:"interfaces,omitempty"`
+	Flags      uint16   `json:"flags,omitempty"`
+}
+
+type BootstrapMemberRecord struct {
+	Owner      string `json:"owner"`
+	Name       string `json:"name"`
+	Descriptor string `json:"descriptor"`
+}
+
+// UnresolvedRecord reports one retained application reference that Java
+// resolves lazily when its instruction executes.
+type UnresolvedRecord struct {
+	Kind              string `json:"kind"`
+	Owner             string `json:"owner"`
+	Name              string `json:"name"`
+	Descriptor        string `json:"descriptor"`
+	Referrer          string `json:"referrer"`
+	ReferrerMethod    string `json:"referrerMethod"`
+	ReferrerDescriptor string `json:"referrerDescriptor"`
+	PC                int    `json:"pc"`
+	ClassMissing      bool   `json:"classMissing,omitempty"`
+}
+
 func (b *Build) buildReport() {
 	r := &Report{
 		Profile:  rt.ProfileID,
@@ -518,7 +626,9 @@ func (b *Build) buildReport() {
 		Toolchains: Toolchains{
 			Go: runtime.Version(),
 		},
-		Inputs: append([]Input(nil), b.loaded.Inputs...),
+		Inputs:     append([]Input(nil), b.loaded.Inputs...),
+		Opcodes:    rt.SupportedOpcodeNames(),
+		Unresolved: append([]UnresolvedRecord(nil), b.unresolved...),
 	}
 	for _, c := range b.loaded.Classes {
 		r.Classes = append(r.Classes, ClassRecord{Name: c.Name, Origin: c.Origin})
@@ -550,6 +660,21 @@ func (b *Build) buildReport() {
 			Engine:            "intrinsic",
 			Reason:            "bootstrap intrinsic",
 			RetainedCodeBytes: 0,
+		})
+	}
+	for _, class := range rt.BootstrapClasses() {
+		r.Bootstrap.Classes = append(r.Bootstrap.Classes, BootstrapClassRecord{
+			Name: class.Name, Super: class.Super, Interfaces: class.Interfaces, Flags: class.Flags,
+		})
+	}
+	for _, method := range rt.BootstrapMethods() {
+		r.Bootstrap.Methods = append(r.Bootstrap.Methods, BootstrapMemberRecord{
+			Owner: method.Owner, Name: method.Name, Descriptor: method.Descriptor,
+		})
+	}
+	for _, field := range rt.BootstrapFields() {
+		r.Bootstrap.Fields = append(r.Bootstrap.Fields, BootstrapMemberRecord{
+			Owner: field.Owner, Name: field.Name, Descriptor: field.Descriptor,
 		})
 	}
 	b.report = r

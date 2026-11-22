@@ -1,0 +1,6 @@
+?   	catty/cmd/catty	[no test files]
+?   	catty/internal/aot	[no test files]
+?   	catty/internal/build	[no test files]
+?   	catty/internal/classfile	[no test files]
+?   	catty/internal/verify	[no test files]
+ok  	catty/rt	0.227s

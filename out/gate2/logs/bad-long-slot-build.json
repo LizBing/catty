@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-9fedbnvr/catty",
+    "build",
+    "--classpath",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-9fedbnvr/classes/bad-long-slot",
+    "--main",
+    "LongCrossing",
+    "--mode",
+    "auto",
+    "--report",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-9fedbnvr/builds/bad-long-slot/report.json",
+    "--output",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-9fedbnvr/builds/bad-long-slot/app"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "JAVA_HOME": "/private/tmp/catty-java21.Nbj57G/jdk-21.0.13.1+2/Contents/Home",
+    "PATH": "/private/tmp/catty-java21.Nbj57G/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/private/tmp/catty-java21.Nbj57G/jdk-21.0.13.1+2/Contents/Home/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C"
+  },
+  "pid": 45772,
+  "status": 1,
+  "stdout": "",
+  "stderr": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-9fedbnvr/classes/bad-long-slot/LongCrossing.class: LongCrossing.bridge(JI)J: pc 10: local index 1 is the unusable second slot of the long at local 0\n"
+}

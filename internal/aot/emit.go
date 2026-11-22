@@ -15,26 +15,25 @@ import (
 )
 
 // Generate emits one top-level Go function with the common entry signature.
-// heights are the verified operand-stack depths at each instruction offset.
-func Generate(symbol string, m *classfile.Method, heights map[int32]int) (string, error) {
+// heights are the verified logical operand-stack depths and shapes the logical
+// value widths at each instruction offset.
+func Generate(symbol string, m *classfile.Method, heights map[int32]int, shapes map[int32][]int) (string, error) {
 	var b strings.Builder
 	fmt.Fprintf(&b, "func %s(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Value) rt.Outcome {\n", symbol)
 	fmt.Fprintf(&b, "\tvar locals [%d]rt.Value\n", m.MaxLocals)
 	fmt.Fprintf(&b, "\tvar stack [%d]rt.Value\n", m.MaxStack)
 	b.WriteString("\t_ = locals\n\t_ = stack\n")
-	if m.Flags&rt.AccStatic == 0 {
-		b.WriteString("\tlocals[0] = rt.RefValue(receiver)\n")
-	}
 	mt, err := rt.ParseMethodType(m.Descriptor)
 	if err != nil {
 		return "", err
 	}
 	base := 0
 	if m.Flags&rt.AccStatic == 0 {
+		b.WriteString("\tlocals[0] = rt.RefValue(receiver)\n")
 		base = 1
 	}
 	for i := range mt.Params {
-		fmt.Fprintf(&b, "\tlocals[%d] = args[%d]\n", base+i, i)
+		fmt.Fprintf(&b, "\tlocals[%d] = args[%d]\n", base+mt.ParamSlot[i], i)
 	}
 	b.WriteString("\tblock := 0\n\tfor {\n\t\tswitch block {\n")
 
@@ -48,7 +47,8 @@ func Generate(symbol string, m *classfile.Method, heights map[int32]int) (string
 		terminated := false
 		for i := blk.first; i <= blk.last; i++ {
 			insn := m.Insns[i]
-			code, nextH, term, err := emitInsn(insn, m, h, heights, blockOf)
+			widths := shapes[insn.PC]
+			code, nextH, term, err := emitInsn(insn, m, h, widths, heights, blockOf)
 			if err != nil {
 				return "", fmt.Errorf("%s.%s%s pc %d: %w", m.Owner, m.Name, m.Descriptor, insn.PC, err)
 			}
@@ -83,7 +83,6 @@ type block struct {
 	endPC int32
 	first int
 	last  int
-	code  string
 }
 
 func buildBlocks(m *classfile.Method, heights map[int32]int) ([]block, map[int32]int, error) {
@@ -96,7 +95,7 @@ func buildBlocks(m *classfile.Method, heights map[int32]int) ([]block, map[int32
 		if target, ok := classfile.BranchTarget(insn); ok {
 			leaders[target] = true
 			switch insn.Op {
-			case rt.OpGoto:
+			case rt.OpGoto, rt.OpGotoW:
 			default:
 				next := insn.PC + insn.Len
 				if int(next) < m.CodeLength {
@@ -104,8 +103,19 @@ func buildBlocks(m *classfile.Method, heights map[int32]int) ([]block, map[int32
 				}
 			}
 		}
+		if _, targets, ok := classfile.SwitchTargets(insn); ok {
+			for _, target := range targets {
+				leaders[target] = true
+			}
+			leaders[insn.A] = true
+			next := insn.PC + insn.Len
+			if int(next) < m.CodeLength {
+				leaders[next] = true
+			}
+		}
 		switch insn.Op {
-		case rt.OpReturn, rt.OpIreturn, rt.OpAreturn, rt.OpAthrow, rt.OpGoto:
+		case rt.OpReturn, rt.OpIreturn, rt.OpLreturn, rt.OpFreturn, rt.OpDreturn,
+			rt.OpAreturn, rt.OpAthrow, rt.OpGoto, rt.OpGotoW:
 			next := insn.PC + insn.Len
 			if int(next) < m.CodeLength {
 				leaders[next] = true
@@ -148,20 +158,80 @@ func buildBlocks(m *classfile.Method, heights map[int32]int) ([]block, map[int32
 	return blocks, blockOf, nil
 }
 
-func emitInsn(insn rt.Insn, m *classfile.Method, h int, heights map[int32]int, blockOf map[int32]int) (string, int, bool, error) {
+func blockID(pc int32, blockOf map[int32]int) (int, error) {
+	id, ok := blockOf[pc]
+	if !ok {
+		return 0, fmt.Errorf("no generated block at pc %d", pc)
+	}
+	return id, nil
+}
+
+func booleanCode(op uint8, a, b string) string {
+	switch op {
+	case rt.OpIfeq:
+		return a + " == 0"
+	case rt.OpIfne:
+		return a + " != 0"
+	case rt.OpIflt:
+		return a + " < 0"
+	case rt.OpIfge:
+		return a + " >= 0"
+	case rt.OpIfgt:
+		return a + " > 0"
+	case rt.OpIfle:
+		return a + " <= 0"
+	case rt.OpIfIcmpeq:
+		return a + " == " + b
+	case rt.OpIfIcmpne:
+		return a + " != " + b
+	case rt.OpIfIcmplt:
+		return a + " < " + b
+	case rt.OpIfIcmpge:
+		return a + " >= " + b
+	case rt.OpIfIcmpgt:
+		return a + " > " + b
+	case rt.OpIfIcmple:
+		return a + " <= " + b
+	}
+	return ""
+}
+
+func emitInsn(insn rt.Insn, m *classfile.Method, h int, widths []int, heights map[int32]int, blockOf map[int32]int) (string, int, bool, error) {
 	pc := insn.PC
+	width := func(index int) int {
+		if index < 0 || index >= len(widths) {
+			return 1
+		}
+		return widths[index]
+	}
+	transfer := transferCode(pc, m, blockOf)
+
 	switch insn.Op {
+	case rt.OpNop:
+		return "", h, false, nil
 	case rt.OpAconstNull:
 		return fmt.Sprintf("stack[%d] = rt.RefValue(nil)", h), h + 1, false, nil
 	case rt.OpIconstM1, rt.OpIconst0, rt.OpIconst1, rt.OpIconst2, rt.OpIconst3, rt.OpIconst4, rt.OpIconst5:
 		return fmt.Sprintf("stack[%d] = rt.IntValue(%d)", h, int32(insn.Op)-3), h + 1, false, nil
+	case rt.OpLconst0, rt.OpLconst1:
+		return fmt.Sprintf("stack[%d] = rt.LongValue(%d)", h, int64(insn.Op-rt.OpLconst0)), h + 1, false, nil
+	case rt.OpFconst0, rt.OpFconst1, rt.OpFconst2:
+		return fmt.Sprintf("stack[%d] = rt.FloatValue(%s)", h, strconv.FormatFloat(float64(insn.Op-rt.OpFconst0), 'g', -1, 64)), h + 1, false, nil
+	case rt.OpDconst0, rt.OpDconst1:
+		return fmt.Sprintf("stack[%d] = rt.DoubleValue(%s)", h, strconv.FormatFloat(float64(insn.Op-rt.OpDconst0), 'g', -1, 64)), h + 1, false, nil
 	case rt.OpBipush, rt.OpSipush:
 		return fmt.Sprintf("stack[%d] = rt.IntValue(%d)", h, insn.A), h + 1, false, nil
-	case rt.OpLdc, rt.OpLdcW:
+	case rt.OpLdc, rt.OpLdcW, rt.OpLdc2W:
 		ref := m.Refs[insn.Ref]
 		switch ref.Kind {
 		case rt.RefInt:
 			return fmt.Sprintf("stack[%d] = rt.IntValue(%d)", h, ref.Int), h + 1, false, nil
+		case rt.RefFloat:
+			return fmt.Sprintf("stack[%d] = rt.FloatBitsValue(0x%08x)", h, uint32(ref.Bits)), h + 1, false, nil
+		case rt.RefLong:
+			return fmt.Sprintf("stack[%d] = rt.LongBitsValue(0x%016x)", h, ref.Bits), h + 1, false, nil
+		case rt.RefDouble:
+			return fmt.Sprintf("stack[%d] = rt.DoubleBitsValue(0x%016x)", h, ref.Bits), h + 1, false, nil
 		case rt.RefClass:
 			return fmt.Sprintf("stack[%d] = t.ClassConstant(%s)", h, strconv.Quote(ref.Class)), h + 1, false, nil
 		case rt.RefString:
@@ -173,148 +243,248 @@ func emitInsn(insn rt.Insn, m *classfile.Method, h int, heights map[int32]int, b
 		default:
 			return "", h, false, fmt.Errorf("unsupported ldc reference")
 		}
-	case rt.OpIload, rt.OpAload:
+	case rt.OpIload, rt.OpLload, rt.OpFload, rt.OpDload, rt.OpAload:
 		return fmt.Sprintf("stack[%d] = locals[%d]", h, insn.A), h + 1, false, nil
-	case 0x1a, 0x1b, 0x1c, 0x1d:
-		return fmt.Sprintf("stack[%d] = locals[%d]", h, insn.Op-0x1a), h + 1, false, nil
-	case 0x2a, 0x2b, 0x2c, 0x2d:
-		return fmt.Sprintf("stack[%d] = locals[%d]", h, insn.Op-0x2a), h + 1, false, nil
-	case rt.OpIstore, rt.OpAstore:
+	case rt.OpIstore, rt.OpLstore, rt.OpFstore, rt.OpDstore, rt.OpAstore:
 		return fmt.Sprintf("locals[%d] = stack[%d]", insn.A, h-1), h - 1, false, nil
-	case 0x3b, 0x3c, 0x3d, 0x3e:
-		return fmt.Sprintf("locals[%d] = stack[%d]", insn.Op-0x3b, h-1), h - 1, false, nil
-	case 0x4b, 0x4c, 0x4d, 0x4e:
-		return fmt.Sprintf("locals[%d] = stack[%d]", insn.Op-0x4b, h-1), h - 1, false, nil
+	case rt.OpIinc:
+		return fmt.Sprintf("locals[%d] = rt.IntValue(rt.AsInt(locals[%d]) + %d)", insn.A, insn.A, insn.B), h, false, nil
+	case rt.OpIaload, rt.OpLaload, rt.OpFaload, rt.OpDaload, rt.OpAaload, rt.OpBaload, rt.OpCaload, rt.OpSaload:
+		var kind byte
+		switch insn.Op {
+		case rt.OpIaload:
+			kind = 'I'
+		case rt.OpLaload:
+			kind = 'J'
+		case rt.OpFaload:
+			kind = 'F'
+		case rt.OpDaload:
+			kind = 'D'
+		case rt.OpAaload:
+			kind = 'L'
+		case rt.OpBaload:
+			kind = 'B'
+		case rt.OpCaload:
+			kind = 'C'
+		case rt.OpSaload:
+			kind = 'S'
+		}
+		code := fmt.Sprintf("{\nv, thrown := t.ArrayLoad(stack[%d], rt.AsInt(stack[%d]), %q)\nif thrown != nil {\n%s\n}\nstack[%d] = v\n}",
+			h-2, h-1, kind, transfer, h-2)
+		return code, h - 1, false, nil
+	case rt.OpIastore, rt.OpLastore, rt.OpFastore, rt.OpDastore, rt.OpAastore, rt.OpBastore, rt.OpCastore, rt.OpSastore:
+		var kind byte
+		switch insn.Op {
+		case rt.OpIastore:
+			kind = 'I'
+		case rt.OpLastore:
+			kind = 'J'
+		case rt.OpFastore:
+			kind = 'F'
+		case rt.OpDastore:
+			kind = 'D'
+		case rt.OpAastore:
+			kind = 'L'
+		case rt.OpBastore:
+			kind = 'B'
+		case rt.OpCastore:
+			kind = 'C'
+		case rt.OpSastore:
+			kind = 'S'
+		}
+		code := fmt.Sprintf("{\nthrown := t.ArrayStore(stack[%d], rt.AsInt(stack[%d]), stack[%d], %q)\nif thrown != nil {\n%s\n}\n}",
+			h-3, h-2, h-1, kind, transfer)
+		return code, h - 3, false, nil
 	case rt.OpPop:
 		return "", h - 1, false, nil
+	case rt.OpPop2:
+		if width(len(widths)-1) == 2 {
+			return "", h - 1, false, nil
+		}
+		return "", h - 2, false, nil
 	case rt.OpDup:
 		return fmt.Sprintf("stack[%d] = stack[%d]", h, h-1), h + 1, false, nil
-	case rt.OpNew:
-		ref := m.Refs[insn.Ref]
-		code := fmt.Sprintf("{\nobj, thrown := t.NewObject(%s)\nif thrown != nil {\n%s\n}\nstack[%d] = rt.RefValue(obj)\n}",
-			strconv.Quote(ref.Class), transferCode(pc, m, blockOf), h)
+	case rt.OpDupX1:
+		code := fmt.Sprintf("{\nv1 := stack[%d]\nv2 := stack[%d]\nstack[%d] = v1\nstack[%d] = v2\nstack[%d] = v1\n}", h-1, h-2, h, h-1, h-2)
 		return code, h + 1, false, nil
-	case rt.OpGetfield:
-		ref := m.Refs[insn.Ref]
-		code := fmt.Sprintf("{\nv, thrown := t.GetField(stack[%d], %s, %s, %s)\nif thrown != nil {\n%s\n}\nstack[%d] = v\n}",
-			h-1, strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor),
-			transferCode(pc, m, blockOf), h-1)
-		return code, h, false, nil
-	case rt.OpPutfield:
-		ref := m.Refs[insn.Ref]
-		code := fmt.Sprintf("{\nthrown := t.PutField(stack[%d], %s, %s, %s, stack[%d])\nif thrown != nil {\n%s\n}\n}",
-			h-2, strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor),
-			h-1, transferCode(pc, m, blockOf))
-		return code, h - 2, false, nil
-	case rt.OpGetstatic:
-		ref := m.Refs[insn.Ref]
-		code := fmt.Sprintf("{\nv, thrown := t.GetStatic(%s, %s, %s)\nif thrown != nil {\n%s\n}\nstack[%d] = v\n}",
-			strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor),
-			transferCode(pc, m, blockOf), h)
+	case rt.OpDupX2:
+		if width(len(widths)-2) == 2 {
+			code := fmt.Sprintf("{\nv1 := stack[%d]\nv2 := stack[%d]\nstack[%d] = v1\nstack[%d] = v2\nstack[%d] = v1\n}", h-1, h-2, h, h-1, h-2)
+			return code, h + 1, false, nil
+		}
+		code := fmt.Sprintf("{\nv1 := stack[%d]\nv3 := stack[%d]\nv2 := stack[%d]\nstack[%d] = v1\nstack[%d] = v2\nstack[%d] = v3\nstack[%d] = v1\n}", h-1, h-3, h-2, h, h-1, h-2, h-3)
 		return code, h + 1, false, nil
-	case rt.OpPutstatic:
-		ref := m.Refs[insn.Ref]
-		code := fmt.Sprintf("{\nthrown := t.PutStatic(%s, %s, %s, stack[%d])\nif thrown != nil {\n%s\n}\n}",
-			strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor),
-			h-1, transferCode(pc, m, blockOf))
-		return code, h - 1, false, nil
-	case rt.OpAnewarray:
-		ref := m.Refs[insn.Ref]
-		code := fmt.Sprintf("{\narr, thrown := t.NewArray(rt.AsInt(stack[%d]), %s)\nif thrown != nil {\n%s\n}\nstack[%d] = rt.RefValue(arr)\n}",
-			h-1, strconv.Quote(ref.Class), transferCode(pc, m, blockOf), h-1)
-		return code, h, false, nil
-	case rt.OpAaload:
-		code := fmt.Sprintf("{\nv, thrown := t.ArrayLoad(stack[%d], rt.AsInt(stack[%d]))\nif thrown != nil {\n%s\n}\nstack[%d] = v\n}",
-			h-2, h-1, transferCode(pc, m, blockOf), h-2)
-		return code, h - 1, false, nil
-	case rt.OpAastore:
-		code := fmt.Sprintf("{\nthrown := t.ArrayStore(stack[%d], rt.AsInt(stack[%d]), stack[%d])\nif thrown != nil {\n%s\n}\n}",
-			h-3, h-2, h-1, transferCode(pc, m, blockOf))
-		return code, h - 3, false, nil
-	case rt.OpArraylength:
-		code := fmt.Sprintf("{\nn, thrown := t.ArrayLength(stack[%d])\nif thrown != nil {\n%s\n}\nstack[%d] = rt.IntValue(n)\n}",
-			h-1, transferCode(pc, m, blockOf), h-1)
-		return code, h, false, nil
+	case rt.OpDup2:
+		if width(len(widths)-1) == 2 {
+			return fmt.Sprintf("stack[%d] = stack[%d]", h, h-1), h + 1, false, nil
+		}
+		code := fmt.Sprintf("{\nv2 := stack[%d]\nv1 := stack[%d]\nstack[%d] = v2\nstack[%d] = v1\n}", h-2, h-1, h, h+1)
+		return code, h + 2, false, nil
+	case rt.OpDup2X1:
+		if width(len(widths)-1) == 2 {
+			code := fmt.Sprintf("{\nv1 := stack[%d]\nv2 := stack[%d]\nstack[%d] = v1\nstack[%d] = v2\nstack[%d] = v1\n}", h-1, h-2, h, h-1, h-2)
+			return code, h + 1, false, nil
+		}
+		code := fmt.Sprintf("{\nv3 := stack[%d]\nv2 := stack[%d]\nv1 := stack[%d]\nstack[%d] = v2\nstack[%d] = v1\nstack[%d] = v3\nstack[%d] = v2\nstack[%d] = v1\n}",
+			h-3, h-2, h-1, h-3, h-2, h-1, h, h+1)
+		return code, h + 2, false, nil
+	case rt.OpDup2X2:
+		switch {
+		case width(len(widths)-1) == 2 && width(len(widths)-2) == 2:
+			code := fmt.Sprintf("{\nv1 := stack[%d]\nv2 := stack[%d]\nstack[%d] = v1\nstack[%d] = v2\nstack[%d] = v1\n}", h-1, h-2, h, h-1, h-2)
+			return code, h + 1, false, nil
+		case width(len(widths)-1) == 2:
+			code := fmt.Sprintf("{\nv3 := stack[%d]\nv2 := stack[%d]\nv1 := stack[%d]\nstack[%d] = v1\nstack[%d] = v3\nstack[%d] = v2\nstack[%d] = v1\n}", h-3, h-2, h-1, h-3, h-2, h-1, h)
+			return code, h + 1, false, nil
+		case width(len(widths)-3) == 2:
+			code := fmt.Sprintf("{\nv3 := stack[%d]\nv2 := stack[%d]\nv1 := stack[%d]\nstack[%d] = v2\nstack[%d] = v1\nstack[%d] = v3\nstack[%d] = v2\nstack[%d] = v1\n}", h-3, h-2, h-1, h-3, h-2, h-1, h, h+1)
+			return code, h + 2, false, nil
+		default:
+			code := fmt.Sprintf("{\nv4 := stack[%d]\nv3 := stack[%d]\nv2 := stack[%d]\nv1 := stack[%d]\nstack[%d] = v2\nstack[%d] = v1\nstack[%d] = v4\nstack[%d] = v3\nstack[%d] = v2\nstack[%d] = v1\n}",
+				h-4, h-3, h-2, h-1, h-4, h-3, h-2, h-1, h, h+1)
+			return code, h + 2, false, nil
+		}
+	case rt.OpSwap:
+		return fmt.Sprintf("stack[%d], stack[%d] = stack[%d], stack[%d]", h-1, h-2, h-2, h-1), h, false, nil
 	case rt.OpIadd:
 		return fmt.Sprintf("stack[%d] = rt.IntValue(rt.AsInt(stack[%d]) + rt.AsInt(stack[%d]))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpLadd:
+		return fmt.Sprintf("stack[%d] = rt.LongValue(rt.AsLong(stack[%d]) + rt.AsLong(stack[%d]))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpFadd:
+		return fmt.Sprintf("stack[%d] = rt.FloatValue(rt.AsFloat(stack[%d]) + rt.AsFloat(stack[%d]))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpDadd:
+		return fmt.Sprintf("stack[%d] = rt.DoubleValue(rt.AsDouble(stack[%d]) + rt.AsDouble(stack[%d]))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpIsub:
+		return fmt.Sprintf("stack[%d] = rt.IntValue(rt.AsInt(stack[%d]) - rt.AsInt(stack[%d]))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpLsub:
+		return fmt.Sprintf("stack[%d] = rt.LongValue(rt.AsLong(stack[%d]) - rt.AsLong(stack[%d]))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpFsub:
+		return fmt.Sprintf("stack[%d] = rt.FloatValue(rt.AsFloat(stack[%d]) - rt.AsFloat(stack[%d]))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpDsub:
+		return fmt.Sprintf("stack[%d] = rt.DoubleValue(rt.AsDouble(stack[%d]) - rt.AsDouble(stack[%d]))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpImul:
+		return fmt.Sprintf("stack[%d] = rt.IntValue(rt.AsInt(stack[%d]) * rt.AsInt(stack[%d]))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpLmul:
+		return fmt.Sprintf("stack[%d] = rt.LongValue(rt.AsLong(stack[%d]) * rt.AsLong(stack[%d]))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpFmul:
+		return fmt.Sprintf("stack[%d] = rt.FloatValue(rt.AsFloat(stack[%d]) * rt.AsFloat(stack[%d]))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpDmul:
+		return fmt.Sprintf("stack[%d] = rt.DoubleValue(rt.AsDouble(stack[%d]) * rt.AsDouble(stack[%d]))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpIdiv:
+		code := fmt.Sprintf("{\nd := rt.AsInt(stack[%d])\nif d == 0 {\nthrown := t.Throwable(\"java/lang/ArithmeticException\")\n%s\n}\nstack[%d] = rt.IntValue(rt.AsInt(stack[%d]) / d)\n}",
+			h-1, transfer, h-2, h-2)
+		return code, h - 1, false, nil
+	case rt.OpLdiv:
+		code := fmt.Sprintf("{\nd := rt.AsLong(stack[%d])\nif d == 0 {\nthrown := t.Throwable(\"java/lang/ArithmeticException\")\n%s\n}\nstack[%d] = rt.LongValue(rt.AsLong(stack[%d]) / d)\n}",
+			h-1, transfer, h-2, h-2)
+		return code, h - 1, false, nil
 	case rt.OpIrem:
 		return "", h, false, fmt.Errorf("irem has no AOT lowering (pc %d, bci %d)", pc, pc)
-	case rt.OpInvokestatic, rt.OpInvokevirtual, rt.OpInvokespecial, rt.OpInvokeinterface:
-		ref := m.Refs[insn.Ref]
-		mt, err := rt.ParseMethodType(ref.Descriptor)
-		if err != nil {
-			return "", h, false, err
-		}
-		n := mt.ArgCount
-		args := fmt.Sprintf("stack[%d:%d]", h-n, h)
-		var call string
-		var newH int
-		switch insn.Op {
-		case rt.OpInvokestatic:
-			call = fmt.Sprintf("t.InvokeStatic(m, %d, %s, %s, %s, %s)", pc,
-				strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), args)
-			newH = h - n
-		case rt.OpInvokespecial:
-			call = fmt.Sprintf("t.InvokeSpecial(m, %d, stack[%d], %s, %s, %s, %s)", pc, h-n-1,
-				strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), args)
-			newH = h - n - 1
-		case rt.OpInvokevirtual:
-			call = fmt.Sprintf("t.InvokeVirtual(m, %d, stack[%d], %s, %s, %s, %s)", pc, h-n-1,
-				strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), args)
-			newH = h - n - 1
-		case rt.OpInvokeinterface:
-			call = fmt.Sprintf("t.InvokeInterface(m, %d, stack[%d], %s, %s, %s, %s)", pc, h-n-1,
-				strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), args)
-			newH = h - n - 1
-		}
-		var body strings.Builder
-		body.WriteString("{\nout := " + call + "\nif out.Thrown != nil {\nthrown := out.Thrown\n")
-		body.WriteString(transferCode(pc, m, blockOf))
-		body.WriteString("\n}\n")
-		if mt.Return.Kind != 'V' {
-			fmt.Fprintf(&body, "stack[%d] = out.Value\n", newH)
-			newH++
-		}
-		body.WriteString("}")
-		return body.String(), newH, false, nil
-	case rt.OpReturn:
-		return "return rt.Normal()", h, true, nil
-	case rt.OpIreturn, rt.OpAreturn:
-		return fmt.Sprintf("return rt.OkValue(stack[%d])", h-1), h - 1, true, nil
-	case rt.OpAthrow:
-		code := fmt.Sprintf("{\nthrown := stack[%d].Ref\nif thrown == nil {\nthrown = t.Throwable(\"java/lang/NullPointerException\")\n}\n%s\n}",
-			h-1, transferCode(pc, m, blockOf))
-		return code, h - 1, true, nil
-	case rt.OpIfeq, rt.OpIfne:
-		cond := fmt.Sprintf("rt.AsInt(stack[%d]) == 0", h-1)
-		if insn.Op == rt.OpIfne {
-			cond = fmt.Sprintf("rt.AsInt(stack[%d]) != 0", h-1)
+	case rt.OpLrem:
+		code := fmt.Sprintf("{\nd := rt.AsLong(stack[%d])\nif d == 0 {\nthrown := t.Throwable(\"java/lang/ArithmeticException\")\n%s\n}\nstack[%d] = rt.LongValue(rt.AsLong(stack[%d]) %% d)\n}",
+			h-1, transfer, h-2, h-2)
+		return code, h - 1, false, nil
+	case rt.OpFdiv:
+		return fmt.Sprintf("stack[%d] = rt.FloatValue(rt.AsFloat(stack[%d]) / rt.AsFloat(stack[%d]))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpDdiv:
+		return fmt.Sprintf("stack[%d] = rt.DoubleValue(rt.AsDouble(stack[%d]) / rt.AsDouble(stack[%d]))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpFrem:
+		return fmt.Sprintf("stack[%d] = rt.FloatValue(rt.FRem(rt.AsFloat(stack[%d]), rt.AsFloat(stack[%d])))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpDrem:
+		return fmt.Sprintf("stack[%d] = rt.DoubleValue(rt.DRem(rt.AsDouble(stack[%d]), rt.AsDouble(stack[%d])))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpIneg:
+		return fmt.Sprintf("stack[%d] = rt.IntValue(-rt.AsInt(stack[%d]))", h-1, h-1), h, false, nil
+	case rt.OpLneg:
+		return fmt.Sprintf("stack[%d] = rt.LongValue(-rt.AsLong(stack[%d]))", h-1, h-1), h, false, nil
+	case rt.OpFneg:
+		return fmt.Sprintf("stack[%d] = rt.FloatValue(-rt.AsFloat(stack[%d]))", h-1, h-1), h, false, nil
+	case rt.OpDneg:
+		return fmt.Sprintf("stack[%d] = rt.DoubleValue(-rt.AsDouble(stack[%d]))", h-1, h-1), h, false, nil
+	case rt.OpIshl:
+		return fmt.Sprintf("stack[%d] = rt.IntValue(rt.AsInt(stack[%d]) << rt.IntShiftDistance(rt.AsInt(stack[%d])))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpIshr:
+		return fmt.Sprintf("stack[%d] = rt.IntValue(rt.AsInt(stack[%d]) >> rt.IntShiftDistance(rt.AsInt(stack[%d])))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpIushr:
+		return fmt.Sprintf("stack[%d] = rt.IntValue(int32(uint32(rt.AsInt(stack[%d])) >> rt.IntShiftDistance(rt.AsInt(stack[%d]))))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpLshl:
+		return fmt.Sprintf("stack[%d] = rt.LongValue(rt.AsLong(stack[%d]) << rt.LongShiftDistance(rt.AsInt(stack[%d])))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpLshr:
+		return fmt.Sprintf("stack[%d] = rt.LongValue(rt.AsLong(stack[%d]) >> rt.LongShiftDistance(rt.AsInt(stack[%d])))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpLushr:
+		return fmt.Sprintf("stack[%d] = rt.LongValue(int64(uint64(rt.AsLong(stack[%d])) >> rt.LongShiftDistance(rt.AsInt(stack[%d]))))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpIand:
+		return fmt.Sprintf("stack[%d] = rt.IntValue(rt.AsInt(stack[%d]) & rt.AsInt(stack[%d]))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpIor:
+		return fmt.Sprintf("stack[%d] = rt.IntValue(rt.AsInt(stack[%d]) | rt.AsInt(stack[%d]))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpIxor:
+		return fmt.Sprintf("stack[%d] = rt.IntValue(rt.AsInt(stack[%d]) ^ rt.AsInt(stack[%d]))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpLand:
+		return fmt.Sprintf("stack[%d] = rt.LongValue(rt.AsLong(stack[%d]) & rt.AsLong(stack[%d]))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpLor:
+		return fmt.Sprintf("stack[%d] = rt.LongValue(rt.AsLong(stack[%d]) | rt.AsLong(stack[%d]))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpLxor:
+		return fmt.Sprintf("stack[%d] = rt.LongValue(rt.AsLong(stack[%d]) ^ rt.AsLong(stack[%d]))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpI2l:
+		return fmt.Sprintf("stack[%d] = rt.LongValue(int64(rt.AsInt(stack[%d])))", h-1, h-1), h, false, nil
+	case rt.OpI2f:
+		return fmt.Sprintf("stack[%d] = rt.FloatValue(float32(rt.AsInt(stack[%d])))", h-1, h-1), h, false, nil
+	case rt.OpI2d:
+		return fmt.Sprintf("stack[%d] = rt.DoubleValue(float64(rt.AsInt(stack[%d])))", h-1, h-1), h, false, nil
+	case rt.OpL2i:
+		return fmt.Sprintf("stack[%d] = rt.IntValue(int32(rt.AsLong(stack[%d])))", h-1, h-1), h, false, nil
+	case rt.OpL2f:
+		return fmt.Sprintf("stack[%d] = rt.FloatValue(float32(rt.AsLong(stack[%d])))", h-1, h-1), h, false, nil
+	case rt.OpL2d:
+		return fmt.Sprintf("stack[%d] = rt.DoubleValue(float64(rt.AsLong(stack[%d])))", h-1, h-1), h, false, nil
+	case rt.OpF2i:
+		return fmt.Sprintf("stack[%d] = rt.IntValue(rt.F2I(rt.AsFloat(stack[%d])))", h-1, h-1), h, false, nil
+	case rt.OpF2l:
+		return fmt.Sprintf("stack[%d] = rt.LongValue(rt.F2L(rt.AsFloat(stack[%d])))", h-1, h-1), h, false, nil
+	case rt.OpF2d:
+		return fmt.Sprintf("stack[%d] = rt.DoubleValue(float64(rt.AsFloat(stack[%d])))", h-1, h-1), h, false, nil
+	case rt.OpD2i:
+		return fmt.Sprintf("stack[%d] = rt.IntValue(rt.D2I(rt.AsDouble(stack[%d])))", h-1, h-1), h, false, nil
+	case rt.OpD2l:
+		return fmt.Sprintf("stack[%d] = rt.LongValue(rt.D2L(rt.AsDouble(stack[%d])))", h-1, h-1), h, false, nil
+	case rt.OpD2f:
+		return fmt.Sprintf("stack[%d] = rt.FloatValue(float32(rt.AsDouble(stack[%d])))", h-1, h-1), h, false, nil
+	case rt.OpI2b:
+		return fmt.Sprintf("stack[%d] = rt.IntValue(rt.I2B(rt.AsInt(stack[%d])))", h-1, h-1), h, false, nil
+	case rt.OpI2c:
+		return fmt.Sprintf("stack[%d] = rt.IntValue(rt.I2C(rt.AsInt(stack[%d])))", h-1, h-1), h, false, nil
+	case rt.OpI2s:
+		return fmt.Sprintf("stack[%d] = rt.IntValue(rt.I2S(rt.AsInt(stack[%d])))", h-1, h-1), h, false, nil
+	case rt.OpLcmp:
+		return fmt.Sprintf("stack[%d] = rt.IntValue(rt.Lcmp(rt.AsLong(stack[%d]), rt.AsLong(stack[%d])))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpFcmpl:
+		return fmt.Sprintf("stack[%d] = rt.IntValue(rt.Fcmp(rt.AsFloat(stack[%d]), rt.AsFloat(stack[%d]), -1))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpFcmpg:
+		return fmt.Sprintf("stack[%d] = rt.IntValue(rt.Fcmp(rt.AsFloat(stack[%d]), rt.AsFloat(stack[%d]), 1))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpDcmpl:
+		return fmt.Sprintf("stack[%d] = rt.IntValue(rt.Dcmp(rt.AsDouble(stack[%d]), rt.AsDouble(stack[%d]), -1))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpDcmpg:
+		return fmt.Sprintf("stack[%d] = rt.IntValue(rt.Dcmp(rt.AsDouble(stack[%d]), rt.AsDouble(stack[%d]), 1))", h-2, h-2, h-1), h - 1, false, nil
+	case rt.OpIfeq, rt.OpIfne, rt.OpIflt, rt.OpIfge, rt.OpIfgt, rt.OpIfle,
+		rt.OpIfIcmpeq, rt.OpIfIcmpne, rt.OpIfIcmplt, rt.OpIfIcmpge, rt.OpIfIcmpgt, rt.OpIfIcmple:
+		var cond string
+		if insn.Op >= rt.OpIfIcmpeq {
+			cond = booleanCode(insn.Op, fmt.Sprintf("rt.AsInt(stack[%d])", h-2), fmt.Sprintf("rt.AsInt(stack[%d])", h-1))
+		} else {
+			cond = booleanCode(insn.Op, fmt.Sprintf("rt.AsInt(stack[%d])", h-1), "")
 		}
 		target, err := blockID(insn.A, blockOf)
 		if err != nil {
 			return "", h, false, err
 		}
-		fall := insn.PC + insn.Len
-		fallID, err := blockID(fall, blockOf)
+		fall, err := blockID(pc+insn.Len, blockOf)
 		if err != nil {
 			return "", h, false, err
 		}
-		return fmt.Sprintf("if %s {\nblock = %d\ncontinue\n}\nblock = %d\ncontinue", cond, target, fallID), h - 1, true, nil
-	case rt.OpIfIcmpeq, rt.OpIfIcmpne:
-		op := "=="
-		if insn.Op == rt.OpIfIcmpne {
-			op = "!="
+		pops := 1
+		if insn.Op >= rt.OpIfIcmpeq {
+			pops = 2
 		}
-		cond := fmt.Sprintf("rt.AsInt(stack[%d]) %s rt.AsInt(stack[%d])", h-2, op, h-1)
-		target, err := blockID(insn.A, blockOf)
-		if err != nil {
-			return "", h, false, err
-		}
-		fallID, err := blockID(insn.PC+insn.Len, blockOf)
-		if err != nil {
-			return "", h, false, err
-		}
-		return fmt.Sprintf("if %s {\nblock = %d\ncontinue\n}\nblock = %d\ncontinue", cond, target, fallID), h - 2, true, nil
+		return fmt.Sprintf("if %s {\nblock = %d\ncontinue\n}\nblock = %d\ncontinue", cond, target, fall), h - pops, true, nil
 	case rt.OpIfAcmpeq, rt.OpIfAcmpne:
 		op := "=="
 		if insn.Op == rt.OpIfAcmpne {
@@ -325,28 +495,156 @@ func emitInsn(insn rt.Insn, m *classfile.Method, h int, heights map[int32]int, b
 		if err != nil {
 			return "", h, false, err
 		}
-		fallID, err := blockID(insn.PC+insn.Len, blockOf)
+		fall, err := blockID(pc+insn.Len, blockOf)
 		if err != nil {
 			return "", h, false, err
 		}
-		return fmt.Sprintf("if %s {\nblock = %d\ncontinue\n}\nblock = %d\ncontinue", cond, target, fallID), h - 2, true, nil
-	case rt.OpGoto:
+		return fmt.Sprintf("if %s {\nblock = %d\ncontinue\n}\nblock = %d\ncontinue", cond, target, fall), h - 2, true, nil
+	case rt.OpIfnull, rt.OpIfnonnull:
+		op := "=="
+		if insn.Op == rt.OpIfnonnull {
+			op = "!="
+		}
+		cond := fmt.Sprintf("stack[%d].Ref %s nil", h-1, op)
+		target, err := blockID(insn.A, blockOf)
+		if err != nil {
+			return "", h, false, err
+		}
+		fall, err := blockID(pc+insn.Len, blockOf)
+		if err != nil {
+			return "", h, false, err
+		}
+		return fmt.Sprintf("if %s {\nblock = %d\ncontinue\n}\nblock = %d\ncontinue", cond, target, fall), h - 1, true, nil
+	case rt.OpGoto, rt.OpGotoW:
 		id, err := blockID(insn.A, blockOf)
 		if err != nil {
 			return "", h, false, err
 		}
 		return fmt.Sprintf("block = %d\ncontinue", id), h, true, nil
+	case rt.OpTableswitch, rt.OpLookupswitch:
+		def, err := blockID(insn.A, blockOf)
+		if err != nil {
+			return "", h, false, err
+		}
+		var body strings.Builder
+		fmt.Fprintf(&body, "switch rt.AsInt(stack[%d]) {\n", h-1)
+		for i, key := range insn.Keys {
+			id, err := blockID(insn.Targets[i], blockOf)
+			if err != nil {
+				return "", h, false, err
+			}
+			fmt.Fprintf(&body, "case %d:\nblock = %d\ncontinue\n", key, id)
+		}
+		fmt.Fprintf(&body, "default:\nblock = %d\ncontinue\n}", def)
+		return body.String(), h - 1, true, nil
+	case rt.OpReturn:
+		return "return rt.Normal()", h, true, nil
+	case rt.OpIreturn, rt.OpLreturn, rt.OpFreturn, rt.OpDreturn, rt.OpAreturn:
+		return fmt.Sprintf("return rt.OkValue(stack[%d])", h-1), h - 1, true, nil
+	case rt.OpGetstatic:
+		ref := m.Refs[insn.Ref]
+		code := fmt.Sprintf("{\nv, thrown := t.GetStatic(m, %s, %s, %s)\nif thrown != nil {\n%s\n}\nstack[%d] = v\n}",
+			strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), transfer, h)
+		return code, h + 1, false, nil
+	case rt.OpPutstatic:
+		ref := m.Refs[insn.Ref]
+		code := fmt.Sprintf("{\nthrown := t.PutStatic(m, %s, %s, %s, stack[%d])\nif thrown != nil {\n%s\n}\n}",
+			strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), h-1, transfer)
+		return code, h - 1, false, nil
+	case rt.OpGetfield:
+		ref := m.Refs[insn.Ref]
+		code := fmt.Sprintf("{\nv, thrown := t.GetField(m, stack[%d], %s, %s, %s)\nif thrown != nil {\n%s\n}\nstack[%d] = v\n}",
+			h-1, strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), transfer, h-1)
+		return code, h, false, nil
+	case rt.OpPutfield:
+		ref := m.Refs[insn.Ref]
+		code := fmt.Sprintf("{\nthrown := t.PutField(m, stack[%d], %s, %s, %s, stack[%d])\nif thrown != nil {\n%s\n}\n}",
+			h-2, strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), h-1, transfer)
+		return code, h - 2, false, nil
+	case rt.OpNew:
+		ref := m.Refs[insn.Ref]
+		code := fmt.Sprintf("{\nobj, thrown := t.NewObject(m, %s)\nif thrown != nil {\n%s\n}\nstack[%d] = rt.RefValue(obj)\n}",
+			strconv.Quote(ref.Class), transfer, h)
+		return code, h + 1, false, nil
+	case rt.OpNewarray:
+		desc, _ := rt.NewarrayDescriptor(insn.A)
+		_ = desc
+		code := fmt.Sprintf("{\nobj, thrown := t.NewPrimitiveArray(m, %d, rt.AsInt(stack[%d]))\nif thrown != nil {\n%s\n}\nstack[%d] = rt.RefValue(obj)\n}",
+			insn.A, h-1, transfer, h-1)
+		return code, h, false, nil
+	case rt.OpAnewarray:
+		ref := m.Refs[insn.Ref]
+		code := fmt.Sprintf("{\nobj, thrown := t.NewReferenceArray(m, %s, rt.AsInt(stack[%d]))\nif thrown != nil {\n%s\n}\nstack[%d] = rt.RefValue(obj)\n}",
+			strconv.Quote(ref.Class), h-1, transfer, h-1)
+		return code, h, false, nil
+	case rt.OpMultianewarray:
+		ref := m.Refs[insn.Ref]
+		dims := int(insn.B)
+		var items []string
+		for i := 0; i < dims; i++ {
+			items = append(items, fmt.Sprintf("rt.AsInt(stack[%d])", h-dims+i))
+		}
+		code := fmt.Sprintf("{\ncounts := []int32{%s}\nobj, thrown := t.MultiANewArray(m, %s, %d, counts)\nif thrown != nil {\n%s\n}\nstack[%d] = rt.RefValue(obj)\n}",
+			strings.Join(items, ", "), strconv.Quote(ref.Class), dims, transfer, h-dims)
+		return code, h - dims + 1, false, nil
+	case rt.OpArraylength:
+		code := fmt.Sprintf("{\nn, thrown := t.ArrayLength(stack[%d])\nif thrown != nil {\n%s\n}\nstack[%d] = rt.IntValue(n)\n}",
+			h-1, transfer, h-1)
+		return code, h, false, nil
+	case rt.OpAthrow:
+		code := fmt.Sprintf("{\nthrown := stack[%d].Ref\nif thrown == nil {\nthrown = t.Throwable(\"java/lang/NullPointerException\")\n}\n%s\n}",
+			h-1, transfer)
+		return code, h - 1, true, nil
+	case rt.OpCheckcast:
+		ref := m.Refs[insn.Ref]
+		code := fmt.Sprintf("{\nv, thrown := t.CheckCast(%s, stack[%d])\nif thrown != nil {\n%s\n}\nstack[%d] = v\n}",
+			strconv.Quote(ref.Class), h-1, transfer, h-1)
+		return code, h, false, nil
+	case rt.OpInstanceof:
+		ref := m.Refs[insn.Ref]
+		code := fmt.Sprintf("{\nn, thrown := t.InstanceOf(%s, stack[%d])\nif thrown != nil {\n%s\n}\nstack[%d] = rt.IntValue(n)\n}",
+			strconv.Quote(ref.Class), h-1, transfer, h-1)
+		return code, h, false, nil
+	case rt.OpInvokestatic, rt.OpInvokevirtual, rt.OpInvokespecial, rt.OpInvokeinterface:
+		ref := m.Refs[insn.Ref]
+		mt, err := rt.ParseMethodType(ref.Descriptor)
+		if err != nil {
+			return "", h, false, err
+		}
+		n := mt.ArgCount
+		args := fmt.Sprintf("stack[%d:%d]", h-n, h)
+		var call string
+		newH := h - n
+		switch insn.Op {
+		case rt.OpInvokestatic:
+			call = fmt.Sprintf("t.InvokeStatic(m, %d, %s, %s, %s, %s)", pc,
+				strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), args)
+		case rt.OpInvokespecial:
+			call = fmt.Sprintf("t.InvokeSpecial(m, %d, stack[%d], %s, %s, %s, %s)", pc, h-n-1,
+				strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), args)
+			newH--
+		case rt.OpInvokevirtual:
+			call = fmt.Sprintf("t.InvokeVirtual(m, %d, stack[%d], %s, %s, %s, %s)", pc, h-n-1,
+				strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), args)
+			newH--
+		case rt.OpInvokeinterface:
+			call = fmt.Sprintf("t.InvokeInterface(m, %d, stack[%d], %s, %s, %s, %s)", pc, h-n-1,
+				strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), args)
+			newH--
+		}
+		var body strings.Builder
+		body.WriteString("{\nout := " + call + "\nif out.Thrown != nil {\nthrown := out.Thrown\n")
+		body.WriteString(transfer)
+		body.WriteString("\n}\n")
+		if mt.Return.Kind != 'V' {
+			fmt.Fprintf(&body, "stack[%d] = out.Value\n", newH)
+			newH++
+		}
+		body.WriteString("}")
+		return body.String(), newH, false, nil
 	default:
 		return "", h, false, fmt.Errorf("unsupported opcode 0x%02x", insn.Op)
 	}
-}
-
-func blockID(pc int32, blockOf map[int32]int) (int, error) {
-	id, ok := blockOf[pc]
-	if !ok {
-		return 0, fmt.Errorf("no generated block at pc %d", pc)
-	}
-	return id, nil
 }
 
 func transferCode(pc int32, m *classfile.Method, blockOf map[int32]int) string {
