@@ -1,18 +1,18 @@
 {
   "command": [
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/bin/catty",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/bin/catty",
     "build",
     "--enable-plugins",
     "--classpath",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/apps/policy:/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/stub",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/apps/policy:/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/stub",
     "--main",
     "app.Main",
     "--mode",
     "auto",
     "--report",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/reports/stub-on-classpath.json",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/reports/stub-on-classpath.json",
     "--output",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/bin/stub-on-classpath"
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/bin/stub-on-classpath"
   ],
   "cwd": "/Users/services/Projects/catty",
   "environment": {
@@ -20,8 +20,8 @@
     "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
     "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin"
   },
-  "pid": 11053,
+  "pid": 15128,
   "status": 1,
   "stdout": "",
-  "stderr": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/stub/catty/runtime/PluginAdmissionException.class: class catty/runtime/PluginAdmissionException is in the reserved bootstrap namespace\n"
+  "stderr": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/stub/catty/runtime/PluginAdmissionException.class: class catty/runtime/PluginAdmissionException is in the reserved bootstrap namespace\n"
 }

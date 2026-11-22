@@ -1,22 +1,22 @@
 {
   "command": [
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/bin/catty",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/bin/catty",
     "build",
     "--enable-plugins",
     "--classpath",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/apps/name-lookup",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/apps/name-lookup",
     "--main",
     "app.Main",
     "--report",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/reports/name-lookup-mixed.json",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/reports/name-lookup-mixed.json",
     "--output",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/bin/name-lookup-mixed",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/bin/name-lookup-mixed",
     "--generated-source",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/generated/name-lookup-mixed",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/generated/name-lookup-mixed",
     "--mode",
     "auto",
     "--policy",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/policies/name-lookup.json"
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/policies/name-lookup.json"
   ],
   "cwd": "/Users/services/Projects/catty",
   "environment": {
@@ -24,7 +24,7 @@
     "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
     "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin"
   },
-  "pid": 10654,
+  "pid": 14739,
   "status": 0,
   "stdout": "",
   "stderr": ""

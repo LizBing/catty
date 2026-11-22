@@ -3,9 +3,9 @@
     "jar",
     "--create",
     "--file",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/access-valid.jar",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/access-valid.jar",
     "-C",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/plugin-valid",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/plugin-valid",
     "."
   ],
   "cwd": "/Users/services/Projects/catty",
@@ -14,7 +14,7 @@
     "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
     "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin"
   },
-  "pid": 10920,
+  "pid": 15002,
   "status": 0,
   "stdout": "",
   "stderr": ""

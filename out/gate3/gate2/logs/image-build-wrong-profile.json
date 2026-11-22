@@ -5,16 +5,16 @@
     "-trimpath",
     "-buildvcs=false",
     "-o",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/image-variants/wrong-profile/app",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/image-variants/wrong-profile/app",
     "."
   ],
-  "cwd": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/image-variants/wrong-profile",
+  "cwd": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/image-variants/wrong-profile",
   "environment": {
-    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
     "LC_ALL": "C",
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
     "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home"
   },
-  "pid": 12329,
+  "pid": 16307,
   "status": 0,
   "stdout": "",
   "stderr": ""

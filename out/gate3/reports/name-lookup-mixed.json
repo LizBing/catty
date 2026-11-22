@@ -25,46 +25,46 @@
   },
   "inputs": [
     {
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/apps/name-lookup",
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/apps/name-lookup",
       "digest": "0d6c0c71ff84cce1f695bc1f05910e18b92860d8189640c70d5b0e0a3e7b2f8c"
     }
   ],
   "classes": [
     {
       "name": "app/Base",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/apps/name-lookup/app/Base.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/apps/name-lookup/app/Base.class"
     },
     {
       "name": "app/Box",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/apps/name-lookup/app/Box.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/apps/name-lookup/app/Box.class"
     },
     {
       "name": "app/Bridge",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/apps/name-lookup/app/Bridge.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/apps/name-lookup/app/Bridge.class"
     },
     {
       "name": "app/DieStep",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/apps/name-lookup/app/DieStep.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/apps/name-lookup/app/DieStep.class"
     },
     {
       "name": "app/Factory",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/apps/name-lookup/app/Factory.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/apps/name-lookup/app/Factory.class"
     },
     {
       "name": "app/Main",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/apps/name-lookup/app/Main.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/apps/name-lookup/app/Main.class"
     },
     {
       "name": "app/Probe",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/apps/name-lookup/app/Probe.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/apps/name-lookup/app/Probe.class"
     },
     {
       "name": "app/Step",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/apps/name-lookup/app/Step.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/apps/name-lookup/app/Step.class"
     },
     {
       "name": "app/ThrowStep",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/apps/name-lookup/app/ThrowStep.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/apps/name-lookup/app/ThrowStep.class"
     }
   ],
   "methods": [

@@ -62,6 +62,7 @@ type Runtime struct {
 type Resolution struct {
 	Method *Method
 	Field  *Field
+	Class  *Class
 	Thrown *Object
 }
 

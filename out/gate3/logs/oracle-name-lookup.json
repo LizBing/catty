@@ -3,9 +3,9 @@
     "java",
     "-Xverify:all",
     "-cp",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/adapter:/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/apps/name-lookup",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/adapter:/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/apps/name-lookup",
     "app.Main",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/name-lookup-a.jar"
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/name-lookup-a.jar"
   ],
   "cwd": "/Users/services/Projects/catty",
   "environment": {
@@ -13,7 +13,7 @@
     "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
     "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin"
   },
-  "pid": 10679,
+  "pid": 14764,
   "status": 0,
   "stdout": "1\n2\n0\n73\n1\n41\n",
   "stderr": ""

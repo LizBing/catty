@@ -1,18 +1,18 @@
 {
   "command": [
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/bin/catty",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/bin/catty",
     "build",
     "--enable-plugins",
     "--classpath",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/apps/rollback",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/apps/rollback",
     "--main",
     "app.Main",
     "--report",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/reports/rollback-interp.json",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/reports/rollback-interp.json",
     "--output",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/bin/rollback-interp",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/bin/rollback-interp",
     "--generated-source",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/generated/rollback-interp",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/generated/rollback-interp",
     "--mode",
     "interp"
   ],
@@ -22,7 +22,7 @@
     "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
     "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin"
   },
-  "pid": 10925,
+  "pid": 15006,
   "status": 0,
   "stdout": "",
   "stderr": ""

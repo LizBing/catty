@@ -5,7 +5,7 @@
     "21",
     "-g",
     "-d",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/reserved",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/reserved",
     "/Users/services/Projects/catty/testdata/gate3/policy/reserved/catty/runtime/Evil.java"
   ],
   "cwd": "/Users/services/Projects/catty",
@@ -14,7 +14,7 @@
     "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
     "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin"
   },
-  "pid": 11047,
+  "pid": 15122,
   "status": 0,
   "stdout": "",
   "stderr": ""

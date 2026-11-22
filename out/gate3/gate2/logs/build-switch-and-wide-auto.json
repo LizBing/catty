@@ -1,29 +1,29 @@
 {
   "command": [
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/catty",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/catty",
     "build",
     "--classpath",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/classes/switch-and-wide",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/classes/switch-and-wide",
     "--main",
     "SwitchWide",
     "--mode",
     "auto",
     "--report",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/builds/switch-and-wide-auto/report.json",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/builds/switch-and-wide-auto/report.json",
     "--output",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/builds/switch-and-wide-auto/app",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/builds/switch-and-wide-auto/app",
     "--policy",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/policies/switch-and-wide-auto.json",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/policies/switch-and-wide-auto.json",
     "--generated-source",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/builds/switch-and-wide-auto/generated"
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/builds/switch-and-wide-auto/generated"
   ],
   "cwd": "/Users/services/Projects/catty",
   "environment": {
-    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
     "LC_ALL": "C",
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
     "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home"
   },
-  "pid": 12118,
+  "pid": 16096,
   "status": 0,
   "stdout": "",
   "stderr": ""

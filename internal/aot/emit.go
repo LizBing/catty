@@ -571,7 +571,7 @@ func emitInsn(insn rt.Insn, m *classfile.Method, h int, widths []int, heights ma
 	case rt.OpNewarray:
 		desc, _ := rt.NewarrayDescriptor(insn.A)
 		_ = desc
-		code := fmt.Sprintf("{\nobj, thrown := t.NewPrimitiveArray(m, %d, rt.AsInt(stack[%d]))\nif thrown != nil {\n%s\n}\nstack[%d] = rt.RefValue(obj)\n}",
+		code := fmt.Sprintf("{\nobj, thrown := t.NewPrimitiveArray(m, 0, %d, rt.AsInt(stack[%d]))\nif thrown != nil {\n%s\n}\nstack[%d] = rt.RefValue(obj)\n}",
 			insn.A, h-1, transfer, h-1)
 		return code, h, false, nil
 	case rt.OpAnewarray:

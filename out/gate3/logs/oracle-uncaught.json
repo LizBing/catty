@@ -3,9 +3,9 @@
     "java",
     "-Xverify:all",
     "-cp",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/adapter:/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/apps/uncaught-plugin",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/adapter:/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/apps/uncaught-plugin",
     "app.Main",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/uncaught-plugin-a.jar"
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/uncaught-plugin-a.jar"
   ],
   "cwd": "/Users/services/Projects/catty",
   "environment": {
@@ -13,7 +13,7 @@
     "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
     "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin"
   },
-  "pid": 10868,
+  "pid": 14950,
   "status": 1,
   "stdout": "",
   "stderr": "Exception in thread \"main\" java.lang.RuntimeException: plugin failure\n\tat ext.Die.die(Die.java:9)\n\tat app.Main.main(Main.java:10)\n"

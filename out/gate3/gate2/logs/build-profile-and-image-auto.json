@@ -1,29 +1,29 @@
 {
   "command": [
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/catty",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/catty",
     "build",
     "--classpath",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/classes/profile-and-image",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/classes/profile-and-image",
     "--main",
     "ProfileImage",
     "--mode",
     "auto",
     "--report",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/builds/profile-and-image-auto/report.json",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/builds/profile-and-image-auto/report.json",
     "--output",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/builds/profile-and-image-auto/app",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/builds/profile-and-image-auto/app",
     "--policy",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/policies/profile-and-image-auto.json",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/policies/profile-and-image-auto.json",
     "--generated-source",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/builds/profile-and-image-auto/generated"
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/builds/profile-and-image-auto/generated"
   ],
   "cwd": "/Users/services/Projects/catty",
   "environment": {
-    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
     "LC_ALL": "C",
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
     "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home"
   },
-  "pid": 12256,
+  "pid": 16234,
   "status": 0,
   "stdout": "",
   "stderr": ""

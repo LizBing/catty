@@ -1,4 +1,4 @@
-Gate 2 artifacts in /private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe
+Gate 2 artifacts in /private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5
 go version go1.27.1 darwin/arm64
 openjdk version "21.0.6" 2025-01-21 LTS
 OpenJDK Runtime Environment Microsoft-10800196 (build 21.0.6+7-LTS)
@@ -42,5 +42,5 @@ PASS bad-long-slot
 PASS bad-stack-shape
 PASS bad-control-flow
 PASS profile-and-image checks
-PASS Gate 1 regression. See /private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/logs/gate1-regression.json
+PASS Gate 1 regression. See /private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/logs/gate1-regression.json
 Gate 2 passed.

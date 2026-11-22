@@ -3,9 +3,9 @@
     "jar",
     "--create",
     "--file",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/parent-first-shadow.jar",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/parent-first-shadow.jar",
     "-C",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/plugins/parent-first/shadow",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/plugins/parent-first/shadow",
     "."
   ],
   "cwd": "/Users/services/Projects/catty",
@@ -14,7 +14,7 @@
     "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
     "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin"
   },
-  "pid": 10704,
+  "pid": 14789,
   "status": 0,
   "stdout": "",
   "stderr": ""

@@ -603,7 +603,7 @@ func (r *Runtime) execute(t *Thread, m *Method, receiver *Object, args []Value) 
 			push(RefValue(obj))
 		case OpNewarray:
 			count := popInt()
-			obj, thrown := t.NewPrimitiveArray(m, insn.A, count)
+			obj, thrown := t.NewPrimitiveArray(m, 0, insn.A, count)
 			if thrown != nil {
 				if out, ok := abort(pc, thrown); !ok {
 					return out

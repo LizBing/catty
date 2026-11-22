@@ -9,7 +9,7 @@
     "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
     "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin"
   },
-  "pid": 9804,
+  "pid": 13848,
   "status": 0,
   "stdout": "javac 21.0.6\n",
   "stderr": ""

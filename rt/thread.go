@@ -454,6 +454,27 @@ func (r *Runtime) protectedReceiverOK(caller *Method, owner *Class, receiver *Cl
 	return receiver == nil || r.isSubclass(receiver, caller.Owner)
 }
 
+// resolveClassSymbol resolves a class operand and caches the outcome by the
+// referring runtime class and constant-pool entry. A failed lookup is sticky
+// just like a failed field or method resolution.
+func (t *Thread) resolveClassSymbol(caller *Method, cp int, name string) (*Class, *Object) {
+	key := resolutionKey{Kind: 'C', CP: cp, Owner: name}
+	if caller != nil && caller.Owner != nil {
+		key.Class = caller.Owner
+	}
+	if res, ok := t.RT.resolutions[key]; ok {
+		return res.Class, res.Thrown
+	}
+	c, err := t.RT.classForLoaderName(loaderOf(caller), name)
+	if err != nil {
+		thrown := t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError")
+		t.RT.resolutions[key] = &Resolution{Thrown: thrown}
+		return nil, thrown
+	}
+	t.RT.resolutions[key] = &Resolution{Class: c}
+	return c, nil
+}
+
 // resolveMethodSymbol resolves a method reference and caches the outcome for the
 // referring runtime class and constant-pool entry. Access control is applied at
 // resolution time.
@@ -881,9 +902,9 @@ func (r *Runtime) StaticValue(owner, name, descriptor string) (Value, error) {
 
 // NewObject implements new.
 func (t *Thread) NewObject(caller *Method, cp int, className string) (*Object, *Object) {
-	c, err := t.RT.classForLoaderName(loaderOf(caller), className)
+	c, err := t.resolveClassSymbol(caller, cp, className)
 	if err != nil {
-		return nil, t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError")
+		return nil, err
 	}
 	if !t.RT.classAccessible(callerOwner(caller), c) {
 		return nil, t.RT.NewThrowable(t, "java/lang/IllegalAccessError")
@@ -917,16 +938,8 @@ func loaderOf(caller *Method) *Loader {
 	return nil
 }
 
-func arrayClassForDescriptor(t *Thread, caller *Method, descriptor string) (*Class, *Object) {
-	c, err := t.RT.classForLoaderName(loaderOf(caller), descriptor)
-	if err != nil {
-		return nil, t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError")
-	}
-	return c, nil
-}
-
 // NewPrimitiveArray implements newarray.
-func (t *Thread) NewPrimitiveArray(caller *Method, atype int32, count int32) (*Object, *Object) {
+func (t *Thread) NewPrimitiveArray(caller *Method, cp int, atype int32, count int32) (*Object, *Object) {
 	_ = caller
 	if count < 0 {
 		return nil, t.RT.NewThrowable(t, "java/lang/NegativeArraySizeException")
@@ -935,7 +948,7 @@ func (t *Thread) NewPrimitiveArray(caller *Method, atype int32, count int32) (*O
 	if !ok {
 		return nil, t.RT.NewThrowable(t, "java/lang/NegativeArraySizeException")
 	}
-	ac, thrown := arrayClassForDescriptor(t, caller, desc)
+	ac, thrown := t.resolveClassSymbol(caller, cp, desc)
 	if thrown != nil {
 		return nil, thrown
 	}
@@ -948,23 +961,18 @@ func (t *Thread) NewReferenceArray(caller *Method, cp int, componentName string,
 	if count < 0 {
 		return nil, t.RT.NewThrowable(t, "java/lang/NegativeArraySizeException")
 	}
-	component, err := t.RT.classForLoaderName(loaderOf(caller), componentName)
-	if err != nil {
-		return nil, t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError")
-	}
-	ac := t.RT.arrayClassForComponent(component)
-	var thrown *Object
+	component, thrown := t.resolveClassSymbol(caller, cp, componentName)
 	if thrown != nil {
 		return nil, thrown
 	}
-	return t.RT.NewArrayOfClass(ac, int(count)), nil
+	return t.RT.NewArrayOfClass(t.RT.arrayClassForComponent(component), int(count)), nil
 }
 
 // MultiANewArray implements multianewarray. Dimensions are allocated in order;
 // unspecified trailing dimensions stay null.
 func (t *Thread) MultiANewArray(caller *Method, cp int, descriptor string, dims int, counts []int32) (*Object, *Object) {
 	_ = caller
-	ac, thrown := arrayClassForDescriptor(t, caller, descriptor)
+	ac, thrown := t.resolveClassSymbol(caller, cp, descriptor)
 	if thrown != nil {
 		return nil, thrown
 	}
@@ -1002,9 +1010,9 @@ func (t *Thread) CheckCast(caller *Method, cp int, className string, v Value) (V
 	if v.Ref == nil {
 		return v, nil
 	}
-	c, err := t.RT.classForLoaderName(loaderOf(caller), className)
-	if err != nil {
-		return Value{}, t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError")
+	c, thrown := t.resolveClassSymbol(caller, cp, className)
+	if thrown != nil {
+		return Value{}, thrown
 	}
 	if !t.RT.IsAssignable(v.Ref.Class, c) {
 		return Value{}, t.RT.NewThrowable(t, "java/lang/ClassCastException")
@@ -1020,9 +1028,9 @@ func (t *Thread) InstanceOf(caller *Method, cp int, className string, v Value) (
 	if v.Ref == nil {
 		return 0, nil
 	}
-	c, err := t.RT.classForLoaderName(loaderOf(caller), className)
-	if err != nil {
-		return 0, t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError")
+	c, thrown := t.resolveClassSymbol(caller, cp, className)
+	if thrown != nil {
+		return 0, thrown
 	}
 	if t.RT.IsAssignable(v.Ref.Class, c) {
 		return 1, nil
@@ -1122,9 +1130,9 @@ func (t *Thread) ArrayLength(array Value) (int32, *Object) {
 
 // ClassConstant implements ldc of a Class constant.
 func (t *Thread) ClassConstant(caller *Method, cp int, name string) (Value, *Object) {
-	c, err := t.RT.classForLoaderName(loaderOf(caller), name)
-	if err != nil {
-		return Value{}, t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError")
+	c, thrown := t.resolveClassSymbol(caller, cp, name)
+	if thrown != nil {
+		return Value{}, thrown
 	}
 	return RefValue(c.Mirror), nil
 }
