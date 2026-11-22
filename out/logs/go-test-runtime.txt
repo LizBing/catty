@@ -1,0 +1,7 @@
+=== RUN   TestCattyAcceptanceImageABI
+--- PASS: TestCattyAcceptanceImageABI (0.00s)
+=== RUN   TestCattyAcceptanceInterpreterOperandGC
+--- PASS: TestCattyAcceptanceInterpreterOperandGC (0.13s)
+PASS
+ok  	catty/rt	0.276s
+runtime-tests=0

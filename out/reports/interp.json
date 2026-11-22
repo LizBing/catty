@@ -1,0 +1,443 @@
+{
+  "profile": "catty-jvm21-gate1",
+  "imageABI": 1,
+  "main": "Main",
+  "toolchains": {
+    "go": "go1.27.1",
+    "java": "javac 25.0.4.1"
+  },
+  "inputs": [
+    {
+      "origin": "/Users/services/Projects/catty/out/classes",
+      "digest": "2af83e04a5d258e15f31a9f5d96e373c5a3b61988a6581814cc016d3401d3a78"
+    }
+  ],
+  "classes": [
+    {
+      "name": "Crossing$Box",
+      "origin": "/Users/services/Projects/catty/out/classes/Crossing$Box.class"
+    },
+    {
+      "name": "Crossing$Signal",
+      "origin": "/Users/services/Projects/catty/out/classes/Crossing$Signal.class"
+    },
+    {
+      "name": "Crossing$Step",
+      "origin": "/Users/services/Projects/catty/out/classes/Crossing$Step.class"
+    },
+    {
+      "name": "Crossing$Worker",
+      "origin": "/Users/services/Projects/catty/out/classes/Crossing$Worker.class"
+    },
+    {
+      "name": "Crossing",
+      "origin": "/Users/services/Projects/catty/out/classes/Crossing.class"
+    },
+    {
+      "name": "Main",
+      "origin": "/Users/services/Projects/catty/out/classes/Main.class"
+    }
+  ],
+  "methods": [
+    {
+      "owner": "Crossing$Box",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "interp",
+      "reason": "interp: retained bytecode (interp mode)",
+      "retainedCodeBytes": 16
+    },
+    {
+      "owner": "Crossing$Box",
+      "name": "bump",
+      "descriptor": "()V",
+      "engine": "interp",
+      "reason": "interp: retained bytecode (interp mode)",
+      "retainedCodeBytes": 11
+    },
+    {
+      "owner": "Crossing$Signal",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "interp",
+      "reason": "interp: retained bytecode (interp mode)",
+      "retainedCodeBytes": 5
+    },
+    {
+      "owner": "Crossing$Step",
+      "name": "apply",
+      "descriptor": "(LCrossing$Box;)V",
+      "engine": "abstract",
+      "reason": "abstract declaration",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "Crossing$Worker",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "interp",
+      "reason": "interp: retained bytecode (interp mode)",
+      "retainedCodeBytes": 5
+    },
+    {
+      "owner": "Crossing$Worker",
+      "name": "apply",
+      "descriptor": "(LCrossing$Box;)V",
+      "engine": "interp",
+      "reason": "interp: retained bytecode (interp mode)",
+      "retainedCodeBytes": 9
+    },
+    {
+      "owner": "Crossing",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "interp",
+      "reason": "interp: retained bytecode (interp mode)",
+      "retainedCodeBytes": 5
+    },
+    {
+      "owner": "Crossing",
+      "name": "probe",
+      "descriptor": "()I",
+      "engine": "interp",
+      "reason": "interp: retained bytecode (interp mode)",
+      "retainedCodeBytes": 99
+    },
+    {
+      "owner": "Main",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "interp",
+      "reason": "interp: retained bytecode (interp mode)",
+      "retainedCodeBytes": 5
+    },
+    {
+      "owner": "Main",
+      "name": "main",
+      "descriptor": "([Ljava/lang/String;)V",
+      "engine": "interp",
+      "reason": "interp: retained bytecode (interp mode)",
+      "retainedCodeBytes": 10
+    },
+    {
+      "owner": "java/lang/Object",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/Throwable",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/Throwable",
+      "name": "getCause",
+      "descriptor": "()Ljava/lang/Throwable;",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/Exception",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/Error",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/RuntimeException",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/ReflectiveOperationException",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/NoSuchMethodException",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/IllegalArgumentException",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/NullPointerException",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/ArithmeticException",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/IndexOutOfBoundsException",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/ArrayIndexOutOfBoundsException",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/ArrayStoreException",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/NegativeArraySizeException",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/ClassCastException",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/LinkageError",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/IncompatibleClassChangeError",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/NoSuchFieldError",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/NoSuchMethodError",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/InstantiationError",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/ExceptionInInitializerError",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/ExceptionInInitializerError",
+      "name": "getCause",
+      "descriptor": "()Ljava/lang/Throwable;",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/NoClassDefFoundError",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/AbstractMethodError",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/StackOverflowError",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/Class",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/Class",
+      "name": "getMethod",
+      "descriptor": "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/String",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/Number",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/Integer",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/Integer",
+      "name": "valueOf",
+      "descriptor": "(I)Ljava/lang/Integer;",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/Integer",
+      "name": "intValue",
+      "descriptor": "()I",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/System",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/io/PrintStream",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/io/PrintStream",
+      "name": "println",
+      "descriptor": "(I)V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/reflect/Method",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/reflect/Method",
+      "name": "invoke",
+      "descriptor": "(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/reflect/InvocationTargetException",
+      "name": "\u003cinit\u003e",
+      "descriptor": "()V",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    },
+    {
+      "owner": "java/lang/reflect/InvocationTargetException",
+      "name": "getCause",
+      "descriptor": "()Ljava/lang/Throwable;",
+      "engine": "intrinsic",
+      "reason": "bootstrap intrinsic",
+      "retainedCodeBytes": 0
+    }
+  ]
+}

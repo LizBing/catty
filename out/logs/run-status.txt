@@ -1,0 +1,4 @@
+0 mixed
+0 aot
+0 interp
+0 standalone

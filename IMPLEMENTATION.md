@@ -148,6 +148,8 @@ In the mixed trace for the fixture, assert the following ordered observations, a
 
 Use a Go integration test or a single test command covering the matrix. Run Java subprocesses only to prepare fixtures and obtain independent oracle results. Supply the compiler/runtime artifacts, engine reports and traces from real executions for review. Tests should compile their Java inputs in temporary directories and preserve useful diagnostics on failure.
 
+Run `python3 -B tests/acceptance.py` from the repository root. See [ACCEPTANCE.md](ACCEPTANCE.md) for the report and trace field names, generated source export, and Go runtime cases expected by the runner.
+
 | Test | Evidence required |
 | --- | --- |
 | Three-engine comparison | Build the identical `Crossing` class files in auto with mixed policy, `aot`, and `interp`. Each executable prints exactly `2\n` and exits zero, matching OpenJDK. Inspect report and trace in every mode. In all-AOT the reflective target executes as AOT. In all-interpreted the application launcher invokes interpreted `main`. |

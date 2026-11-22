@@ -1,0 +1,10 @@
+{
+  "methods": [
+    {
+      "owner": "Crossing$Worker",
+      "name": "apply",
+      "descriptor": "(LCrossing$Box;)V",
+      "engine": "interp"
+    }
+  ]
+}
