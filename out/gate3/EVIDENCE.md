@@ -1,8 +1,9 @@
 # Gate 3 acceptance evidence
 
 Baseline: `4860987`. Round-two fixes: `2047adf`
-(`Fix Gate 3 loader dispatch, access, handler verification, and work limits`)
-on `codex/gate-3`. Default builds remain `catty-jvm21-gate2` / ABI `2`;
+(`Fix Gate 3 loader dispatch, access, handler verification, and work limits`),
+with test-only follow-up `d85fbbf`
+(`Add work-limit refusal usability regression test`), on `codex/gate-3`. Default builds remain `catty-jvm21-gate2` / ABI `2`;
 the plugin runs below use the opt-in `catty-jvm21-gate3` profile / ABI `3`.
 
 ## Toolchains
@@ -152,8 +153,11 @@ tables and hierarchy visits before verification. Work is staged in
 estimate for `valid-stored.jar`, proves the new `WorkUsed` is larger, then
 proves exact acceptance at `WorkUsed` and `LIMIT` at `WorkUsed-1`. The same test
 re-runs a normal admission after the refusal. `TestVerifierWorkExactBoundary`
-does the same at the verifier level. The rollback fixture separately proves a
-rejected registration leaves the running image and prior plugin usable.
+does the same at the verifier level. `TestWorkLimitRefusalLeavesRunningLoaderUsable`
+injects a LIMIT admission refusal after a plugin loader is published and proves
+the existing loader, class object and mirror remain usable; the rollback
+fixture separately proves a rejected registration leaves the running image and
+prior plugin usable.
 
 ### 5. Loading constraints
 
