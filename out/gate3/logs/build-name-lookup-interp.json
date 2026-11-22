@@ -1,0 +1,29 @@
+{
+  "command": [
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/bin/catty",
+    "build",
+    "--enable-plugins",
+    "--classpath",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/apps/name-lookup",
+    "--main",
+    "app.Main",
+    "--report",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/reports/name-lookup-interp.json",
+    "--output",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/bin/name-lookup-interp",
+    "--generated-source",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/generated/name-lookup-interp",
+    "--mode",
+    "interp"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "LC_ALL": "C",
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+  },
+  "pid": 10655,
+  "status": 0,
+  "stdout": "",
+  "stderr": ""
+}

@@ -2,7 +2,6 @@ package rt
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 	"unicode/utf16"
 )
@@ -10,24 +9,40 @@ import (
 // Runtime owns loader state, class metadata, static storage, mirrors, strings
 // and the single logical Java thread used by the launcher.
 type Runtime struct {
-	Image     *Image
-	Classes   map[string]*Class
-	Bootstrap map[string]*Class
-	Loader    *Loader
+	Image *Image
+	// Classes is the application loader's class table. Bootstrap is the
+	// bootstrap loader's class table. Both are retained for host-facing code
+	// and tests; the loaders themselves are authoritative.
+	Classes         map[string]*Class
+	Bootstrap       map[string]*Class
+	Loader          *Loader
+	BootstrapLoader *Loader
 
-	primitives   map[byte]*Class
-	arrayClasses map[string]*Class
-	strings      map[string]*Object
-	boxedInts    map[int32]*Object
-	boxedLongs   map[int64]*Object
-	boxedShorts  map[int16]*Object
-	boxedBytes   map[int8]*Object
-	boxedChars   map[uint16]*Object
-	boxedBools   map[bool]*Object
-	classOrder   []*Class
-	primitiveOrder []*Class
+	profile       *Profile
+	bootstrapDefs map[string]*bsClass
 
-	resolutions map[string]*Resolution
+	primitives          map[byte]*Class
+	arrayClasses        map[*Class]*Class
+	primitiveArrayClass map[byte]*Class
+	strings             map[string]*Object
+	boxedInts           map[int32]*Object
+	boxedLongs          map[int64]*Object
+	boxedShorts         map[int16]*Object
+	boxedBytes          map[int8]*Object
+	boxedChars          map[uint16]*Object
+	boxedBools          map[bool]*Object
+	classOrder          []*Class
+	primitiveOrder      []*Class
+	pluginLoaders       []*Loader
+	pluginClassBytes    int64
+	classLoaderMirror   *Object
+	pluginMirror        *Object
+	nextLoaderID        int
+
+	resolutions map[resolutionKey]*Resolution
+	dispatch    map[dispatchKey]*dispatchEntry
+
+	admit func(*AdmissionRequest) (*AdmissionResult, error)
 
 	nextIdentity uint64
 	nextThread   int64
@@ -53,21 +68,26 @@ type Resolution struct {
 // NewRuntime creates an uninstalled runtime for img.
 func NewRuntime(img *Image) *Runtime {
 	r := &Runtime{
-		Image:        img,
-		Classes:      map[string]*Class{},
-		Bootstrap:    map[string]*Class{},
-		primitives:   map[byte]*Class{},
-		arrayClasses: map[string]*Class{},
-		strings:      map[string]*Object{},
-		boxedInts:    map[int32]*Object{},
-		boxedLongs:   map[int64]*Object{},
-		boxedShorts:  map[int16]*Object{},
-		boxedBytes:   map[int8]*Object{},
-		boxedChars:   map[uint16]*Object{},
-		boxedBools:   map[bool]*Object{},
-		resolutions:  map[string]*Resolution{},
+		Image:               img,
+		Classes:             map[string]*Class{},
+		Bootstrap:           map[string]*Class{},
+		primitives:          map[byte]*Class{},
+		arrayClasses:        map[*Class]*Class{},
+		primitiveArrayClass: map[byte]*Class{},
+		strings:             map[string]*Object{},
+		boxedInts:           map[int32]*Object{},
+		boxedLongs:          map[int64]*Object{},
+		boxedShorts:         map[int16]*Object{},
+		boxedBytes:          map[int8]*Object{},
+		boxedChars:          map[uint16]*Object{},
+		boxedBools:          map[bool]*Object{},
+		resolutions:         map[resolutionKey]*Resolution{},
+		dispatch:            map[dispatchKey]*dispatchEntry{},
+		admit:               defaultAdmission,
 	}
-	r.Loader = &Loader{Name: "app", Runtime: r}
+	r.BootstrapLoader = &Loader{ID: 0, Name: "bootstrap", Runtime: r, Classes: r.Bootstrap}
+	r.Loader = &Loader{ID: 1, Name: "app", Runtime: r, Parent: r.BootstrapLoader, Classes: r.Classes}
+	r.nextLoaderID = 1
 	return r
 }
 
@@ -80,360 +100,6 @@ func supportedOpcodeSet() map[string]bool {
 		out[name] = true
 	}
 	return out
-}
-
-// Install validates the image ABI, profile and opcode inventory and
-// materializes immutable class definitions, static storage, mirrors and method
-// metadata. No Java initializer runs here.
-func (r *Runtime) Install() error {
-	if r.installed {
-		return fmt.Errorf("catty: runtime already installed")
-	}
-	if r.Image == nil {
-		return fmt.Errorf("catty: nil image")
-	}
-	if r.Image.ABI != ABIRevision {
-		return fmt.Errorf("catty: unsupported image ABI %d (runtime ABI %d)", r.Image.ABI, ABIRevision)
-	}
-	if r.Image.Profile != ProfileID {
-		return fmt.Errorf("catty: unsupported image profile %q (runtime profile %q)", r.Image.Profile, ProfileID)
-	}
-	if len(r.Image.Opcodes) > 0 {
-		supported := supportedOpcodeSet()
-		for _, name := range r.Image.Opcodes {
-			if !supported[name] {
-				return fmt.Errorf("catty: image opcode inventory contains unsupported opcode %q", name)
-			}
-		}
-	}
-
-	for _, bc := range bootstrapInventory {
-		c := &Class{
-			Name:        bc.name,
-			Flags:       bc.flags | AccPublic,
-			MethodIndex: map[string]*Method{},
-			State:       classInitialized,
-			Loader:      r.Loader,
-		}
-		r.Bootstrap[bc.name] = c
-		r.classOrder = append(r.classOrder, c)
-	}
-	for _, pc := range PrimitiveClasses {
-		c := &Class{
-			Name:        pc.Name,
-			Descriptor:  pc.Descriptor,
-			IsPrimitive: true,
-			Flags:       AccPublic | AccFinal,
-			MethodIndex: map[string]*Method{},
-			State:       classInitialized,
-			Loader:      r.Loader,
-		}
-		r.primitives[pc.Descriptor[0]] = c
-		r.classOrder = append(r.classOrder, c)
-		r.primitiveOrder = append(r.primitiveOrder, c)
-	}
-
-	seen := map[string]bool{}
-	for _, def := range r.Image.Classes {
-		if def == nil || def.Name == "" {
-			return fmt.Errorf("catty: image contains an unnamed class definition")
-		}
-		if strings.HasPrefix(def.Name, "[") {
-			return fmt.Errorf("catty: image class %q has an array name", def.Name)
-		}
-		if _, ok := r.Bootstrap[def.Name]; ok || strings.HasPrefix(def.Name, "java/") {
-			return fmt.Errorf("catty: image class %q collides with the reserved bootstrap namespace", def.Name)
-		}
-		if seen[def.Name] {
-			return fmt.Errorf("catty: duplicate class definition %q in image", def.Name)
-		}
-		seen[def.Name] = true
-		c := &Class{
-			Name:        def.Name,
-			Flags:       def.Flags,
-			MethodIndex: map[string]*Method{},
-			NestHost:    def.NestHost,
-			NestMembers: append([]string(nil), def.NestMembers...),
-			Loader:      r.Loader,
-		}
-		r.Classes[def.Name] = c
-	}
-
-	// Link bootstrap hierarchies first.
-	for _, bc := range bootstrapInventory {
-		c := r.Bootstrap[bc.name]
-		if bc.super != "" {
-			s, ok := r.Bootstrap[bc.super]
-			if !ok {
-				return fmt.Errorf("catty: bootstrap class %s has unknown superclass %s", bc.name, bc.super)
-			}
-			c.Super = s
-		}
-		for _, in := range bc.interfaces {
-			i, ok := r.Bootstrap[in]
-			if !ok {
-				return fmt.Errorf("catty: bootstrap class %s has unknown interface %s", bc.name, in)
-			}
-			c.Interfaces = append(c.Interfaces, i)
-		}
-	}
-
-	// Link application hierarchies.
-	for _, def := range r.Image.Classes {
-		c := r.Classes[def.Name]
-		if def.Super != "" {
-			s, ok := r.lookupClassShell(def.Super)
-			if !ok {
-				return fmt.Errorf("catty: class %s has unknown superclass %s", def.Name, def.Super)
-			}
-			c.Super = s
-		}
-		for _, in := range def.Interfaces {
-			i, ok := r.lookupClassShell(in)
-			if !ok {
-				return fmt.Errorf("catty: class %s has unknown interface %s", def.Name, in)
-			}
-			c.Interfaces = append(c.Interfaces, i)
-		}
-	}
-	if err := r.checkHierarchies(); err != nil {
-		return err
-	}
-
-	// Declared fields and static storage. Layout is assigned superclass-first.
-	layoutState := map[*Class]uint8{}
-	var layout func(c *Class) error
-	layout = func(c *Class) error {
-		switch layoutState[c] {
-		case 1:
-			return fmt.Errorf("catty: class hierarchy cycle at %s", c.Name)
-		case 2:
-			return nil
-		}
-		layoutState[c] = 1
-		if c.Super != nil {
-			if err := layout(c.Super); err != nil {
-				return err
-			}
-		}
-		size := 0
-		if c.Super != nil {
-			size = c.Super.InstanceSize
-		}
-		c.InstanceField = nil
-		if c.Super != nil {
-			c.InstanceKinds = append([]string(nil), c.Super.InstanceKinds...)
-		} else {
-			c.InstanceKinds = nil
-		}
-		c.StaticField = nil
-		if bc, ok := bootstrapByName[c.Name]; ok {
-			for _, f := range bc.fields {
-				ft, err := ParseFieldType(f.descriptor)
-				if err != nil {
-					return fmt.Errorf("catty: bootstrap field %s.%s: %w", c.Name, f.name, err)
-				}
-				c.StaticField = append(c.StaticField, &Field{
-					Owner: c, Name: f.name, Descriptor: f.descriptor, Flags: f.flags,
-					Static: true, Index: len(c.StaticField), Type: ft,
-				})
-			}
-			c.InstanceSize = 0
-			c.Statics = make([]Value, len(c.StaticField))
-			layoutState[c] = 2
-			return nil
-		}
-		if c.IsPrimitive {
-			c.Statics = nil
-			c.InstanceSize = 0
-			layoutState[c] = 2
-			return nil
-		}
-		for _, def := range r.Image.Classes {
-			if def.Name != c.Name {
-				continue
-			}
-			for _, f := range def.InstanceFields {
-				ft, err := ParseFieldType(f.Descriptor)
-				if err != nil {
-					return fmt.Errorf("catty: field %s.%s: %w", c.Name, f.Name, err)
-				}
-				c.InstanceField = append(c.InstanceField, &Field{
-					Owner: c, Name: f.Name, Descriptor: f.Descriptor, Flags: f.Flags,
-					Offset: size, Type: ft,
-				})
-				c.InstanceKinds = append(c.InstanceKinds, f.Descriptor)
-				size++
-			}
-			c.InstanceSize = size
-			for _, f := range def.StaticFields {
-				ft, err := ParseFieldType(f.Descriptor)
-				if err != nil {
-					return fmt.Errorf("catty: field %s.%s: %w", c.Name, f.Name, err)
-				}
-				c.StaticField = append(c.StaticField, &Field{
-					Owner: c, Name: f.Name, Descriptor: f.Descriptor, Flags: f.Flags,
-					Static: true, Index: len(c.StaticField), Type: ft, Constant: f.Constant,
-				})
-			}
-			c.Statics = make([]Value, len(c.StaticField))
-			layoutState[c] = 2
-			return nil
-		}
-		return fmt.Errorf("catty: missing image definition for %s", c.Name)
-	}
-	for _, def := range r.Image.Classes {
-		if err := layout(r.Classes[def.Name]); err != nil {
-			return err
-		}
-	}
-	for _, bc := range bootstrapInventory {
-		if err := layout(r.Bootstrap[bc.name]); err != nil {
-			return err
-		}
-	}
-	for _, c := range r.primitiveOrder {
-		if err := layout(c); err != nil {
-			return err
-		}
-	}
-
-	// Methods.
-	for _, bc := range bootstrapInventory {
-		c := r.Bootstrap[bc.name]
-		for _, bm := range bc.methods {
-			mt, err := ParseMethodType(bm.descriptor)
-			if err != nil {
-				return fmt.Errorf("catty: bootstrap method %s.%s: %w", c.Name, bm.name, err)
-			}
-			m := &Method{
-				Owner: c, Name: bm.name, Descriptor: bm.descriptor, Flags: bm.flags,
-				Engine: "intrinsic", Reason: "bootstrap intrinsic", Intrinsic: bm.intrinsic, Type: mt,
-			}
-			if err := c.addMethod(m); err != nil {
-				return err
-			}
-		}
-	}
-	for _, def := range r.Image.Classes {
-		c := r.Classes[def.Name]
-		for _, md := range def.Methods {
-			if md == nil {
-				return fmt.Errorf("catty: class %s contains a nil method", c.Name)
-			}
-			if md.Owner != "" && md.Owner != c.Name {
-				return fmt.Errorf("catty: method %s.%s%s declares owner %s", c.Name, md.Name, md.Descriptor, md.Owner)
-			}
-			mt, err := ParseMethodType(md.Descriptor)
-			if err != nil {
-				return fmt.Errorf("catty: method %s.%s: %w", c.Name, md.Name, err)
-			}
-			m := &Method{
-				Owner: c, Name: md.Name, Descriptor: md.Descriptor, Flags: md.Flags,
-				Engine: md.Engine, Reason: md.Reason, MaxStack: md.MaxStack, MaxLocals: md.MaxLocals,
-				CodeSize: md.CodeSize, Refs: md.Refs, Insns: md.Insns, Handlers: md.Handlers,
-				Entry: md.Entry, Type: mt,
-			}
-			switch md.Engine {
-			case "aot":
-				if m.Entry == nil {
-					return fmt.Errorf("catty: AOT method %s.%s%s has no compiled entry", c.Name, md.Name, md.Descriptor)
-				}
-				if len(m.Insns) != 0 || m.CodeSize != 0 {
-					return fmt.Errorf("catty: AOT method %s.%s%s also retains an interpreter body", c.Name, md.Name, md.Descriptor)
-				}
-			case "interp":
-				if len(m.Insns) == 0 {
-					return fmt.Errorf("catty: interpreted method %s.%s%s has no instructions", c.Name, md.Name, md.Descriptor)
-				}
-				if m.CodeSize <= 0 {
-					return fmt.Errorf("catty: interpreted method %s.%s%s has no retained code size", c.Name, md.Name, md.Descriptor)
-				}
-			case "abstract":
-				if m.Flags&AccAbstract == 0 {
-					return fmt.Errorf("catty: method %s.%s%s is marked abstract in the image without ACC_ABSTRACT", c.Name, md.Name, md.Descriptor)
-				}
-			default:
-				return fmt.Errorf("catty: method %s.%s%s has unknown engine %q", c.Name, md.Name, md.Descriptor, md.Engine)
-			}
-			for i := range m.Insns {
-				if m.Insns[i].Ref >= int32(len(m.Refs)) {
-					return fmt.Errorf("catty: method %s.%s%s instruction pc %d has invalid ref index %d",
-						c.Name, md.Name, md.Descriptor, m.Insns[i].PC, m.Insns[i].Ref)
-				}
-			}
-			if m.Engine == "interp" {
-				m.pcIndex = map[int32]int{}
-				for i := range m.Insns {
-					m.pcIndex[m.Insns[i].PC] = i
-				}
-			}
-			if err := c.addMethod(m); err != nil {
-				return err
-			}
-		}
-	}
-
-	// Resolve parameter classes now that all class shells, primitives and
-	// bootstrap classes exist.
-	for _, c := range r.allClasses() {
-		for _, m := range c.Methods {
-			m.ParamClass = make([]*Class, len(m.Type.Params))
-			for i, p := range m.Type.Params {
-				pc, err := r.classForType(p)
-				if err != nil {
-					return fmt.Errorf("catty: method %s.%s%s parameter %d: %w", c.Name, m.Name, m.Descriptor, i, err)
-				}
-				m.ParamClass[i] = pc
-			}
-		}
-		for _, f := range c.StaticField {
-			if _, err := r.classForType(f.Type); err != nil {
-				return fmt.Errorf("catty: field %s.%s: %w", c.Name, f.Name, err)
-			}
-		}
-		for _, f := range c.InstanceField {
-			if _, err := r.classForType(f.Type); err != nil {
-				return fmt.Errorf("catty: field %s.%s: %w", c.Name, f.Name, err)
-			}
-		}
-	}
-
-	// Canonical mirrors.
-	classClass := r.mustClass("java/lang/Class")
-	for _, c := range r.classOrder {
-		c.Mirror = &Object{Class: classClass, Payload: c, Identity: r.newIdentity()}
-	}
-	for _, def := range r.Image.Classes {
-		c := r.Classes[def.Name]
-		c.Mirror = &Object{Class: classClass, Payload: c, Identity: r.newIdentity()}
-	}
-
-	// Bootstrap static storage.
-	for _, bc := range bootstrapInventory {
-		c := r.Bootstrap[bc.name]
-		for i, f := range bc.fields {
-			if f.initial != nil {
-				c.Statics[i] = f.initial(r)
-			} else {
-				c.Statics[i] = zeroValueFor(f.descriptor)
-			}
-		}
-	}
-	// Application static storage: preparation initializes each slot to its type
-	// default. ConstantValue attributes are applied by the initialization
-	// procedure of JVMS 5.5, not during installation.
-	for _, def := range r.Image.Classes {
-		c := r.Classes[def.Name]
-		for i, f := range c.StaticField {
-			if i < len(c.Statics) {
-				c.Statics[i] = zeroValueFor(f.Descriptor)
-			}
-		}
-	}
-
-	r.installed = true
-	return nil
 }
 
 func (r *Runtime) constantValue(c *Constant) (Value, error) {
@@ -470,30 +136,36 @@ func zeroValueFor(desc string) Value {
 }
 
 func (r *Runtime) lookupClassShell(name string) (*Class, bool) {
-	if c, ok := r.Classes[name]; ok {
-		return c, true
-	}
-	if c, ok := r.Bootstrap[name]; ok {
-		return c, true
+	if strings.HasPrefix(name, "[") {
+		if c, err := r.classForLoaderName(r.Loader, name); err == nil {
+			return c, true
+		}
+		return nil, false
 	}
 	if desc, ok := PrimitiveDescriptor(name); ok {
 		if c, ok := r.primitives[desc]; ok {
 			return c, true
 		}
 	}
-	return nil, false
+	return r.Loader.Lookup(name)
+}
+
+// arrayClassFromDescriptor resolves an array descriptor through the
+// application loader. Symbolic uses route through classForLoaderName instead.
+func (r *Runtime) arrayClassFromDescriptor(desc string) (*Class, error) {
+	return r.classForLoaderName(r.Loader, desc)
 }
 
 func (r *Runtime) allClasses() []*Class {
 	out := make([]*Class, 0, len(r.classOrder)+len(r.Classes))
 	out = append(out, r.classOrder...)
-	names := make([]string, 0, len(r.Classes))
-	for n := range r.Classes {
-		names = append(names, n)
-	}
-	sort.Strings(names)
-	for _, n := range names {
+	for _, n := range sortedClassNames(r.Classes) {
 		out = append(out, r.Classes[n])
+	}
+	for _, l := range r.pluginLoaders {
+		for _, n := range sortedClassNames(l.Classes) {
+			out = append(out, l.Classes[n])
+		}
 	}
 	return out
 }
@@ -586,8 +258,13 @@ func (r *Runtime) PrimitiveMirror(desc byte) *Object {
 	return r.PrimitiveClass(desc).Mirror
 }
 
-// classForType resolves a parsed type to its runtime class.
+// classForType resolves a parsed type through the application loader.
 func (r *Runtime) classForType(t Type) (*Class, error) {
+	return r.classForTypeInLoader(r.Loader, t)
+}
+
+// classForTypeInLoader resolves a parsed type through loader.
+func (r *Runtime) classForTypeInLoader(loader *Loader, t Type) (*Class, error) {
 	switch t.Kind {
 	case 'V':
 		return nil, nil
@@ -602,7 +279,7 @@ func (r *Runtime) classForType(t Type) (*Class, error) {
 		}
 		return c, nil
 	case 'L', 'A':
-		return r.classForName(t.DescriptorOrName())
+		return r.classForLoaderName(loader, t.DescriptorOrName())
 	default:
 		return nil, fmt.Errorf("unsupported type %q", t.Descriptor)
 	}
@@ -617,55 +294,84 @@ func (t Type) DescriptorOrName() string {
 }
 
 // classForName resolves an internal class name or array descriptor.
+// classForName resolves a name through the application loader. Host-facing
+// callers use this convenience binding; symbolic resolution from Java code uses
+// the referring class's loader.
 func (r *Runtime) classForName(name string) (*Class, error) {
+	return r.classForLoaderName(r.Loader, name)
+}
+
+// classForLoaderName resolves an internal class name, primitive descriptor
+// pseudo-name or array descriptor through the supplied loader. Arrays are
+// interned by immediate component identity, so equal descriptors from two
+// sibling loaders produce distinct array classes.
+func (r *Runtime) classForLoaderName(loader *Loader, name string) (*Class, error) {
+	if loader == nil {
+		loader = r.Loader
+	}
 	if strings.HasPrefix(name, "[") {
-		return r.arrayClassFromDescriptor(name)
-	}
-	if c, ok := r.Classes[name]; ok {
-		return c, nil
-	}
-	if c, ok := r.Bootstrap[name]; ok {
-		return c, nil
+		componentDesc := name[1:]
+		var component *Class
+		var err error
+		switch componentDesc[0] {
+		case '[':
+			component, err = r.classForLoaderName(loader, componentDesc)
+		case 'L':
+			if !strings.HasSuffix(componentDesc, ";") {
+				return nil, fmt.Errorf("malformed array descriptor: %s", name)
+			}
+			component, err = r.classForLoaderName(loader, componentDesc[1:len(componentDesc)-1])
+		default:
+			c, ok := r.primitives[componentDesc[0]]
+			if !ok {
+				return nil, fmt.Errorf("unsupported array descriptor: %s", name)
+			}
+			component = c
+		}
+		if err != nil {
+			return nil, err
+		}
+		return r.arrayClassForComponent(component), nil
 	}
 	if desc, ok := PrimitiveDescriptor(name); ok {
 		if c, ok := r.primitives[desc]; ok {
 			return c, nil
 		}
 	}
+	if c, ok := loader.Lookup(name); ok {
+		return c, nil
+	}
 	return nil, fmt.Errorf("unknown class %s", name)
 }
 
-func (r *Runtime) arrayClassFromDescriptor(desc string) (*Class, error) {
-	if c, ok := r.arrayClasses[desc]; ok {
-		return c, nil
+// arrayClassForComponent interns a reference array by immediate component
+// identity and a primitive array by its canonical primitive class.
+func (r *Runtime) arrayClassForComponent(component *Class) *Class {
+	if component == nil {
+		return nil
 	}
-	if !strings.HasPrefix(desc, "[") {
-		return nil, fmt.Errorf("not an array descriptor: %s", desc)
-	}
-	if _, err := ParseFieldType(desc); err != nil {
-		return nil, fmt.Errorf("malformed array descriptor %s: %w", desc, err)
-	}
-	componentDesc := desc[1:]
-	var component *Class
-	var err error
-	switch componentDesc[0] {
-	case '[':
-		component, err = r.arrayClassFromDescriptor(componentDesc)
-	case 'L':
-		if !strings.HasSuffix(componentDesc, ";") {
-			return nil, fmt.Errorf("malformed array descriptor: %s", desc)
+	if component.IsPrimitive {
+		desc := component.Descriptor[0]
+		if c, ok := r.primitiveArrayClass[desc]; ok {
+			return c
 		}
-		component, err = r.classForName(componentDesc[1 : len(componentDesc)-1])
-	default:
-		primitive, ok := r.primitives[componentDesc[0]]
-		if !ok {
-			return nil, fmt.Errorf("unsupported array descriptor: %s", desc)
-		}
-		component = primitive
+		c := r.newArrayClass("["+component.Descriptor, component, r.BootstrapLoader)
+		r.primitiveArrayClass[desc] = c
+		return c
 	}
-	if err != nil {
-		return nil, err
+	if c, ok := r.arrayClasses[component]; ok {
+		return c
 	}
+	loader := component.Loader
+	if loader == nil {
+		loader = r.BootstrapLoader
+	}
+	c := r.newArrayClass(arrayDescriptorOf(component), component, loader)
+	r.arrayClasses[component] = c
+	return c
+}
+
+func (r *Runtime) newArrayClass(desc string, component *Class, loader *Loader) *Class {
 	c := &Class{
 		Name:       desc,
 		Descriptor: desc,
@@ -675,12 +381,11 @@ func (r *Runtime) arrayClassFromDescriptor(desc string) (*Class, error) {
 		Interfaces: []*Class{r.mustClass("java/lang/Cloneable"), r.mustClass("java/io/Serializable")},
 		Flags:      AccPublic | AccFinal,
 		State:      classInitialized,
-		Loader:     r.Loader,
+		Loader:     loader,
 	}
 	classClass := r.mustClass("java/lang/Class")
 	c.Mirror = &Object{Class: classClass, Payload: c, Identity: r.newIdentity()}
-	r.arrayClasses[desc] = c
-	return c, nil
+	return c
 }
 
 // NewInstance allocates an instance of c with zero-initialized slots.
@@ -756,7 +461,10 @@ func (r *Runtime) NewArrayOfClass(arrayClass *Class, length int) *Object {
 }
 
 func (r *Runtime) arrayClassFor(component *Class) (*Class, error) {
-	return r.arrayClassFromDescriptor(arrayDescriptorOf(component))
+	if component == nil {
+		return nil, fmt.Errorf("catty: nil array component")
+	}
+	return r.arrayClassForComponent(component), nil
 }
 
 func arrayDescriptorOf(component *Class) string {
@@ -1106,6 +814,7 @@ func IntegerValue(o *Object) (int32, bool) {
 
 // ThrowableData carries the cause and Java frames captured at construction.
 type ThrowableData struct {
+	Code    string
 	Message string
 	Cause   *Object
 	Frames  []FrameInfo

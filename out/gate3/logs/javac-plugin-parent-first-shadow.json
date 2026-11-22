@@ -1,0 +1,25 @@
+{
+  "command": [
+    "javac",
+    "--release",
+    "21",
+    "-g",
+    "-d",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/plugins/parent-first/shadow",
+    "-cp",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/apps/parent-first:/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/stub",
+    "/Users/services/Projects/catty/testdata/gate3/parent-first/plugin-shadow/app/Base.java",
+    "/Users/services/Projects/catty/testdata/gate3/parent-first/plugin-shadow/app/Step.java",
+    "/Users/services/Projects/catty/testdata/gate3/parent-first/plugin-shadow/ext/Unique.java"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "LC_ALL": "C",
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+  },
+  "pid": 10043,
+  "status": 0,
+  "stdout": "",
+  "stderr": ""
+}

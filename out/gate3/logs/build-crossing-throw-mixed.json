@@ -1,0 +1,31 @@
+{
+  "command": [
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/bin/catty",
+    "build",
+    "--enable-plugins",
+    "--classpath",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/apps/crossing-throw",
+    "--main",
+    "app.Main",
+    "--report",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/reports/crossing-throw-mixed.json",
+    "--output",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/bin/crossing-throw-mixed",
+    "--generated-source",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/generated/crossing-throw-mixed",
+    "--mode",
+    "auto",
+    "--policy",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/policies/crossing-throw.json"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "LC_ALL": "C",
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+  },
+  "pid": 10761,
+  "status": 0,
+  "stdout": "",
+  "stderr": ""
+}

@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/bin/catty",
+    "build",
+    "--enable-plugins",
+    "--classpath",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/apps/irem",
+    "--main",
+    "app.Main",
+    "--mode",
+    "aot",
+    "--report",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/reports/irem-aot.json",
+    "--output",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/bin/irem-aot"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "LC_ALL": "C",
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+  },
+  "pid": 11064,
+  "status": 1,
+  "stdout": "",
+  "stderr": "catty: AOT lowering is impossible for app/Main.rem(II)I: irem has no AOT lowering (pc 2, offset 2, bci 2)\n"
+}

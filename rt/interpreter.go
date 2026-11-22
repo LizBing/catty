@@ -115,7 +115,14 @@ func (r *Runtime) execute(t *Thread, m *Method, receiver *Object, args []Value) 
 			case RefString:
 				push(t.StringConstant(ref.Units))
 			case RefClass:
-				push(t.ClassConstant(ref.Class))
+				v, thrown := t.ClassConstant(m, ref.CP, ref.Class)
+				if thrown != nil {
+					if out, ok := abort(pc, thrown); !ok {
+						return out
+					}
+					continue
+				}
+				push(v)
 			default:
 				panic("catty: unsupported ldc constant kind")
 			}
@@ -584,7 +591,7 @@ func (r *Runtime) execute(t *Thread, m *Method, receiver *Object, args []Value) 
 			continue
 		case OpNew:
 			ref := m.Refs[insn.Ref]
-			obj, thrown := t.NewObject(m, ref.Class)
+			obj, thrown := t.NewObject(m, ref.CP, ref.Class)
 			runtime.KeepAlive(stack)
 			runtime.KeepAlive(locals)
 			if thrown != nil {
@@ -607,7 +614,7 @@ func (r *Runtime) execute(t *Thread, m *Method, receiver *Object, args []Value) 
 		case OpAnewarray:
 			ref := m.Refs[insn.Ref]
 			count := popInt()
-			obj, thrown := t.NewReferenceArray(m, ref.Class, count)
+			obj, thrown := t.NewReferenceArray(m, ref.CP, ref.Class, count)
 			runtime.KeepAlive(stack)
 			runtime.KeepAlive(locals)
 			if thrown != nil {
@@ -624,7 +631,7 @@ func (r *Runtime) execute(t *Thread, m *Method, receiver *Object, args []Value) 
 			for i := dims - 1; i >= 0; i-- {
 				counts[i] = popInt()
 			}
-			obj, thrown := t.MultiANewArray(m, ref.Class, dims, counts)
+			obj, thrown := t.MultiANewArray(m, ref.CP, ref.Class, dims, counts)
 			if thrown != nil {
 				if out, ok := abort(pc, thrown); !ok {
 					return out
@@ -653,7 +660,7 @@ func (r *Runtime) execute(t *Thread, m *Method, receiver *Object, args []Value) 
 			continue
 		case OpCheckcast:
 			ref := m.Refs[insn.Ref]
-			v, thrown := t.CheckCast(ref.Class, pop())
+			v, thrown := t.CheckCast(m, ref.CP, ref.Class, pop())
 			if thrown != nil {
 				if out, ok := abort(pc, thrown); !ok {
 					return out
@@ -663,7 +670,7 @@ func (r *Runtime) execute(t *Thread, m *Method, receiver *Object, args []Value) 
 			push(v)
 		case OpInstanceof:
 			ref := m.Refs[insn.Ref]
-			n, thrown := t.InstanceOf(ref.Class, pop())
+			n, thrown := t.InstanceOf(m, ref.CP, ref.Class, pop())
 			if thrown != nil {
 				if out, ok := abort(pc, thrown); !ok {
 					return out
@@ -674,7 +681,7 @@ func (r *Runtime) execute(t *Thread, m *Method, receiver *Object, args []Value) 
 		case OpGetfield:
 			ref := m.Refs[insn.Ref]
 			obj := pop()
-			v, thrown := t.GetField(m, obj, ref.Owner, ref.Name, ref.Descriptor)
+			v, thrown := t.GetField(m, ref.CP, obj, ref.Owner, ref.Name, ref.Descriptor)
 			if thrown != nil {
 				if out, ok := abort(pc, thrown); !ok {
 					return out
@@ -686,7 +693,7 @@ func (r *Runtime) execute(t *Thread, m *Method, receiver *Object, args []Value) 
 			ref := m.Refs[insn.Ref]
 			v := pop()
 			obj := pop()
-			if thrown := t.PutField(m, obj, ref.Owner, ref.Name, ref.Descriptor, v); thrown != nil {
+			if thrown := t.PutField(m, ref.CP, obj, ref.Owner, ref.Name, ref.Descriptor, v); thrown != nil {
 				if out, ok := abort(pc, thrown); !ok {
 					return out
 				}
@@ -694,7 +701,7 @@ func (r *Runtime) execute(t *Thread, m *Method, receiver *Object, args []Value) 
 			}
 		case OpGetstatic:
 			ref := m.Refs[insn.Ref]
-			v, thrown := t.GetStatic(m, ref.Owner, ref.Name, ref.Descriptor)
+			v, thrown := t.GetStatic(m, ref.CP, ref.Owner, ref.Name, ref.Descriptor)
 			runtime.KeepAlive(stack)
 			runtime.KeepAlive(locals)
 			if thrown != nil {
@@ -707,7 +714,7 @@ func (r *Runtime) execute(t *Thread, m *Method, receiver *Object, args []Value) 
 		case OpPutstatic:
 			ref := m.Refs[insn.Ref]
 			v := pop()
-			thrown := t.PutStatic(m, ref.Owner, ref.Name, ref.Descriptor, v)
+			thrown := t.PutStatic(m, ref.CP, ref.Owner, ref.Name, ref.Descriptor, v)
 			runtime.KeepAlive(stack)
 			runtime.KeepAlive(locals)
 			if thrown != nil {
@@ -729,16 +736,16 @@ func (r *Runtime) execute(t *Thread, m *Method, receiver *Object, args []Value) 
 			var out Outcome
 			switch insn.Op {
 			case OpInvokestatic:
-				out = t.InvokeStatic(m, pc, ref.Owner, ref.Name, ref.Descriptor, callArgs)
+				out = t.InvokeStatic(m, pc, ref.CP, ref.Owner, ref.Name, ref.Descriptor, callArgs)
 			case OpInvokespecial:
 				recv := pop()
-				out = t.InvokeSpecial(m, pc, recv, ref.Owner, ref.Name, ref.Descriptor, callArgs)
+				out = t.InvokeSpecial(m, pc, ref.CP, recv, ref.Owner, ref.Name, ref.Descriptor, callArgs)
 			case OpInvokevirtual:
 				recv := pop()
-				out = t.InvokeVirtual(m, pc, recv, ref.Owner, ref.Name, ref.Descriptor, callArgs)
+				out = t.InvokeVirtual(m, pc, ref.CP, recv, ref.Owner, ref.Name, ref.Descriptor, callArgs)
 			case OpInvokeinterface:
 				recv := pop()
-				out = t.InvokeInterface(m, pc, recv, ref.Owner, ref.Name, ref.Descriptor, callArgs)
+				out = t.InvokeInterface(m, pc, ref.CP, recv, ref.Owner, ref.Name, ref.Descriptor, callArgs)
 			}
 			runtime.KeepAlive(stack)
 			runtime.KeepAlive(locals)

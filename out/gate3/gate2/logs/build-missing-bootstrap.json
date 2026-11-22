@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/catty",
+    "build",
+    "--classpath",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/missing-bootstrap/classes",
+    "--main",
+    "MissingBootstrap",
+    "--mode",
+    "auto",
+    "--report",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/builds/missing-bootstrap/report.json",
+    "--output",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/builds/profile-image-inventory/app"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C",
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home"
+  },
+  "pid": 12337,
+  "status": 1,
+  "stdout": "",
+  "stderr": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/missing-bootstrap/classes/MissingBootstrap.class: MissingBootstrap.main([Ljava/lang/String;)V needs unavailable bootstrap method java/lang/System.nanoTime()J\n"
+}

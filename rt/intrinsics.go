@@ -128,6 +128,35 @@ func intrinsicStringLength(t *Thread, m *Method, receiver *Object, args []Value)
 	return OkValue(IntValue(int32(len(units))))
 }
 
+// intrinsicStringEquals implements String.equals(Object).
+func intrinsicStringEquals(t *Thread, m *Method, receiver *Object, args []Value) Outcome {
+	if receiver == nil {
+		return ThrowOutcome(t.RT.NewThrowable(t, "java/lang/NullPointerException"))
+	}
+	if len(args) != 1 || args[0].Kind != KindRef {
+		return OutOfRange(t)
+	}
+	left, ok := StringText(receiver)
+	if !ok {
+		return ThrowOutcome(t.RT.NewThrowable(t, "java/lang/ClassCastException"))
+	}
+	if args[0].Ref == nil {
+		return OkValue(IntValue(0))
+	}
+	right, ok := StringText(args[0].Ref)
+	if !ok {
+		return OkValue(IntValue(0))
+	}
+	if left == right {
+		return OkValue(IntValue(1))
+	}
+	return OkValue(IntValue(0))
+}
+
+func OutOfRange(t *Thread) Outcome {
+	return ThrowOutcome(t.RT.NewThrowable(t, "java/lang/IllegalArgumentException"))
+}
+
 // intrinsicThrowableInitCause implements Throwable(Throwable).
 func intrinsicThrowableInitCause(t *Thread, m *Method, receiver *Object, args []Value) Outcome {
 	if receiver == nil {

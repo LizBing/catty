@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/bin/rollback-interp",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/rollback-good.jar",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/rollback-bad.jar",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/rollback-corrected.jar"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/traces/rollback-interp.jsonl",
+    "LC_ALL": "C",
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+  },
+  "pid": 10990,
+  "status": 0,
+  "stdout": "10\ntrue\n20\n1\n1\n50\n",
+  "stderr": ""
+}

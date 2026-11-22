@@ -12,10 +12,11 @@ This repository implements the Gate 2 delivery in [GATE2.md](GATE2.md) against
 `tests/gate2.py` is the Gate 2 differential suite and runs the Gate 1 suite as
 its regression check.
 
-The next gate is planned in the [Gate 3 implementation specification](GATE3.md)
-and [Gate 3 test plan](GATE3-TESTING.md).
-
-The published profile is `catty-jvm21-gate2` with image ABI `2`.
+Gate 3 adds runtime plugin admission. Build with `--enable-plugins` to select
+the `catty-jvm21-gate3` profile and image ABI `3`; without the flag the
+published Gate 2 profile `catty-jvm21-gate2` and ABI `2` stay unchanged. See the
+[Gate 3 implementation specification](GATE3.md) and
+[Gate 3 test plan](GATE3-TESTING.md).
 
 ## Requirements
 
@@ -26,6 +27,29 @@ The published profile is `catty-jvm21-gate2` with image ABI `2`.
 
 On this machine a non-login tool shell does not resolve `go` automatically;
 prefix commands with `PATH=/usr/local/go/bin:$PATH` when needed.
+
+## Run the Gate 3 suite
+
+```sh
+python3 -B tests/gate3.py --java-home /path/to/jdk-21 --prepare-only
+python3 -B tests/gate3.py --java-home /path/to/jdk-21 --case late-override
+python3 -B tests/gate3.py --java-home /path/to/jdk-21
+```
+
+The runner compiles the compile-only `catty.runtime` API stub, the shared
+application classes and every plugin version, builds each Catty executable
+before its JARs exist, records the OpenJDK 21 oracle, then runs all-interpreted,
+mixed and forced-AOT images against the same bytes. It checks archive and JAR
+policy directly through the Java registration intrinsic, exercises rollback and
+standalone execution, and prints the temporary artifact directory. A full run
+ends with `Gate 3 passed.`
+
+Build a plugin-enabled image by hand:
+
+```sh
+out/bin/catty build --enable-plugins --classpath app-classes --main app.Main \
+  --mode auto --report report.json --output app
+```
 
 ## Run the Gate 2 suite
 
@@ -94,6 +118,10 @@ initializer or `main` runs.
 | `testdata` | checked-in Java fixtures, including the ten-case Gate 2 corpus |
 | `tests` | Gate 2 differential runner, Gate 1 acceptance runner, class-file patch helper |
 | `out/gate2` | durable Gate 2 evidence: reports, traces, generated Go and test logs |
+| `plugin` | narrow Gate 3 launcher adapter connecting admission to the runtime |
+| `internal/admission` | bounded ZIP/JAR validation, policy checks and staging |
+| `testdata/gate3` | Gate 3 API stub, OpenJDK adapter and plugin fixtures |
+| `out/gate3` | durable Gate 3 acceptance evidence |
 
 ## Profile limits (Gate 2)
 
@@ -137,8 +165,12 @@ the selected engine and reason for every admitted method.
   resolved at run time rather than through precomputed vtables.
 - **Lifecycle** — application arguments, normal `main` return, uncaught Java
   throwable exit status and `CATTY_TRACE` evidence are implemented. `System.exit`,
-  non-daemon thread completion and shutdown hooks remain later gates; runtime JAR
-  loading remains Gate 3.
+  non-daemon thread completion and shutdown hooks remain later gates.
+- **Plugins (Gate 3 only)** — one unsigned single-release classpath JAR per
+  registration, bounded at 16 MiB compressed, 64 MiB expanded and 64 published
+  loaders. Parent-first loaders, loader-aware dispatch and class identity,
+  reflective lookup, and rejected-transaction rollback are implemented. The
+  runner documents exact assertions and remaining limitations.
 
 ## Verification notes
 

@@ -36,6 +36,7 @@ func typeInitial(desc byte) func(r *Runtime) Value {
 func throwableInit() []bsMethod {
 	return []bsMethod{
 		{"<init>", "()V", AccPublic, intrinsicObjectInit},
+		{"<init>", "(Ljava/lang/String;)V", AccPublic, intrinsicThrowableInitMessage},
 	}
 }
 
@@ -85,6 +86,7 @@ var bootstrapInventory = []*bsClass{
 	{name: "java/lang/String", super: "java/lang/Object", methods: []bsMethod{
 		{"<init>", "()V", AccPublic, intrinsicObjectInit},
 		{"length", "()I", AccPublic, intrinsicStringLength},
+		{"equals", "(Ljava/lang/Object;)Z", AccPublic, intrinsicStringEquals},
 	}},
 	{name: "java/lang/Number", super: "java/lang/Object", methods: []bsMethod{
 		{"<init>", "()V", AccPublic, intrinsicObjectInit},

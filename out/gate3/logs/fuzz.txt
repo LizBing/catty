@@ -1,0 +1,16 @@
+fuzz: elapsed: 0s, gathering baseline coverage: 0/38 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 38/38 completed, now fuzzing with 1 workers
+fuzz: elapsed: 3s, execs: 4604 (1534/sec), new interesting: 1 (total: 39)
+fuzz: elapsed: 6s, execs: 266205 (87231/sec), new interesting: 1 (total: 39)
+fuzz: elapsed: 9s, execs: 376956 (36904/sec), new interesting: 1 (total: 39)
+fuzz: elapsed: 12s, execs: 376956 (0/sec), new interesting: 1 (total: 39)
+fuzz: elapsed: 15s, execs: 643554 (88866/sec), new interesting: 1 (total: 39)
+fuzz: elapsed: 18s, execs: 765793 (40746/sec), new interesting: 1 (total: 39)
+fuzz: elapsed: 21s, execs: 896707 (43638/sec), new interesting: 2 (total: 40)
+fuzz: elapsed: 24s, execs: 896707 (0/sec), new interesting: 2 (total: 40)
+fuzz: elapsed: 27s, execs: 1240468 (114587/sec), new interesting: 2 (total: 40)
+fuzz: elapsed: 30s, execs: 1248175 (2570/sec), new interesting: 2 (total: 40)
+fuzz: elapsed: 31s, execs: 1248175 (0/sec), new interesting: 2 (total: 40)
+PASS
+ok  	catty/internal/admission	31.430s
+fuzz=0

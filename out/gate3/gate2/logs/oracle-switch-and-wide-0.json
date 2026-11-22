@@ -1,0 +1,19 @@
+{
+  "command": [
+    "java",
+    "-Xverify:all",
+    "-cp",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/classes/switch-and-wide",
+    "SwitchWide"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C",
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home"
+  },
+  "pid": 11649,
+  "status": 0,
+  "stdout": "41\n81\n-1\n206\n-10\n11\n15\n66\n31\n34\n41\n44\n51\n54\n7\n6\n4\n8\n101\n102\n100\n4\n2\n7\n6\n5\n9\n2138\n2138\n25681\n25681\n",
+  "stderr": ""
+}

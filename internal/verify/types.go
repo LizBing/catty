@@ -359,7 +359,7 @@ func classInfo(ctx *Context, name string) (classInfoData, bool) {
 	if c, ok := ctx.Classes[name]; ok {
 		return classInfoData{super: c.Super, interfaces: c.Interfaces, flags: c.Flags}, true
 	}
-	if bc, ok := rt.BootstrapClassDef(name); ok {
+	if bc, ok := rt.BootstrapClassDefFor(ctx.profile(), name); ok {
 		return classInfoData{super: bc.Super, interfaces: bc.Interfaces, flags: bc.Flags}, true
 	}
 	return classInfoData{}, false
@@ -1011,6 +1011,17 @@ func (t *typeChecker) applyInvoke() error {
 		return fmt.Errorf("method receiver is not a reference: %s", recv)
 	} else if !assignable(t.ctx, recv, vtype{kind: vtRef, class: ref.Owner}) {
 		return fmt.Errorf("method receiver %s is not assignable to %s", recv, ref.Owner)
+	}
+	if t.ctx.MemberFlags != nil && recv.kind == vtRef {
+		if flags, declaring, ok := t.ctx.MemberFlags(ref.Owner, ref.Name, ref.Descriptor); ok {
+			if flags&rt.AccProtected != 0 {
+				samePkg := t.ctx.RuntimePackage != nil && t.ctx.RuntimePackage(t.class.Name, declaring)
+				if !samePkg && !assignable(t.ctx, recv, vtype{kind: vtRef, class: t.class.Name}) {
+					return fmt.Errorf("protected method %s.%s%s receiver %s is not assignable to %s",
+						declaring, ref.Name, ref.Descriptor, recv, t.class.Name)
+				}
+			}
+		}
 	}
 	if ref.Name == "<init>" {
 		return fmt.Errorf("unreachable")

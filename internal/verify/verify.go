@@ -17,18 +17,32 @@ import (
 // and collects the verified stack heights used by code generation.
 type Context struct {
 	Classes map[string]*classfile.Class
-	Heights map[*classfile.Method]map[int32]int
-	Shapes  map[*classfile.Method]map[int32][]int
+	Profile string
+	// MemberFlags resolves a member's access flags and declaring class for the
+	// protected-receiver check. Admission supplies it; image builds leave it nil.
+	MemberFlags func(owner, name, descriptor string) (flags uint16, declaring string, ok bool)
+	// RuntimePackage reports same-runtime-package identity including the
+	// defining loader when admission can distinguish loaders.
+	RuntimePackage func(a, b string) bool
+	Heights        map[*classfile.Method]map[int32]int
+	Shapes         map[*classfile.Method]map[int32][]int
 }
 
 // ClassExists reports whether name is an admitted application class, a
 // supported bootstrap class, or a valid array descriptor.
+func (c *Context) profile() string {
+	if c.Profile == "" {
+		return rt.Gate2ProfileID
+	}
+	return c.Profile
+}
+
 func (c *Context) ClassExists(name string) bool {
 	if strings.HasPrefix(name, "[") {
 		_, err := rt.ParseFieldType(name)
 		return err == nil
 	}
-	if rt.BootstrapHasClass(name) {
+	if rt.BootstrapHasClassFor(c.profile(), name) {
 		return true
 	}
 	_, ok := c.Classes[name]
@@ -68,7 +82,7 @@ func isThrowable(ctx *Context, name string) bool {
 			name = c.Super
 			continue
 		}
-		if info, ok := rt.BootstrapClassDef(name); ok {
+		if info, ok := rt.BootstrapClassDefFor(ctx.profile(), name); ok {
 			name = info.Super
 			continue
 		}

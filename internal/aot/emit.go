@@ -233,7 +233,9 @@ func emitInsn(insn rt.Insn, m *classfile.Method, h int, widths []int, heights ma
 		case rt.RefDouble:
 			return fmt.Sprintf("stack[%d] = rt.DoubleBitsValue(0x%016x)", h, ref.Bits), h + 1, false, nil
 		case rt.RefClass:
-			return fmt.Sprintf("stack[%d] = t.ClassConstant(%s)", h, strconv.Quote(ref.Class)), h + 1, false, nil
+			code := fmt.Sprintf("{\nv, thrown := t.ClassConstant(m, %d, %s)\nif thrown != nil {\n%s\n}\nstack[%d] = v\n}",
+				ref.CP, strconv.Quote(ref.Class), transfer, h)
+			return code, h + 1, false, nil
 		case rt.RefString:
 			var units []string
 			for _, u := range ref.Units {
@@ -543,28 +545,28 @@ func emitInsn(insn rt.Insn, m *classfile.Method, h int, widths []int, heights ma
 		return fmt.Sprintf("return rt.OkValue(stack[%d])", h-1), h - 1, true, nil
 	case rt.OpGetstatic:
 		ref := m.Refs[insn.Ref]
-		code := fmt.Sprintf("{\nv, thrown := t.GetStatic(m, %s, %s, %s)\nif thrown != nil {\n%s\n}\nstack[%d] = v\n}",
-			strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), transfer, h)
+		code := fmt.Sprintf("{\nv, thrown := t.GetStatic(m, %d, %s, %s, %s)\nif thrown != nil {\n%s\n}\nstack[%d] = v\n}",
+			ref.CP, strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), transfer, h)
 		return code, h + 1, false, nil
 	case rt.OpPutstatic:
 		ref := m.Refs[insn.Ref]
-		code := fmt.Sprintf("{\nthrown := t.PutStatic(m, %s, %s, %s, stack[%d])\nif thrown != nil {\n%s\n}\n}",
-			strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), h-1, transfer)
+		code := fmt.Sprintf("{\nthrown := t.PutStatic(m, %d, %s, %s, %s, stack[%d])\nif thrown != nil {\n%s\n}\n}",
+			ref.CP, strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), h-1, transfer)
 		return code, h - 1, false, nil
 	case rt.OpGetfield:
 		ref := m.Refs[insn.Ref]
-		code := fmt.Sprintf("{\nv, thrown := t.GetField(m, stack[%d], %s, %s, %s)\nif thrown != nil {\n%s\n}\nstack[%d] = v\n}",
-			h-1, strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), transfer, h-1)
+		code := fmt.Sprintf("{\nv, thrown := t.GetField(m, %d, stack[%d], %s, %s, %s)\nif thrown != nil {\n%s\n}\nstack[%d] = v\n}",
+			ref.CP, h-1, strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), transfer, h-1)
 		return code, h, false, nil
 	case rt.OpPutfield:
 		ref := m.Refs[insn.Ref]
-		code := fmt.Sprintf("{\nthrown := t.PutField(m, stack[%d], %s, %s, %s, stack[%d])\nif thrown != nil {\n%s\n}\n}",
-			h-2, strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), h-1, transfer)
+		code := fmt.Sprintf("{\nthrown := t.PutField(m, %d, stack[%d], %s, %s, %s, stack[%d])\nif thrown != nil {\n%s\n}\n}",
+			ref.CP, h-2, strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), h-1, transfer)
 		return code, h - 2, false, nil
 	case rt.OpNew:
 		ref := m.Refs[insn.Ref]
-		code := fmt.Sprintf("{\nobj, thrown := t.NewObject(m, %s)\nif thrown != nil {\n%s\n}\nstack[%d] = rt.RefValue(obj)\n}",
-			strconv.Quote(ref.Class), transfer, h)
+		code := fmt.Sprintf("{\nobj, thrown := t.NewObject(m, %d, %s)\nif thrown != nil {\n%s\n}\nstack[%d] = rt.RefValue(obj)\n}",
+			ref.CP, strconv.Quote(ref.Class), transfer, h)
 		return code, h + 1, false, nil
 	case rt.OpNewarray:
 		desc, _ := rt.NewarrayDescriptor(insn.A)
@@ -574,8 +576,8 @@ func emitInsn(insn rt.Insn, m *classfile.Method, h int, widths []int, heights ma
 		return code, h, false, nil
 	case rt.OpAnewarray:
 		ref := m.Refs[insn.Ref]
-		code := fmt.Sprintf("{\nobj, thrown := t.NewReferenceArray(m, %s, rt.AsInt(stack[%d]))\nif thrown != nil {\n%s\n}\nstack[%d] = rt.RefValue(obj)\n}",
-			strconv.Quote(ref.Class), h-1, transfer, h-1)
+		code := fmt.Sprintf("{\nobj, thrown := t.NewReferenceArray(m, %d, %s, rt.AsInt(stack[%d]))\nif thrown != nil {\n%s\n}\nstack[%d] = rt.RefValue(obj)\n}",
+			ref.CP, strconv.Quote(ref.Class), h-1, transfer, h-1)
 		return code, h, false, nil
 	case rt.OpMultianewarray:
 		ref := m.Refs[insn.Ref]
@@ -584,8 +586,8 @@ func emitInsn(insn rt.Insn, m *classfile.Method, h int, widths []int, heights ma
 		for i := 0; i < dims; i++ {
 			items = append(items, fmt.Sprintf("rt.AsInt(stack[%d])", h-dims+i))
 		}
-		code := fmt.Sprintf("{\ncounts := []int32{%s}\nobj, thrown := t.MultiANewArray(m, %s, %d, counts)\nif thrown != nil {\n%s\n}\nstack[%d] = rt.RefValue(obj)\n}",
-			strings.Join(items, ", "), strconv.Quote(ref.Class), dims, transfer, h-dims)
+		code := fmt.Sprintf("{\ncounts := []int32{%s}\nobj, thrown := t.MultiANewArray(m, %d, %s, %d, counts)\nif thrown != nil {\n%s\n}\nstack[%d] = rt.RefValue(obj)\n}",
+			strings.Join(items, ", "), ref.CP, strconv.Quote(ref.Class), dims, transfer, h-dims)
 		return code, h - dims + 1, false, nil
 	case rt.OpArraylength:
 		code := fmt.Sprintf("{\nn, thrown := t.ArrayLength(stack[%d])\nif thrown != nil {\n%s\n}\nstack[%d] = rt.IntValue(n)\n}",
@@ -597,13 +599,13 @@ func emitInsn(insn rt.Insn, m *classfile.Method, h int, widths []int, heights ma
 		return code, h - 1, true, nil
 	case rt.OpCheckcast:
 		ref := m.Refs[insn.Ref]
-		code := fmt.Sprintf("{\nv, thrown := t.CheckCast(%s, stack[%d])\nif thrown != nil {\n%s\n}\nstack[%d] = v\n}",
-			strconv.Quote(ref.Class), h-1, transfer, h-1)
+		code := fmt.Sprintf("{\nv, thrown := t.CheckCast(m, %d, %s, stack[%d])\nif thrown != nil {\n%s\n}\nstack[%d] = v\n}",
+			ref.CP, strconv.Quote(ref.Class), h-1, transfer, h-1)
 		return code, h, false, nil
 	case rt.OpInstanceof:
 		ref := m.Refs[insn.Ref]
-		code := fmt.Sprintf("{\nn, thrown := t.InstanceOf(%s, stack[%d])\nif thrown != nil {\n%s\n}\nstack[%d] = rt.IntValue(n)\n}",
-			strconv.Quote(ref.Class), h-1, transfer, h-1)
+		code := fmt.Sprintf("{\nn, thrown := t.InstanceOf(m, %d, %s, stack[%d])\nif thrown != nil {\n%s\n}\nstack[%d] = rt.IntValue(n)\n}",
+			ref.CP, strconv.Quote(ref.Class), h-1, transfer, h-1)
 		return code, h, false, nil
 	case rt.OpInvokestatic, rt.OpInvokevirtual, rt.OpInvokespecial, rt.OpInvokeinterface:
 		ref := m.Refs[insn.Ref]
@@ -617,18 +619,18 @@ func emitInsn(insn rt.Insn, m *classfile.Method, h int, widths []int, heights ma
 		newH := h - n
 		switch insn.Op {
 		case rt.OpInvokestatic:
-			call = fmt.Sprintf("t.InvokeStatic(m, %d, %s, %s, %s, %s)", pc,
+			call = fmt.Sprintf("t.InvokeStatic(m, %d, %d, %s, %s, %s, %s)", pc, ref.CP,
 				strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), args)
 		case rt.OpInvokespecial:
-			call = fmt.Sprintf("t.InvokeSpecial(m, %d, stack[%d], %s, %s, %s, %s)", pc, h-n-1,
+			call = fmt.Sprintf("t.InvokeSpecial(m, %d, %d, stack[%d], %s, %s, %s, %s)", pc, ref.CP, h-n-1,
 				strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), args)
 			newH--
 		case rt.OpInvokevirtual:
-			call = fmt.Sprintf("t.InvokeVirtual(m, %d, stack[%d], %s, %s, %s, %s)", pc, h-n-1,
+			call = fmt.Sprintf("t.InvokeVirtual(m, %d, %d, stack[%d], %s, %s, %s, %s)", pc, ref.CP, h-n-1,
 				strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), args)
 			newH--
 		case rt.OpInvokeinterface:
-			call = fmt.Sprintf("t.InvokeInterface(m, %d, stack[%d], %s, %s, %s, %s)", pc, h-n-1,
+			call = fmt.Sprintf("t.InvokeInterface(m, %d, %d, stack[%d], %s, %s, %s, %s)", pc, ref.CP, h-n-1,
 				strconv.Quote(ref.Owner), strconv.Quote(ref.Name), strconv.Quote(ref.Descriptor), args)
 			newH--
 		}

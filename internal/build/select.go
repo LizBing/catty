@@ -31,6 +31,7 @@ type aotEntry struct {
 // Build holds the staged build state.
 type Build struct {
 	opts       Options
+	profile    *rt.Profile
 	loaded     *Loaded
 	ctx        *verify.Context
 	selections map[*classfile.Method]*Selection
@@ -54,12 +55,17 @@ func (b *Build) prepare() error {
 	if b.opts.ReportPath == "" || b.opts.OutputPath == "" {
 		return fmt.Errorf("catty: --report and --output are required")
 	}
-	loaded, err := LoadClasspath(b.opts.Classpath)
+	if b.opts.EnablePlugins {
+		b.profile = rt.Gate3Profile
+	} else {
+		b.profile = rt.Gate2Profile
+	}
+	loaded, err := LoadClasspathFor(b.opts.Classpath, b.profile)
 	if err != nil {
 		return err
 	}
 	b.loaded = loaded
-	b.ctx = &verify.Context{Classes: loaded.ByName}
+	b.ctx = &verify.Context{Classes: loaded.ByName, Profile: b.profile.ID}
 	if err := b.validateClasses(); err != nil {
 		return err
 	}
@@ -157,7 +163,7 @@ func (b *Build) classAvailable(name string) bool {
 		_, err := rt.ParseFieldType(name)
 		return err == nil
 	}
-	if rt.BootstrapHasClass(name) {
+	if rt.BootstrapHasClassFor(b.profile.ID, name) {
 		return true
 	}
 	_, ok := b.loaded.ByName[name]
@@ -357,14 +363,14 @@ func (b *Build) checkReference(c *classfile.Class, m *classfile.Method, ref rt.R
 		if _, err := rt.ParseFieldType(ref.Descriptor); err != nil {
 			return nil, fmt.Errorf("%s: %s.%s%s field %s.%s: %w", c.Origin, c.Name, m.Name, m.Descriptor, ref.Owner, ref.Name, err)
 		}
-		if rt.BootstrapHasClass(ref.Owner) {
-			if !rt.BootstrapHasField(ref.Owner, ref.Name, ref.Descriptor) {
+		if rt.BootstrapHasClassFor(b.profile.ID, ref.Owner) {
+			if !rt.BootstrapHasFieldFor(b.profile.ID, ref.Owner, ref.Name, ref.Descriptor) {
 				return nil, fmt.Errorf("%s: %s.%s%s needs unavailable bootstrap field %s.%s:%s",
 					c.Origin, c.Name, m.Name, m.Descriptor, ref.Owner, ref.Name, ref.Descriptor)
 			}
 			return nil, nil
 		}
-		if reservedClassName(ref.Owner) {
+		if reservedClassName(b.profile, ref.Owner) {
 			return nil, fmt.Errorf("%s: %s.%s%s needs unavailable bootstrap field %s.%s:%s",
 				c.Origin, c.Name, m.Name, m.Descriptor, ref.Owner, ref.Name, ref.Descriptor)
 		}
@@ -380,14 +386,14 @@ func (b *Build) checkReference(c *classfile.Class, m *classfile.Method, ref rt.R
 		if _, err := rt.ParseMethodType(ref.Descriptor); err != nil {
 			return nil, fmt.Errorf("%s: %s.%s%s method %s.%s: %w", c.Origin, c.Name, m.Name, m.Descriptor, ref.Owner, ref.Name, err)
 		}
-		if rt.BootstrapHasClass(ref.Owner) {
-			if !rt.BootstrapHasMethod(ref.Owner, ref.Name, ref.Descriptor) {
+		if rt.BootstrapHasClassFor(b.profile.ID, ref.Owner) {
+			if !rt.BootstrapHasMethodFor(b.profile.ID, ref.Owner, ref.Name, ref.Descriptor) {
 				return nil, fmt.Errorf("%s: %s.%s%s needs unavailable bootstrap method %s.%s%s",
 					c.Origin, c.Name, m.Name, m.Descriptor, ref.Owner, ref.Name, ref.Descriptor)
 			}
 			return nil, nil
 		}
-		if reservedClassName(ref.Owner) {
+		if reservedClassName(b.profile, ref.Owner) {
 			return nil, fmt.Errorf("%s: %s.%s%s needs unavailable bootstrap method %s.%s%s",
 				c.Origin, c.Name, m.Name, m.Descriptor, ref.Owner, ref.Name, ref.Descriptor)
 		}
@@ -411,7 +417,7 @@ func (b *Build) fieldExists(owner, name, descriptor string) bool {
 			return false
 		}
 		seen[class] = true
-		if rt.BootstrapHasField(class, name, descriptor) {
+		if rt.BootstrapHasFieldFor(b.profile.ID, class, name, descriptor) {
 			return true
 		}
 		c := b.loaded.ByName[class]
@@ -444,7 +450,7 @@ func (b *Build) methodExists(owner, name, descriptor string) bool {
 			return false
 		}
 		seen[class] = true
-		if rt.BootstrapHasMethod(class, name, descriptor) {
+		if rt.BootstrapHasMethodFor(b.profile.ID, class, name, descriptor) {
 			return true
 		}
 		c := b.loaded.ByName[class]
@@ -475,7 +481,7 @@ func (b *Build) isThrowable(name string) bool {
 			cur = c.Super
 			continue
 		}
-		if info, ok := rt.BootstrapClassDef(cur); ok {
+		if info, ok := rt.BootstrapClassDefFor(b.profile.ID, cur); ok {
 			cur = info.Super
 			continue
 		}
@@ -531,9 +537,10 @@ func (b *Build) buildImage() error {
 		}
 		classes = append(classes, def)
 	}
-	b.image = &rt.Image{
-		ABI:     rt.ABIRevision,
-		Profile: rt.ProfileID,
+	image := &rt.Image{
+		ABI:     b.profile.ABI,
+		Profile: b.profile.ID,
+		Plugins: b.profile.Plugins,
 		Opcodes: rt.SupportedOpcodeNames(),
 		Classes: classes,
 		Main: rt.MethodKey{
@@ -542,21 +549,29 @@ func (b *Build) buildImage() error {
 			Descriptor: "([Ljava/lang/String;)V",
 		},
 	}
+	if b.profile.Plugins {
+		image.Capabilities = []string{"plugin-admission", "loader-identity", "guarded-dispatch"}
+		image.Limits = b.profile.Limits
+	}
+	b.image = image
 	return nil
 }
 
 // Report types mirror the published Gate 2 build contract.
 type Report struct {
-	Profile    string             `json:"profile"`
-	ImageABI   int                `json:"imageABI"`
-	Main       string             `json:"main"`
-	Toolchains Toolchains         `json:"toolchains"`
-	Inputs     []Input            `json:"inputs"`
-	Classes    []ClassRecord      `json:"classes"`
-	Methods    []MethodRecord     `json:"methods"`
-	Opcodes    []string           `json:"opcodes"`
-	Bootstrap  BootstrapInventory `json:"bootstrap"`
-	Unresolved []UnresolvedRecord `json:"unresolved,omitempty"`
+	Profile      string             `json:"profile"`
+	ImageABI     int                `json:"imageABI"`
+	Plugins      bool               `json:"plugins"`
+	Capabilities []string           `json:"capabilities,omitempty"`
+	PluginLimits *rt.PluginLimits   `json:"pluginLimits,omitempty"`
+	Main         string             `json:"main"`
+	Toolchains   Toolchains         `json:"toolchains"`
+	Inputs       []Input            `json:"inputs"`
+	Classes      []ClassRecord      `json:"classes"`
+	Methods      []MethodRecord     `json:"methods"`
+	Opcodes      []string           `json:"opcodes"`
+	Bootstrap    BootstrapInventory `json:"bootstrap"`
+	Unresolved   []UnresolvedRecord `json:"unresolved,omitempty"`
 }
 
 type Toolchains struct {
@@ -607,21 +622,22 @@ type BootstrapMemberRecord struct {
 // UnresolvedRecord reports one retained application reference that Java
 // resolves lazily when its instruction executes.
 type UnresolvedRecord struct {
-	Kind              string `json:"kind"`
-	Owner             string `json:"owner"`
-	Name              string `json:"name"`
-	Descriptor        string `json:"descriptor"`
-	Referrer          string `json:"referrer"`
-	ReferrerMethod    string `json:"referrerMethod"`
+	Kind               string `json:"kind"`
+	Owner              string `json:"owner"`
+	Name               string `json:"name"`
+	Descriptor         string `json:"descriptor"`
+	Referrer           string `json:"referrer"`
+	ReferrerMethod     string `json:"referrerMethod"`
 	ReferrerDescriptor string `json:"referrerDescriptor"`
-	PC                int    `json:"pc"`
-	ClassMissing      bool   `json:"classMissing,omitempty"`
+	PC                 int    `json:"pc"`
+	ClassMissing       bool   `json:"classMissing,omitempty"`
 }
 
 func (b *Build) buildReport() {
 	r := &Report{
-		Profile:  rt.ProfileID,
-		ImageABI: rt.ABIRevision,
+		Profile:  b.profile.ID,
+		ImageABI: b.profile.ABI,
+		Plugins:  b.profile.Plugins,
 		Main:     b.opts.Main,
 		Toolchains: Toolchains{
 			Go: runtime.Version(),
@@ -629,6 +645,10 @@ func (b *Build) buildReport() {
 		Inputs:     append([]Input(nil), b.loaded.Inputs...),
 		Opcodes:    rt.SupportedOpcodeNames(),
 		Unresolved: append([]UnresolvedRecord(nil), b.unresolved...),
+	}
+	if b.profile.Plugins {
+		r.Capabilities = []string{"plugin-admission", "loader-identity", "guarded-dispatch"}
+		r.PluginLimits = b.profile.Limits
 	}
 	for _, c := range b.loaded.Classes {
 		r.Classes = append(r.Classes, ClassRecord{Name: c.Name, Origin: c.Origin})
@@ -652,7 +672,7 @@ func (b *Build) buildReport() {
 			r.Methods = append(r.Methods, rec)
 		}
 	}
-	for _, intrinsic := range rt.BootstrapMethods() {
+	for _, intrinsic := range rt.BootstrapMethodsFor(b.profile.ID) {
 		r.Methods = append(r.Methods, MethodRecord{
 			Owner:             intrinsic.Owner,
 			Name:              intrinsic.Name,
@@ -662,17 +682,17 @@ func (b *Build) buildReport() {
 			RetainedCodeBytes: 0,
 		})
 	}
-	for _, class := range rt.BootstrapClasses() {
+	for _, class := range rt.BootstrapClassesFor(b.profile.ID) {
 		r.Bootstrap.Classes = append(r.Bootstrap.Classes, BootstrapClassRecord{
 			Name: class.Name, Super: class.Super, Interfaces: class.Interfaces, Flags: class.Flags,
 		})
 	}
-	for _, method := range rt.BootstrapMethods() {
+	for _, method := range rt.BootstrapMethodsFor(b.profile.ID) {
 		r.Bootstrap.Methods = append(r.Bootstrap.Methods, BootstrapMemberRecord{
 			Owner: method.Owner, Name: method.Name, Descriptor: method.Descriptor,
 		})
 	}
-	for _, field := range rt.BootstrapFields() {
+	for _, field := range rt.BootstrapFieldsFor(b.profile.ID) {
 		r.Bootstrap.Fields = append(r.Bootstrap.Fields, BootstrapMemberRecord{
 			Owner: field.Owner, Name: field.Name, Descriptor: field.Descriptor,
 		})

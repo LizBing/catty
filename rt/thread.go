@@ -155,6 +155,9 @@ func (t *Thread) EnsureInitialized(c *Class) *Object {
 		return t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError")
 	}
 	c.State = classInitializing
+	if tr := t.trace(); tr != nil {
+		tr.classInit(t.ID, c, true, nil)
+	}
 	// JVMS 5.5 step 6: apply ConstantValue attributes, in field order, before
 	// superclass/superinterface initialization and before <clinit>.
 	t.RT.applyConstants(c)
@@ -163,6 +166,9 @@ func (t *Thread) EnsureInitialized(c *Class) *Object {
 			if err := t.EnsureInitialized(c.Super); err != nil {
 				c.State = classErroneous
 				c.InitError = err
+				if tr := t.trace(); tr != nil {
+					tr.classInit(t.ID, c, false, err)
+				}
 				return err
 			}
 		}
@@ -170,6 +176,9 @@ func (t *Thread) EnsureInitialized(c *Class) *Object {
 			if err := t.EnsureInitialized(in); err != nil {
 				c.State = classErroneous
 				c.InitError = err
+				if tr := t.trace(); tr != nil {
+					tr.classInit(t.ID, c, false, err)
+				}
 				return err
 			}
 		}
@@ -185,10 +194,16 @@ func (t *Thread) EnsureInitialized(c *Class) *Object {
 			}
 			c.State = classErroneous
 			c.InitError = err
+			if tr := t.trace(); tr != nil {
+				tr.classInit(t.ID, c, false, err)
+			}
 			return err
 		}
 	}
 	c.State = classInitialized
+	if tr := t.trace(); tr != nil {
+		tr.classInit(t.ID, c, false, nil)
+	}
 	return nil
 }
 
@@ -335,7 +350,8 @@ func (r *Runtime) samePackage(a, b *Class) bool {
 	if a == nil || b == nil {
 		return false
 	}
-	return a.PackageName() == b.PackageName()
+	// JVMS runtime package identity is the package string plus defining loader.
+	return a.Loader == b.Loader && a.PackageName() == b.PackageName()
 }
 
 func nestHostOf(c *Class) string {
@@ -349,10 +365,37 @@ func nestHostOf(c *Class) string {
 }
 
 func (r *Runtime) sameNest(a, b *Class) bool {
-	if a == nil || b == nil {
+	if a == nil || b == nil || a.Loader != b.Loader {
 		return false
 	}
-	return nestHostOf(a) == nestHostOf(b)
+	if a == b {
+		return true
+	}
+	if nestHostOf(a) != nestHostOf(b) {
+		return false
+	}
+	// Mutual membership must be present in the defining class metadata.
+	hostName := nestHostOf(a)
+	if a.Name == hostName {
+		return hasNestMember(a, b.Name)
+	}
+	if b.Name == hostName {
+		return hasNestMember(b, a.Name)
+	}
+	host, ok := a.Loader.Lookup(hostName)
+	if !ok {
+		return false
+	}
+	return hasNestMember(host, a.Name) && hasNestMember(host, b.Name)
+}
+
+func hasNestMember(host *Class, name string) bool {
+	for _, n := range host.NestMembers {
+		if n == name {
+			return true
+		}
+	}
+	return false
 }
 
 func (r *Runtime) isSubclass(c, of *Class) bool {
@@ -411,18 +454,14 @@ func (r *Runtime) protectedReceiverOK(caller *Method, owner *Class, receiver *Cl
 	return receiver == nil || r.isSubclass(receiver, caller.Owner)
 }
 
-func resolutionKey(kind, caller, owner, name, descriptor string) string {
-	return kind + "|" + caller + "|" + owner + "|" + name + "|" + descriptor
-}
-
 // resolveMethodSymbol resolves a method reference and caches the outcome for the
-// referring caller class. Access control is applied at resolution time.
-func (t *Thread) resolveMethodSymbol(caller *Method, ownerName, name, descriptor string) (*Method, *Object) {
-	callerName := ""
+// referring runtime class and constant-pool entry. Access control is applied at
+// resolution time.
+func (t *Thread) resolveMethodSymbol(caller *Method, cp int, ownerName, name, descriptor string) (*Method, *Object) {
+	key := resolutionKey{Kind: 'M', CP: cp, Owner: ownerName, Name: name, Descriptor: descriptor}
 	if caller != nil && caller.Owner != nil {
-		callerName = caller.Owner.Name
+		key.Class = caller.Owner
 	}
-	key := resolutionKey("M", callerName, ownerName, name, descriptor)
 	if res, ok := t.RT.resolutions[key]; ok {
 		return res.Method, res.Thrown
 	}
@@ -430,7 +469,11 @@ func (t *Thread) resolveMethodSymbol(caller *Method, ownerName, name, descriptor
 		t.RT.resolutions[key] = &Resolution{Thrown: thrown}
 		return nil, thrown
 	}
-	owner, err := t.RT.classForName(ownerName)
+	loader := t.RT.Loader
+	if caller != nil && caller.Owner != nil && caller.Owner.Loader != nil {
+		loader = caller.Owner.Loader
+	}
+	owner, err := t.RT.classForLoaderName(loader, ownerName)
 	if err != nil {
 		return fail(t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError"))
 	}
@@ -446,12 +489,11 @@ func (t *Thread) resolveMethodSymbol(caller *Method, ownerName, name, descriptor
 }
 
 // resolveFieldSymbol resolves a field reference with the same caching rule.
-func (t *Thread) resolveFieldSymbol(caller *Method, ownerName, name, descriptor string) (*Field, *Object) {
-	callerName := ""
+func (t *Thread) resolveFieldSymbol(caller *Method, cp int, ownerName, name, descriptor string) (*Field, *Object) {
+	key := resolutionKey{Kind: 'F', CP: cp, Owner: ownerName, Name: name, Descriptor: descriptor}
 	if caller != nil && caller.Owner != nil {
-		callerName = caller.Owner.Name
+		key.Class = caller.Owner
 	}
-	key := resolutionKey("F", callerName, ownerName, name, descriptor)
 	if res, ok := t.RT.resolutions[key]; ok {
 		return res.Field, res.Thrown
 	}
@@ -459,7 +501,11 @@ func (t *Thread) resolveFieldSymbol(caller *Method, ownerName, name, descriptor 
 		t.RT.resolutions[key] = &Resolution{Thrown: thrown}
 		return nil, thrown
 	}
-	owner, err := t.RT.classForName(ownerName)
+	loader := t.RT.Loader
+	if caller != nil && caller.Owner != nil && caller.Owner.Loader != nil {
+		loader = caller.Owner.Loader
+	}
+	owner, err := t.RT.classForLoaderName(loader, ownerName)
 	if err != nil {
 		return fail(t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError"))
 	}
@@ -494,6 +540,12 @@ func (r *Runtime) selectVirtual(receiver *Class, declaration *Method) (*Method, 
 	key := methodKey(declaration.Name, declaration.Descriptor)
 	for c := receiver; c != nil; c = c.Super {
 		if m := c.MethodIndex[key]; m != nil && m.Flags&AccStatic == 0 && m.Flags&AccPrivate == 0 {
+			// A package-private method participates in overriding only inside the
+			// same runtime package as the resolved declaration (package string
+			// plus defining loader).
+			if m.Flags&(AccPublic|AccProtected) == 0 && !r.samePackage(m.Owner, declaration.Owner) {
+				continue
+			}
 			if m.Flags&AccAbstract != 0 {
 				return nil, r.bootstrapThrowable("java/lang/AbstractMethodError")
 			}
@@ -605,9 +657,9 @@ func (t *Thread) invocationEnv(caller *Method, pc int32) {
 }
 
 // InvokeStatic implements invokestatic.
-func (t *Thread) InvokeStatic(caller *Method, pc int32, owner, name, descriptor string, args []Value) Outcome {
+func (t *Thread) InvokeStatic(caller *Method, pc int32, cp int, owner, name, descriptor string, args []Value) Outcome {
 	t.invocationEnv(caller, pc)
-	m, thrown := t.resolveMethodSymbol(caller, owner, name, descriptor)
+	m, thrown := t.resolveMethodSymbol(caller, cp, owner, name, descriptor)
 	if thrown != nil {
 		return ThrowOutcome(thrown)
 	}
@@ -621,13 +673,13 @@ func (t *Thread) InvokeStatic(caller *Method, pc int32, owner, name, descriptor 
 }
 
 // InvokeSpecial implements invokespecial.
-func (t *Thread) InvokeSpecial(caller *Method, pc int32, receiver Value, owner, name, descriptor string, args []Value) Outcome {
+func (t *Thread) InvokeSpecial(caller *Method, pc int32, cp int, receiver Value, owner, name, descriptor string, args []Value) Outcome {
 	t.invocationEnv(caller, pc)
 	recv, thrown := refOrNull(t, receiver)
 	if thrown != nil {
 		return ThrowOutcome(thrown)
 	}
-	m, thrown := t.resolveMethodSymbol(caller, owner, name, descriptor)
+	m, thrown := t.resolveMethodSymbol(caller, cp, owner, name, descriptor)
 	if thrown != nil {
 		return ThrowOutcome(thrown)
 	}
@@ -641,13 +693,13 @@ func (t *Thread) InvokeSpecial(caller *Method, pc int32, receiver Value, owner, 
 }
 
 // InvokeVirtual implements invokevirtual.
-func (t *Thread) InvokeVirtual(caller *Method, pc int32, receiver Value, owner, name, descriptor string, args []Value) Outcome {
+func (t *Thread) InvokeVirtual(caller *Method, pc int32, cp int, receiver Value, owner, name, descriptor string, args []Value) Outcome {
 	t.invocationEnv(caller, pc)
 	recv, thrown := refOrNull(t, receiver)
 	if thrown != nil {
 		return ThrowOutcome(thrown)
 	}
-	decl, thrown := t.resolveMethodSymbol(caller, owner, name, descriptor)
+	decl, thrown := t.resolveMethodSymbol(caller, cp, owner, name, descriptor)
 	if thrown != nil {
 		return ThrowOutcome(thrown)
 	}
@@ -657,22 +709,25 @@ func (t *Thread) InvokeVirtual(caller *Method, pc int32, receiver Value, owner, 
 	if !t.RT.protectedReceiverOK(caller, decl.Owner, recv.Class) {
 		return ThrowOutcome(t.RT.NewThrowable(t, "java/lang/IllegalAccessError"))
 	}
-	target, thrown := t.RT.selectVirtual(recv.Class, decl)
+	target, hit, thrown := t.selectGuarded(caller, pc, OpInvokevirtual, recv.Class, decl)
 	if thrown != nil {
 		return ThrowOutcome(thrown)
+	}
+	if tr := t.trace(); tr != nil {
+		tr.dispatch(t.ID, "invokevirtual", caller, pc, decl, target, recv.Class, hit)
 	}
 	return t.Call(target, recv, args)
 }
 
 // InvokeInterface implements invokeinterface and emits the direct dispatch
 // evidence before entering the selected body.
-func (t *Thread) InvokeInterface(caller *Method, pc int32, receiver Value, owner, name, descriptor string, args []Value) Outcome {
+func (t *Thread) InvokeInterface(caller *Method, pc int32, cp int, receiver Value, owner, name, descriptor string, args []Value) Outcome {
 	t.invocationEnv(caller, pc)
 	recv, thrown := refOrNull(t, receiver)
 	if thrown != nil {
 		return ThrowOutcome(thrown)
 	}
-	decl, thrown := t.resolveMethodSymbol(caller, owner, name, descriptor)
+	decl, thrown := t.resolveMethodSymbol(caller, cp, owner, name, descriptor)
 	if thrown != nil {
 		return ThrowOutcome(thrown)
 	}
@@ -682,14 +737,32 @@ func (t *Thread) InvokeInterface(caller *Method, pc int32, receiver Value, owner
 	if !t.RT.protectedReceiverOK(caller, decl.Owner, recv.Class) {
 		return ThrowOutcome(t.RT.NewThrowable(t, "java/lang/IllegalAccessError"))
 	}
-	target, thrown := t.RT.selectVirtual(recv.Class, decl)
+	target, hit, thrown := t.selectGuarded(caller, pc, OpInvokeinterface, recv.Class, decl)
 	if thrown != nil {
 		return ThrowOutcome(thrown)
 	}
 	if tr := t.trace(); tr != nil {
-		tr.dispatch(t.ID, "invokeinterface", decl, target)
+		tr.dispatch(t.ID, "invokeinterface", caller, pc, decl, target, recv.Class, hit)
 	}
 	return t.Call(target, recv, args)
+}
+
+// selectGuarded applies the Gate 3 compiled-dispatch cache. Symbolic
+// resolution, receiver and access checks have already run; a hit requires the
+// identical resolved declaration and exact receiver class. Admission of a new
+// subclass therefore cannot change an existing receiver's successful
+// selection, and a new receiver takes the full selection path.
+func (t *Thread) selectGuarded(caller *Method, pc int32, op uint8, receiver *Class, decl *Method) (*Method, bool, *Object) {
+	key := dispatchKey{Caller: caller, PC: pc, Op: op}
+	if entry, ok := t.RT.dispatch[key]; ok && entry.Declaration == decl && entry.Receiver == receiver {
+		return entry.Target, true, nil
+	}
+	target, thrown := t.RT.selectVirtual(receiver, decl)
+	if thrown != nil {
+		return nil, false, thrown
+	}
+	t.RT.dispatch[key] = &dispatchEntry{Declaration: decl, Receiver: receiver, Target: target}
+	return target, false, nil
 }
 
 // ------------------------------------------------------------------- fields
@@ -712,12 +785,12 @@ func coerceFieldValue(ft Type, v Value) Value {
 }
 
 // GetField implements getfield.
-func (t *Thread) GetField(caller *Method, ref Value, owner, name, descriptor string) (Value, *Object) {
+func (t *Thread) GetField(caller *Method, cp int, ref Value, owner, name, descriptor string) (Value, *Object) {
 	obj, thrown := refOrNull(t, ref)
 	if thrown != nil {
 		return Value{}, thrown
 	}
-	f, thrown := t.resolveFieldSymbol(caller, owner, name, descriptor)
+	f, thrown := t.resolveFieldSymbol(caller, cp, owner, name, descriptor)
 	if thrown != nil {
 		return Value{}, thrown
 	}
@@ -734,12 +807,12 @@ func (t *Thread) GetField(caller *Method, ref Value, owner, name, descriptor str
 }
 
 // PutField implements putfield.
-func (t *Thread) PutField(caller *Method, ref Value, owner, name, descriptor string, v Value) *Object {
+func (t *Thread) PutField(caller *Method, cp int, ref Value, owner, name, descriptor string, v Value) *Object {
 	obj, thrown := refOrNull(t, ref)
 	if thrown != nil {
 		return thrown
 	}
-	f, thrown := t.resolveFieldSymbol(caller, owner, name, descriptor)
+	f, thrown := t.resolveFieldSymbol(caller, cp, owner, name, descriptor)
 	if thrown != nil {
 		return thrown
 	}
@@ -757,8 +830,8 @@ func (t *Thread) PutField(caller *Method, ref Value, owner, name, descriptor str
 }
 
 // GetStatic implements getstatic, including class initialization.
-func (t *Thread) GetStatic(caller *Method, owner, name, descriptor string) (Value, *Object) {
-	f, thrown := t.resolveFieldSymbol(caller, owner, name, descriptor)
+func (t *Thread) GetStatic(caller *Method, cp int, owner, name, descriptor string) (Value, *Object) {
+	f, thrown := t.resolveFieldSymbol(caller, cp, owner, name, descriptor)
 	if thrown != nil {
 		return Value{}, thrown
 	}
@@ -772,8 +845,8 @@ func (t *Thread) GetStatic(caller *Method, owner, name, descriptor string) (Valu
 }
 
 // PutStatic implements putstatic, including class initialization.
-func (t *Thread) PutStatic(caller *Method, owner, name, descriptor string, v Value) *Object {
-	f, thrown := t.resolveFieldSymbol(caller, owner, name, descriptor)
+func (t *Thread) PutStatic(caller *Method, cp int, owner, name, descriptor string, v Value) *Object {
+	f, thrown := t.resolveFieldSymbol(caller, cp, owner, name, descriptor)
 	if thrown != nil {
 		return thrown
 	}
@@ -807,8 +880,8 @@ func (r *Runtime) StaticValue(owner, name, descriptor string) (Value, error) {
 // ---------------------------------------------------------------- allocation
 
 // NewObject implements new.
-func (t *Thread) NewObject(caller *Method, className string) (*Object, *Object) {
-	c, err := t.RT.classForName(className)
+func (t *Thread) NewObject(caller *Method, cp int, className string) (*Object, *Object) {
+	c, err := t.RT.classForLoaderName(loaderOf(caller), className)
 	if err != nil {
 		return nil, t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError")
 	}
@@ -821,7 +894,11 @@ func (t *Thread) NewObject(caller *Method, className string) (*Object, *Object) 
 	if thrown := t.EnsureInitialized(c); thrown != nil {
 		return nil, thrown
 	}
-	return t.RT.NewInstance(c), nil
+	obj := t.RT.NewInstance(c)
+	if t.RT.IsAssignable(c, t.RT.mustClass("java/lang/Throwable")) {
+		obj.Payload = &ThrowableData{Frames: t.FramesSnapshot()}
+	}
+	return obj, nil
 }
 
 func callerOwner(caller *Method) *Class {
@@ -831,8 +908,17 @@ func callerOwner(caller *Method) *Class {
 	return caller.Owner
 }
 
-func arrayClassForDescriptor(t *Thread, descriptor string) (*Class, *Object) {
-	c, err := t.RT.arrayClassFromDescriptor(descriptor)
+// loaderOf returns the loader that owns the referring method, falling back to
+// the application loader for synthetic host calls.
+func loaderOf(caller *Method) *Loader {
+	if caller != nil && caller.Owner != nil && caller.Owner.Loader != nil {
+		return caller.Owner.Loader
+	}
+	return nil
+}
+
+func arrayClassForDescriptor(t *Thread, caller *Method, descriptor string) (*Class, *Object) {
+	c, err := t.RT.classForLoaderName(loaderOf(caller), descriptor)
 	if err != nil {
 		return nil, t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError")
 	}
@@ -849,7 +935,7 @@ func (t *Thread) NewPrimitiveArray(caller *Method, atype int32, count int32) (*O
 	if !ok {
 		return nil, t.RT.NewThrowable(t, "java/lang/NegativeArraySizeException")
 	}
-	ac, thrown := arrayClassForDescriptor(t, desc)
+	ac, thrown := arrayClassForDescriptor(t, caller, desc)
 	if thrown != nil {
 		return nil, thrown
 	}
@@ -857,16 +943,17 @@ func (t *Thread) NewPrimitiveArray(caller *Method, atype int32, count int32) (*O
 }
 
 // NewReferenceArray implements anewarray.
-func (t *Thread) NewReferenceArray(caller *Method, componentName string, count int32) (*Object, *Object) {
+func (t *Thread) NewReferenceArray(caller *Method, cp int, componentName string, count int32) (*Object, *Object) {
 	_ = caller
 	if count < 0 {
 		return nil, t.RT.NewThrowable(t, "java/lang/NegativeArraySizeException")
 	}
-	component, err := t.RT.classForName(componentName)
+	component, err := t.RT.classForLoaderName(loaderOf(caller), componentName)
 	if err != nil {
 		return nil, t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError")
 	}
-	ac, thrown := arrayClassForDescriptor(t, arrayDescriptorOf(component))
+	ac := t.RT.arrayClassForComponent(component)
+	var thrown *Object
 	if thrown != nil {
 		return nil, thrown
 	}
@@ -875,9 +962,9 @@ func (t *Thread) NewReferenceArray(caller *Method, componentName string, count i
 
 // MultiANewArray implements multianewarray. Dimensions are allocated in order;
 // unspecified trailing dimensions stay null.
-func (t *Thread) MultiANewArray(caller *Method, descriptor string, dims int, counts []int32) (*Object, *Object) {
+func (t *Thread) MultiANewArray(caller *Method, cp int, descriptor string, dims int, counts []int32) (*Object, *Object) {
 	_ = caller
-	ac, thrown := arrayClassForDescriptor(t, descriptor)
+	ac, thrown := arrayClassForDescriptor(t, caller, descriptor)
 	if thrown != nil {
 		return nil, thrown
 	}
@@ -908,14 +995,14 @@ func (t *Thread) MultiANewArray(caller *Method, descriptor string, dims int, cou
 // --------------------------------------------------------------- conversions
 
 // CheckCast implements checkcast.
-func (t *Thread) CheckCast(className string, v Value) (Value, *Object) {
+func (t *Thread) CheckCast(caller *Method, cp int, className string, v Value) (Value, *Object) {
 	if v.Kind != KindRef {
 		return Value{}, t.RT.NewThrowable(t, "java/lang/ClassCastException")
 	}
 	if v.Ref == nil {
 		return v, nil
 	}
-	c, err := t.RT.classForName(className)
+	c, err := t.RT.classForLoaderName(loaderOf(caller), className)
 	if err != nil {
 		return Value{}, t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError")
 	}
@@ -926,14 +1013,14 @@ func (t *Thread) CheckCast(className string, v Value) (Value, *Object) {
 }
 
 // InstanceOf implements instanceof.
-func (t *Thread) InstanceOf(className string, v Value) (int32, *Object) {
+func (t *Thread) InstanceOf(caller *Method, cp int, className string, v Value) (int32, *Object) {
 	if v.Kind != KindRef {
 		return 0, t.RT.NewThrowable(t, "java/lang/ClassCastException")
 	}
 	if v.Ref == nil {
 		return 0, nil
 	}
-	c, err := t.RT.classForName(className)
+	c, err := t.RT.classForLoaderName(loaderOf(caller), className)
 	if err != nil {
 		return 0, t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError")
 	}
@@ -1034,12 +1121,12 @@ func (t *Thread) ArrayLength(array Value) (int32, *Object) {
 // ---------------------------------------------------------------- constants
 
 // ClassConstant implements ldc of a Class constant.
-func (t *Thread) ClassConstant(name string) Value {
-	c, err := t.RT.classForName(name)
+func (t *Thread) ClassConstant(caller *Method, cp int, name string) (Value, *Object) {
+	c, err := t.RT.classForLoaderName(loaderOf(caller), name)
 	if err != nil {
-		panic("catty: class constant refers to unknown class " + name)
+		return Value{}, t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError")
 	}
-	return RefValue(c.Mirror)
+	return RefValue(c.Mirror), nil
 }
 
 // StringConstant implements ldc of a string constant with JVM interning.
@@ -1065,7 +1152,7 @@ func (t *Thread) HandleThrow(m *Method, throwPC int32, thrown *Object) (int32, b
 			continue
 		}
 		if h.CatchType != "" {
-			catchClass, err := t.RT.classForName(h.CatchType)
+			catchClass, err := t.RT.classForLoaderName(loaderOf(m), h.CatchType)
 			if err != nil {
 				continue
 			}

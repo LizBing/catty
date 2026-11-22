@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/builds/deferred-linkage-interp/app"
+  ],
+  "cwd": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/builds/deferred-linkage-interp",
+  "environment": {
+    "CATTY_TRACE": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-yk2x1ooe/traces/deferred-linkage-interp-0.jsonl",
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C",
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home"
+  },
+  "pid": 12309,
+  "status": 0,
+  "stdout": "1\n2\n3\n4\n5\n",
+  "stderr": ""
+}

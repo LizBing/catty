@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"catty/internal/classfile"
+	"catty/rt"
 )
 
 // Input is one ordered classpath entry with its content digest.
@@ -22,6 +23,7 @@ type Input struct {
 
 // Loaded is the deterministic result of reading an ordered classpath.
 type Loaded struct {
+	Profile *rt.Profile
 	Inputs  []Input
 	Classes []*classfile.Class
 	ByName  map[string]*classfile.Class
@@ -30,11 +32,14 @@ type Loaded struct {
 
 var reservedPrefixes = []string{"java/", "javax/", "jdk/", "sun/", "com/sun/", "org/w3c/", "org/xml/"}
 
-func reservedClassName(name string) bool {
+func reservedClassName(profile *rt.Profile, name string) bool {
 	for _, p := range reservedPrefixes {
 		if strings.HasPrefix(name, p) {
 			return true
 		}
+	}
+	if profile != nil && profile.Plugins && (name == "catty/runtime" || strings.HasPrefix(name, "catty/runtime/")) {
+		return true
 	}
 	return false
 }
@@ -42,10 +47,20 @@ func reservedClassName(name string) bool {
 // LoadClasspath reads class directories and single-release JARs in order. The
 // first definition of a binary name wins and its origin is reported.
 func LoadClasspath(entries []string) (*Loaded, error) {
+	return LoadClasspathFor(entries, rt.Gate2Profile)
+}
+
+// LoadClasspathFor reads an ordered classpath under one profile's admission
+// rules. Profile selection therefore affects build-time reserved namespaces as
+// well as runtime installation.
+func LoadClasspathFor(entries []string, profile *rt.Profile) (*Loaded, error) {
+	if profile == nil {
+		profile = rt.Gate2Profile
+	}
 	if len(entries) == 0 {
 		return nil, fmt.Errorf("catty: empty classpath")
 	}
-	out := &Loaded{ByName: map[string]*classfile.Class{}, Origins: map[string]string{}}
+	out := &Loaded{Profile: profile, ByName: map[string]*classfile.Class{}, Origins: map[string]string{}}
 	for _, entry := range entries {
 		if entry == "" {
 			return nil, fmt.Errorf("catty: empty classpath entry")
@@ -209,7 +224,7 @@ func (l *Loaded) admit(data []byte, origin string, sameEntry map[string]bool) er
 	if err != nil {
 		return fmt.Errorf("%s: %w", origin, err)
 	}
-	if reservedClassName(c.Name) {
+	if reservedClassName(l.Profile, c.Name) {
 		return fmt.Errorf("%s: class %s is in the reserved bootstrap namespace", origin, c.Name)
 	}
 	if _, exists := l.ByName[c.Name]; exists {

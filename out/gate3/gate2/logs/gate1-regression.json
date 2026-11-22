@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "-B",
+    "/Users/services/Projects/catty/tests/acceptance.py"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C",
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home"
+  },
+  "pid": 12338,
+  "status": 0,
+  "stdout": "Acceptance artifacts in /private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-acceptance-5oxvak0d\ngo version go1.27.1 darwin/arm64\nopenjdk version \"21.0.6\" 2025-01-21 LTS\nOpenJDK Runtime Environment Microsoft-10800196 (build 21.0.6+7-LTS)\nOpenJDK 64-Bit Server VM Microsoft-10800196 (build 21.0.6+7-LTS, mixed mode, sharing)\njavac 21.0.6\n21.0.6\njar 21.0.6\n",
+  "stderr": "test_class_initialization_and_hidden_fields (__main__.Acceptance) ... ok\ntest_crossing_and_standalone (__main__.Acceptance) ... ok\ntest_dispatch_and_reflection (__main__.Acceptance) ... ok\ntest_exceptions_and_exclusive_range (__main__.Acceptance) ... ok\ntest_fallback_and_failed_replacement (__main__.Acceptance) ... ok\ntest_invalid_inputs (__main__.Acceptance) ... ok\ntest_packaging_and_classpath (__main__.Acceptance) ... ok\ntest_runtime_and_go_packages (__main__.Acceptance) ... ok\n\n----------------------------------------------------------------------\nRan 8 tests in 11.072s\n\nOK\n"
+}

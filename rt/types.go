@@ -10,13 +10,6 @@ import (
 	"unicode/utf16"
 )
 
-// Runtime profile identity. Both are checked during image installation before
-// any initializer or main method runs.
-const (
-	ABIRevision = 2
-	ProfileID   = "catty-jvm21-gate2"
-)
-
 // Kind identifies the payload of a Value.
 type Kind uint8
 
@@ -229,14 +222,14 @@ type FieldDef struct {
 }
 
 type ClassDef struct {
-	Name         string       `json:"name"`
-	Super        string       `json:"super,omitempty"`
-	Interfaces   []string     `json:"interfaces,omitempty"`
-	Flags        uint16       `json:"flags,omitempty"`
-	NestHost     string       `json:"nestHost,omitempty"`
-	NestMembers  []string     `json:"nestMembers,omitempty"`
-	InstanceFields []FieldDef `json:"instanceFields,omitempty"`
-	StaticFields   []FieldDef `json:"staticFields,omitempty"`
+	Name           string       `json:"name"`
+	Super          string       `json:"super,omitempty"`
+	Interfaces     []string     `json:"interfaces,omitempty"`
+	Flags          uint16       `json:"flags,omitempty"`
+	NestHost       string       `json:"nestHost,omitempty"`
+	NestMembers    []string     `json:"nestMembers,omitempty"`
+	InstanceFields []FieldDef   `json:"instanceFields,omitempty"`
+	StaticFields   []FieldDef   `json:"staticFields,omitempty"`
 	Methods        []*MethodDef `json:"methods,omitempty"`
 }
 
@@ -334,13 +327,16 @@ type MainFunc func(t *Thread, args []Value) Outcome
 // Image is the immutable executable image. It is checked for ABI, profile and
 // opcode inventory compatibility before any initialization.
 type Image struct {
-	ABI      int          `json:"abi"`
-	Profile  string       `json:"profile"`
-	Opcodes  []string     `json:"opcodes,omitempty"`
-	Classes  []*ClassDef  `json:"classes,omitempty"`
-	Main     MethodKey    `json:"main,omitempty"`
-	Startups []Startup    `json:"-"`
-	MainFunc MainFunc     `json:"-"`
+	ABI          int           `json:"abi"`
+	Profile      string        `json:"profile"`
+	Opcodes      []string      `json:"opcodes,omitempty"`
+	Capabilities []string      `json:"capabilities,omitempty"`
+	Plugins      bool          `json:"plugins,omitempty"`
+	Limits       *PluginLimits `json:"pluginLimits,omitempty"`
+	Classes      []*ClassDef   `json:"classes,omitempty"`
+	Main         MethodKey     `json:"main,omitempty"`
+	Startups     []Startup     `json:"-"`
+	MainFunc     MainFunc      `json:"-"`
 }
 
 // Class is runtime class state. Definitions are immutable after install;
@@ -403,11 +399,19 @@ type Method struct {
 	pcIndex    map[int32]int
 }
 
-// Loader is the single application loader. The bootstrap namespace is owned by
-// the runtime and never admitted from the application classpath.
+// Loader is one class-defining loader. The bootstrap loader owns the fixed
+// bootstrap inventory; the application loader owns the image classes; plugin
+// loaders own admitted JAR definitions. Lookup is parent-first and a parent
+// never searches its children.
 type Loader struct {
+	ID      int
 	Name    string
 	Runtime *Runtime
+	Parent  *Loader
+	Classes map[string]*Class
+	Plugin  bool
+	Digest  string
+	Mirror  *Object
 }
 
 type classState uint8

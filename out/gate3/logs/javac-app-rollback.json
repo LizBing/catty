@@ -1,0 +1,31 @@
+{
+  "command": [
+    "javac",
+    "--release",
+    "21",
+    "-g",
+    "-d",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/apps/rollback",
+    "-cp",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-9yss9zh2/stub",
+    "/Users/services/Projects/catty/testdata/gate3/rollback/app/Main.java",
+    "/Users/services/Projects/catty/testdata/gate3/shared/Base.java",
+    "/Users/services/Projects/catty/testdata/gate3/shared/Box.java",
+    "/Users/services/Projects/catty/testdata/gate3/shared/Bridge.java",
+    "/Users/services/Projects/catty/testdata/gate3/shared/DieStep.java",
+    "/Users/services/Projects/catty/testdata/gate3/shared/Factory.java",
+    "/Users/services/Projects/catty/testdata/gate3/shared/Probe.java",
+    "/Users/services/Projects/catty/testdata/gate3/shared/Step.java",
+    "/Users/services/Projects/catty/testdata/gate3/shared/ThrowStep.java"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "LC_ALL": "C",
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+  },
+  "pid": 10038,
+  "status": 0,
+  "stdout": "",
+  "stderr": ""
+}
