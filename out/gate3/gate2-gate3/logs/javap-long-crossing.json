@@ -1,0 +1,19 @@
+{
+  "command": [
+    "javap",
+    "-p",
+    "-c",
+    "-s",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-s49g5eo0/classes/long-crossing/LongCrossing.class"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C"
+  },
+  "pid": 56231,
+  "status": 0,
+  "stdout": "Compiled from \"LongCrossing.java\"\npublic final class LongCrossing {\n  public LongCrossing();\n    descriptor: ()V\n    Code:\n       0: aload_0\n       1: invokespecial #1                  // Method java/lang/Object.\"<init>\":()V\n       4: return\n\n  static long leaf(long, int);\n    descriptor: (JI)J\n    Code:\n       0: lload_0\n       1: iload_2\n       2: i2l\n       3: ladd\n       4: lreturn\n\n  static long bridge(long, int);\n    descriptor: (JI)J\n    Code:\n       0: lload_0\n       1: ldc2_w        #7                  // long 72623859790382856l\n       4: lxor\n       5: lstore_3\n       6: iload_2\n       7: ifge          17\n      10: lload_3\n      11: iload_2\n      12: ineg\n      13: invokestatic  #9                  // Method leaf:(JI)J\n      16: lreturn\n      17: lload_3\n      18: iload_2\n      19: invokestatic  #9                  // Method leaf:(JI)J\n      22: lreturn\n\n  public static void main(java.lang.String[]);\n    descriptor: ([Ljava/lang/String;)V\n    Code:\n       0: ldc2_w        #15                 // long 1234605616436508552l\n       3: aload_0\n       4: arraylength\n       5: iconst_1\n       6: isub\n       7: invokestatic  #17                 // Method bridge:(JI)J\n      10: lstore_1\n      11: getstatic     #20                 // Field java/lang/System.out:Ljava/io/PrintStream;\n      14: lload_1\n      15: bipush        32\n      17: lushr\n      18: l2i\n      19: invokevirtual #26                 // Method java/io/PrintStream.println:(I)V\n      22: getstatic     #20                 // Field java/lang/System.out:Ljava/io/PrintStream;\n      25: lload_1\n      26: l2i\n      27: invokevirtual #26                 // Method java/io/PrintStream.println:(I)V\n      30: return\n}\n",
+  "stderr": ""
+}

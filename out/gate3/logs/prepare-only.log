@@ -1,4 +1,4 @@
-Gate 3 artifacts in /var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-gf_fns7d
+Gate 3 artifacts in /var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-zkbij1u9
 go version go1.27.1 darwin/arm64
 openjdk version "21.0.6" 2025-01-21 LTS
 OpenJDK Runtime Environment Microsoft-10800196 (build 21.0.6+7-LTS)
@@ -6,4 +6,4 @@ OpenJDK 64-Bit Server VM Microsoft-10800196 (build 21.0.6+7-LTS, mixed mode, sha
 javac 21.0.6
 21.0.6
 jar 21.0.6
-Prepared 12 Gate 3 cases and checked OpenJDK outcomes.
+Prepared 15 Gate 3 cases and checked OpenJDK outcomes.

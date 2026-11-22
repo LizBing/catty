@@ -1,29 +1,29 @@
 {
   "command": [
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/catty",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/catty",
     "build",
     "--classpath",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/classes/deferred-linkage-link:/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/classes/deferred-linkage-variant",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/classes/deferred-linkage-link:/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/classes/deferred-linkage-variant",
     "--main",
     "Link",
     "--mode",
     "auto",
     "--report",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/builds/deferred-linkage-auto/report.json",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/builds/deferred-linkage-auto/report.json",
     "--output",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/builds/deferred-linkage-auto/app",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/builds/deferred-linkage-auto/app",
     "--policy",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/policies/deferred-linkage-auto.json",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/policies/deferred-linkage-auto.json",
     "--generated-source",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/builds/deferred-linkage-auto/generated"
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/builds/deferred-linkage-auto/generated"
   ],
   "cwd": "/Users/services/Projects/catty",
   "environment": {
-    "LC_ALL": "C",
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
     "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home"
+    "LC_ALL": "C"
   },
-  "pid": 16261,
+  "pid": 55770,
   "status": 0,
   "stdout": "",
   "stderr": ""

@@ -18,6 +18,7 @@ from classfile import ClassFile, u2
 
 PROFILE = "catty-jvm21-gate2"
 IMAGE_ABI = 2
+ENABLE_PLUGINS = False
 REQUIRED_CASES = (
     "long-crossing", "initialization", "numeric-edge-cases", "switch-and-wide",
     "arrays", "dispatch-and-constructors", "constant-values-and-reentry",
@@ -259,8 +260,11 @@ def check_run(suite, case, label, binary, args, oracle, choices, *, isolated=Fal
 
 
 def check_report_inventory(report, case):
-    require((report["profile"], report["imageABI"]) == (PROFILE, IMAGE_ABI),
-            f"expected profile {PROFILE} and image ABI {IMAGE_ABI}")
+    expected = (("catty-jvm21-gate3", 3) if ENABLE_PLUGINS else (PROFILE, IMAGE_ABI))
+    require((report["profile"], report["imageABI"]) == expected,
+            f"expected profile {expected[0]} and image ABI {expected[1]}")
+    if ENABLE_PLUGINS:
+        require(report.get("plugins") is True, f"{case.name}: Gate 3 build did not advertise plugins")
     inventory = set(report["opcodes"])
     missing = {canonical_opcode(op) for op in case.opcodes} - inventory
     require(not missing, f"{case.name}: report inventory misses opcodes {sorted(missing)}")
@@ -283,7 +287,8 @@ def check_mode(suite, case, mode, oracles):
     mixed = mode == "auto"
     overrides = {case.interpreted: "interp"} if mixed else {}
     policy = suite.policy(label, list(overrides.items())) if mixed else None
-    build = suite.build(label, paths, case.main, mode, policy=policy, generated=mixed)
+    build = suite.build(label, paths, case.main, mode, policy=policy, generated=mixed,
+                        enable_plugins=ENABLE_PLUGINS)
     report, choices = read_report(build, case.main, paths, default="interp" if mode == "interp" else "aot",
                                   overrides=overrides)
     check_report_inventory(report, case)
@@ -554,7 +559,11 @@ def main():
                         help="compile fixtures and check OpenJDK results without building Catty")
     parser.add_argument("--case", choices=[case.name for case in CASES],
                         help="run one fixture without the full gate checks")
+    parser.add_argument("--enable-plugins", action="store_true",
+                        help="run the supported positive corpus with the Gate 3 profile enabled")
     args = parser.parse_args()
+    global ENABLE_PLUGINS
+    ENABLE_PLUGINS = args.enable_plugins
     work = Path(tempfile.mkdtemp(prefix="catty-gate2-")).resolve()
     print(f"Gate 2 artifacts in {work}", flush=True)
     cases = [case for case in CASES if args.case is None or case.name == args.case]
@@ -588,18 +597,18 @@ def main():
             check_generated_go(generated_builds)
         except AssertionError as exc:
             failures.append(f"generated-go: {exc}")
-    if any(case.name == "long-crossing" for case in cases):
+    if any(case.name == "long-crossing" for case in cases) and not ENABLE_PLUGINS:
         try:
             check_invalid_long(suite)
             print("PASS bad-long-slot", flush=True)
         except AssertionError as exc:
             failures.append(f"bad-long-slot: {exc}")
-    if any(case.name in {"numeric-edge-cases", "switch-and-wide"} for case in cases):
+    if any(case.name in {"numeric-edge-cases", "switch-and-wide"} for case in cases) and not ENABLE_PLUGINS:
         try:
             check_malformed_bytecode(suite)
         except AssertionError as exc:
             failures.append(f"malformed-bytecode: {exc}")
-    if any(case.name == "profile-and-image" for case in cases):
+    if any(case.name == "profile-and-image" for case in cases) and not ENABLE_PLUGINS:
         try:
             check_profile_image(suite)
         except AssertionError as exc:
@@ -609,17 +618,20 @@ def main():
         if missing:
             failures.append("Missing required corpus cases: " + ", ".join(missing))
         try:
+            if ENABLE_PLUGINS:
+                raise AssertionError("skipped for Gate 3-enabled positive corpus")
             result = suite.run("gate1-regression", [sys.executable, "-B", ROOT / "tests" / "acceptance.py"],
                                timeout=900).succeeded()
             print(f"PASS Gate 1 regression. See {result.log}", flush=True)
         except AssertionError as exc:
-            failures.append(f"Gate 1 regression: {exc}")
+            if not (ENABLE_PLUGINS and str(exc) == "skipped for Gate 3-enabled positive corpus"):
+                failures.append(f"Gate 1 regression: {exc}")
     for failure in failures:
         print(f"FAIL {failure}", file=sys.stderr)
     if failures:
         return 1
     if args.case is None:
-        print("Gate 2 passed.")
+        print("Gate 2 positive corpus passed with Gate 3 enabled." if ENABLE_PLUGINS else "Gate 2 passed.")
     return 0
 
 

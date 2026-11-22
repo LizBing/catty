@@ -3,16 +3,16 @@
     "go",
     "build",
     "-o",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/catty",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/catty",
     "./cmd/catty"
   ],
   "cwd": "/Users/services/Projects/catty",
   "environment": {
-    "LC_ALL": "C",
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
     "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home"
+    "LC_ALL": "C"
   },
-  "pid": 15649,
+  "pid": 55158,
   "status": 0,
   "stdout": "",
   "stderr": ""

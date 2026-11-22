@@ -3,16 +3,16 @@
     "java",
     "-Xverify:all",
     "-cp",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/classes/constant-values-and-reentry",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/classes/constant-values-and-reentry",
     "InitOrder"
   ],
   "cwd": "/Users/services/Projects/catty",
   "environment": {
-    "LC_ALL": "C",
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
     "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home"
+    "LC_ALL": "C"
   },
-  "pid": 15638,
+  "pid": 55147,
   "status": 0,
   "stdout": "1\n90\n91\n100\n101\n200\n201\n300\n301\n400\n401\n10\n20\n30\n30\n40\n50\n180\n60\n61\n660\n700\n64\n65\n70\n71\n70\n1\n70\n0\n45\n46\n293709995\n501\n502\n1\n602\n801\n802\n",
   "stderr": ""

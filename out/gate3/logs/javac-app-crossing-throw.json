@@ -5,9 +5,9 @@
     "21",
     "-g",
     "-d",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/apps/crossing-throw",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-klyw3r56/apps/crossing-throw",
     "-cp",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m/stub",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-klyw3r56/stub",
     "/Users/services/Projects/catty/testdata/gate3/crossing-throw/app/Main.java",
     "/Users/services/Projects/catty/testdata/gate3/shared/Base.java",
     "/Users/services/Projects/catty/testdata/gate3/shared/Box.java",
@@ -21,10 +21,10 @@
   "cwd": "/Users/services/Projects/catty",
   "environment": {
     "LC_ALL": "C",
-    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
-    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home"
   },
-  "pid": 14174,
+  "pid": 54066,
   "status": 0,
   "stdout": "",
   "stderr": ""

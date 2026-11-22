@@ -372,14 +372,6 @@ func (r *Runtime) installPluginTx(parent *Loader, res *AdmissionResult) (*Loader
 			c.Interfaces = append(c.Interfaces, i)
 		}
 	}
-	// Resolve every declared descriptor type before any global array cache or
-	// layout state is touched, so a late dependency failure cannot leak
-	// speculative objects into the rollback snapshot.
-	for _, c := range created {
-		if err := r.validateDescriptorTypes(loader, c); err != nil {
-			return nil, r.NewPluginAdmissionException(nil, "DEPENDENCY", err.Error())
-		}
-	}
 	// Hierarchy cycles and final-superclass constraints.
 	if err := r.checkPluginHierarchies(created); err != nil {
 		return nil, r.NewPluginAdmissionException(nil, "VERIFY", err.Error())
@@ -401,7 +393,7 @@ func (r *Runtime) installPluginTx(parent *Loader, res *AdmissionResult) (*Loader
 		}
 	}
 	for _, c := range created {
-		if err := r.resolveClassMetadata(c); err != nil {
+		if err := r.resolveClassMetadata(c, false); err != nil {
 			return nil, r.NewPluginAdmissionException(nil, "DEPENDENCY", err.Error())
 		}
 	}
@@ -420,111 +412,103 @@ func (r *Runtime) installPluginTx(parent *Loader, res *AdmissionResult) (*Loader
 	return loader, nil
 }
 
-func (r *Runtime) validateDescriptorTypes(loader *Loader, c *Class) error {
-	check := func(t Type) error {
-		switch t.Kind {
-		case 'V', 'I', 'J', 'F', 'D':
-			return nil
-		case 'L', 'A':
-			return r.validateDescriptorName(loader, t.DescriptorOrName())
-		}
-		return fmt.Errorf("unsupported descriptor %q", t.Descriptor)
-	}
-	for _, f := range c.StaticField {
-		if err := check(f.Type); err != nil {
-			return fmt.Errorf("field %s.%s: %w", c.Name, f.Name, err)
-		}
-	}
-	for _, f := range c.InstanceField {
-		if err := check(f.Type); err != nil {
-			return fmt.Errorf("field %s.%s: %w", c.Name, f.Name, err)
-		}
-	}
-	for _, m := range c.Methods {
-		for _, p := range m.Type.Params {
-			if err := check(p); err != nil {
-				return fmt.Errorf("method %s.%s%s: %w", c.Name, m.Name, m.Descriptor, err)
-			}
-		}
-		if err := check(m.Type.Return); err != nil {
-			return fmt.Errorf("method %s.%s%s: %w", c.Name, m.Name, m.Descriptor, err)
-		}
-	}
-	return nil
-}
-
-func (r *Runtime) validateDescriptorName(loader *Loader, name string) error {
-	if strings.HasPrefix(name, "[") {
-		component := name[1:]
-		switch component[0] {
-		case '[':
-			return r.validateDescriptorName(loader, component)
-		case 'L':
-			if !strings.HasSuffix(component, ";") {
-				return fmt.Errorf("malformed array descriptor %q", name)
-			}
-			return r.validateDescriptorName(loader, component[1:len(component)-1])
-		default:
-			if _, ok := r.primitives[component[0]]; !ok {
-				return fmt.Errorf("unknown primitive array component %q", name)
-			}
-			return nil
-		}
-	}
-	if _, ok := PrimitiveDescriptor(name); ok {
-		return nil
-	}
-	if _, ok := loader.Lookup(name); !ok {
-		return fmt.Errorf("unknown class %s", name)
-	}
-	return nil
-}
-
-// checkOverrideConstraints rejects an override whose reference descriptor types
-// resolve to different classes through the two defining loaders. Primitive
-// leaves impose no equality constraint.
+// checkOverrideConstraints rejects an override whose reference descriptor
+// leaf types resolve to different classes through the two defining loaders.
+// Primitive descriptors and same-loader declarations impose no constraint.
+// The candidate is compared with every inherited class and interface
+// declaration with the same name and descriptor, including default methods
+// inherited through the interface closure.
 func (r *Runtime) checkOverrideConstraints(created []*Class) error {
 	for _, c := range created {
 		for _, m := range c.Methods {
-			if m.Flags&(AccStatic|AccPrivate) != 0 {
+			if m.Flags&(AccStatic|AccPrivate) != 0 || m.Name == "<init>" || m.Name == "<clinit>" {
 				continue
 			}
-			var inherited []*Method
-			for sup := c.Super; sup != nil; sup = sup.Super {
-				if p := sup.MethodIndex[m.Name+m.Descriptor]; p != nil {
-					inherited = append(inherited, p)
-					break
-				}
-			}
-			for _, in := range c.Interfaces {
-				if p := in.MethodIndex[m.Name+m.Descriptor]; p != nil {
-					inherited = append(inherited, p)
-				}
-			}
-			for _, p := range inherited {
-				if len(p.Type.Params) != len(m.Type.Params) || p.Type.Return.Descriptor != m.Type.Return.Descriptor {
+			for _, p := range inheritedMethods(c, m.Name+m.Descriptor) {
+				if p.Owner == nil || p.Owner.Loader == nil || p.Owner.Loader == c.Loader {
 					continue
 				}
-				for i := range m.Type.Params {
-					a, b := m.ParamClass[i], p.ParamClass[i]
-					if a == nil || b == nil || a == b || a.IsPrimitive || b.IsPrimitive {
-						continue
-					}
-					return fmt.Errorf("loader constraint conflict: %s.%s%s parameter %d resolves to %s and %s",
-						c.Name, m.Name, m.Descriptor, i, a.Name, b.Name)
+				if !r.methodOverrides(m, p, map[*Method]bool{}) {
+					continue
 				}
-				ar, br := m.Type.Return, p.Type.Return
-				if ar.Kind == 'L' || ar.Kind == 'A' {
-					ac, _ := r.classForTypeInLoader(c.Loader, ar)
-					bc, _ := r.classForTypeInLoader(p.Owner.Loader, br)
-					if ac != nil && bc != nil && ac != bc {
-						return fmt.Errorf("loader constraint conflict: %s.%s%s return type", c.Name, m.Name, m.Descriptor)
+				if len(p.Type.Params) != len(m.Type.Params) ||
+					p.Type.Return.Descriptor != m.Type.Return.Descriptor {
+					continue
+				}
+				if ca, cb, name, conflict := r.leafTypeConflict(c.Loader, p.Owner.Loader, m.Type.Params, p.Type.Params); conflict {
+					return fmt.Errorf("loader constraint conflict: %s.%s%s parameter leaf %s resolves to %s and %s",
+						c.Name, m.Name, m.Descriptor, name, ca.Name, cb.Name)
+				}
+				if m.Type.Return.IsReference() {
+					if ca, cb, name, conflict := r.leafTypeConflict(c.Loader, p.Owner.Loader,
+						[]Type{m.Type.Return}, []Type{p.Type.Return}); conflict {
+						return fmt.Errorf("loader constraint conflict: %s.%s%s return leaf %s resolves to %s and %s",
+							c.Name, m.Name, m.Descriptor, name, ca.Name, cb.Name)
 					}
 				}
 			}
 		}
 	}
 	return nil
+}
+
+// inheritedMethods returns every distinct same-signature method declaration in
+// the superclass chain and interface closure of c.
+func inheritedMethods(c *Class, key string) []*Method {
+	var out []*Method
+	seenMethod := map[*Method]bool{}
+	seenClass := map[*Class]bool{}
+	add := func(p *Method) {
+		if p != nil && !seenMethod[p] {
+			seenMethod[p] = true
+			out = append(out, p)
+		}
+	}
+	var visitInterface func(in *Class)
+	visitInterface = func(in *Class) {
+		if in == nil || seenClass[in] {
+			return
+		}
+		seenClass[in] = true
+		add(in.MethodIndex[key])
+		for _, parent := range in.Interfaces {
+			visitInterface(parent)
+		}
+	}
+	for sup := c.Super; sup != nil; sup = sup.Super {
+		add(sup.MethodIndex[key])
+		for _, in := range sup.Interfaces {
+			visitInterface(in)
+		}
+	}
+	for _, in := range c.Interfaces {
+		visitInterface(in)
+	}
+	return out
+}
+
+// leafTypeConflict resolves corresponding reference leaf types through two
+// loaders. It returns the two classes, the leaf name and whether a conflict
+// exists; unresolved types keep ordinary resolution timing and are skipped.
+func (r *Runtime) leafTypeConflict(aLoader, bLoader *Loader, aTypes, bTypes []Type) (*Class, *Class, string, bool) {
+	for i := range aTypes {
+		name := leafClassName(aTypes[i])
+		if name == "" || i >= len(bTypes) || leafClassName(bTypes[i]) != name {
+			continue
+		}
+		a, errA := r.classForLoaderName(aLoader, name)
+		if errA != nil {
+			continue
+		}
+		b, errB := r.classForLoaderName(bLoader, name)
+		if errB != nil {
+			continue
+		}
+		if a != b {
+			return a, b, name, true
+		}
+	}
+	return nil, nil, "", false
 }
 
 func (r *Runtime) checkPluginHierarchies(created []*Class) error {
@@ -628,6 +612,9 @@ func intrinsicClassForName(t *Thread, m *Method, receiver *Object, args []Value)
 	c, err := t.RT.classForLoaderName(loader, name)
 	if err != nil {
 		return ThrowOutcome(t.RT.NewThrowable(t, "java/lang/ClassNotFoundException"))
+	}
+	if t.RT.recordClassInitiation(loader, name, c) {
+		return ThrowOutcome(t.RT.NewThrowable(t, "java/lang/LinkageError"))
 	}
 	if initialize && !c.IsArray && !c.IsPrimitive {
 		if thrown := t.EnsureInitialized(c); thrown != nil {

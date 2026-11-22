@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-s49g5eo0/standalone/app"
+  ],
+  "cwd": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-s49g5eo0/standalone",
+  "environment": {
+    "JAVA_HOME": "",
+    "PATH": "",
+    "LC_ALL": "C",
+    "JDK_HOME": "",
+    "CATTY_TRACE": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-s49g5eo0/traces/standalone.jsonl"
+  },
+  "pid": 56650,
+  "status": 0,
+  "stdout": "270544960\n1348497537\n",
+  "stderr": ""
+}

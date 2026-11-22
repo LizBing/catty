@@ -1,4 +1,4 @@
-Gate 3 artifacts in /var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m
+Gate 3 artifacts in /var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-klyw3r56
 go version go1.27.1 darwin/arm64
 openjdk version "21.0.6" 2025-01-21 LTS
 OpenJDK Runtime Environment Microsoft-10800196 (build 21.0.6+7-LTS)
@@ -10,6 +10,9 @@ PASS late-override
 PASS name-lookup
 PASS parent-first
 PASS loader-identity
+PASS handler-verify
+PASS package-access
+PASS package-dispatch
 PASS replacement
 PASS crossing-throw
 PASS initialization
@@ -24,4 +27,4 @@ PASS admission-policy
 PASS standalone
 PASS profile-and-packaging
 Gate 3 passed.
-kept /var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-57iys7_m
+kept /var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-klyw3r56

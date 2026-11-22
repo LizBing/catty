@@ -1,29 +1,29 @@
 {
   "command": [
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/catty",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/catty",
     "build",
     "--classpath",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/classes/long-crossing",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/classes/long-crossing",
     "--main",
     "LongCrossing",
     "--mode",
     "auto",
     "--report",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/builds/long-crossing-auto/report.json",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/builds/long-crossing-auto/report.json",
     "--output",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/builds/long-crossing-auto/app",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/builds/long-crossing-auto/app",
     "--policy",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/policies/long-crossing-auto.json",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/policies/long-crossing-auto.json",
     "--generated-source",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/builds/long-crossing-auto/generated"
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/builds/long-crossing-auto/generated"
   ],
   "cwd": "/Users/services/Projects/catty",
   "environment": {
-    "LC_ALL": "C",
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
     "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home"
+    "LC_ALL": "C"
   },
-  "pid": 15842,
+  "pid": 55351,
   "status": 0,
   "stdout": "",
   "stderr": ""

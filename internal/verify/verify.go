@@ -18,6 +18,8 @@ import (
 type Context struct {
 	Classes map[string]*classfile.Class
 	Profile string
+	Work    *Work
+	workErr error
 	// MemberFlags resolves a member's access flags and declaring class for the
 	// protected-receiver check. Admission supplies it; image builds leave it nil.
 	MemberFlags func(owner, name, descriptor string) (flags uint16, declaring string, ok bool)
@@ -72,6 +74,7 @@ func (c *Context) ShapesOf(m *classfile.Method) (map[int32][]int, bool) {
 }
 
 func isThrowable(ctx *Context, name string) bool {
+	_ = ctx.chargeSoft(1, "throwable hierarchy query")
 	seen := map[string]bool{}
 	for name != "" && !seen[name] {
 		seen[name] = true
@@ -114,6 +117,9 @@ func VerifyClass(c *classfile.Class, ctx *Context) error {
 		if err := verifyMethod(c, m, ctx); err != nil {
 			return err
 		}
+	}
+	if err := ctx.WorkError(); err != nil {
+		return err
 	}
 	return nil
 }
@@ -275,6 +281,9 @@ func verifyMethod(c *classfile.Class, m *classfile.Method, ctx *Context) error {
 // returns the logical operand-stack height at each reachable instruction.
 func analyzeMethod(c *classfile.Class, m *classfile.Method, mt *rt.MethodType,
 	ctx *Context, index map[int32]int, frameAt map[int32]*classfile.Frame) (map[int32]int, map[int32][]int, error) {
+	if err := ctx.charge(int64(m.MaxLocals+m.MaxStack), "frame analysis storage"); err != nil {
+		return nil, nil, err
+	}
 	initial, err := initialState(c, m, mt)
 	if err != nil {
 		return nil, nil, err
@@ -295,7 +304,7 @@ func analyzeMethod(c *classfile.Class, m *classfile.Method, mt *rt.MethodType,
 
 	start := initial
 	if f := frameAt[0]; f != nil {
-		fs, err := frameStateFrom(f, m.MaxLocals)
+		fs, err := frameStateFrom(ctx, f, m.MaxLocals)
 		if err != nil {
 			return nil, nil, fmt.Errorf("pc 0: %w", err)
 		}
@@ -316,7 +325,7 @@ func analyzeMethod(c *classfile.Class, m *classfile.Method, mt *rt.MethodType,
 		handlerSeeded[h.HandlerPC] = true
 		var hs *frameState
 		if f := frameAt[h.HandlerPC]; f != nil {
-			fs, err := frameStateFrom(f, m.MaxLocals)
+			fs, err := frameStateFrom(ctx, f, m.MaxLocals)
 			if err != nil {
 				return nil, nil, fmt.Errorf("handler pc %d: %w", h.HandlerPC, err)
 			}
@@ -330,7 +339,7 @@ func analyzeMethod(c *classfile.Class, m *classfile.Method, mt *rt.MethodType,
 		} else if m.HasStackMap {
 			return nil, nil, fmt.Errorf("handler pc %d: missing stack map frame", h.HandlerPC)
 		} else {
-			hs = copyState(initial)
+			hs = copyState(ctx, initial)
 			hs.stack = nil
 			hs.stack = append(hs.stack, vtype{kind: vtRef, class: "java/lang/Throwable"})
 		}
@@ -345,7 +354,7 @@ func analyzeMethod(c *classfile.Class, m *classfile.Method, mt *rt.MethodType,
 			return fmt.Errorf("pc %d: branch target %d is not an instruction boundary", fromPC, target)
 		}
 		if f := frameAt[target]; f != nil {
-			fs, err := frameStateFrom(f, m.MaxLocals)
+			fs, err := frameStateFrom(ctx, f, m.MaxLocals)
 			if err != nil {
 				return fmt.Errorf("pc %d: target %d: %w", fromPC, target, err)
 			}
@@ -361,12 +370,12 @@ func analyzeMethod(c *classfile.Class, m *classfile.Method, mt *rt.MethodType,
 			return nil
 		}
 		if existing, ok := states[target]; ok {
-			if !statesEqual(existing, state) {
+			if !statesEqual(ctx, existing, state) {
 				return fmt.Errorf("pc %d: control-flow join at %d has no stack map frame and the incoming states differ", fromPC, target)
 			}
 			return nil
 		}
-		states[target] = copyState(state)
+		states[target] = copyState(ctx, state)
 		queue = append(queue, target)
 		return nil
 	}
@@ -379,22 +388,60 @@ func analyzeMethod(c *classfile.Class, m *classfile.Method, mt *rt.MethodType,
 		}
 		processed[pc] = true
 		state := states[pc]
+		// Exception edges use the local state at the throwing instruction and
+		// exactly the caught throwable on the operand stack. Every handler whose
+		// protected range covers this instruction receives the same edge check,
+		// including shared handler targets and catch-all handlers.
+		for _, h := range m.Handlers {
+			if pc < h.StartPC || pc >= h.EndPC {
+				continue
+			}
+			if err := ctx.charge(1, "exception edge"); err != nil {
+				return nil, nil, err
+			}
+			f := frameAt[h.HandlerPC]
+			if f == nil {
+				continue
+			}
+			fs, err := frameStateFrom(ctx, f, m.MaxLocals)
+			if err != nil {
+				return nil, nil, fmt.Errorf("exception edge at pc %d: handler pc %d: %w", pc, h.HandlerPC, err)
+			}
+			catch := h.CatchType
+			if catch == "" {
+				catch = "java/lang/Throwable"
+			}
+			edge := copyState(ctx, state)
+			edge.stack = []vtype{{kind: vtRef, class: catch}}
+			if err := checkAssignableState(ctx, edge, fs); err != nil {
+				return nil, nil, fmt.Errorf("exception edge at pc %d to handler pc %d: %w", pc, h.HandlerPC, err)
+			}
+		}
 		heights[pc] = len(state.stack)
 		widths := make([]int, len(state.stack))
 		for i, v := range state.stack {
 			widths[i] = v.width()
 		}
 		shapes[pc] = widths
+		if err := ctx.charge(1, "instruction"); err != nil {
+			return nil, nil, err
+		}
 		insn := m.Insns[index[pc]]
-		t := &typeChecker{ctx: ctx, class: c, method: m, mt: mt, state: copyState(state), pc: pc, insn: insn}
+		t := &typeChecker{ctx: ctx, class: c, method: m, mt: mt, state: copyState(ctx, state), pc: pc, insn: insn}
 		succs, terminal, err := t.applyStep()
 		if err != nil {
 			return nil, nil, fmt.Errorf("pc %d: %w", pc, err)
+		}
+		if err := ctx.WorkError(); err != nil {
+			return nil, nil, err
 		}
 		if terminal {
 			continue
 		}
 		for _, succ := range succs {
+			if err := ctx.charge(1, "control-flow edge"); err != nil {
+				return nil, nil, err
+			}
 			if err := propagate(pc, succ.pc, succ.state); err != nil {
 				return nil, nil, err
 			}

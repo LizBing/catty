@@ -1,0 +1,19 @@
+{
+  "command": [
+    "java",
+    "-Xverify:all",
+    "-cp",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-s49g5eo0/classes/long-crossing",
+    "LongCrossing"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C"
+  },
+  "pid": 56232,
+  "status": 0,
+  "stdout": "270544960\n1348497537\n",
+  "stderr": ""
+}

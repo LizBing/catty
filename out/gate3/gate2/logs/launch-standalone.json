@@ -1,16 +1,16 @@
 {
   "command": [
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/standalone/app"
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/standalone/app"
   ],
-  "cwd": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/standalone",
+  "cwd": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/standalone",
   "environment": {
-    "LC_ALL": "C",
-    "JDK_HOME": "",
-    "CATTY_TRACE": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/traces/standalone.jsonl",
+    "JAVA_HOME": "",
     "PATH": "",
-    "JAVA_HOME": ""
+    "JDK_HOME": "",
+    "LC_ALL": "C",
+    "CATTY_TRACE": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/traces/standalone.jsonl"
   },
-  "pid": 16018,
+  "pid": 55527,
   "status": 0,
   "stdout": "270544960\n1348497537\n",
   "stderr": ""

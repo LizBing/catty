@@ -8,7 +8,10 @@ package admission
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"catty/internal/classfile"
 	"catty/internal/verify"
@@ -133,7 +136,8 @@ func AdmitWithLimits(data []byte, parent *rt.Loader, profile string, limits Limi
 			ctxClasses[name] = c
 		}
 	}
-	ctx := &verify.Context{Classes: ctxClasses, Profile: profile}
+	work := &verify.Work{Limit: limits.VerificationWork}
+	ctx := &verify.Context{Classes: ctxClasses, Profile: profile, Work: work}
 	ctx.MemberFlags = func(owner, name, descriptor string) (uint16, string, bool) {
 		return resolveMemberFlags(owner, name, descriptor, byName, parentClasses)
 	}
@@ -149,7 +153,7 @@ func AdmitWithLimits(data []byte, parent *rt.Loader, profile string, limits Limi
 
 	// Structural/profile checks and hierarchy resolution apply to every parsed
 	// entry, including definitions the parent shadows.
-	if err := checkCandidate(archive, candidate, parentClasses, byName, profile, limits); err != nil {
+	if err := checkCandidate(archive, candidate, parentClasses, byName, profile, limits, work); err != nil {
 		return nil, err
 	}
 	if err := checkNests(effective, byName, parentClasses, parent, limits.HierarchyDepth); err != nil {
@@ -159,9 +163,8 @@ func AdmitWithLimits(data []byte, parent *rt.Loader, profile string, limits Limi
 	// The shared typed verifier consumes the effective set. Shadowed entries
 	// receive structural checks above but are not definitions.
 	for _, c := range effective {
-		before := workCounter{}
 		if err := verify.VerifyClass(c, ctx); err != nil {
-			return nil, classifyVerifyError(c, err, before)
+			return nil, classifyVerifyError(c, err)
 		}
 	}
 
@@ -238,24 +241,63 @@ func AdmitWithLimits(data []byte, parent *rt.Loader, profile string, limits Limi
 		DeferredRefs: deferredRefs,
 		Classes:      defs, Defined: defined, Shadowed: shadowed,
 		Interpreted: interpreted, Deferred: len(deferredRefs),
-		Digest: digest, ClassBytes: classBytes,
+		Digest: digest, ClassBytes: classBytes, WorkUsed: work.Used,
 	}, nil
 }
 
-// workCounter is a placeholder for the verification-work accounting hook. The
-// production limit is enforced by the class-file and verifier bounded reads;
-// the counter keeps the diagnostic shape stable for tests.
-type workCounter struct{ units int64 }
-
-func classifyVerifyError(c *classfile.Class, err error, _ workCounter) *rt.PluginError {
+func classifyVerifyError(c *classfile.Class, err error) *rt.PluginError {
 	msg := err.Error()
 	code := "VERIFY"
-	if isDependencyMessage(msg) {
+	var workErr *verify.WorkError
+	if errors.As(err, &workErr) {
+		code = "LIMIT"
+	} else if isDependencyMessage(msg) {
 		code = "DEPENDENCY"
 	} else if isProfileParseError(msg) {
 		code = "PROFILE"
 	}
-	return locFailure(code, location{Class: c.Name}, msg)
+	loc := location{Class: c.Name, Limit: ""}
+	if code == "LIMIT" {
+		loc.Limit = "verificationWork"
+	}
+	perr := locFailure(code, loc, msg)
+	perr.Method, perr.Descriptor, perr.PC = verifyLocation(c.Name, msg)
+	if workErr != nil {
+		perr.Feature = workErr.Operation
+	}
+	return perr
+}
+
+// verifyLocation recovers the method and bytecode offset from the verifier's
+// stable "Class.method(desc): pc N: ..." diagnostic prefix.
+func verifyLocation(className, msg string) (string, string, int) {
+	prefix := className + "."
+	if !strings.HasPrefix(msg, prefix) {
+		return "", "", 0
+	}
+	rest := strings.TrimPrefix(msg, prefix)
+	colon := strings.Index(rest, ":")
+	if colon < 0 {
+		return "", "", 0
+	}
+	signature := rest[:colon]
+	open := strings.IndexByte(signature, '(')
+	if open < 0 {
+		return "", "", 0
+	}
+	method, descriptor := signature[:open], signature[open:]
+	pc := 0
+	if index := strings.Index(msg, "pc "); index >= 0 {
+		start := index + 3
+		end := start
+		for end < len(msg) && msg[end] >= '0' && msg[end] <= '9' {
+			end++
+		}
+		if end > start {
+			pc, _ = strconv.Atoi(msg[start:end])
+		}
+	}
+	return method, descriptor, pc
 }
 
 func isDependencyMessage(msg string) bool {

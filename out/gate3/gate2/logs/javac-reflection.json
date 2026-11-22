@@ -5,18 +5,18 @@
     "21",
     "-g",
     "-d",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-58awfoi5/classes/reflection",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/classes/reflection",
     "/Users/services/Projects/catty/testdata/gate2/reflection/Reflect.java",
     "/Users/services/Projects/catty/testdata/gate2/reflection/hidden/Factory.java",
     "/Users/services/Projects/catty/testdata/gate2/reflection/hidden/Hidden.java"
   ],
   "cwd": "/Users/services/Projects/catty",
   "environment": {
-    "LC_ALL": "C",
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
     "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home"
+    "LC_ALL": "C"
   },
-  "pid": 15639,
+  "pid": 55148,
   "status": 0,
   "stdout": "",
   "stderr": ""

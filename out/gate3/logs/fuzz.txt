@@ -1,16 +1,16 @@
-fuzz: elapsed: 0s, gathering baseline coverage: 0/40 completed
-fuzz: elapsed: 0s, gathering baseline coverage: 40/40 completed, now fuzzing with 1 workers
-fuzz: elapsed: 3s, execs: 94425 (31472/sec), new interesting: 0 (total: 40)
-fuzz: elapsed: 6s, execs: 94425 (0/sec), new interesting: 0 (total: 40)
-fuzz: elapsed: 9s, execs: 371463 (92393/sec), new interesting: 0 (total: 40)
-fuzz: elapsed: 12s, execs: 471813 (33433/sec), new interesting: 0 (total: 40)
-fuzz: elapsed: 15s, execs: 471813 (0/sec), new interesting: 0 (total: 40)
-fuzz: elapsed: 18s, execs: 738180 (88762/sec), new interesting: 0 (total: 40)
-fuzz: elapsed: 21s, execs: 887551 (49790/sec), new interesting: 1 (total: 41)
-fuzz: elapsed: 24s, execs: 994651 (35700/sec), new interesting: 1 (total: 41)
-fuzz: elapsed: 27s, execs: 1102631 (35993/sec), new interesting: 1 (total: 41)
-fuzz: elapsed: 30s, execs: 1198174 (31850/sec), new interesting: 1 (total: 41)
-fuzz: elapsed: 31s, execs: 1198174 (0/sec), new interesting: 1 (total: 41)
+fuzz: elapsed: 0s, gathering baseline coverage: 0/41 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 41/41 completed, now fuzzing with 1 workers
+fuzz: elapsed: 3s, execs: 8485 (2826/sec), new interesting: 0 (total: 41)
+fuzz: elapsed: 6s, execs: 274199 (88571/sec), new interesting: 0 (total: 41)
+fuzz: elapsed: 9s, execs: 379495 (35099/sec), new interesting: 0 (total: 41)
+fuzz: elapsed: 12s, execs: 379495 (0/sec), new interesting: 0 (total: 41)
+fuzz: elapsed: 15s, execs: 658505 (93025/sec), new interesting: 0 (total: 41)
+fuzz: elapsed: 18s, execs: 793709 (45058/sec), new interesting: 0 (total: 41)
+fuzz: elapsed: 21s, execs: 901008 (35766/sec), new interesting: 0 (total: 41)
+fuzz: elapsed: 24s, execs: 1025656 (41549/sec), new interesting: 1 (total: 42)
+fuzz: elapsed: 27s, execs: 1025656 (0/sec), new interesting: 1 (total: 42)
+fuzz: elapsed: 30s, execs: 1271725 (82027/sec), new interesting: 1 (total: 42)
+fuzz: elapsed: 30s, execs: 1271725 (0/sec), new interesting: 1 (total: 42)
 PASS
-ok  	catty/internal/admission	31.402s
+ok  	catty/internal/admission	30.245s
 fuzz=0

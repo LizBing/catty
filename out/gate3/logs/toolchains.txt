@@ -1,5 +1,5 @@
-go: go version go1.27.1 darwin/arm64
+go version: go version go1.27.1 darwin/arm64
 java: openjdk version "21.0.6" 2025-01-21 LTS
 javac: javac 21.0.6
-python: Python 3.9.6
-host: Zaakjyus-Mac-Mini.local arm64
+javap: 21.0.6
+jar: jar 21.0.6

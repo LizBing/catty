@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-s49g5eo0/builds/long-crossing-auto/app",
+    "a",
+    "b",
+    "c"
+  ],
+  "cwd": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-s49g5eo0/builds/long-crossing-auto",
+  "environment": {
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C",
+    "CATTY_TRACE": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-s49g5eo0/traces/long-crossing-auto-1.jsonl"
+  },
+  "pid": 56649,
+  "status": 0,
+  "stdout": "270544960\n1348497538\n",
+  "stderr": ""
+}

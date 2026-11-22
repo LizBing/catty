@@ -1,0 +1,24 @@
+{
+  "command": [
+    "javac",
+    "--release",
+    "21",
+    "-g",
+    "-d",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-klyw3r56/plugins/package-dispatch/a",
+    "-cp",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-klyw3r56/apps/package-dispatch:/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-klyw3r56/stub",
+    "/Users/services/Projects/catty/testdata/gate3/package-dispatch/plugin/demo/Child.java",
+    "/Users/services/Projects/catty/testdata/gate3/package-dispatch/plugin/demo/PublicChild.java"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "LC_ALL": "C",
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home"
+  },
+  "pid": 54091,
+  "status": 0,
+  "stdout": "",
+  "stderr": ""
+}

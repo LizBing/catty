@@ -210,19 +210,136 @@ func TestResolutionCacheScopedToRuntimeClassAndCP(t *testing.T) {
 	}
 }
 
-func TestFailedDescriptorValidationLeavesArrayCacheUntouched(t *testing.T) {
+func TestDeferredDescriptorLeavesArrayCacheUntouched(t *testing.T) {
 	r := gate3Runtime(t)
 	before := len(r.arrayClasses) + len(r.primitiveArrayClass)
-	def := returnIntDef("ext/Bad", "app/Base")
+	def := returnIntDef("ext/Deferred", "app/Base")
 	def.InstanceFields = []FieldDef{{Name: "value", Descriptor: "[Lext/Missing;"}}
-	if _, err := r.installPlugin(r.Loader, &AdmissionResult{Classes: []*ClassDef{def}, Defined: []string{"ext/Bad"}}); err == nil {
-		t.Fatal("missing array component was committed")
+	loader, thrown := r.installPlugin(r.Loader, &AdmissionResult{Classes: []*ClassDef{def}, Defined: []string{"ext/Deferred"}})
+	if thrown != nil {
+		t.Fatalf("deferred field descriptor rejected: %v", thrown)
 	}
-	after := len(r.arrayClasses) + len(r.primitiveArrayClass)
-	if after != before {
-		t.Fatalf("failed admission changed the array intern table: %d -> %d", before, after)
+	if loader == nil {
+		t.Fatal("deferred descriptor did not publish a loader")
 	}
-	if len(r.pluginLoaders) != 0 {
-		t.Fatal("failed descriptor validation published a loader")
+	if after := len(r.arrayClasses) + len(r.primitiveArrayClass); after != before {
+		t.Fatalf("deferred descriptor changed the array intern table: %d -> %d", before, after)
+	}
+	if c, ok := loader.Local("ext/Deferred"); !ok || c.Mirror == nil {
+		t.Fatal("deferred class was not installed")
+	}
+}
+
+func constraintRuntime(t *testing.T) (*Runtime, *Loader, *Loader, *Class, *Class) {
+	t.Helper()
+	r := gate3Runtime(t)
+	object := r.mustClass("java/lang/Object")
+	a := &Loader{ID: 2, Name: "constraint-a", Runtime: r, Parent: r.Loader, Classes: map[string]*Class{}}
+	b := &Loader{ID: 3, Name: "constraint-b", Runtime: r, Parent: r.Loader, Classes: map[string]*Class{}}
+	ta := &Class{Name: "ext/T", Loader: a, Super: object, MethodIndex: map[string]*Method{}}
+	tb := &Class{Name: "ext/T", Loader: b, Super: object, MethodIndex: map[string]*Method{}}
+	a.Classes["ext/T"] = ta
+	b.Classes["ext/T"] = tb
+	return r, a, b, ta, tb
+}
+
+func TestLoadingConstraintTransition(t *testing.T) {
+	r, a, b, ta, tb := constraintRuntime(t)
+	typ, err := ParseFieldType("Lext/T;")
+	if err != nil {
+		t.Fatal(err)
+	}
+	mt := &MethodType{Params: []Type{typ}, Return: Type{Kind: 'V', Descriptor: "V"}}
+	if !r.imposeMethodConstraints(a, b, mt) {
+		t.Fatal("two distinct local leaf classes did not conflict")
+	}
+	if len(r.initiations) != 0 || len(r.constraints) != 0 {
+		t.Fatalf("conflicting constraint published state: init=%d constraints=%d", len(r.initiations), len(r.constraints))
+	}
+	if r.recordInitiation(a, "ext/T", ta) {
+		t.Fatal("first initiation reported a conflict")
+	}
+	keyB := initiationKey{Loader: b, Name: "ext/T"}
+	r.constraints[makeConstraintKey(initiationKey{Loader: a, Name: "ext/T"}, keyB)] = struct{}{}
+	if !r.recordInitiation(b, "ext/T", tb) {
+		t.Fatal("later lookup did not observe the pending constraint")
+	}
+	if _, ok := r.initiations[keyB]; ok {
+		t.Fatal("conflicting late initiation was published")
+	}
+}
+
+func TestLoadingConstraintPositiveAndArrayLeaf(t *testing.T) {
+	r, a, b, _, _ := constraintRuntime(t)
+	object := r.mustClass("java/lang/Object")
+	shared := &Class{Name: "app/Shared", Loader: r.Loader, Super: object, MethodIndex: map[string]*Method{}}
+	r.Loader.Classes["app/Shared"] = shared
+	r.Classes["app/Shared"] = shared
+	sharedType, _ := ParseFieldType("Lapp/Shared;")
+	arrayType, _ := ParseFieldType("[Lapp/Shared;")
+	mt := &MethodType{Params: []Type{sharedType, arrayType}, Return: Type{Kind: 'V', Descriptor: "V"}}
+	if r.imposeMethodConstraints(a, b, mt) {
+		t.Fatal("shared parent-visible leaf types conflicted")
+	}
+	if len(r.constraints) == 0 {
+		t.Fatal("successful constraints were not published")
+	}
+	// Both loaders must resolve the shared type; the array leaf is the same.
+	if r.initiations[initiationKey{Loader: a, Name: "app/Shared"}] != shared ||
+		r.initiations[initiationKey{Loader: b, Name: "app/Shared"}] != shared {
+		t.Fatal("shared initiations are not loader-specific")
+	}
+}
+
+func TestOverridePreparationUsesLeafTypes(t *testing.T) {
+	r, a, b, ta, tb := constraintRuntime(t)
+	object := r.mustClass("java/lang/Object")
+	// Unit-level preparation: a candidate method in loader a declares ext/T in
+	// its descriptor while an inherited declaration in loader b resolves the
+	// same textual leaf to a different class. Parent-first visibility makes
+	// this unreachable through normal public registration when a shared parent
+	// defines the name; the constraint transition itself is tested here.
+	declType := Type{Kind: 'L', ClassName: "ext/T", Descriptor: "Lext/T;"}
+	parent := &Class{Name: "ext/Parent", Loader: b, Super: object, MethodIndex: map[string]*Method{}}
+	p := &Method{Owner: parent, Name: "m", Descriptor: "(Lext/T;)V", Flags: AccPublic,
+		Type: &MethodType{Params: []Type{declType}, Return: Type{Kind: 'V', Descriptor: "V"}}, ParamClass: []*Class{tb}}
+	parent.addMethod(p)
+	cand := &Class{Name: "ext/Candidate", Loader: a, Super: parent, MethodIndex: map[string]*Method{}}
+	m := &Method{Owner: cand, Name: "m", Descriptor: "(Lext/T;)V", Flags: AccPublic,
+		Type: &MethodType{Params: []Type{declType}, Return: Type{Kind: 'V', Descriptor: "V"}}, ParamClass: []*Class{ta}}
+	cand.addMethod(m)
+	if err := r.checkOverrideConstraints([]*Class{cand}); err == nil {
+		t.Fatal("override preparation did not report the leaf-type conflict")
+	}
+}
+
+func TestLoadingConstraintArrayLeafConflict(t *testing.T) {
+	r, a, b, _, _ := constraintRuntime(t)
+	arrayType, _ := ParseFieldType("[[Lext/T;")
+	mt := &MethodType{Params: []Type{arrayType}, Return: Type{Kind: 'V', Descriptor: "V"}}
+	if !r.imposeMethodConstraints(a, b, mt) {
+		t.Fatal("distinct array leaf classes did not conflict")
+	}
+	if len(r.initiations) != 0 || len(r.constraints) != 0 {
+		t.Fatal("conflicting array constraint published state")
+	}
+}
+
+func TestOverridePreparationInheritedInterface(t *testing.T) {
+	r, a, b, ta, tb := constraintRuntime(t)
+	object := r.mustClass("java/lang/Object")
+	iface := &Class{Name: "ext/IFace", Loader: b, Super: object,
+		Flags: AccInterface | AccAbstract | AccPublic, MethodIndex: map[string]*Method{}}
+	declType := Type{Kind: 'L', ClassName: "ext/T", Descriptor: "Lext/T;"}
+	p := &Method{Owner: iface, Name: "m", Descriptor: "(Lext/T;)V", Flags: AccPublic | AccAbstract,
+		Type: &MethodType{Params: []Type{declType}, Return: Type{Kind: 'V', Descriptor: "V"}}, ParamClass: []*Class{tb}}
+	iface.addMethod(p)
+	cand := &Class{Name: "ext/Impl", Loader: a, Super: object,
+		Interfaces: []*Class{iface}, MethodIndex: map[string]*Method{}}
+	m := &Method{Owner: cand, Name: "m", Descriptor: "(Lext/T;)V", Flags: AccPublic,
+		Type: &MethodType{Params: []Type{declType}, Return: Type{Kind: 'V', Descriptor: "V"}}, ParamClass: []*Class{ta}}
+	cand.addMethod(m)
+	if err := r.checkOverrideConstraints([]*Class{cand}); err == nil {
+		t.Fatal("inherited interface implementation did not trigger preparation constraints")
 	}
 }

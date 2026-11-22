@@ -407,12 +407,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -430,12 +430,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -455,12 +455,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -478,12 +478,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -502,12 +502,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -527,12 +527,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -550,12 +550,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -574,12 +574,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -597,12 +597,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -623,12 +623,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -647,12 +647,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -670,12 +670,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -694,12 +694,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -717,12 +717,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -739,12 +739,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -762,12 +762,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -785,12 +785,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -806,12 +806,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -832,12 +832,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -856,12 +856,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -879,12 +879,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -903,12 +903,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -926,12 +926,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -948,12 +948,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -971,12 +971,12 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -994,12 +994,97 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			v, thrown := t.GetStatic(m, 25, "java/lang/System", "out", "Ljava/io/PrintStream;")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 100, thrown); ok {
+			stack = [4]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			stack[1] = t.StringConstant([]uint16{101, 120, 116, 46, 83, 105, 103})
+			stack[2] = rt.IntValue(0)
+			stack[3] = locals[3]
+			{
+			out := t.InvokeStatic(m, 107, 33, "java/lang/Class", "forName", "(Ljava/lang/String;ZLjava/lang/ClassLoader;)Ljava/lang/Class;", stack[1:4])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 107, thrown); ok {
+			stack = [4]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[1] = out.Value
+			}
+			if stack[1].Ref == nil {
+			block = 2
+			continue
+			}
+			block = 1
+			continue
+		case 1:
+			stack[1] = rt.IntValue(1)
 			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			continue
+		case 2:
+			stack[1] = rt.IntValue(0)
+			block = 3
+			continue
+		case 3:
+			{
+			out := t.InvokeVirtual(m, 118, 63, stack[0], "java/io/PrintStream", "println", "(Z)V", stack[1:2])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 118, thrown); ok {
+			stack = [4]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1010,35 +1095,35 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			}
 			stack[0] = rt.IntValue(0)
 			locals[4] = stack[0]
-			block = 1
+			block = 4
 			continue
-		case 1:
+		case 4:
 			stack[0] = locals[4]
 			stack[1] = rt.IntValue(2)
 			if rt.AsInt(stack[0]) >= rt.AsInt(stack[1]) {
-			block = 8
+			block = 11
 			continue
 			}
-			block = 2
+			block = 5
 			continue
-		case 2:
+		case 5:
 			stack[0] = t.StringConstant([]uint16{101, 120, 116, 46, 76, 105, 110, 107})
 			stack[1] = rt.IntValue(0)
 			stack[2] = locals[3]
 			{
-			out := t.InvokeStatic(m, 113, 33, "java/lang/Class", "forName", "(Ljava/lang/String;ZLjava/lang/ClassLoader;)Ljava/lang/Class;", stack[0:3])
+			out := t.InvokeStatic(m, 134, 33, "java/lang/Class", "forName", "(Ljava/lang/String;ZLjava/lang/ClassLoader;)Ljava/lang/Class;", stack[0:3])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 113, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 134, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1053,16 +1138,16 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			{
 			obj, thrown := t.NewReferenceArray(m, 10, "java/lang/Class", rt.AsInt(stack[2]))
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 119, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 140, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1073,19 +1158,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[2] = rt.RefValue(obj)
 			}
 			{
-			out := t.InvokeVirtual(m, 122, 39, stack[0], "java/lang/Class", "getMethod", "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;", stack[1:3])
+			out := t.InvokeVirtual(m, 143, 39, stack[0], "java/lang/Class", "getMethod", "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;", stack[1:3])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 122, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 143, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1100,16 +1185,16 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			{
 			obj, thrown := t.NewReferenceArray(m, 2, "java/lang/Object", rt.AsInt(stack[2]))
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 127, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 148, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1120,19 +1205,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[2] = rt.RefValue(obj)
 			}
 			{
-			out := t.InvokeVirtual(m, 130, 43, stack[0], "java/lang/reflect/Method", "invoke", "(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;", stack[1:3])
+			out := t.InvokeVirtual(m, 151, 43, stack[0], "java/lang/reflect/Method", "invoke", "(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;", stack[1:3])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 130, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 151, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1145,16 +1230,16 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			{
 			v, thrown := t.GetStatic(m, 25, "java/lang/System", "out", "Ljava/io/PrintStream;")
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 134, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 155, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1166,19 +1251,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			}
 			stack[1] = rt.IntValue(0)
 			{
-			out := t.InvokeVirtual(m, 138, 55, stack[0], "java/io/PrintStream", "println", "(I)V", stack[1:2])
+			out := t.InvokeVirtual(m, 159, 55, stack[0], "java/io/PrintStream", "println", "(I)V", stack[1:2])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 138, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 159, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1187,23 +1272,23 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			return rt.ThrowOutcome(thrown)
 			}
 			}
-			block = 7
+			block = 10
 			continue
-		case 3:
+		case 6:
 			locals[5] = stack[0]
 			{
 			v, thrown := t.GetStatic(m, 25, "java/lang/System", "out", "Ljava/io/PrintStream;")
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 146, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 167, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1215,19 +1300,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			}
 			stack[1] = locals[5]
 			{
-			out := t.InvokeVirtual(m, 151, 65, stack[1], "java/lang/reflect/InvocationTargetException", "getCause", "()Ljava/lang/Throwable;", stack[2:2])
+			out := t.InvokeVirtual(m, 172, 70, stack[1], "java/lang/reflect/InvocationTargetException", "getCause", "()Ljava/lang/Throwable;", stack[2:2])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 151, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 172, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1238,18 +1323,18 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[1] = out.Value
 			}
 			{
-			n, thrown := t.InstanceOf(m, 69, "java/lang/NoSuchFieldError", stack[1])
+			n, thrown := t.InstanceOf(m, 74, "java/lang/NoSuchFieldError", stack[1])
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 154, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 175, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1260,34 +1345,34 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[1] = rt.IntValue(n)
 			}
 			if rt.AsInt(stack[1]) == 0 {
-			block = 5
+			block = 8
 			continue
 			}
-			block = 4
+			block = 7
 			continue
-		case 4:
+		case 7:
 			stack[1] = rt.IntValue(1)
-			block = 6
+			block = 9
 			continue
-		case 5:
+		case 8:
 			stack[1] = rt.IntValue(9)
-			block = 6
+			block = 9
 			continue
-		case 6:
+		case 9:
 			{
-			out := t.InvokeVirtual(m, 166, 55, stack[0], "java/io/PrintStream", "println", "(I)V", stack[1:2])
+			out := t.InvokeVirtual(m, 187, 55, stack[0], "java/io/PrintStream", "println", "(I)V", stack[1:2])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 166, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 187, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1296,26 +1381,26 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			return rt.ThrowOutcome(thrown)
 			}
 			}
-			block = 7
+			block = 10
 			continue
-		case 7:
+		case 10:
 			locals[4] = rt.IntValue(rt.AsInt(locals[4]) + 1)
-			block = 1
+			block = 4
 			continue
-		case 8:
+		case 11:
 			{
 			v, thrown := t.GetStatic(m, 25, "java/lang/System", "out", "Ljava/io/PrintStream;")
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 175, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 196, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1329,19 +1414,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[2] = rt.IntValue(0)
 			stack[3] = locals[2]
 			{
-			out := t.InvokeStatic(m, 182, 33, "java/lang/Class", "forName", "(Ljava/lang/String;ZLjava/lang/ClassLoader;)Ljava/lang/Class;", stack[1:4])
+			out := t.InvokeStatic(m, 203, 33, "java/lang/Class", "forName", "(Ljava/lang/String;ZLjava/lang/ClassLoader;)Ljava/lang/Class;", stack[1:4])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 182, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 203, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1356,16 +1441,16 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			{
 			obj, thrown := t.NewReferenceArray(m, 10, "java/lang/Class", rt.AsInt(stack[3]))
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 188, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 209, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1376,19 +1461,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[3] = rt.RefValue(obj)
 			}
 			{
-			out := t.InvokeVirtual(m, 191, 39, stack[1], "java/lang/Class", "getMethod", "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;", stack[2:4])
+			out := t.InvokeVirtual(m, 212, 39, stack[1], "java/lang/Class", "getMethod", "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;", stack[2:4])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 191, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 212, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1403,16 +1488,16 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			{
 			obj, thrown := t.NewReferenceArray(m, 2, "java/lang/Object", rt.AsInt(stack[3]))
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 196, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 217, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1423,19 +1508,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[3] = rt.RefValue(obj)
 			}
 			{
-			out := t.InvokeVirtual(m, 199, 43, stack[1], "java/lang/reflect/Method", "invoke", "(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;", stack[2:4])
+			out := t.InvokeVirtual(m, 220, 43, stack[1], "java/lang/reflect/Method", "invoke", "(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;", stack[2:4])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 199, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 220, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1448,16 +1533,16 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			{
 			v, thrown := t.CheckCast(m, 49, "java/lang/Integer", stack[1])
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 202, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 223, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1468,19 +1553,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[1] = v
 			}
 			{
-			out := t.InvokeVirtual(m, 205, 51, stack[1], "java/lang/Integer", "intValue", "()I", stack[2:2])
+			out := t.InvokeVirtual(m, 226, 51, stack[1], "java/lang/Integer", "intValue", "()I", stack[2:2])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 205, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 226, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1491,19 +1576,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[1] = out.Value
 			}
 			{
-			out := t.InvokeVirtual(m, 208, 55, stack[0], "java/io/PrintStream", "println", "(I)V", stack[1:2])
+			out := t.InvokeVirtual(m, 229, 55, stack[0], "java/io/PrintStream", "println", "(I)V", stack[1:2])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 208, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 229, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1514,35 +1599,35 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			}
 			stack[0] = rt.IntValue(0)
 			locals[4] = stack[0]
-			block = 9
+			block = 12
 			continue
-		case 9:
+		case 12:
 			stack[0] = locals[4]
 			stack[1] = rt.IntValue(2)
 			if rt.AsInt(stack[0]) >= rt.AsInt(stack[1]) {
-			block = 16
+			block = 19
 			continue
 			}
-			block = 10
+			block = 13
 			continue
-		case 10:
+		case 13:
 			stack[0] = t.StringConstant([]uint16{101, 120, 116, 46, 76, 105, 110, 107})
 			stack[1] = rt.IntValue(0)
 			stack[2] = locals[3]
 			{
-			out := t.InvokeStatic(m, 224, 33, "java/lang/Class", "forName", "(Ljava/lang/String;ZLjava/lang/ClassLoader;)Ljava/lang/Class;", stack[0:3])
+			out := t.InvokeStatic(m, 245, 33, "java/lang/Class", "forName", "(Ljava/lang/String;ZLjava/lang/ClassLoader;)Ljava/lang/Class;", stack[0:3])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 224, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 245, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1557,16 +1642,16 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			{
 			obj, thrown := t.NewReferenceArray(m, 10, "java/lang/Class", rt.AsInt(stack[2]))
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 230, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 251, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1577,19 +1662,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[2] = rt.RefValue(obj)
 			}
 			{
-			out := t.InvokeVirtual(m, 233, 39, stack[0], "java/lang/Class", "getMethod", "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;", stack[1:3])
+			out := t.InvokeVirtual(m, 254, 39, stack[0], "java/lang/Class", "getMethod", "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;", stack[1:3])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 233, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 254, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1604,16 +1689,16 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			{
 			obj, thrown := t.NewReferenceArray(m, 2, "java/lang/Object", rt.AsInt(stack[2]))
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 238, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 259, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1624,19 +1709,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[2] = rt.RefValue(obj)
 			}
 			{
-			out := t.InvokeVirtual(m, 241, 43, stack[0], "java/lang/reflect/Method", "invoke", "(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;", stack[1:3])
+			out := t.InvokeVirtual(m, 262, 43, stack[0], "java/lang/reflect/Method", "invoke", "(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;", stack[1:3])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 241, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 262, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1649,16 +1734,16 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			{
 			v, thrown := t.GetStatic(m, 25, "java/lang/System", "out", "Ljava/io/PrintStream;")
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 245, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 266, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1670,19 +1755,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			}
 			stack[1] = rt.IntValue(0)
 			{
-			out := t.InvokeVirtual(m, 249, 55, stack[0], "java/io/PrintStream", "println", "(I)V", stack[1:2])
+			out := t.InvokeVirtual(m, 270, 55, stack[0], "java/io/PrintStream", "println", "(I)V", stack[1:2])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 249, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 270, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1691,23 +1776,23 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			return rt.ThrowOutcome(thrown)
 			}
 			}
-			block = 15
+			block = 18
 			continue
-		case 11:
+		case 14:
 			locals[5] = stack[0]
 			{
 			v, thrown := t.GetStatic(m, 25, "java/lang/System", "out", "Ljava/io/PrintStream;")
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 257, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 278, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1719,19 +1804,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			}
 			stack[1] = locals[5]
 			{
-			out := t.InvokeVirtual(m, 262, 65, stack[1], "java/lang/reflect/InvocationTargetException", "getCause", "()Ljava/lang/Throwable;", stack[2:2])
+			out := t.InvokeVirtual(m, 283, 70, stack[1], "java/lang/reflect/InvocationTargetException", "getCause", "()Ljava/lang/Throwable;", stack[2:2])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 262, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 283, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1742,18 +1827,18 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[1] = out.Value
 			}
 			{
-			n, thrown := t.InstanceOf(m, 73, "java/lang/NoSuchMethodError", stack[1])
+			n, thrown := t.InstanceOf(m, 78, "java/lang/NoSuchMethodError", stack[1])
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 265, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 286, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1764,34 +1849,34 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[1] = rt.IntValue(n)
 			}
 			if rt.AsInt(stack[1]) == 0 {
-			block = 13
+			block = 16
 			continue
 			}
-			block = 12
+			block = 15
 			continue
-		case 12:
+		case 15:
 			stack[1] = rt.IntValue(2)
-			block = 14
+			block = 17
 			continue
-		case 13:
+		case 16:
 			stack[1] = rt.IntValue(9)
-			block = 14
+			block = 17
 			continue
-		case 14:
+		case 17:
 			{
-			out := t.InvokeVirtual(m, 277, 55, stack[0], "java/io/PrintStream", "println", "(I)V", stack[1:2])
+			out := t.InvokeVirtual(m, 298, 55, stack[0], "java/io/PrintStream", "println", "(I)V", stack[1:2])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 277, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 298, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1800,26 +1885,26 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			return rt.ThrowOutcome(thrown)
 			}
 			}
-			block = 15
+			block = 18
 			continue
-		case 15:
+		case 18:
 			locals[4] = rt.IntValue(rt.AsInt(locals[4]) + 1)
-			block = 9
+			block = 12
 			continue
-		case 16:
+		case 19:
 			{
 			v, thrown := t.GetStatic(m, 25, "java/lang/System", "out", "Ljava/io/PrintStream;")
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 286, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 307, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1833,19 +1918,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[2] = rt.IntValue(0)
 			stack[3] = locals[2]
 			{
-			out := t.InvokeStatic(m, 293, 33, "java/lang/Class", "forName", "(Ljava/lang/String;ZLjava/lang/ClassLoader;)Ljava/lang/Class;", stack[1:4])
+			out := t.InvokeStatic(m, 314, 33, "java/lang/Class", "forName", "(Ljava/lang/String;ZLjava/lang/ClassLoader;)Ljava/lang/Class;", stack[1:4])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 293, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 314, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1860,16 +1945,16 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			{
 			obj, thrown := t.NewReferenceArray(m, 10, "java/lang/Class", rt.AsInt(stack[3]))
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 299, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 320, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1880,19 +1965,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[3] = rt.RefValue(obj)
 			}
 			{
-			out := t.InvokeVirtual(m, 302, 39, stack[1], "java/lang/Class", "getMethod", "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;", stack[2:4])
+			out := t.InvokeVirtual(m, 323, 39, stack[1], "java/lang/Class", "getMethod", "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;", stack[2:4])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 302, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 323, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1907,16 +1992,16 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			{
 			obj, thrown := t.NewReferenceArray(m, 2, "java/lang/Object", rt.AsInt(stack[3]))
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 307, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 328, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1927,19 +2012,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[3] = rt.RefValue(obj)
 			}
 			{
-			out := t.InvokeVirtual(m, 310, 43, stack[1], "java/lang/reflect/Method", "invoke", "(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;", stack[2:4])
+			out := t.InvokeVirtual(m, 331, 43, stack[1], "java/lang/reflect/Method", "invoke", "(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;", stack[2:4])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 310, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 331, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1952,16 +2037,16 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			{
 			v, thrown := t.CheckCast(m, 49, "java/lang/Integer", stack[1])
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 313, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 334, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1972,19 +2057,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[1] = v
 			}
 			{
-			out := t.InvokeVirtual(m, 316, 51, stack[1], "java/lang/Integer", "intValue", "()I", stack[2:2])
+			out := t.InvokeVirtual(m, 337, 51, stack[1], "java/lang/Integer", "intValue", "()I", stack[2:2])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 316, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 337, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -1995,19 +2080,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[1] = out.Value
 			}
 			{
-			out := t.InvokeVirtual(m, 319, 55, stack[0], "java/io/PrintStream", "println", "(I)V", stack[1:2])
+			out := t.InvokeVirtual(m, 340, 55, stack[0], "java/io/PrintStream", "println", "(I)V", stack[1:2])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 319, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 340, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -2018,35 +2103,35 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			}
 			stack[0] = rt.IntValue(0)
 			locals[4] = stack[0]
-			block = 17
+			block = 20
 			continue
-		case 17:
+		case 20:
 			stack[0] = locals[4]
 			stack[1] = rt.IntValue(2)
 			if rt.AsInt(stack[0]) >= rt.AsInt(stack[1]) {
-			block = 24
+			block = 27
 			continue
 			}
-			block = 18
+			block = 21
 			continue
-		case 18:
+		case 21:
 			stack[0] = t.StringConstant([]uint16{101, 120, 116, 46, 76, 105, 110, 107})
 			stack[1] = rt.IntValue(0)
 			stack[2] = locals[3]
 			{
-			out := t.InvokeStatic(m, 335, 33, "java/lang/Class", "forName", "(Ljava/lang/String;ZLjava/lang/ClassLoader;)Ljava/lang/Class;", stack[0:3])
+			out := t.InvokeStatic(m, 356, 33, "java/lang/Class", "forName", "(Ljava/lang/String;ZLjava/lang/ClassLoader;)Ljava/lang/Class;", stack[0:3])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 335, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 356, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -2061,16 +2146,16 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			{
 			obj, thrown := t.NewReferenceArray(m, 10, "java/lang/Class", rt.AsInt(stack[2]))
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 341, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 362, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -2081,19 +2166,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[2] = rt.RefValue(obj)
 			}
 			{
-			out := t.InvokeVirtual(m, 344, 39, stack[0], "java/lang/Class", "getMethod", "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;", stack[1:3])
+			out := t.InvokeVirtual(m, 365, 39, stack[0], "java/lang/Class", "getMethod", "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;", stack[1:3])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 344, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 365, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -2108,16 +2193,16 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			{
 			obj, thrown := t.NewReferenceArray(m, 2, "java/lang/Object", rt.AsInt(stack[2]))
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 349, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 370, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -2128,19 +2213,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[2] = rt.RefValue(obj)
 			}
 			{
-			out := t.InvokeVirtual(m, 352, 43, stack[0], "java/lang/reflect/Method", "invoke", "(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;", stack[1:3])
+			out := t.InvokeVirtual(m, 373, 43, stack[0], "java/lang/reflect/Method", "invoke", "(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;", stack[1:3])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 352, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 373, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -2153,16 +2238,16 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			{
 			v, thrown := t.GetStatic(m, 25, "java/lang/System", "out", "Ljava/io/PrintStream;")
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 356, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 377, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -2174,19 +2259,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			}
 			stack[1] = rt.IntValue(0)
 			{
-			out := t.InvokeVirtual(m, 360, 55, stack[0], "java/io/PrintStream", "println", "(I)V", stack[1:2])
+			out := t.InvokeVirtual(m, 381, 55, stack[0], "java/io/PrintStream", "println", "(I)V", stack[1:2])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 360, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 381, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -2195,23 +2280,23 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			return rt.ThrowOutcome(thrown)
 			}
 			}
-			block = 23
+			block = 26
 			continue
-		case 19:
+		case 22:
 			locals[5] = stack[0]
 			{
 			v, thrown := t.GetStatic(m, 25, "java/lang/System", "out", "Ljava/io/PrintStream;")
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 368, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 389, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -2223,19 +2308,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			}
 			stack[1] = locals[5]
 			{
-			out := t.InvokeVirtual(m, 373, 65, stack[1], "java/lang/reflect/InvocationTargetException", "getCause", "()Ljava/lang/Throwable;", stack[2:2])
+			out := t.InvokeVirtual(m, 394, 70, stack[1], "java/lang/reflect/InvocationTargetException", "getCause", "()Ljava/lang/Throwable;", stack[2:2])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 373, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 394, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -2246,18 +2331,18 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[1] = out.Value
 			}
 			{
-			n, thrown := t.InstanceOf(m, 77, "java/lang/NoClassDefFoundError", stack[1])
+			n, thrown := t.InstanceOf(m, 82, "java/lang/NoClassDefFoundError", stack[1])
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 376, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 397, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -2268,34 +2353,34 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[1] = rt.IntValue(n)
 			}
 			if rt.AsInt(stack[1]) == 0 {
-			block = 21
+			block = 24
 			continue
 			}
-			block = 20
+			block = 23
 			continue
-		case 20:
+		case 23:
 			stack[1] = rt.IntValue(3)
-			block = 22
+			block = 25
 			continue
-		case 21:
+		case 24:
 			stack[1] = rt.IntValue(9)
-			block = 22
+			block = 25
 			continue
-		case 22:
+		case 25:
 			{
-			out := t.InvokeVirtual(m, 388, 55, stack[0], "java/io/PrintStream", "println", "(I)V", stack[1:2])
+			out := t.InvokeVirtual(m, 409, 55, stack[0], "java/io/PrintStream", "println", "(I)V", stack[1:2])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 388, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 409, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -2304,26 +2389,26 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			return rt.ThrowOutcome(thrown)
 			}
 			}
-			block = 23
+			block = 26
 			continue
-		case 23:
+		case 26:
 			locals[4] = rt.IntValue(rt.AsInt(locals[4]) + 1)
-			block = 17
+			block = 20
 			continue
-		case 24:
+		case 27:
 			{
 			v, thrown := t.GetStatic(m, 25, "java/lang/System", "out", "Ljava/io/PrintStream;")
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 397, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 418, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -2337,19 +2422,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[2] = rt.IntValue(0)
 			stack[3] = locals[2]
 			{
-			out := t.InvokeStatic(m, 404, 33, "java/lang/Class", "forName", "(Ljava/lang/String;ZLjava/lang/ClassLoader;)Ljava/lang/Class;", stack[1:4])
+			out := t.InvokeStatic(m, 425, 33, "java/lang/Class", "forName", "(Ljava/lang/String;ZLjava/lang/ClassLoader;)Ljava/lang/Class;", stack[1:4])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 404, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 425, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -2364,16 +2449,16 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			{
 			obj, thrown := t.NewReferenceArray(m, 10, "java/lang/Class", rt.AsInt(stack[3]))
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 410, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 431, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -2384,19 +2469,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[3] = rt.RefValue(obj)
 			}
 			{
-			out := t.InvokeVirtual(m, 413, 39, stack[1], "java/lang/Class", "getMethod", "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;", stack[2:4])
+			out := t.InvokeVirtual(m, 434, 39, stack[1], "java/lang/Class", "getMethod", "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;", stack[2:4])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 413, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 434, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -2411,16 +2496,16 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			{
 			obj, thrown := t.NewReferenceArray(m, 2, "java/lang/Object", rt.AsInt(stack[3]))
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 418, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 439, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -2431,19 +2516,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[3] = rt.RefValue(obj)
 			}
 			{
-			out := t.InvokeVirtual(m, 421, 43, stack[1], "java/lang/reflect/Method", "invoke", "(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;", stack[2:4])
+			out := t.InvokeVirtual(m, 442, 43, stack[1], "java/lang/reflect/Method", "invoke", "(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;", stack[2:4])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 421, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 442, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -2456,16 +2541,16 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			{
 			v, thrown := t.CheckCast(m, 49, "java/lang/Integer", stack[1])
 			if thrown != nil {
-			if hpc, ok := t.HandleThrow(m, 424, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 445, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -2476,19 +2561,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[1] = v
 			}
 			{
-			out := t.InvokeVirtual(m, 427, 51, stack[1], "java/lang/Integer", "intValue", "()I", stack[2:2])
+			out := t.InvokeVirtual(m, 448, 51, stack[1], "java/lang/Integer", "intValue", "()I", stack[2:2])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 427, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 448, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}
@@ -2499,19 +2584,19 @@ func cattyMethod15(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Va
 			stack[1] = out.Value
 			}
 			{
-			out := t.InvokeVirtual(m, 430, 55, stack[0], "java/io/PrintStream", "println", "(I)V", stack[1:2])
+			out := t.InvokeVirtual(m, 451, 55, stack[0], "java/io/PrintStream", "println", "(I)V", stack[1:2])
 			if out.Thrown != nil {
 			thrown := out.Thrown
-			if hpc, ok := t.HandleThrow(m, 430, thrown); ok {
+			if hpc, ok := t.HandleThrow(m, 451, thrown); ok {
 			stack = [4]rt.Value{}
 			stack[0] = rt.RefValue(thrown)
 			switch hpc {
-			case 144:
-			block = 3
-			case 255:
-			block = 11
-			case 366:
-			block = 19
+			case 165:
+			block = 6
+			case 276:
+			block = 14
+			case 387:
+			block = 22
 			default:
 			panic("catty: generated handler transfer has no target block")
 			}

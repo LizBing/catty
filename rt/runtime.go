@@ -41,6 +41,8 @@ type Runtime struct {
 
 	resolutions map[resolutionKey]*Resolution
 	dispatch    map[dispatchKey]*dispatchEntry
+	initiations map[initiationKey]*Class
+	constraints map[constraintKey]struct{}
 
 	admit func(*AdmissionRequest) (*AdmissionResult, error)
 
@@ -84,6 +86,8 @@ func NewRuntime(img *Image) *Runtime {
 		boxedBools:          map[bool]*Object{},
 		resolutions:         map[resolutionKey]*Resolution{},
 		dispatch:            map[dispatchKey]*dispatchEntry{},
+		initiations:         map[initiationKey]*Class{},
+		constraints:         map[constraintKey]struct{}{},
 		admit:               defaultAdmission,
 	}
 	r.BootstrapLoader = &Loader{ID: 0, Name: "bootstrap", Runtime: r, Classes: r.Bootstrap}

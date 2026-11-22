@@ -1,0 +1,33 @@
+{
+  "command": [
+    "javac",
+    "--release",
+    "21",
+    "-g",
+    "-d",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-klyw3r56/apps/package-dispatch",
+    "-cp",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-klyw3r56/stub",
+    "/Users/services/Projects/catty/testdata/gate3/package-dispatch/app/app/Main.java",
+    "/Users/services/Projects/catty/testdata/gate3/package-dispatch/app/demo/Base.java",
+    "/Users/services/Projects/catty/testdata/gate3/package-dispatch/app/demo/PublicBase.java",
+    "/Users/services/Projects/catty/testdata/gate3/shared/Base.java",
+    "/Users/services/Projects/catty/testdata/gate3/shared/Box.java",
+    "/Users/services/Projects/catty/testdata/gate3/shared/Bridge.java",
+    "/Users/services/Projects/catty/testdata/gate3/shared/DieStep.java",
+    "/Users/services/Projects/catty/testdata/gate3/shared/Factory.java",
+    "/Users/services/Projects/catty/testdata/gate3/shared/Probe.java",
+    "/Users/services/Projects/catty/testdata/gate3/shared/Step.java",
+    "/Users/services/Projects/catty/testdata/gate3/shared/ThrowStep.java"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "LC_ALL": "C",
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home"
+  },
+  "pid": 54062,
+  "status": 0,
+  "stdout": "",
+  "stderr": ""
+}

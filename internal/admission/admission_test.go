@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"catty/internal/classfile"
 	"catty/rt"
 )
 
@@ -102,6 +103,61 @@ func TestAdmitReservedNamespace(t *testing.T) {
 	expectCode(t, out.Bytes(), "CLASS_FORMAT")
 }
 
+func TestVerificationWorkAccountingExceedsOldEstimate(t *testing.T) {
+	plain := fixture(t, "valid-stored.jar")
+	zr, err := zip.NewReader(bytes.NewReader(plain), int64(len(plain)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	oldEstimate := int64(0)
+	for _, f := range zr.File {
+		if !bytes.HasSuffix([]byte(f.Name), []byte(".class")) {
+			continue
+		}
+		rc, _ := f.Open()
+		buf := new(bytes.Buffer)
+		_, _ = buf.ReadFrom(rc)
+		_ = rc.Close()
+		c, err := classfile.Parse(buf.Bytes(), f.Name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, m := range c.Methods {
+			oldEstimate += int64(len(m.Insns) + m.MaxStack + m.MaxLocals + len(m.Handlers)*4)
+		}
+	}
+	res, err := AdmitWithLimits(plain, parentLoader(t), rt.Gate3ProfileID, DefaultLimits())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.WorkUsed <= oldEstimate {
+		t.Fatalf("new accounting used %d units, old estimate was %d", res.WorkUsed, oldEstimate)
+	}
+	// Exact boundary: the amount consumed by a successful transaction is
+	// accepted; one unit less is LIMIT.
+	limits := DefaultLimits()
+	limits.VerificationWork = res.WorkUsed
+	if _, err := AdmitWithLimits(plain, parentLoader(t), rt.Gate3ProfileID, limits); err != nil {
+		t.Fatalf("exact work boundary rejected: %v", err)
+	}
+	limits.VerificationWork = res.WorkUsed - 1
+	_, err = AdmitWithLimits(plain, parentLoader(t), rt.Gate3ProfileID, limits)
+	if err == nil {
+		t.Fatalf("old estimate %d still passed the new accounting", oldEstimate)
+	}
+	pe, ok := err.(*rt.PluginError)
+	if !ok || pe.Code != "LIMIT" {
+		t.Fatalf("expected LIMIT, got %v", err)
+	}
+	if pe.Limit != "verificationWork" {
+		t.Fatalf("LIMIT diagnostic does not name verificationWork: %#v", pe)
+	}
+	// The refusal is stateless: an otherwise valid admission still works.
+	if _, err := Admit(plain, parentLoader(t), rt.Gate3ProfileID); err != nil {
+		t.Fatalf("admission after LIMIT refusal failed: %v", err)
+	}
+}
+
 func TestAdmitLimits(t *testing.T) {
 	plain := fixture(t, "valid-stored.jar")
 	zr, _ := zip.NewReader(bytes.NewReader(plain), int64(len(plain)))
@@ -188,4 +244,70 @@ func fixtureFile(name string) []byte {
 		panic(err)
 	}
 	return data
+}
+
+func TestPackagePrivateSuperclassAndInterfaceAcrossLoaders(t *testing.T) {
+	r := rt.NewRuntime(&rt.Image{ABI: rt.Gate3ABI, Profile: rt.Gate3ProfileID, Plugins: true})
+	if err := r.Install(); err != nil {
+		t.Fatal(err)
+	}
+	object, _ := r.BootstrapLoader.Lookup("java/lang/Object")
+	parent := &rt.Loader{
+		ID: 2, Name: "review-parent", Runtime: r, Parent: r.BootstrapLoader,
+		Classes: map[string]*rt.Class{
+			"demo/HiddenParent": {Name: "demo/HiddenParent", Super: object, MethodIndex: map[string]*rt.Method{}},
+			"demo/HiddenIface":  {Name: "demo/HiddenIface", Super: object, Flags: rt.AccInterface | rt.AccAbstract, MethodIndex: map[string]*rt.Method{}},
+		},
+	}
+	// Build the parent visibility chain by hand: Loader.Lookup follows Parent,
+	// and admission's class view walks the same chain. Admission itself is
+	// side-effect-free; the runtime transaction rollback is covered by rt tests.
+	for _, name := range []string{"package-private-super.jar", "package-private-interface.jar"} {
+		_, err := Admit(fixture(t, name), parent, rt.Gate3ProfileID)
+		if err == nil {
+			t.Fatalf("%s was admitted across a package-private parent definition", name)
+		}
+		pe, ok := err.(*rt.PluginError)
+		if !ok || pe.Code != "VERIFY" {
+			t.Fatalf("%s: expected VERIFY, got %v", name, err)
+		}
+	}
+	// Same-loader package-private definitions are accessible to each other.
+	if _, err := Admit(fixture(t, "package-private-control.jar"), r.BootstrapLoader, rt.Gate3ProfileID); err != nil {
+		t.Fatalf("same-loader control rejected: %v", err)
+	}
+}
+
+func TestExceptionHandlerFrameRejection(t *testing.T) {
+	parent := parentLoader(t)
+	for _, tc := range []struct {
+		name string
+		pc   int
+	}{
+		{"handler-bad.jar", 8},
+		{"handler-bad-stack.jar", 16},
+	} {
+		data, err := os.ReadFile(filepath.Join("..", "..", "testdata", "gate3", "handler-frame", tc.name))
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, err = Admit(data, parent, rt.Gate3ProfileID)
+		if err == nil {
+			t.Fatalf("%s was admitted", tc.name)
+		}
+		pe, ok := err.(*rt.PluginError)
+		if !ok || pe.Code != "VERIFY" {
+			t.Fatalf("%s: expected VERIFY, got %v", tc.name, err)
+		}
+		if pe.Method != "f" || pe.PC != tc.pc {
+			t.Fatalf("%s: diagnostic lacks method f/pc %d: %#v", tc.name, tc.pc, pe)
+		}
+	}
+	good, err := os.ReadFile(filepath.Join("..", "..", "testdata", "gate3", "handler-frame", "handler-good.jar"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Admit(good, parent, rt.Gate3ProfileID); err != nil {
+		t.Fatalf("valid handler frame rejected: %v", err)
+	}
 }

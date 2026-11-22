@@ -58,6 +58,7 @@ type AdmissionResult struct {
 	Deferred     int
 	Digest       string
 	ClassBytes   int64
+	WorkUsed     int64
 	Code         string
 	Message      string
 	Entry        string

@@ -1,0 +1,14 @@
+{"depth":0,"descriptor":"([Ljava/lang/String;)V","engine":"aot","event":"enter","loaderId":1,"name":"main","owner":"LongCrossing","pid":56649,"thread":1}
+{"class":"LongCrossing","event":"class_init","loaderId":1,"phase":"start","pid":56649,"thread":1}
+{"class":"LongCrossing","event":"class_init","loaderId":1,"phase":"complete","pid":56649,"thread":1}
+{"depth":1,"descriptor":"(JI)J","engine":"interp","event":"enter","loaderId":1,"name":"bridge","owner":"LongCrossing","pid":56649,"thread":1}
+{"depth":2,"descriptor":"(JI)J","engine":"aot","event":"enter","loaderId":1,"name":"leaf","owner":"LongCrossing","pid":56649,"thread":1}
+{"depth":2,"descriptor":"(JI)J","event":"return","loaderId":1,"name":"leaf","owner":"LongCrossing","pid":56649,"thread":1}
+{"depth":1,"descriptor":"(JI)J","event":"return","loaderId":1,"name":"bridge","owner":"LongCrossing","pid":56649,"thread":1}
+{"cache":{"hit":false,"miss":true},"caller":{"descriptor":"([Ljava/lang/String;)V","loaderId":1,"name":"main","owner":"LongCrossing"},"declaration":{"descriptor":"(I)V","loaderId":0,"name":"println","owner":"java/io/PrintStream"},"event":"dispatch","opcode":"invokevirtual","pc":19,"pid":56649,"receiverLoaderId":0,"target":{"descriptor":"(I)V","loaderId":0,"name":"println","owner":"java/io/PrintStream"},"thread":1}
+{"depth":1,"descriptor":"(I)V","engine":"intrinsic","event":"enter","loaderId":0,"name":"println","owner":"java/io/PrintStream","pid":56649,"thread":1}
+{"depth":1,"descriptor":"(I)V","event":"return","loaderId":0,"name":"println","owner":"java/io/PrintStream","pid":56649,"thread":1}
+{"cache":{"hit":false,"miss":true},"caller":{"descriptor":"([Ljava/lang/String;)V","loaderId":1,"name":"main","owner":"LongCrossing"},"declaration":{"descriptor":"(I)V","loaderId":0,"name":"println","owner":"java/io/PrintStream"},"event":"dispatch","opcode":"invokevirtual","pc":27,"pid":56649,"receiverLoaderId":0,"target":{"descriptor":"(I)V","loaderId":0,"name":"println","owner":"java/io/PrintStream"},"thread":1}
+{"depth":1,"descriptor":"(I)V","engine":"intrinsic","event":"enter","loaderId":0,"name":"println","owner":"java/io/PrintStream","pid":56649,"thread":1}
+{"depth":1,"descriptor":"(I)V","event":"return","loaderId":0,"name":"println","owner":"java/io/PrintStream","pid":56649,"thread":1}
+{"depth":0,"descriptor":"([Ljava/lang/String;)V","event":"return","loaderId":1,"name":"main","owner":"LongCrossing","pid":56649,"thread":1}

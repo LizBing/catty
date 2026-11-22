@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"catty/internal/classfile"
+	"catty/internal/verify"
 	"catty/rt"
 )
 
@@ -60,26 +61,85 @@ func classfileOf(c *rt.Class) *classfile.Class {
 }
 
 func lookupMeta(name string, byName map[string]*classfile.Class, parent map[string]*classfile.Class) (*classfile.Class, bool) {
+	c, _, ok := lookupEffective(name, byName, parent)
+	return c, ok
+}
+
+// lookupEffective resolves parent-first and reports whether the winning
+// definition belongs to the parent chain (and therefore a different defining
+// loader) or to the candidate's own loader.
+func lookupEffective(name string, byName, parent map[string]*classfile.Class) (*classfile.Class, bool, bool) {
 	if c, ok := parent[name]; ok {
-		return c, true
+		return c, true, true
 	}
 	if c, ok := byName[name]; ok {
-		return c, true
+		return c, false, true
 	}
-	return nil, false
+	return nil, false, false
+}
+
+// candidateAccessible checks class accessibility from a candidate defined in a
+// new plugin loader. A package-private target is accessible only when the
+// candidate's own loader defines it in the same runtime package.
+func candidateAccessible(candidate, target *classfile.Class, targetFromParent bool) bool {
+	if target.Flags&rt.AccPublic != 0 {
+		return true
+	}
+	if targetFromParent {
+		return false
+	}
+	return packageOf(candidate.Name) == packageOf(target.Name)
 }
 
 func checkCandidate(a *archive, candidate []*sourceClass, parent map[string]*classfile.Class,
-	byName map[string]*classfile.Class, profile string, limits Limits) *rt.PluginError {
-	work := int64(0)
+	byName map[string]*classfile.Class, profile string, limits Limits, work *verify.Work) *rt.PluginError {
+	charge := func(n int64, loc location, feature string) *rt.PluginError {
+		if work == nil {
+			return nil
+		}
+		if err := work.Charge(n, feature); err != nil {
+			loc.Feature = feature
+			loc.Limit = "verificationWork"
+			return locFailure("LIMIT", loc, err.Error())
+		}
+		return nil
+	}
 	for _, sc := range candidate {
 		c := sc.class
 		loc := sc.loc
+		if perr := charge(1, loc, "class table element"); perr != nil {
+			return perr
+		}
+		for range c.Fields {
+			if perr := charge(1, loc, "field table element"); perr != nil {
+				return perr
+			}
+		}
+		for _, m := range c.Methods {
+			if perr := charge(1, loc, "method table element"); perr != nil {
+				return perr
+			}
+			for range m.Refs {
+				if perr := charge(1, loc, "constant-pool reference"); perr != nil {
+					return perr
+				}
+			}
+			for range m.Insns {
+				if perr := charge(1, loc, "instruction table element"); perr != nil {
+					return perr
+				}
+			}
+			for range m.Handlers {
+				if perr := charge(1, loc, "handler table element"); perr != nil {
+					return perr
+				}
+			}
+		}
 		if c.Name == "java/lang/Object" {
 			return locFailure("PACKAGE", loc, "candidate redefines java/lang/Object")
 		}
 		if c.Super != "" {
-			super, ok := lookupMeta(c.Super, byName, parent)
+			super, fromParent, ok := lookupEffective(c.Super, byName, parent)
 			if !ok {
 				return locFailure("DEPENDENCY", loc, "missing superclass "+c.Super)
 			}
@@ -89,22 +149,22 @@ func checkCandidate(a *archive, candidate []*sourceClass, parent map[string]*cla
 			if super.Flags&rt.AccFinal != 0 {
 				return locFailure("VERIFY", loc, "superclass is final: "+c.Super)
 			}
-			if super.Flags&rt.AccPublic == 0 && packageOf(c.Name) != packageOf(super.Name) {
-				return locFailure("VERIFY", loc, "superclass is not accessible: "+c.Super)
+			if !candidateAccessible(c, super, fromParent) {
+				return locFailure("VERIFY", loc, "superclass is not accessible from the plugin loader: "+c.Super)
 			}
 		} else if c.Flags&rt.AccInterface == 0 {
 			return locFailure("VERIFY", loc, "class has no superclass")
 		}
 		for _, in := range c.Interfaces {
-			iface, ok := lookupMeta(in, byName, parent)
+			iface, fromParent, ok := lookupEffective(in, byName, parent)
 			if !ok {
 				return locFailure("DEPENDENCY", loc, "missing interface "+in)
 			}
 			if iface.Flags&rt.AccInterface == 0 {
 				return locFailure("VERIFY", loc, "implemented type is not an interface: "+in)
 			}
-			if iface.Flags&rt.AccPublic == 0 && packageOf(c.Name) != packageOf(iface.Name) {
-				return locFailure("VERIFY", loc, "interface is not accessible: "+in)
+			if !candidateAccessible(c, iface, fromParent) {
+				return locFailure("VERIFY", loc, "interface is not accessible from the plugin loader: "+in)
 			}
 		}
 		for _, f := range c.Fields {
@@ -124,17 +184,15 @@ func checkCandidate(a *archive, candidate []*sourceClass, parent map[string]*cla
 			if _, err := rt.ParseMethodType(m.Descriptor); err != nil {
 				return locFailure("CLASS_FORMAT", mloc, err.Error())
 			}
-			work += int64(len(m.Insns)) + int64(m.MaxStack+m.MaxLocals) + int64(len(m.Handlers))*4
-			if work > limits.VerificationWork {
-				return locFailure("LIMIT", location{Entry: loc.Entry, Class: c.Name, Limit: "verificationWork"},
-					fmt.Sprintf("verification work exceeds %d units", limits.VerificationWork))
-			}
 		}
 	}
 	// Candidate-local hierarchy cycles and depth.
 	state := map[string]uint8{}
 	var visit func(name string, depth int) *rt.PluginError
 	visit = func(name string, depth int) *rt.PluginError {
+		if perr := charge(1, location{Class: name}, "hierarchy visit"); perr != nil {
+			return perr
+		}
 		if depth > limits.HierarchyDepth {
 			return failure("LIMIT", "", name, fmt.Sprintf("hierarchy depth exceeds %d", limits.HierarchyDepth))
 		}

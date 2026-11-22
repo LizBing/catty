@@ -259,13 +259,15 @@ class Suite:
         self.oracles[(label, args)] = result
 
     def build(self, label, paths, main, mode="auto", *, policy=None, expected_errors=(),
-              generated=False, output=None):
+              generated=False, output=None, enable_plugins=False):
         folder = self.work / "builds" / label
         folder.mkdir(parents=True)
         result = Build(output or folder / ("app.exe" if os.name == "nt" else "app"),
                        folder / "report.json", folder / "generated")
         command = [self.bin, "build", "--classpath", os.pathsep.join(map(str, paths)),
                    "--main", main, "--mode", mode, "--report", result.report, "--output", result.binary]
+        if enable_plugins:
+            command.append("--enable-plugins")
         if policy is not None:
             command += ["--policy", policy]
         if generated:

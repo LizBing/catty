@@ -49,6 +49,23 @@ CASES = {
         main="app.Main",
         plugins=[("a", GATE3 / "loader-identity" / "plugin")],
     ),
+    "handler-verify": dict(
+        main="app.Main",
+        plugins=[],
+        prebuilt=[("good", GATE3 / "handler-frame" / "handler-good.jar"),
+                  ("badstack", GATE3 / "handler-frame" / "handler-bad-stack.jar"),
+                  ("badlocal", GATE3 / "handler-frame" / "handler-bad.jar")],
+    ),
+    "package-access": dict(
+        main="app.Main",
+        plugins=[("child", GATE3 / "package-access" / "plugin-child"),
+                 ("iface", GATE3 / "package-access" / "plugin-iface"),
+                 ("good", GATE3 / "package-access" / "plugin-good")],
+    ),
+    "package-dispatch": dict(
+        main="app.Main",
+        plugins=[("a", GATE3 / "package-dispatch" / "plugin")],
+    ),
     "replacement": dict(
         main="app.Main",
         plugins=[("a", GATE3 / "replacement" / "plugin-a"),
@@ -165,6 +182,10 @@ def special_compile(suite, name, app, stub, common):
         compile_sources(suite, "javac-deferred-missing-link", link_out,
                         [root / "plugin-missing" / "ext" / "Link.java"], [full, app, stub])
         shutil.copy2(link_out / "ext" / "Link.class", missing / "ext" / "Link.class")
+        sig_out = suite.work / "plugin-missing-sig"
+        compile_sources(suite, "javac-deferred-missing-sig", sig_out,
+                        [root / "plugin-missing" / "ext" / "Sig.java"], [full, app, stub])
+        shutil.copy2(sig_out / "ext" / "Sig.class", missing / "ext" / "Sig.class")
         return {"full": full, "missing": missing}
     if name == "rollback":
         good = compile_sources(suite, "javac-rollback-good", suite.work / "plugin-good",
@@ -183,9 +204,15 @@ def special_compile(suite, name, app, stub, common):
     return None
 
 
-def package_jars(suite, name, plugins, classdirs):
+def package_jars(suite, name, plugins, classdirs, prebuilt=()):
     root = GATE3 / name
     jars = []
+    if prebuilt:
+        for label, source in prebuilt:
+            target = suite.work / f"{name}-{label}.jar"
+            shutil.copyfile(source, target)
+            jars.append(target)
+        return jars
     if name == "rollback":
         badsrc = classdirs["bad"]
         badjar_dir = suite.work / "badjar"
@@ -292,6 +319,38 @@ def check_dispatch_trace(name, events, run_name):
             if site == "virt":
                 require(len(set(target_loaders)) >= 2,
                         f"{run_name}: {site} sibling targets share a loader")
+    if name == "handler-verify":
+        rejected = [e for e in events
+                    if e.get("event") == "plugin_admission" and e.get("result") == "rejected"]
+        require(len(rejected) >= 2, f"{run_name}: expected two rejected handler admissions")
+        stack = next((e for e in rejected if e.get("class") == "badstack/Handler"), None)
+        require(stack is not None, f"{run_name}: no rejection for the bad-stack handler")
+        require(stack.get("code") == "VERIFY", f"{run_name}: handler rejection code {stack.get('code')}")
+        require(stack.get("method") == "f", f"{run_name}: rejection did not name method f: {stack}")
+        require(stack.get("pc") == 16, f"{run_name}: rejection did not carry handler pc 16: {stack}")
+        require(stack.get("class") == "badstack/Handler", f"{run_name}: rejection did not name class: {stack}")
+        local = next((e for e in rejected if e.get("class") == "bad/Handler"), None)
+        require(local is not None, f"{run_name}: no rejection for the bad-local handler")
+        require(local.get("code") == "VERIFY" and local.get("method") == "f" and local.get("pc") == 8,
+                f"{run_name}: bad-local handler diagnostic lacks method/edge pc: {local}")
+        require("exception edge" in local.get("message", ""),
+                f"{run_name}: bad-local diagnostic is not an exception-edge failure: {local}")
+    if name == "package-dispatch":
+        # The buggy call site is Base.call's invokevirtual value(); the wrapper
+        # in app/Main merely enters call() for both image and plugin receivers.
+        virtual = [e for e in dispatches
+                   if e.get("declaration", {}).get("name") == "value"
+                   and e.get("caller", {}).get("owner") == "demo/Base"]
+        require(virtual, f"{run_name}: no package-private dispatch events")
+        require(all(e["target"]["owner"] == "demo/Base" for e in virtual),
+                f"{run_name}: package-private call selected a plugin override: {virtual}")
+        require(len({e.get("receiverLoaderId") for e in virtual}) >= 2,
+                f"{run_name}: package-private site did not see image and plugin receivers")
+        public = [e for e in dispatches
+                  if e.get("declaration", {}).get("name") == "value"
+                  and e.get("caller", {}).get("owner") == "demo/PublicBase"]
+        require(any(e["target"]["owner"] == "demo/PublicChild" for e in public),
+                f"{run_name}: public override was not selected")
     if name in ("loader-identity", "replacement", "reflection-identity"):
         require(plugin_targets or any(e.get("event") == "reflect" for e in events),
                 f"{run_name}: no plugin dispatch or reflect event")
@@ -659,6 +718,12 @@ def main():
             if name == "access":
                 compile_sources(suite, "javac-access-oracle", work / "oracle-access",
                                 [GATE3 / "access" / "oracle" / "OracleMain.java"], [app, stub])
+            if name == "package-access":
+                compile_sources(suite, "javac-package-access-oracle", work / "oracle-package-access",
+                                [GATE3 / "package-access" / "oracle" / "OracleAccess.java"], [app, stub])
+            if name == "handler-verify":
+                compile_sources(suite, "javac-handler-oracle", work / "oracle-handler",
+                                [GATE3 / "handler-verify" / "oracle" / "OracleHandler.java"], [app, stub])
 
         # Oracle outcomes (before any plugin JAR exists).
         expected = {}
@@ -680,6 +745,8 @@ def main():
 
         for name, (cfg, app, plugin_dirs, compiled, _) in list(prepared.items()):
             jars_expected = [work / f"{name}-{label}.jar" for label, _ in cfg["plugins"]]
+            if cfg.get("prebuilt"):
+                jars_expected = [work / f"{name}-{label}.jar" for label, _ in cfg["prebuilt"]]
             if name == "rollback":
                 jars_expected = [work / "rollback-good.jar", work / "rollback-bad.jar",
                                  work / "rollback-corrected.jar"]
@@ -697,7 +764,7 @@ def main():
                             f"{name}-{mode}: generated main does not install the adapter")
                     if mode != "interp":
                         check_generated_dispatch(suite, f"{name}-{mode}", app, generated)
-            jars = package_jars(suite, name, cfg["plugins"], jardirs)
+            jars = package_jars(suite, name, cfg["plugins"], jardirs, cfg.get("prebuilt", ()))
             prepared[name] = (cfg, app, plugin_dirs, compiled, bins if not args.prepare_only else None)
             for jar, expected_jar in zip(jars, jars_expected):
                 require(jar == expected_jar, f"{name}: jar order mismatch {jar} != {expected_jar}")
@@ -707,6 +774,20 @@ def main():
                                     "app.OracleMain", [jars[1]], [work / "oracle-access"])
                 require(oracle.stdout == b"VerifyError\n",
                         f"access: OpenJDK did not report VerifyError: {oracle.stdout!r}")
+            if name == "package-access":
+                for index, class_name in ((0, "demo.Child"), (1, "demo.Impl")):
+                    oracle = oracle_run(suite, f"oracle-package-access-{class_name}", adapter, app,
+                                        "app.OracleAccess", [jars[index], class_name],
+                                        [work / "oracle-package-access"])
+                    require(oracle.stdout == b"IllegalAccessError\n",
+                            f"package-access {class_name}: OpenJDK did not report IllegalAccessError: "
+                            f"{oracle.stdout!r} {oracle.stderr!r}")
+            if name == "handler-verify":
+                oracle = oracle_run(suite, "oracle-handler-verify", adapter, app,
+                                    "app.OracleHandler", [jars[1], "badstack.Handler"],
+                                    [work / "oracle-handler"])
+                require(oracle.stdout == b"VerifyError\n",
+                        f"handler-verify: OpenJDK did not report VerifyError: {oracle.stdout!r} {oracle.stderr!r}")
             if name == "uncaught-plugin":
                 oracle = oracle_run(suite, "oracle-uncaught", adapter, app, cfg["main"], jars)
                 require(oracle.status == 1, f"uncaught: oracle status {oracle.status}")
@@ -714,6 +795,10 @@ def main():
                         f"uncaught: oracle did not report RuntimeException: {oracle.stderr!r}")
             elif name == "access":
                 expected[name] = b"7\n5\n1\ntrue\n"
+            elif name == "package-access":
+                expected[name] = b"true\ntrue\n3\n4\n"
+            elif name == "handler-verify":
+                expected[name] = b"2\ntrue\ntrue\n2\n"
             elif name == "rollback":
                 expected[name] = b"10\ntrue\n20\n1\n1\n50\n"
             else:
@@ -731,6 +816,8 @@ def main():
             if name == "rollback":
                 jars = [work / "rollback-good.jar", work / "rollback-bad.jar",
                         work / "rollback-corrected.jar"]
+            elif cfg.get("prebuilt"):
+                jars = [work / f"{name}-{label}.jar" for label, _ in cfg["prebuilt"]]
             else:
                 for label, _src in cfg["plugins"]:
                     jars.append(work / f"{name}-{label}.jar")

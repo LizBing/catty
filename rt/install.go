@@ -395,32 +395,37 @@ func (r *Runtime) installMethodDef(c *Class, md *MethodDef) error {
 
 func (r *Runtime) resolveAllParameterClasses() error {
 	for _, c := range r.allClasses() {
-		if err := r.resolveClassMetadata(c); err != nil {
+		if err := r.resolveClassMetadata(c, true); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (r *Runtime) resolveClassMetadata(c *Class) error {
+func (r *Runtime) resolveClassMetadata(c *Class, strict bool) error {
 	for _, m := range c.Methods {
 		m.ParamClass = make([]*Class, len(m.Type.Params))
 		for i, p := range m.Type.Params {
 			pc, err := r.classForTypeInLoader(c.Loader, p)
 			if err != nil {
-				return fmt.Errorf("catty: method %s.%s%s parameter %d: %w", c.Name, m.Name, m.Descriptor, i, err)
+				if strict {
+					return fmt.Errorf("catty: method %s.%s%s parameter %d: %w", c.Name, m.Name, m.Descriptor, i, err)
+				}
+				continue
 			}
 			m.ParamClass[i] = pc
 		}
 	}
-	for _, f := range c.StaticField {
-		if _, err := r.classForTypeInLoader(c.Loader, f.Type); err != nil {
-			return fmt.Errorf("catty: field %s.%s: %w", c.Name, f.Name, err)
+	if strict {
+		for _, f := range c.StaticField {
+			if _, err := r.classForTypeInLoader(c.Loader, f.Type); err != nil {
+				return fmt.Errorf("catty: field %s.%s: %w", c.Name, f.Name, err)
+			}
 		}
-	}
-	for _, f := range c.InstanceField {
-		if _, err := r.classForTypeInLoader(c.Loader, f.Type); err != nil {
-			return fmt.Errorf("catty: field %s.%s: %w", c.Name, f.Name, err)
+		for _, f := range c.InstanceField {
+			if _, err := r.classForTypeInLoader(c.Loader, f.Type); err != nil {
+				return fmt.Errorf("catty: field %s.%s: %w", c.Name, f.Name, err)
+			}
 		}
 	}
 	return nil

@@ -1,0 +1,16 @@
+{
+  "command": [
+    "java",
+    "-version"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C"
+  },
+  "pid": 56225,
+  "status": 0,
+  "stdout": "",
+  "stderr": "openjdk version \"21.0.6\" 2025-01-21 LTS\nOpenJDK Runtime Environment Microsoft-10800196 (build 21.0.6+7-LTS)\nOpenJDK 64-Bit Server VM Microsoft-10800196 (build 21.0.6+7-LTS, mixed mode, sharing)\n"
+}

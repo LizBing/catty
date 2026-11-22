@@ -194,7 +194,10 @@ func initialState(c *classfile.Class, m *classfile.Method, mt *rt.MethodType) (*
 	return &frameState{locals: locals}, nil
 }
 
-func frameStateFrom(f *classfile.Frame, maxLocals int) (*frameState, error) {
+func frameStateFrom(ctx *Context, f *classfile.Frame, maxLocals int) (*frameState, error) {
+	if err := ctx.charge(int64(maxLocals+len(f.Locals)+len(f.Stack)), "frame state allocation"); err != nil {
+		return nil, err
+	}
 	locals := make([]vtype, maxLocals)
 	for i := range locals {
 		locals[i] = vtype{kind: vtTop}
@@ -222,14 +225,16 @@ func frameStateFrom(f *classfile.Frame, maxLocals int) (*frameState, error) {
 	return &frameState{locals: locals, stack: stack}, nil
 }
 
-func copyState(s *frameState) *frameState {
+func copyState(ctx *Context, s *frameState) *frameState {
+	_ = ctx.charge(int64(len(s.locals)+len(s.stack)+2), "frame state copy")
 	return &frameState{
 		locals: append([]vtype(nil), s.locals...),
 		stack:  append([]vtype(nil), s.stack...),
 	}
 }
 
-func statesEqual(a, b *frameState) bool {
+func statesEqual(ctx *Context, a, b *frameState) bool {
+	_ = ctx.charge(int64(len(a.locals)+len(a.stack)+len(b.locals)+len(b.stack)), "frame state comparison")
 	if len(a.locals) != len(b.locals) || len(a.stack) != len(b.stack) {
 		return false
 	}
@@ -247,6 +252,9 @@ func statesEqual(a, b *frameState) bool {
 }
 
 func checkAssignableState(ctx *Context, from, to *frameState) error {
+	if err := ctx.charge(int64(len(from.locals)+len(from.stack)+len(to.locals)+len(to.stack)), "frame state comparison"); err != nil {
+		return err
+	}
 	if len(from.stack) != len(to.stack) {
 		return fmt.Errorf("operand stack depth %d differs from frame depth %d", len(from.stack), len(to.stack))
 	}
@@ -301,6 +309,7 @@ func assignable(ctx *Context, from, to vtype) bool {
 }
 
 func classAssignable(ctx *Context, from, to string) bool {
+	_ = ctx.chargeSoft(1, "class assignability visit")
 	if from == to {
 		return true
 	}
@@ -366,6 +375,7 @@ func classInfo(ctx *Context, name string) (classInfoData, bool) {
 }
 
 func classIsInterface(ctx *Context, name string) bool {
+	_ = ctx.chargeSoft(1, "class interface query")
 	info, ok := classInfo(ctx, name)
 	return ok && info.flags&rt.AccInterface != 0
 }
@@ -408,12 +418,14 @@ func classImplements(ctx *Context, from, target string) bool {
 }
 
 func interfaceExtends(ctx *Context, from, target string) bool {
+	_ = ctx.chargeSoft(1, "interface hierarchy visit")
 	seen := map[string]bool{}
 	var visit func(string) bool
 	visit = func(name string) bool {
 		if name == "" || seen[name] {
 			return false
 		}
+		_ = ctx.chargeSoft(1, "interface hierarchy visit")
 		seen[name] = true
 		if name == target {
 			return true
@@ -1051,7 +1063,7 @@ func (t *typeChecker) applyStep() (succs []successor, terminal bool, err error) 
 	}()
 	pc, insn := t.pc, t.insn
 	addTarget := func(target int32) {
-		succs = append(succs, successor{pc: target, state: copyState(t.state)})
+		succs = append(succs, successor{pc: target, state: copyState(t.ctx, t.state)})
 	}
 	addNext := func() { addTarget(pc + insn.Len) }
 	push := t.push

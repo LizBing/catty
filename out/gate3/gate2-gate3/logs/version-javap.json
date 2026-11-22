@@ -1,0 +1,16 @@
+{
+  "command": [
+    "javap",
+    "-version"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C"
+  },
+  "pid": 56228,
+  "status": 0,
+  "stdout": "21.0.6\n",
+  "stderr": ""
+}

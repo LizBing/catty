@@ -10,6 +10,7 @@ public class Main {
 
         System.out.println(((Integer) Class.forName("ext.Link", false, full).getMethod("good").invoke(null)).intValue());
         System.out.println(((Integer) Class.forName("ext.Link", false, missing).getMethod("good").invoke(null)).intValue());
+        System.out.println(Class.forName("ext.Sig", false, missing) != null);
 
         for (int i = 0; i < 2; i++) {
             try {

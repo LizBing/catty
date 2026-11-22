@@ -465,9 +465,15 @@ func (t *Thread) resolveClassSymbol(caller *Method, cp int, name string) (*Class
 	if res, ok := t.RT.resolutions[key]; ok {
 		return res.Class, res.Thrown
 	}
-	c, err := t.RT.classForLoaderName(loaderOf(caller), name)
+	loader := loaderOf(caller)
+	c, err := t.RT.classForLoaderName(loader, name)
 	if err != nil {
 		thrown := t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError")
+		t.RT.resolutions[key] = &Resolution{Thrown: thrown}
+		return nil, thrown
+	}
+	if t.RT.recordClassInitiation(loader, name, c) {
+		thrown := t.RT.NewThrowable(t, "java/lang/LinkageError")
 		t.RT.resolutions[key] = &Resolution{Thrown: thrown}
 		return nil, thrown
 	}
@@ -498,12 +504,18 @@ func (t *Thread) resolveMethodSymbol(caller *Method, cp int, ownerName, name, de
 	if err != nil {
 		return fail(t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError"))
 	}
+	if t.RT.recordInitiation(loader, ownerName, owner) {
+		return fail(t.RT.NewThrowable(t, "java/lang/LinkageError"))
+	}
 	m := t.RT.findMethod(owner, name, descriptor)
 	if m == nil {
 		return fail(t.RT.NewThrowable(t, "java/lang/NoSuchMethodError"))
 	}
 	if !t.RT.memberAccessible(caller, m.Owner, m.Flags) {
 		return fail(t.RT.NewThrowable(t, "java/lang/IllegalAccessError"))
+	}
+	if t.RT.imposeMethodConstraints(loader, m.Owner.Loader, m.Type) {
+		return fail(t.RT.NewThrowable(t, "java/lang/LinkageError"))
 	}
 	t.RT.resolutions[key] = &Resolution{Method: m}
 	return m, nil
@@ -530,12 +542,18 @@ func (t *Thread) resolveFieldSymbol(caller *Method, cp int, ownerName, name, des
 	if err != nil {
 		return fail(t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError"))
 	}
+	if t.RT.recordInitiation(loader, ownerName, owner) {
+		return fail(t.RT.NewThrowable(t, "java/lang/LinkageError"))
+	}
 	f := t.RT.findField(owner, name, descriptor)
 	if f == nil {
 		return fail(t.RT.NewThrowable(t, "java/lang/NoSuchFieldError"))
 	}
 	if !t.RT.memberAccessible(caller, f.Owner, f.Flags) {
 		return fail(t.RT.NewThrowable(t, "java/lang/IllegalAccessError"))
+	}
+	if t.RT.imposeFieldConstraints(loader, f.Owner.Loader, f.Type) {
+		return fail(t.RT.NewThrowable(t, "java/lang/LinkageError"))
 	}
 	t.RT.resolutions[key] = &Resolution{Field: f}
 	return f, nil
@@ -561,10 +579,12 @@ func (r *Runtime) selectVirtual(receiver *Class, declaration *Method) (*Method, 
 	key := methodKey(declaration.Name, declaration.Descriptor)
 	for c := receiver; c != nil; c = c.Super {
 		if m := c.MethodIndex[key]; m != nil && m.Flags&AccStatic == 0 && m.Flags&AccPrivate == 0 {
-			// A package-private method participates in overriding only inside the
-			// same runtime package as the resolved declaration (package string
-			// plus defining loader).
-			if m.Flags&(AccPublic|AccProtected) == 0 && !r.samePackage(m.Owner, declaration.Owner) {
+			// Selection uses the JVM override relation between the candidate
+			// and the resolved declaration, not just signature equality. In
+			// particular a package-private declaration is overridden only by
+			// same-runtime-package candidates or through a transitive chain of
+			// overriding declarations.
+			if !r.methodOverrides(m, declaration, map[*Method]bool{}) {
 				continue
 			}
 			if m.Flags&AccAbstract != 0 {
@@ -607,6 +627,54 @@ func (r *Runtime) selectVirtual(receiver *Class, declaration *Method) (*Method, 
 		}
 	}
 	return best, nil
+}
+
+// methodOverrides implements the JVMS 5.4.5 instance-method override relation,
+// including the package-private runtime-package rule and transitive overriding
+// through an intermediate declaration.
+func (r *Runtime) methodOverrides(candidate, declaration *Method, seen map[*Method]bool) bool {
+	if candidate == declaration {
+		return true
+	}
+	if candidate == nil || declaration == nil || candidate.Owner == nil || declaration.Owner == nil {
+		return false
+	}
+	if candidate.Flags&(AccStatic|AccPrivate) != 0 {
+		return false
+	}
+	if candidate.Name != declaration.Name || candidate.Descriptor != declaration.Descriptor {
+		return false
+	}
+	if declaration.Owner.IsInterface() {
+		if candidate.Owner.IsInterface() {
+			return r.interfaceExtends(candidate.Owner, declaration.Owner)
+		}
+		return r.implementsInterface(candidate.Owner, declaration.Owner)
+	}
+	if !r.isSubclass(candidate.Owner, declaration.Owner) {
+		return false
+	}
+	if declaration.Flags&(AccPublic|AccProtected) != 0 {
+		return true
+	}
+	if r.samePackage(candidate.Owner, declaration.Owner) {
+		return true
+	}
+	if seen[candidate] {
+		return false
+	}
+	seen[candidate] = true
+	key := methodKey(candidate.Name, candidate.Descriptor)
+	for c := candidate.Owner.Super; c != nil && c != declaration.Owner; c = c.Super {
+		m := c.MethodIndex[key]
+		if m == nil || m.Flags&(AccStatic|AccPrivate) != 0 {
+			continue
+		}
+		if r.methodOverrides(m, declaration, seen) && r.methodOverrides(candidate, m, seen) {
+			return true
+		}
+	}
+	return false
 }
 
 func (r *Runtime) collectDefaultMethods(receiver *Class, key string) []*Method {
@@ -781,6 +849,10 @@ func (t *Thread) selectGuarded(caller *Method, pc int32, op uint8, receiver *Cla
 	target, thrown := t.RT.selectVirtual(receiver, decl)
 	if thrown != nil {
 		return nil, false, thrown
+	}
+	if target != decl && target.Owner.Loader != decl.Owner.Loader &&
+		t.RT.imposeMethodConstraints(target.Owner.Loader, decl.Owner.Loader, target.Type) {
+		return nil, false, t.RT.bootstrapThrowable("java/lang/LinkageError")
 	}
 	t.RT.dispatch[key] = &dispatchEntry{Declaration: decl, Receiver: receiver, Target: target}
 	return target, false, nil
