@@ -343,3 +343,38 @@ func TestOverridePreparationInheritedInterface(t *testing.T) {
 		t.Fatal("inherited interface implementation did not trigger preparation constraints")
 	}
 }
+
+func TestWorkLimitRefusalLeavesRunningLoaderUsable(t *testing.T) {
+	r := gate3Runtime(t)
+	def := returnIntDef("ext/Existing", "app/Base")
+	loader, thrown := r.installPlugin(r.Loader, &AdmissionResult{
+		Classes: []*ClassDef{def}, Defined: []string{"ext/Existing"},
+	})
+	if thrown != nil {
+		t.Fatal(thrown)
+	}
+	existing, ok := loader.Local("ext/Existing")
+	if !ok || existing.Mirror == nil {
+		t.Fatal("existing plugin class is not usable")
+	}
+	r.admit = func(*AdmissionRequest) (*AdmissionResult, error) {
+		return nil, &PluginError{Code: "LIMIT", Message: "injected verification work limit"}
+	}
+	th := r.MainThread()
+	arr, thrown := th.NewPrimitiveArray(nil, 0, 8, 0)
+	if thrown != nil {
+		t.Fatal(thrown)
+	}
+	out := intrinsicPluginsRegister(th, &Method{Owner: existing}, nil,
+		[]Value{RefValue(arr), RefValue(nil)})
+	data := ThrowableOf(out.Thrown)
+	if data == nil || data.Code != "LIMIT" {
+		t.Fatalf("expected LIMIT refusal, got %#v", out.Thrown)
+	}
+	if len(r.pluginLoaders) != 1 {
+		t.Fatalf("refusal changed published loaders: %d", len(r.pluginLoaders))
+	}
+	if current, ok := loader.Local("ext/Existing"); !ok || current != existing || existing.Mirror == nil {
+		t.Fatal("refusal made the existing loader unusable")
+	}
+}

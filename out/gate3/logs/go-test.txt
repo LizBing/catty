@@ -1,8 +1,8 @@
 ?   	catty/cmd/catty	[no test files]
-ok  	catty/internal/admission	0.715s
+ok  	catty/internal/admission	0.133s
 ?   	catty/internal/aot	[no test files]
 ?   	catty/internal/build	[no test files]
 ?   	catty/internal/classfile	[no test files]
-ok  	catty/internal/verify	0.695s
+ok  	catty/internal/verify	0.117s
 ?   	catty/plugin	[no test files]
-ok  	catty/rt	1.064s
+ok  	catty/rt	0.247s
