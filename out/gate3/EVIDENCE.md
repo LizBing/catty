@@ -3,7 +3,9 @@
 Baseline: `4860987`. Round-two fixes: `2047adf`
 (`Fix Gate 3 loader dispatch, access, handler verification, and work limits`),
 with test-only follow-up `d85fbbf`
-(`Add work-limit refusal usability regression test`), on `codex/gate-3`. Default builds remain `catty-jvm21-gate2` / ABI `2`;
+(`Add work-limit refusal usability regression test`) and documentation
+follow-up `9bd66f3` (`Document Gate 3-enabled Gate 2 positive corpus`), on
+`codex/gate-3`. Default builds remain `catty-jvm21-gate2` / ABI `2`;
 the plugin runs below use the opt-in `catty-jvm21-gate3` profile / ABI `3`.
 
 ## Toolchains
