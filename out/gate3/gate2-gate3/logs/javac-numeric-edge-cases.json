@@ -5,16 +5,16 @@
     "21",
     "-g",
     "-d",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-s49g5eo0/classes/numeric-edge-cases",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-muitpsid/classes/numeric-edge-cases",
     "/Users/services/Projects/catty/testdata/gate2/numeric-edge-cases/NumericEdgeCases.java"
   ],
   "cwd": "/Users/services/Projects/catty",
   "environment": {
-    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
     "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
     "LC_ALL": "C"
   },
-  "pid": 56238,
+  "pid": 60463,
   "status": 0,
   "stdout": "",
   "stderr": ""

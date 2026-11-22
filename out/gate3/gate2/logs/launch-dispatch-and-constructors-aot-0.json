@@ -1,15 +1,15 @@
 {
   "command": [
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/builds/dispatch-and-constructors-aot/app"
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-ox_y8z5j/builds/dispatch-and-constructors-aot/app"
   ],
-  "cwd": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/builds/dispatch-and-constructors-aot",
+  "cwd": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-ox_y8z5j/builds/dispatch-and-constructors-aot",
   "environment": {
-    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
-    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
     "LC_ALL": "C",
-    "CATTY_TRACE": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/traces/dispatch-and-constructors-aot-0.jsonl"
+    "CATTY_TRACE": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-ox_y8z5j/traces/dispatch-and-constructors-aot-0.jsonl",
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin"
   },
-  "pid": 55679,
+  "pid": 59905,
   "status": 0,
   "stdout": "100\n62\n4\n62\n63\n63\n63\n61\n200\n51\n52\n52\n53\n52\n52\n52\n52\n300\n9\n18\n16\n50\n400\n10\n11\n12\n13\n22\n44\n23\n40\n41\n42\n43\n40\n30\n9\n22\n11\n45\n40\n21\n500\n22\n11\n22\n11\n21\n21\n600\n1\n16\n16\n1\n70\n1\n1\n1\n1\n700\n8\n9\n10\n7\n",
   "stderr": ""

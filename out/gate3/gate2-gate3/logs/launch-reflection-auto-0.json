@@ -1,15 +1,15 @@
 {
   "command": [
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-s49g5eo0/builds/reflection-auto/app"
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-muitpsid/builds/reflection-auto/app"
   ],
-  "cwd": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-s49g5eo0/builds/reflection-auto",
+  "cwd": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-muitpsid/builds/reflection-auto",
   "environment": {
-    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
+    "CATTY_TRACE": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-muitpsid/traces/reflection-auto-0.jsonl",
     "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-    "LC_ALL": "C",
-    "CATTY_TRACE": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-s49g5eo0/traces/reflection-auto-0.jsonl"
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
+    "LC_ALL": "C"
   },
-  "pid": 56847,
+  "pid": 61067,
   "status": 0,
   "stdout": "1\n11\n2\n22\n12\n3\n1\n123\n1\n-1\n4\n5\n30\n14\n14\n6\n1\n105\n106\n165\n207\n308\n301\n409\n310\n401\n566\n1\n7\n8\n9\n10\n11\n12\n13\n1\n31\n1\n32\n1\n33\n1\n34\n1\n1\n1\n67\n1\n35\n1\n36\n1\n14\n15\n16\n41\n17\n18\n19\n20\n21\n1\n1\n1\n22\n23\n24\n2\n3\n",
   "stderr": ""

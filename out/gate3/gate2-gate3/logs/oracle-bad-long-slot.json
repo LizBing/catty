@@ -3,16 +3,16 @@
     "java",
     "-Xverify:all",
     "-cp",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-s49g5eo0/classes/bad-long-slot",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-muitpsid/classes/bad-long-slot",
     "LongCrossing"
   ],
   "cwd": "/Users/services/Projects/catty",
   "environment": {
-    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
     "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
     "LC_ALL": "C"
   },
-  "pid": 56234,
+  "pid": 60459,
   "status": 1,
   "stdout": "",
   "stderr": "Error: Unable to initialize main class LongCrossing\nCaused by: java.lang.VerifyError: Bad local variable type\nException Details:\n  Location:\n    LongCrossing.bridge(JI)J @10: lload_1\n  Reason:\n    Type long_2nd (current frame, locals[1]) is not assignable to long\n  Current Frame:\n    bci: @10\n    flags: { }\n    locals: { long, long_2nd, integer, long, long_2nd }\n    stack: { }\n  Bytecode:\n    0000000: 1e14 0007 8342 1c9c 000a 1f1c 74b8 0009\n    0000010: ad21 1cb8 0009 ad                      \n  Stackmap Table:\n    append_frame(@17,Long)\n\n"

@@ -1,15 +1,15 @@
 {
   "command": [
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-s49g5eo0/builds/constant-values-and-reentry-auto/app"
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-muitpsid/builds/constant-values-and-reentry-auto/app"
   ],
-  "cwd": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-s49g5eo0/builds/constant-values-and-reentry-auto",
+  "cwd": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-muitpsid/builds/constant-values-and-reentry-auto",
   "environment": {
-    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
+    "CATTY_TRACE": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-muitpsid/traces/constant-values-and-reentry-auto-0.jsonl",
     "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-    "LC_ALL": "C",
-    "CATTY_TRACE": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-s49g5eo0/traces/constant-values-and-reentry-auto-0.jsonl"
+    "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
+    "LC_ALL": "C"
   },
-  "pid": 56820,
+  "pid": 61040,
   "status": 0,
   "stdout": "1\n90\n91\n100\n101\n200\n201\n300\n301\n400\n401\n10\n20\n30\n30\n40\n50\n180\n60\n61\n660\n700\n64\n65\n70\n71\n70\n1\n70\n0\n45\n46\n293709995\n501\n502\n1\n602\n801\n802\n",
   "stderr": ""

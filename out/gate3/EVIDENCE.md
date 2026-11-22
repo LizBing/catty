@@ -1,9 +1,9 @@
 # Gate 3 acceptance evidence
 
-Gate 3 was implemented on `codex/gate-3` and verified on the remote
-`darwin/arm64` host. Default builds remain the Gate 2 profile
-(`catty-jvm21-gate2`, ABI `2`); every result below is from the opt-in
-`catty-jvm21-gate3` profile with ABI `3`.
+Baseline: `4860987`. Round-two fixes: `2047adf`
+(`Fix Gate 3 loader dispatch, access, handler verification, and work limits`)
+on `codex/gate-3`. Default builds remain `catty-jvm21-gate2` / ABI `2`;
+the plugin runs below use the opt-in `catty-jvm21-gate3` profile / ABI `3`.
 
 ## Toolchains
 
@@ -16,18 +16,19 @@ Gate 3 was implemented on `codex/gate-3` and verified on the remote
 
 Exact text: [logs/toolchains.txt](logs/toolchains.txt).
 
-## Commands and results
+## Commands and statuses
 
 | Command | Status | Evidence |
 | --- | --- | --- |
 | `go vet ./...` | 0 | [logs/go-vet.txt](logs/go-vet.txt), [logs/go-vet-status.txt](logs/go-vet-status.txt) |
 | `go test -count=1 ./...` | 0 | [logs/go-test.txt](logs/go-test.txt), [logs/go-test-status.txt](logs/go-test-status.txt) |
-| `python3 -B tests/gate3.py --java-home ... --prepare-only` | 0 | prepares all 12 cases and the OpenJDK oracle without building Catty |
-| `python3 -B tests/gate3.py --java-home ...` | 0 | [logs/full-gate.log](logs/full-gate.log) |
+| `python3 -B tests/gate3.py --java-home JDK21` | 0 | [logs/full-gate.log](logs/full-gate.log) |
+| `python3 -B tests/gate3.py --java-home JDK21 --prepare-only` | 0 | [logs/prepare-only.log](logs/prepare-only.log) |
+| `python3 -B tests/gate2.py --java-home JDK21` | 0 | [logs/gate2-full.log](logs/gate2-full.log), [gate2/logs](gate2/logs) |
+| `python3 -B tests/gate2.py --java-home JDK21 --enable-plugins` | 0 | [logs/gate2-gate3-positive.log](logs/gate2-gate3-positive.log), [gate2-gate3/logs](gate2-gate3/logs) |
 | `go test ./internal/admission -run='^$' -fuzz=FuzzStageJar -fuzztime=30s -parallel=1` | 0 | [logs/fuzz.txt](logs/fuzz.txt) |
-| `python3 -B tests/gate2.py --java-home ...` (includes Gate 1 regression) | 0 | [logs/gate2-full.log](logs/gate2-full.log), [gate2/logs](gate2/logs) |
 
-The full Gate 3 log ends with:
+The full Gate 3 run ends with 18 `PASS` lines:
 
 ```text
 PASS late-override
@@ -42,145 +43,200 @@ PASS uncaught-plugin
 PASS reflection-identity
 PASS access
 PASS rollback
+PASS package-access
+PASS package-dispatch
+PASS handler-verify
 PASS admission-policy
 PASS standalone
 PASS profile-and-packaging
 Gate 3 passed.
 ```
 
-Gate 2 ends with `Gate 2 passed.`; its embedded Gate 1 regression reports
-`PASS Gate 1 regression`.
+Gate 2 ends `Gate 2 passed.` and includes `PASS Gate 1 regression`.
+The Gate 3-enabled Gate 2 positive run ends
+`Gate 2 positive corpus passed with Gate 3 enabled.` and includes
+`PASS generated-go checks`; it intentionally skips the Gate 2-only
+wrong-profile/negative checks and the separately-run Gate 1 suite.
 
-## What the run proves
+## Corrected review reproducers
 
-- The application executable for each case is built before its plugin JAR
-  paths exist. The runner asserts the JAR path is absent at each of the three
-  image builds, and that the report contains no plugin class/entry names.
-- Every positive case is executed from the same class files and JAR bytes by
-  three images: all-interpreted, mixed (policy forces `app/Main.main` to the
-  interpreter while the wrappers and `Box.add` stay AOT), and forced-AOT.
-  OpenJDK 21 with `-Xverify:all` is the oracle; stdout bytes and empty stderr
-  are compared exactly.
-- The late-override fixture uses one `invokevirtual` site and one
-  `invokeinterface` site in image wrappers. The trace first shows the image
-  target, then an interpreted plugin target, then the second plugin loader,
-  then the original plugin target again. Cache transitions include both misses
-  and hits at each site. See
-  [traces/late-override-mixed.jsonl](traces/late-override-mixed.jsonl).
-- The generated mixed/aot Go passes the original bytecode offsets and
-  constant-pool indexes into the shared runtime, for example:
+### 1. Package-private virtual dispatch across defining loaders
 
-  ```go
-  out := t.InvokeVirtual(m, 2, 7, stack[0], "app/Box", "add", "(I)I", stack[1:2])
-  out := t.InvokeInterface(m, 2, 13, stack[0], "app/Step", "value", "(Lapp/Box;)I", stack[1:2])
-  ```
+Fixture `testdata/gate3/package-dispatch`:
 
-  Source: [generated/late-override-mixed/generated.go](generated/late-override-mixed/generated.go).
-- The Gate 3 report/API pair advertises:
+- public image `demo.Base` has package-private `value()` returning `11`
+  and public `call()` invoking `value()`;
+- plugin `demo.Child` extends `Base` and declares public `value()` returning
+  `22`;
+- public image `demo.PublicBase.value()` returning `11` and plugin
+  `demo.PublicChild` returning `22` retain the legitimate override.
 
-  ```text
-  profile=catty-jvm21-gate3 imageABI=3 plugins=true
-  capabilities=plugin-admission,loader-identity,guarded-dispatch
-  bootstrap: 50 classes, 116 methods
-  limits: 16 MiB compressed, 64 MiB expanded, 4 MiB/entry, 4096 entries,
-          1024 classes, depth 128, 16,777,216 work, 64 loaders, 128 MiB classes
-  ```
-
-  Report: [reports/late-override-mixed.json](reports/late-override-mixed.json).
-- `irem` still falls back to the interpreter in auto mode and is rejected by
-  forced AOT under the Gate 3 profile (runner `profile-and-packaging` check).
-- The standalone check copies the mixed executable and late JARs into an empty
-  directory and runs them with empty `PATH`, unset `JAVA_HOME`/`CLASSPATH`, and
-  an absolute path. Stdout, status and trace relationships match, and the
-  executable digest is unchanged. See [logs/standalone.json](logs/standalone.json)
-  and [traces/standalone.jsonl](traces/standalone.jsonl).
-
-### Admission and rollback evidence
-
-The Java registration intrinsic is exercised directly for each policy
-variant. Representative variants and stable codes:
-
-| Variant | Code |
-| --- | --- |
-| non-ZIP / truncated central directory / truncated entry / bad CRC | `ARCHIVE` |
-| duplicate entry / file-directory conflict / empty class set | `ARCHIVE` |
-| dot-dot / backslash / absolute / drive-prefixed names | `ARCHIVE` |
-| encrypted / unsupported compression | `ARCHIVE` |
-| entry/name mismatch / malformed class | `CLASS_FORMAT` |
-| unsupported major version 66 | `PROFILE` |
-| class under `META-INF` / module-info / multi-release / versioned path | `PACKAGE` |
-| nonempty `Class-Path` / sealed / signature metadata / reserved `catty/runtime` | `PACKAGE` |
-| missing superclass from the image | `DEPENDENCY` |
-| entry size above 4 MiB, class count, entry count, expanded total | `LIMIT` |
-
-The rollback case prints `true` for the `CLASS_FORMAT` code, keeps the warmed
-image and previously published plugin working, cannot find the rejected
-`ext/Alpha` definition through the application or old plugin loader, then
-registers corrected bytes and executes `ext/Alpha` in the same process and
-logical thread. The rejection event has no `loaderId`; the later acceptance has
-a fresh loader.
-
-Trace excerpt:
+The same `Base.call()` site is executed with image and plugin receivers in
+interpreted, mixed and forced-AOT builds. After the fix the trace shows:
 
 ```json
-{"code":"CLASS_FORMAT","entry":"ext/Broken.class","event":"plugin_admission","jarSHA256":"...","message":"bad class file magic 0x00000000","parentLoaderId":1,"result":"rejected","thread":1}
+{"caller":{"owner":"demo/Base","name":"call","loaderId":1},"declaration":{"owner":"demo/Base","name":"value"},"receiverLoaderId":1,"target":{"owner":"demo/Base","name":"value"},"cache":{"miss":true}}
+{"caller":{"owner":"demo/Base","name":"call","loaderId":1},"declaration":{"owner":"demo/Base","name":"value"},"receiverLoaderId":2,"target":{"owner":"demo/Base","name":"value"},"cache":{"miss":true}}
+{"caller":{"owner":"demo/PublicBase","name":"call"},"declaration":{"owner":"demo/PublicBase","name":"value"},"receiverLoaderId":2,"target":{"owner":"demo/PublicChild","name":"value"}}
 ```
 
-Source: [traces/rollback-mixed.jsonl](traces/rollback-mixed.jsonl).
+The plugin receiver still enters `demo/Base.call` but dispatch selects
+`demo/Base.value` (11); the public override selects `demo.PublicChild.value`
+(22). OpenJDK 21 produces the same `11`, `11`, `11`, `22` output. Selection now
+uses the JVMS override relation (`methodOverrides`) including runtime package
+identity and transitive overriding; the cached compiled site remains guarded by
+the resolved declaration and exact receiver class.
 
-### Loader identity and cache scope
+### 2. Runtime package access during admission
 
-Go tests prove sibling loaders define the same name independently, arrays are
-interned by immediate component class, primitive arrays are shared, runtime
-package equality includes the defining loader, failed resolution outcomes are
-sticky per referring runtime class and CP entry, failed admission leaves loader
-IDs/quotas/registry unchanged, and plugin methods run in the interpreter. See
-[rt/gate3_test.go](../../rt/gate3_test.go) and
-[internal/admission/admission_test.go](../../internal/admission/admission_test.go).
+Fixture `testdata/gate3/package-access`:
 
-## Artifact manifest
+- plugin `demo.Child` extends package-private image `demo.HiddenParent`;
+- plugin `demo.Impl` implements package-private image `demo.HiddenIface`;
+- plugin `demo.LocalChild` extends a package-private parent defined in the
+  same plugin loader, and `demo.LocalImpl` implements a same-loader
+  package-private interface.
 
-- [DIGESTS.txt](DIGESTS.txt): SHA-256 for every saved binary, JAR and report.
-- [reports/](reports): all build reports for the 12 cases in three modes plus
-  the policy app and `irem` fixture.
-- [traces/](traces): 37 JSON-lines traces covering accepted/rejected admission,
-  class definition/initialization, dispatch cache transitions, reflection,
-  crossing and rollback.
-- [generated/](generated): generated Go for every mixed/aot image (including
-  `main.go` with the `catty/plugin` adapter import and `SetAdmission`).
-- [bin/late-override-mixed](bin/late-override-mixed): the preserved mixed
-  executable used by the standalone run (also copied as
-  [bin/standalone-app](bin/standalone-app)).
-- [jars/](jars): the plugin and malformed/policy JARs used by the run.
-- [gate2/](gate2): Gate 2/Gate 1 regression logs and traces.
+OpenJDK 21 reports `IllegalAccessError` for both cross-loader classes. Catty
+rejects both with `VERIFY` and retains no loader; it then registers the
+same-loader control and executes it. Trace:
 
-## Remaining unverified or approximate checks
+```json
+{"event":"plugin_admission","result":"rejected","code":"VERIFY","class":"demo/Child","entry":"demo/Child.class","message":"superclass is not accessible from the plugin loader: demo/HiddenParent"}
+{"event":"plugin_admission","result":"rejected","code":"VERIFY","class":"demo/Impl","entry":"demo/Impl.class","message":"interface is not accessible from the plugin loader: demo/HiddenIface"}
+{"event":"plugin_admission","result":"accepted","definedClasses":4,"loaderId":2}
+```
 
-These are reported rather than claimed:
+`internal/admission/checks.go` now resolves the effective parent-first
+definition and treats a package-private target from a different defining loader
+as inaccessible even when the textual package matches. Go tests cover both
+rejections, the same-loader control, and the failure path; the runtime quota
+and rollback unit tests cover registry/array-cache restoration.
 
-1. **Loading-constraint table.** The runtime does not maintain the full JVMS
-   5.3.4 initiating-loader/equality-constraint table for every field and method
-   descriptor. It detects conflicting reference descriptor types for an
-   override during plugin preparation and rejects them as `VERIFY`; a runtime
-   conflict arising later from an unrelated initiating loader is not modeled.
-2. **Verification-work accounting.** The admission ceiling is charged from
-   instruction/stack/frame counts before verification; it is an aggregate
-   bound, not an exact reproduction of every internal verifier work unit.
-3. **Exact hierarchy-depth boundary.** The 128-edge ceiling is enforced and
-   tested structurally at low injected limits, but no fixture exercises exactly
-   128 versus 129 class/interface edges.
-4. **Compressed-input exact boundary.** Entry/expanded/count boundaries are
-   tested at and one unit beyond the relevant ceiling. The exact 16 MiB
-   compressed-input boundary is not constructed as a fixture; the runtime
-   rejects over-cap input before copying.
-5. **Encrypted/unsupported-compression fixtures** are produced by patching ZIP
-   headers/flags; they prove the policy path, not every possible central
-   directory malformation (the fuzz target covers additional shapes).
-6. **File-handle blocking.** `readJar` opens with `O_NONBLOCK` and verifies a
-   regular file before reading on Unix; non-Unix behavior was not exercised.
-7. **Fuzz ceilings.** The fuzz target uses reduced test limits (1 MiB
-   compressed, 4 MiB expanded, 128 entries, 32 classes) so the target spends
-   its budget in validation rather than in huge ZIP allocations. Production
-   limits are separately tested at their entry/expanded/count boundaries.
-8. **Oracle JDK.** The oracle is Microsoft OpenJDK 21.0.6, not the Temurin
-   build used for Gate 2; both are JDK 21 and the tests pin the tool major.
+### 3. Exception-handler input frames
+
+`internal/verify/verify.go` now checks every handler edge whose protected range
+covers the instruction: the incoming locals and exactly the caught throwable
+(or `Throwable` for catch-all) must be assignable to the handler stack-map
+frame. Shared targets and uninitialized values are covered by focused Go tests
+(`internal/verify/handler_test.go`).
+
+Hand-assembled fixtures (`testdata/gate3/handler-frame/generate.py`) provide a
+valid handler and two invalid ones. OpenJDK 21:
+`good.Handler` loads and returns `2`; `bad.Handler` fails with
+`VerifyError: Stack map does not match the one at exception handler 16`;
+`badstack.Handler` also fails with `VerifyError: Stack map does not match the one at exception handler 16`.
+Catty rejects both at registration and the valid class registered after the
+rejections still executes:
+
+```json
+{"event":"plugin_admission","result":"rejected","code":"VERIFY","class":"badstack/Handler","method":"f","descriptor":"(I)I","pc":16,"message":"badstack/Handler.f(I)I: handler pc 16: stack map declares int, not a Throwable"}
+{"event":"plugin_admission","result":"rejected","code":"VERIFY","class":"bad/Handler","method":"f","descriptor":"(I)I","pc":8,"message":"bad/Handler.f(I)I: exception edge at pc 8 to handler pc 16: local 1 is java/lang/Object, not assignable to java/lang/String"}
+```
+
+`ClassifyVerifyError` recovers the method, descriptor and bytecode offset from
+the verifier's stable diagnostic prefix, so the Java registration trace carries
+the method and location.
+
+### 4. Verification work accounting
+
+`internal/verify/work.go` charges deterministic units before frame storage,
+frame copies/comparisons, instruction and control-flow edges, switch successors,
+exception edges, hierarchy/interface visits and class-file table elements.
+`internal/admission` charges the class/field/method/ref/instruction/handler
+tables and hierarchy visits before verification. Work is staged in
+`AdmissionResult.WorkUsed`; the diagnostic is `LIMIT` with
+`limit=verificationWork`.
+
+`TestVerificationWorkAccountingExceedsOldEstimate` computes the previous
+estimate for `valid-stored.jar`, proves the new `WorkUsed` is larger, then
+proves exact acceptance at `WorkUsed` and `LIMIT` at `WorkUsed-1`. The same test
+re-runs a normal admission after the refusal. `TestVerifierWorkExactBoundary`
+does the same at the verifier level. The rollback fixture separately proves a
+rejected registration leaves the running image and prior plugin usable.
+
+### 5. Loading constraints
+
+`rt/constraints.go` tracks loader-specific initiations and equality constraints
+for reference leaf types (including nested array leaves), with staged updates
+committed only on success, sticky resolution errors and `LinkageError` on a
+conflict. Member resolution imposes constraints between the caller loader and
+the declaring loader for field and method descriptors; class/array lookups
+record initiations and check previously registered constraints. Override
+preparation walks the superclass chain and complete interface closure, compares
+leaf types for actual overrides, and rejects a conflict before commit.
+
+Go coverage:
+
+- `TestLoadingConstraintTransition` — conflict leaves both maps unchanged;
+  a later lookup observes a pending constraint and is not published.
+- `TestLoadingConstraintPositiveAndArrayLeaf` — shared parent-visible leaves
+  and shared array leaves commit; loader-specific initiations are distinct.
+- `TestLoadingConstraintArrayLeafConflict` — nested array leaf conflict.
+- `TestOverridePreparationUsesLeafTypes` — preparation-time leaf conflict.
+- `TestOverridePreparationInheritedInterface` — inherited interface
+  implementation conflict.
+- `TestDeferredDescriptorLeavesArrayCacheUntouched` — unresolved descriptor
+  types stay deferred and do not pollute the array cache.
+
+**Invariant:** because lookup is strictly parent-first, two loaders that share
+a parent-visible name resolve the same class, so a proposed runtime conflict
+between such loaders is unreachable through the public API. The conflict
+transition is therefore covered at the runtime unit level, and the invariant is
+documented here rather than exercised by an artificial Java fixture. An absent
+class in the parent's view keeps ordinary resolution timing; an unresolved
+descriptor type is retained lazily (see the new `ext.Sig` fixture in
+`deferred-linkage`) rather than rejected at registration.
+
+## Other acceptance points preserved
+
+- Every image is built before its plugin JAR exists; the runner asserts the JAR
+  path is absent at all three image builds and that reports contain no plugin
+  class/JAR names.
+- The late-override fixture still proves image target, interpreted plugin
+  target, second loader target and cache hits/misses at the same bytecode site.
+- Generated mixed/AOT Go still passes the original PC and CP entry to
+  `InvokeVirtual`/`InvokeInterface`; the standalone run uses empty `PATH` and
+  unset `JAVA_HOME`/`CLASSPATH` with the same output and trace relationships.
+- `irem` auto fallback and forced-AOT rejection remain checked.
+- Admission policy variants, limits, rollback and report inventory remain
+  checked.
+
+## Remaining gaps / evidence limits
+
+1. **Runtime loading-constraint conflict is unit-level only** for the reason
+   above; there is no end-to-end Java reproducer that reaches the conflict
+   through normal parent-first registration. The preparation path is exercised
+   by `rt` unit tests, not by a public `Plugins.register` fixture.
+2. **Work units are deterministic Catty units**, not a byte-for-byte model of
+   every HotSpot verifier allocation. The boundary tests establish the profile
+   contract (`Used` accepted, one less `LIMIT`), not HotSpot equivalence.
+3. No end-to-end Java fixture injects a small verification-work limit (the
+   production profile ceiling is 16,777,216 and would require a huge class).
+   Work-limit refusal is covered at admission/verifier unit level; runtime
+   rollback is covered by the `rollback` case and `rt` unit tests.
+4. Handler-edge verification uses StackMapTable frames. Legacy classes without
+   frame tables retain the pre-Gate-3 inference path; class-file version 65
+   requires frames for the fixtures used here.
+5. The exact 128/129 hierarchy-depth boundary and exact 16 MiB compressed-input
+   boundary are not constructed as fixtures; the checks enforce inclusive
+   ceilings and one-unit-over tests at smaller injected limits.
+6. `readJar` uses Unix `O_NONBLOCK`/regular-file checks; non-Unix behavior was
+   not exercised.
+7. The fuzz target uses reduced test ceilings (1 MiB compressed, 4 MiB
+   expanded, 128 entries, 32 classes) so it spends its budget in validation;
+   production ceilings are tested separately.
+8. The OpenJDK reference is Microsoft build 21.0.6, not Temurin.
+
+## Artifact map
+
+- [DIGESTS.txt](DIGESTS.txt): SHA-256 for saved binaries, JARs and reports.
+- [reports/](reports): all case/mode reports.
+- [traces/](traces): dispatch, admission, class-init, reflection, handler and
+  rollback traces.
+- [generated/](generated): generated Go, including `catty/plugin` adapter.
+- [bin/](bin): preserved mixed binary, standalone copy and launcher.
+- [jars/](jars): all plugin, malformed and boundary JARs.
+- [gate2/](gate2): default Gate 2/Gate 1 logs and traces.
+- [gate2-gate3/](gate2-gate3): positive Gate 2 corpus logs/traces with Gate 3
+  enabled.

@@ -5,16 +5,16 @@
     "21",
     "-g",
     "-d",
-    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-y14rtq06/classes/arrays",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-ox_y8z5j/classes/arrays",
     "/Users/services/Projects/catty/testdata/gate2/arrays/Arrays.java"
   ],
   "cwd": "/Users/services/Projects/catty",
   "environment": {
+    "LC_ALL": "C",
     "JAVA_HOME": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home",
-    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-    "LC_ALL": "C"
+    "PATH": "/private/tmp/catty-tools/jdk-21.0.6+7/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin"
   },
-  "pid": 55138,
+  "pid": 59364,
   "status": 0,
   "stdout": "",
   "stderr": ""
