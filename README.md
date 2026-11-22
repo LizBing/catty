@@ -12,6 +12,9 @@ This repository implements the Gate 2 delivery in [GATE2.md](GATE2.md) against
 `tests/gate2.py` is the Gate 2 differential suite and runs the Gate 1 suite as
 its regression check.
 
+The next gate is planned in the [Gate 3 implementation specification](GATE3.md)
+and [Gate 3 test plan](GATE3-TESTING.md).
+
 The published profile is `catty-jvm21-gate2` with image ABI `2`.
 
 ## Requirements
