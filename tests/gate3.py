@@ -66,6 +66,18 @@ CASES = {
         main="app.Main",
         plugins=[("a", GATE3 / "package-dispatch" / "plugin")],
     ),
+    "inherited-interface": dict(
+        main="app.Main",
+        plugins=[("a", GATE3 / "inherited-interface" / "plugin")],
+    ),
+    "hierarchy-depth": dict(
+        main="app.Main",
+        plugins=[("big128", GATE3 / "hierarchy-depth" / "big128"),
+                 ("big129", GATE3 / "hierarchy-depth" / "big129"),
+                 ("parent1", GATE3 / "hierarchy-depth" / "parent1"),
+                 ("parent2", GATE3 / "hierarchy-depth" / "parent2"),
+                 ("parent3", GATE3 / "hierarchy-depth" / "parent3")],
+    ),
     "replacement": dict(
         main="app.Main",
         plugins=[("a", GATE3 / "replacement" / "plugin-a"),
@@ -201,6 +213,26 @@ def special_compile(suite, name, app, stub, common):
         invalid = compile_sources(suite, "javac-access-invalid", suite.work / "plugin-invalid",
                                   sorted((root / "plugin-invalid").rglob("*.java")), [app, stub])
         return {"valid": valid, "invalid": invalid}
+    if name == "hierarchy-depth":
+        generated = suite.work / "hierarchy-src"
+        suite.run("generate-hierarchy-depth", [sys.executable, "-B",
+                                               str(root / "generate.py"), str(generated)]).succeeded()
+
+        def sources(group):
+            return sorted((generated / group).rglob("*.java"))
+
+        big128 = compile_sources(suite, "javac-hierarchy-128", suite.work / "plugin-big128",
+                                 sources("big128"))
+        big129 = compile_sources(suite, "javac-hierarchy-129", suite.work / "plugin-big129",
+                                 sources("big129"))
+        parent1 = compile_sources(suite, "javac-hierarchy-parent1", suite.work / "plugin-parent1",
+                                  sources("parent1"))
+        parent2 = compile_sources(suite, "javac-hierarchy-parent2", suite.work / "plugin-parent2",
+                                  sources("parent2"), [parent1])
+        parent3 = compile_sources(suite, "javac-hierarchy-parent3", suite.work / "plugin-parent3",
+                                  sources("parent3"), [parent1, parent2])
+        return {"big128": big128, "big129": big129, "parent1": parent1,
+                "parent2": parent2, "parent3": parent3}
     return None
 
 
@@ -212,6 +244,11 @@ def package_jars(suite, name, plugins, classdirs, prebuilt=()):
             target = suite.work / f"{name}-{label}.jar"
             shutil.copyfile(source, target)
             jars.append(target)
+        return jars
+    if name == "hierarchy-depth":
+        for label, _src in plugins:
+            jars.append(make_jar(suite, f"jar-{name}-{label}", classdirs[label],
+                                 suite.work / f"{name}-{label}.jar"))
         return jars
     if name == "rollback":
         badsrc = classdirs["bad"]
@@ -351,6 +388,33 @@ def check_dispatch_trace(name, events, run_name):
                   and e.get("caller", {}).get("owner") == "demo/PublicBase"]
         require(any(e["target"]["owner"] == "demo/PublicChild" for e in public),
                 f"{run_name}: public override was not selected")
+    if name == "inherited-interface":
+        selected = [e for e in dispatches
+                    if e.get("declaration", {}).get("owner") == "api/Step"
+                    and e.get("declaration", {}).get("name") == "value"]
+        require(selected, f"{run_name}: no inherited-interface dispatch events")
+        require(any(e["target"]["owner"] == "api/Base" and e["target"]["loaderId"] == 1
+                    and e.get("receiverLoaderId") == 2 for e in selected),
+                f"{run_name}: inherited image superclass method was not the selected target: {selected}")
+    if name == "hierarchy-depth":
+        accepted = [e for e in events
+                    if e.get("event") == "plugin_admission" and e.get("result") == "accepted"]
+        rejected = [e for e in events
+                    if e.get("event") == "plugin_admission" and e.get("result") == "rejected"]
+        require(len(accepted) == 3, f"{run_name}: accepted admissions {len(accepted)}, want 3")
+        require(len(rejected) == 2, f"{run_name}: rejected admissions {len(rejected)}, want 2")
+        for event in rejected:
+            require(event.get("code") == "LIMIT",
+                    f"{run_name}: hierarchy refusal code {event.get('code')}")
+            require(event.get("limit") == "hierarchyDepth",
+                    f"{run_name}: hierarchy refusal limit {event.get('limit')}")
+            require("loaderId" not in event,
+                    f"{run_name}: refused hierarchy admission published a loader")
+        classes = {event.get("class") for event in rejected}
+        require("chain/C128" in classes and "span/P128" in classes,
+                f"{run_name}: hierarchy diagnostics did not name the overdepth class: {classes}")
+        require([e["loaderId"] for e in accepted] == [2, 3, 4],
+                f"{run_name}: accepted loader IDs are not sequential: {[e['loaderId'] for e in accepted]}")
     if name in ("loader-identity", "replacement", "reflection-identity"):
         require(plugin_targets or any(e.get("event") == "reflect" for e in events),
                 f"{run_name}: no plugin dispatch or reflect event")
@@ -735,6 +799,8 @@ def main():
                 plugin_dirs = [compiled["good"], compiled["bad"], compiled["corrected"]]
             elif name == "access":
                 plugin_dirs = [compiled["valid"], compiled["invalid"]]
+            elif name == "hierarchy-depth":
+                plugin_dirs = [compiled[label] for label, _src in cfg["plugins"]]
             else:
                 plugin_dirs = []
                 for label, srcdir in cfg["plugins"]:
@@ -750,7 +816,7 @@ def main():
             if name == "rollback":
                 jars_expected = [work / "rollback-good.jar", work / "rollback-bad.jar",
                                  work / "rollback-corrected.jar"]
-            jardirs = compiled if name in ("rollback", "access") else plugin_dirs
+            jardirs = compiled if name in ("rollback", "access", "hierarchy-depth") else plugin_dirs
             bins = None
             if not args.prepare_only:
                 for jar in jars_expected:
@@ -801,6 +867,9 @@ def main():
                 expected[name] = b"2\ntrue\ntrue\n2\n"
             elif name == "rollback":
                 expected[name] = b"10\ntrue\n20\n1\n1\n50\n"
+            elif name == "hierarchy-depth":
+                # Catty profile policy: OpenJDK has no equivalent ceiling.
+                expected[name] = b"128\n120\n128\nLIMIT\nLIMIT\ntrue\n"
             else:
                 oracle = oracle_run(suite, f"oracle-{name}", adapter, app, cfg["main"], jars)
                 require(oracle.status == 0, f"{name}: oracle status {oracle.status}. See {oracle.log}")

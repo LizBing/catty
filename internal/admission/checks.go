@@ -1,10 +1,11 @@
 package admission
 
 import (
-	"fmt"
+	"errors"
 	"strings"
 
 	"catty/internal/classfile"
+	"catty/internal/hierarchy"
 	"catty/internal/verify"
 	"catty/rt"
 )
@@ -186,45 +187,52 @@ func checkCandidate(a *archive, candidate []*sourceClass, parent map[string]*cla
 			}
 		}
 	}
-	// Candidate-local hierarchy cycles and depth.
-	state := map[string]uint8{}
-	var visit func(name string, depth int) *rt.PluginError
-	visit = func(name string, depth int) *rt.PluginError {
-		if perr := charge(1, location{Class: name}, "hierarchy visit"); perr != nil {
-			return perr
-		}
-		if depth > limits.HierarchyDepth {
-			return failure("LIMIT", "", name, fmt.Sprintf("hierarchy depth exceeds %d", limits.HierarchyDepth))
-		}
-		switch state[name] {
-		case 1:
-			return failure("VERIFY", "", name, "class hierarchy cycle at "+name)
-		case 2:
+	return nil
+}
+
+// checkHierarchy applies the effective hierarchy rule to the classes the
+// candidate loader can actually define. The reader follows parent-loader
+// definitions, so a path that spans a published parent loader counts every
+// class/interface edge, and the memoized longest-path traversal is independent
+// of archive entry order. Work is charged before each newly visited node.
+func checkHierarchy(effective []*classfile.Class, byName, parent map[string]*classfile.Class,
+	limits Limits, work *verify.Work) *rt.PluginError {
+	roots := make([]string, 0, len(effective))
+	for _, c := range effective {
+		roots = append(roots, c.Name)
+	}
+	charge := func() error {
+		if work == nil {
 			return nil
 		}
-		state[name] = 1
-		c, ok := byName[name]
-		if ok {
-			if c.Super != "" {
-				if err := visit(c.Super, depth+1); err != nil {
-					return err
-				}
-			}
-			for _, in := range c.Interfaces {
-				if err := visit(in, depth+1); err != nil {
-					return err
-				}
-			}
+		return work.Charge(1, "hierarchy visit")
+	}
+	read := func(name string) (hierarchy.Node, bool) {
+		c, _, ok := lookupEffective(name, byName, parent)
+		if !ok {
+			return hierarchy.Node{}, false
 		}
-		state[name] = 2
+		return hierarchy.Node{Super: c.Super, Interfaces: c.Interfaces}, true
+	}
+	err := hierarchy.Check(roots, read, limits.HierarchyDepth, charge)
+	if err == nil {
 		return nil
 	}
-	for _, sc := range candidate {
-		if err := visit(sc.class.Name, 0); err != nil {
-			return err
-		}
+	var depthErr *hierarchy.DepthError
+	if errors.As(err, &depthErr) {
+		loc := location{Class: depthErr.Class, Feature: "hierarchy depth", Limit: "hierarchyDepth"}
+		return locFailure("LIMIT", loc, depthErr.Error())
 	}
-	return nil
+	var cycleErr *hierarchy.CycleError
+	if errors.As(err, &cycleErr) {
+		return failure("VERIFY", "", cycleErr.Class, cycleErr.Error())
+	}
+	var workErr *verify.WorkError
+	if errors.As(err, &workErr) {
+		loc := location{Limit: "verificationWork"}
+		return locFailure("LIMIT", loc, err.Error())
+	}
+	return failure("VERIFY", "", "", err.Error())
 }
 
 func packageOf(name string) string {

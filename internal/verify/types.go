@@ -225,30 +225,34 @@ func frameStateFrom(ctx *Context, f *classfile.Frame, maxLocals int) (*frameStat
 	return &frameState{locals: locals, stack: stack}, nil
 }
 
-func copyState(ctx *Context, s *frameState) *frameState {
-	_ = ctx.charge(int64(len(s.locals)+len(s.stack)+2), "frame state copy")
+func copyState(ctx *Context, s *frameState) (*frameState, error) {
+	if err := ctx.charge(int64(len(s.locals)+len(s.stack)+2), "frame state copy"); err != nil {
+		return nil, err
+	}
 	return &frameState{
 		locals: append([]vtype(nil), s.locals...),
 		stack:  append([]vtype(nil), s.stack...),
-	}
+	}, nil
 }
 
-func statesEqual(ctx *Context, a, b *frameState) bool {
-	_ = ctx.charge(int64(len(a.locals)+len(a.stack)+len(b.locals)+len(b.stack)), "frame state comparison")
+func statesEqual(ctx *Context, a, b *frameState) (bool, error) {
+	if err := ctx.charge(int64(len(a.locals)+len(a.stack)+len(b.locals)+len(b.stack)), "frame state comparison"); err != nil {
+		return false, err
+	}
 	if len(a.locals) != len(b.locals) || len(a.stack) != len(b.stack) {
-		return false
+		return false, nil
 	}
 	for i := range a.locals {
 		if a.locals[i] != b.locals[i] {
-			return false
+			return false, nil
 		}
 	}
 	for i := range a.stack {
 		if a.stack[i] != b.stack[i] {
-			return false
+			return false, nil
 		}
 	}
-	return true
+	return true, nil
 }
 
 func checkAssignableState(ctx *Context, from, to *frameState) error {
@@ -266,96 +270,117 @@ func checkAssignableState(ctx *Context, from, to *frameState) error {
 		if i >= len(from.locals) || from.locals[i].kind == vtTop {
 			return fmt.Errorf("local %d is uninitialized but the stack map expects %s", i, want)
 		}
-		if !assignable(ctx, from.locals[i], want) {
+		ok, err := assignable(ctx, from.locals[i], want)
+		if err != nil {
+			return err
+		}
+		if !ok {
 			return fmt.Errorf("local %d is %s, not assignable to %s", i, from.locals[i], want)
 		}
 	}
 	for i := range to.stack {
-		if !assignable(ctx, from.stack[i], to.stack[i]) {
+		ok, err := assignable(ctx, from.stack[i], to.stack[i])
+		if err != nil {
+			return err
+		}
+		if !ok {
 			return fmt.Errorf("operand %d is %s, not assignable to %s", i, from.stack[i], to.stack[i])
 		}
 	}
 	return nil
 }
 
-func assignable(ctx *Context, from, to vtype) bool {
+func assignable(ctx *Context, from, to vtype) (bool, error) {
 	if from == to {
-		return true
+		return true, nil
 	}
 	switch to.kind {
 	case vtTop:
-		return false
+		return false, nil
 	case vtInt:
-		return from.kind == vtInt
+		return from.kind == vtInt, nil
 	case vtLong:
-		return from.kind == vtLong
+		return from.kind == vtLong, nil
 	case vtFloat:
-		return from.kind == vtFloat
+		return from.kind == vtFloat, nil
 	case vtDouble:
-		return from.kind == vtDouble
+		return from.kind == vtDouble, nil
 	case vtNull:
-		return from.kind == vtNull
+		return from.kind == vtNull, nil
 	case vtUninitThis, vtUninit:
-		return from.kind == to.kind && from.off == to.off
+		return from.kind == to.kind && from.off == to.off, nil
 	case vtRef:
 		switch from.kind {
 		case vtNull:
-			return true
+			return true, nil
 		case vtRef:
 			return classAssignable(ctx, from.class, to.class)
 		}
 	}
-	return false
+	return false, nil
 }
 
-func classAssignable(ctx *Context, from, to string) bool {
-	_ = ctx.chargeSoft(1, "class assignability visit")
+func classAssignable(ctx *Context, from, to string) (bool, error) {
+	if err := ctx.charge(1, "class assignability visit"); err != nil {
+		return false, err
+	}
 	if from == to {
-		return true
+		return true, nil
 	}
 	if to == "java/lang/Object" {
-		return true
+		return true, nil
 	}
 	if strings.HasPrefix(from, "[") {
 		if to == "java/lang/Cloneable" || to == "java/io/Serializable" {
-			return true
+			return true, nil
 		}
 		if strings.HasPrefix(to, "[") {
 			fc, fok := arrayComponent(from)
 			tc, tok := arrayComponent(to)
 			if !fok || !tok {
-				return false
+				return false, nil
 			}
 			if isPrimitiveName(fc) || isPrimitiveName(tc) {
-				return fc == tc
+				return fc == tc, nil
 			}
 			return classAssignable(ctx, fc, tc)
 		}
-		return false
+		return false, nil
 	}
 	if strings.HasPrefix(to, "[") {
-		return false
+		return false, nil
 	}
-	if classIsInterface(ctx, to) {
-		if classIsInterface(ctx, from) && interfaceExtends(ctx, from, to) {
-			return true
+	toInterface, err := classIsInterface(ctx, to)
+	if err != nil {
+		return false, err
+	}
+	if toInterface {
+		fromInterface, err := classIsInterface(ctx, from)
+		if err != nil {
+			return false, err
+		}
+		if fromInterface {
+			return interfaceExtends(ctx, from, to)
 		}
 		return classImplements(ctx, from, to)
 	}
 	cur := from
 	seen := map[string]bool{}
 	for cur != "" && !seen[cur] {
+		if err := ctx.charge(1, "class hierarchy visit"); err != nil {
+			return false, err
+		}
 		seen[cur] = true
 		info, ok := classInfo(ctx, cur)
 		if !ok {
-			return false
+			return false, nil
 		}
 		if info.super == to {
-			return true
+			return true, nil
 		}
 		cur = info.super
 	}
-	return false
+	return false, nil
 }
 
 type classInfoData struct {
@@ -374,72 +399,96 @@ func classInfo(ctx *Context, name string) (classInfoData, bool) {
 	return classInfoData{}, false
 }
 
-func classIsInterface(ctx *Context, name string) bool {
-	_ = ctx.chargeSoft(1, "class interface query")
+func classIsInterface(ctx *Context, name string) (bool, error) {
+	if err := ctx.charge(1, "class interface query"); err != nil {
+		return false, err
+	}
 	info, ok := classInfo(ctx, name)
-	return ok && info.flags&rt.AccInterface != 0
+	return ok && info.flags&rt.AccInterface != 0, nil
 }
 
-func classImplements(ctx *Context, from, target string) bool {
+func classImplements(ctx *Context, from, target string) (bool, error) {
 	seen := map[string]bool{}
-	var visitInterface func(string) bool
-	visitInterface = func(name string) bool {
+	var visitInterface func(string) (bool, error)
+	visitInterface = func(name string) (bool, error) {
 		if name == "" || seen[name] {
-			return false
+			return false, nil
+		}
+		if err := ctx.charge(1, "interface hierarchy visit"); err != nil {
+			return false, err
 		}
 		seen[name] = true
 		if name == target {
-			return true
+			return true, nil
 		}
 		info, ok := classInfo(ctx, name)
 		if !ok {
-			return false
+			return false, nil
 		}
 		for _, in := range info.interfaces {
-			if in == target || visitInterface(in) {
-				return true
+			if in == target {
+				return true, nil
+			}
+			found, err := visitInterface(in)
+			if err != nil {
+				return false, err
+			}
+			if found {
+				return true, nil
 			}
 		}
-		return false
+		return false, nil
 	}
 	for name := from; name != ""; {
+		if err := ctx.charge(1, "class hierarchy visit"); err != nil {
+			return false, err
+		}
 		info, ok := classInfo(ctx, name)
 		if !ok {
-			return false
+			return false, nil
 		}
 		for _, in := range info.interfaces {
-			if visitInterface(in) {
-				return true
+			found, err := visitInterface(in)
+			if err != nil {
+				return false, err
+			}
+			if found {
+				return true, nil
 			}
 		}
 		name = info.super
 	}
-	return false
+	return false, nil
 }
 
-func interfaceExtends(ctx *Context, from, target string) bool {
-	_ = ctx.chargeSoft(1, "interface hierarchy visit")
+func interfaceExtends(ctx *Context, from, target string) (bool, error) {
 	seen := map[string]bool{}
-	var visit func(string) bool
-	visit = func(name string) bool {
+	var visit func(string) (bool, error)
+	visit = func(name string) (bool, error) {
 		if name == "" || seen[name] {
-			return false
+			return false, nil
 		}
-		_ = ctx.chargeSoft(1, "interface hierarchy visit")
+		if err := ctx.charge(1, "interface hierarchy visit"); err != nil {
+			return false, err
+		}
 		seen[name] = true
 		if name == target {
-			return true
+			return true, nil
 		}
 		info, ok := classInfo(ctx, name)
 		if !ok {
-			return false
+			return false, nil
 		}
 		for _, in := range info.interfaces {
-			if visit(in) {
-				return true
+			found, err := visit(in)
+			if err != nil {
+				return false, err
+			}
+			if found {
+				return true, nil
 			}
 		}
-		return false
+		return false, nil
 	}
 	return visit(from)
 }
@@ -907,7 +956,11 @@ func (t *typeChecker) applyField() error {
 		if err != nil {
 			return err
 		}
-		if !assignable(t.ctx, value, ft) {
+		ok, err := assignable(t.ctx, value, ft)
+		if err != nil {
+			return err
+		}
+		if !ok {
 			return fmt.Errorf("putstatic value %s is not assignable to %s", value, ft)
 		}
 		return nil
@@ -916,7 +969,11 @@ func (t *typeChecker) applyField() error {
 		if err != nil {
 			return err
 		}
-		if !assignable(t.ctx, recv, vtype{kind: vtRef, class: ref.Owner}) {
+		ok, err := assignable(t.ctx, recv, vtype{kind: vtRef, class: ref.Owner})
+		if err != nil {
+			return err
+		}
+		if !ok {
 			return fmt.Errorf("getfield receiver %s is not assignable to %s", recv, ref.Owner)
 		}
 		return t.push(ft)
@@ -925,7 +982,11 @@ func (t *typeChecker) applyField() error {
 		if err != nil {
 			return err
 		}
-		if !assignable(t.ctx, value, ft) {
+		ok, err := assignable(t.ctx, value, ft)
+		if err != nil {
+			return err
+		}
+		if !ok {
 			return fmt.Errorf("putfield value %s is not assignable to %s", value, ft)
 		}
 		recv, err := t.popRef(true)
@@ -941,7 +1002,11 @@ func (t *typeChecker) applyField() error {
 		if recv.kind != vtRef && recv.kind != vtNull {
 			return fmt.Errorf("putfield receiver is not a reference: %s", recv)
 		}
-		if !assignable(t.ctx, recv, vtype{kind: vtRef, class: ref.Owner}) {
+		ok, err = assignable(t.ctx, recv, vtype{kind: vtRef, class: ref.Owner})
+		if err != nil {
+			return err
+		}
+		if !ok {
 			return fmt.Errorf("putfield receiver %s is not assignable to %s", recv, ref.Owner)
 		}
 		return nil
@@ -975,7 +1040,11 @@ func (t *typeChecker) applyInvoke() error {
 		if err != nil {
 			return err
 		}
-		if !assignable(t.ctx, got, want) {
+		ok, err := assignable(t.ctx, got, want)
+		if err != nil {
+			return err
+		}
+		if !ok {
 			return fmt.Errorf("argument %d is %s, not assignable to %s", i, got, want)
 		}
 	}
@@ -1021,16 +1090,28 @@ func (t *typeChecker) applyInvoke() error {
 		// A null receiver is statically assignable to any reference type.
 	} else if recv.kind != vtRef {
 		return fmt.Errorf("method receiver is not a reference: %s", recv)
-	} else if !assignable(t.ctx, recv, vtype{kind: vtRef, class: ref.Owner}) {
-		return fmt.Errorf("method receiver %s is not assignable to %s", recv, ref.Owner)
+	} else {
+		ok, err := assignable(t.ctx, recv, vtype{kind: vtRef, class: ref.Owner})
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return fmt.Errorf("method receiver %s is not assignable to %s", recv, ref.Owner)
+		}
 	}
 	if t.ctx.MemberFlags != nil && recv.kind == vtRef {
 		if flags, declaring, ok := t.ctx.MemberFlags(ref.Owner, ref.Name, ref.Descriptor); ok {
 			if flags&rt.AccProtected != 0 {
 				samePkg := t.ctx.RuntimePackage != nil && t.ctx.RuntimePackage(t.class.Name, declaring)
-				if !samePkg && !assignable(t.ctx, recv, vtype{kind: vtRef, class: t.class.Name}) {
-					return fmt.Errorf("protected method %s.%s%s receiver %s is not assignable to %s",
-						declaring, ref.Name, ref.Descriptor, recv, t.class.Name)
+				if !samePkg {
+					ok, err := assignable(t.ctx, recv, vtype{kind: vtRef, class: t.class.Name})
+					if err != nil {
+						return err
+					}
+					if !ok {
+						return fmt.Errorf("protected method %s.%s%s receiver %s is not assignable to %s",
+							declaring, ref.Name, ref.Descriptor, recv, t.class.Name)
+					}
 				}
 			}
 		}
@@ -1062,10 +1143,25 @@ func (t *typeChecker) applyStep() (succs []successor, terminal bool, err error) 
 		}
 	}()
 	pc, insn := t.pc, t.insn
+	var stepErr error
 	addTarget := func(target int32) {
-		succs = append(succs, successor{pc: target, state: copyState(t.ctx, t.state)})
+		if stepErr != nil {
+			return
+		}
+		state, copyErr := copyState(t.ctx, t.state)
+		if copyErr != nil {
+			stepErr = copyErr
+			return
+		}
+		succs = append(succs, successor{pc: target, state: state})
 	}
 	addNext := func() { addTarget(pc + insn.Len) }
+	finishOK := func() ([]successor, bool, error) {
+		if stepErr != nil {
+			return nil, false, stepErr
+		}
+		return succs, false, nil
+	}
 	push := t.push
 
 	switch insn.Op {
@@ -1351,7 +1447,7 @@ func (t *typeChecker) applyStep() (succs []successor, terminal bool, err error) 
 		}
 		addTarget(insn.A)
 		addNext()
-		return succs, false, nil
+		return finishOK()
 	case rt.OpIfIcmpeq, rt.OpIfIcmpne, rt.OpIfIcmplt, rt.OpIfIcmpge, rt.OpIfIcmpgt, rt.OpIfIcmple:
 		if _, e := t.popOf(vtInt, "int"); e != nil {
 			return nil, false, e
@@ -1361,7 +1457,7 @@ func (t *typeChecker) applyStep() (succs []successor, terminal bool, err error) 
 		}
 		addTarget(insn.A)
 		addNext()
-		return succs, false, nil
+		return finishOK()
 	case rt.OpIfAcmpeq, rt.OpIfAcmpne:
 		if _, e := t.popRef(true); e != nil {
 			return nil, false, e
@@ -1371,17 +1467,17 @@ func (t *typeChecker) applyStep() (succs []successor, terminal bool, err error) 
 		}
 		addTarget(insn.A)
 		addNext()
-		return succs, false, nil
+		return finishOK()
 	case rt.OpIfnull, rt.OpIfnonnull:
 		if _, e := t.popRef(true); e != nil {
 			return nil, false, e
 		}
 		addTarget(insn.A)
 		addNext()
-		return succs, false, nil
+		return finishOK()
 	case rt.OpGoto, rt.OpGotoW:
 		addTarget(insn.A)
-		return succs, false, nil
+		return finishOK()
 	case rt.OpTableswitch, rt.OpLookupswitch:
 		if _, e := t.popOf(vtInt, "int"); e != nil {
 			return nil, false, e
@@ -1390,7 +1486,7 @@ func (t *typeChecker) applyStep() (succs []successor, terminal bool, err error) 
 			addTarget(target)
 		}
 		addTarget(insn.A)
-		return succs, false, nil
+		return finishOK()
 	case rt.OpIreturn:
 		if t.mt.Return.Kind != 'I' {
 			return nil, false, fmt.Errorf("ireturn in a method returning %s", t.mt.Return.Descriptor)
@@ -1437,7 +1533,11 @@ func (t *typeChecker) applyStep() (succs []successor, terminal bool, err error) 
 		if e != nil {
 			return nil, false, e
 		}
-		if !assignable(t.ctx, v, want) {
+		ok, e := assignable(t.ctx, v, want)
+		if e != nil {
+			return nil, false, e
+		}
+		if !ok {
 			return nil, false, fmt.Errorf("areturn value %s is not assignable to %s", v, want)
 		}
 		return nil, true, nil
@@ -1446,13 +1546,13 @@ func (t *typeChecker) applyStep() (succs []successor, terminal bool, err error) 
 			return nil, false, e
 		}
 		addNext()
-		return succs, false, nil
+		return finishOK()
 	case rt.OpInvokestatic, rt.OpInvokespecial, rt.OpInvokevirtual, rt.OpInvokeinterface:
 		if e := t.applyInvoke(); e != nil {
 			return nil, false, e
 		}
 		addNext()
-		return succs, false, nil
+		return finishOK()
 	case rt.OpNew:
 		ref, e := t.ref(insn.Ref)
 		if e != nil {
@@ -1540,8 +1640,14 @@ func (t *typeChecker) applyStep() (succs []successor, terminal bool, err error) 
 		if e != nil {
 			return nil, false, e
 		}
-		if v.kind == vtRef && !classAssignable(t.ctx, v.class, "java/lang/Throwable") {
-			return nil, false, fmt.Errorf("athrow of %s which is not a Throwable", v.class)
+		if v.kind == vtRef {
+			ok, e := classAssignable(t.ctx, v.class, "java/lang/Throwable")
+			if e != nil {
+				return nil, false, e
+			}
+			if !ok {
+				return nil, false, fmt.Errorf("athrow of %s which is not a Throwable", v.class)
+			}
 		}
 		return nil, true, nil
 	case rt.OpCheckcast:
@@ -1585,7 +1691,7 @@ func (t *typeChecker) applyStep() (succs []successor, terminal bool, err error) 
 		return nil, false, err
 	}
 	addNext()
-	return succs, false, nil
+	return finishOK()
 }
 
 func isArrayDesc(desc string) bool {

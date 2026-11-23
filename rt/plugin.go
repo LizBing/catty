@@ -3,11 +3,14 @@ package rt
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"strings"
 	"syscall"
+
+	"catty/internal/hierarchy"
 )
 
 // PluginError is a typed admission diagnostic crossing the runtime/admission
@@ -372,9 +375,9 @@ func (r *Runtime) installPluginTx(parent *Loader, res *AdmissionResult) (*Loader
 			c.Interfaces = append(c.Interfaces, i)
 		}
 	}
-	// Hierarchy cycles and final-superclass constraints.
-	if err := r.checkPluginHierarchies(created); err != nil {
-		return nil, r.NewPluginAdmissionException(nil, "VERIFY", err.Error())
+	// Hierarchy cycles, depth and final-superclass constraints.
+	if perr := r.checkPluginHierarchies(loader, created); perr != nil {
+		return nil, r.NewPluginAdmissionException(nil, perr.Code, perr.Message)
 	}
 	for _, c := range created {
 		if err := r.layoutDefinition(c, defs[c.Name]); err != nil {
@@ -511,48 +514,66 @@ func (r *Runtime) leafTypeConflict(aLoader, bLoader *Loader, aTypes, bTypes []Ty
 	return nil, nil, "", false
 }
 
-func (r *Runtime) checkPluginHierarchies(created []*Class) error {
-	state := map[*Class]uint8{}
-	var visit func(c *Class, depth int) error
-	visit = func(c *Class, depth int) error {
-		if depth > 128 {
-			return fmt.Errorf("hierarchy traversal depth exceeds 128 at %s", c.Name)
-		}
-		switch state[c] {
-		case 1:
-			return fmt.Errorf("class hierarchy cycle at %s", c.Name)
-		case 2:
-			return nil
-		}
-		state[c] = 1
+// checkPluginHierarchies revalidates the effective graph the candidate loader
+// would publish. The longest-path rule is shared with admission, including
+// ancestors supplied by parent loaders, so the two boundaries agree on the
+// inclusive 128-edge ceiling independent of visit order.
+func (r *Runtime) checkPluginHierarchies(loader *Loader, created []*Class) *PluginError {
+	for _, c := range created {
 		if c.Super != nil {
 			if c.Super.IsPrimitive || c.Super.IsArray {
-				return fmt.Errorf("class %s has invalid superclass %s", c.Name, c.Super.Name)
+				return &PluginError{Code: "VERIFY", Class: c.Name,
+					Message: fmt.Sprintf("class %s has invalid superclass %s", c.Name, c.Super.Name)}
 			}
 			if c.Super.Flags&AccFinal != 0 {
-				return fmt.Errorf("class %s extends final class %s", c.Name, c.Super.Name)
-			}
-			if err := visit(c.Super, depth+1); err != nil {
-				return err
+				return &PluginError{Code: "VERIFY", Class: c.Name,
+					Message: fmt.Sprintf("class %s extends final class %s", c.Name, c.Super.Name)}
 			}
 		}
 		for _, in := range c.Interfaces {
 			if !in.IsInterface() {
-				return fmt.Errorf("class %s implements non-interface %s", c.Name, in.Name)
-			}
-			if err := visit(in, depth+1); err != nil {
-				return err
+				return &PluginError{Code: "VERIFY", Class: c.Name,
+					Message: fmt.Sprintf("class %s implements non-interface %s", c.Name, in.Name)}
 			}
 		}
-		state[c] = 2
+	}
+	limits := r.pluginLimits()
+	limit := 128
+	if limits != nil && limits.HierarchyDepth > 0 {
+		limit = limits.HierarchyDepth
+	}
+	roots := make([]string, 0, len(created))
+	for _, c := range created {
+		roots = append(roots, c.Name)
+	}
+	read := func(name string) (hierarchy.Node, bool) {
+		c, ok := loader.Lookup(name)
+		if !ok {
+			return hierarchy.Node{}, false
+		}
+		node := hierarchy.Node{}
+		if c.Super != nil {
+			node.Super = c.Super.Name
+		}
+		for _, in := range c.Interfaces {
+			node.Interfaces = append(node.Interfaces, in.Name)
+		}
+		return node, true
+	}
+	err := hierarchy.Check(roots, read, limit, nil)
+	if err == nil {
 		return nil
 	}
-	for _, c := range created {
-		if err := visit(c, 0); err != nil {
-			return err
-		}
+	var depthErr *hierarchy.DepthError
+	if errors.As(err, &depthErr) {
+		return &PluginError{Code: "LIMIT", Class: depthErr.Class, Limit: "hierarchyDepth",
+			Feature: "hierarchy depth", Message: depthErr.Error()}
 	}
-	return nil
+	var cycleErr *hierarchy.CycleError
+	if errors.As(err, &cycleErr) {
+		return &PluginError{Code: "VERIFY", Class: cycleErr.Class, Message: cycleErr.Error()}
+	}
+	return &PluginError{Code: "VERIFY", Message: err.Error()}
 }
 
 // intrinsicPluginAdmissionGetCode implements

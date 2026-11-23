@@ -156,6 +156,9 @@ func AdmitWithLimits(data []byte, parent *rt.Loader, profile string, limits Limi
 	if err := checkCandidate(archive, candidate, parentClasses, byName, profile, limits, work); err != nil {
 		return nil, err
 	}
+	if err := checkHierarchy(effective, byName, parentClasses, limits, work); err != nil {
+		return nil, err
+	}
 	if err := checkNests(effective, byName, parentClasses, parent, limits.HierarchyDepth); err != nil {
 		return nil, err
 	}

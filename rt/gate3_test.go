@@ -1,6 +1,7 @@
 package rt
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -243,24 +244,26 @@ func constraintRuntime(t *testing.T) (*Runtime, *Loader, *Loader, *Class, *Class
 	return r, a, b, ta, tb
 }
 
-func TestLoadingConstraintTransition(t *testing.T) {
+func TestLoadingConstraintPendingInitiation(t *testing.T) {
 	r, a, b, ta, tb := constraintRuntime(t)
 	typ, err := ParseFieldType("Lext/T;")
 	if err != nil {
 		t.Fatal(err)
 	}
 	mt := &MethodType{Params: []Type{typ}, Return: Type{Kind: 'V', Descriptor: "V"}}
-	if !r.imposeMethodConstraints(a, b, mt) {
-		t.Fatal("two distinct local leaf classes did not conflict")
+	// Both endpoints are unresolved, so the equality is staged pending without
+	// forcing a descriptor leaf lookup.
+	if r.imposeMethodConstraints(a, b, mt) {
+		t.Fatal("pending equality was reported as a conflict")
 	}
-	if len(r.initiations) != 0 || len(r.constraints) != 0 {
-		t.Fatalf("conflicting constraint published state: init=%d constraints=%d", len(r.initiations), len(r.constraints))
+	if len(r.initiations) != 0 || len(r.constraints) != 1 {
+		t.Fatalf("pending staging published initialization state: init=%d constraints=%d",
+			len(r.initiations), len(r.constraints))
 	}
 	if r.recordInitiation(a, "ext/T", ta) {
 		t.Fatal("first initiation reported a conflict")
 	}
 	keyB := initiationKey{Loader: b, Name: "ext/T"}
-	r.constraints[makeConstraintKey(initiationKey{Loader: a, Name: "ext/T"}, keyB)] = struct{}{}
 	if !r.recordInitiation(b, "ext/T", tb) {
 		t.Fatal("later lookup did not observe the pending constraint")
 	}
@@ -269,25 +272,101 @@ func TestLoadingConstraintTransition(t *testing.T) {
 	}
 }
 
-func TestLoadingConstraintPositiveAndArrayLeaf(t *testing.T) {
+func TestLoadingConstraintTransitiveComponent(t *testing.T) {
+	r, a, b, ta, tb := constraintRuntime(t)
+	c := &Loader{ID: 4, Name: "constraint-c", Runtime: r, Parent: r.Loader, Classes: map[string]*Class{}}
+	object := r.mustClass("java/lang/Object")
+	tc := &Class{Name: "ext/T", Loader: c, Super: object, MethodIndex: map[string]*Method{}}
+	c.Classes["ext/T"] = tc
+	typ, _ := ParseFieldType("Lext/T;")
+	mt := &MethodType{Params: []Type{typ}, Return: Type{Kind: 'V', Descriptor: "V"}}
+	if r.imposeMethodConstraints(a, b, mt) || r.imposeMethodConstraints(b, c, mt) {
+		t.Fatal("pending transitive equality reported a conflict")
+	}
+	if len(r.constraints) != 2 {
+		t.Fatalf("transitive staging published %d edges, want 2", len(r.constraints))
+	}
+	if r.recordInitiation(a, "ext/T", ta) {
+		t.Fatal("first initiation reported a conflict")
+	}
+	// C reaches A only through the still-unresolved B endpoint. The connected
+	// component check must follow both equality edges and reject C's class.
+	if !r.recordInitiation(c, "ext/T", tc) {
+		t.Fatal("transitive conflict through an unresolved endpoint was missed")
+	}
+	keyC := initiationKey{Loader: c, Name: "ext/T"}
+	if _, ok := r.initiations[keyC]; ok {
+		t.Fatal("conflicting transitive initiation was published")
+	}
+	if _, ok := r.initiations[initiationKey{Loader: a, Name: "ext/T"}]; !ok {
+		t.Fatal("prior initiation was lost by the refused operation")
+	}
+	if len(r.constraints) != 2 {
+		t.Fatal("refused initiation changed the constraint graph")
+	}
+	_ = tb
+}
+
+func TestLoadingConstraintLateLookupPublishesSharedClass(t *testing.T) {
 	r, a, b, _, _ := constraintRuntime(t)
 	object := r.mustClass("java/lang/Object")
 	shared := &Class{Name: "app/Shared", Loader: r.Loader, Super: object, MethodIndex: map[string]*Method{}}
 	r.Loader.Classes["app/Shared"] = shared
 	r.Classes["app/Shared"] = shared
-	sharedType, _ := ParseFieldType("Lapp/Shared;")
-	arrayType, _ := ParseFieldType("[Lapp/Shared;")
-	mt := &MethodType{Params: []Type{sharedType, arrayType}, Return: Type{Kind: 'V', Descriptor: "V"}}
+	typ, _ := ParseFieldType("Lapp/Shared;")
+	mt := &MethodType{Params: []Type{typ}, Return: Type{Kind: 'V', Descriptor: "V"}}
 	if r.imposeMethodConstraints(a, b, mt) {
-		t.Fatal("shared parent-visible leaf types conflicted")
+		t.Fatal("pending shared-class equality reported a conflict")
 	}
-	if len(r.constraints) == 0 {
-		t.Fatal("successful constraints were not published")
+	if r.recordInitiation(a, "app/Shared", shared) || r.recordInitiation(b, "app/Shared", shared) {
+		t.Fatal("shared parent-visible class conflicted")
 	}
-	// Both loaders must resolve the shared type; the array leaf is the same.
 	if r.initiations[initiationKey{Loader: a, Name: "app/Shared"}] != shared ||
 		r.initiations[initiationKey{Loader: b, Name: "app/Shared"}] != shared {
 		t.Fatal("shared initiations are not loader-specific")
+	}
+}
+
+func TestLoadingConstraintConflictPreservesPriorState(t *testing.T) {
+	r, a, b, ta, tb := constraintRuntime(t)
+	if r.recordInitiation(a, "ext/T", ta) || r.recordInitiation(b, "ext/T", tb) {
+		t.Fatal("unconstrained initiations conflicted")
+	}
+	beforeInit := len(r.initiations)
+	beforeConstraints := len(r.constraints)
+	typ, _ := ParseFieldType("Lext/T;")
+	mt := &MethodType{Params: []Type{typ}, Return: Type{Kind: 'V', Descriptor: "V"}}
+	if !r.imposeMethodConstraints(a, b, mt) {
+		t.Fatal("resolved distinct classes did not conflict at staging")
+	}
+	if len(r.initiations) != beforeInit || len(r.constraints) != beforeConstraints {
+		t.Fatal("refused staging changed published constraint state")
+	}
+}
+
+func TestLoadingConstraintPrimitiveDescriptorsStayOutsideGraph(t *testing.T) {
+	r, a, b, _, _ := constraintRuntime(t)
+	intType, _ := ParseFieldType("I")
+	arrayType, _ := ParseFieldType("[[I")
+	void := Type{Kind: 'V', Descriptor: "V"}
+	mt := &MethodType{Params: []Type{intType, arrayType}, Return: void}
+	if r.imposeMethodConstraints(a, b, mt) {
+		t.Fatal("primitive descriptors conflicted")
+	}
+	if len(r.constraints) != 0 || len(r.initiations) != 0 {
+		t.Fatal("primitive descriptors entered the equality graph")
+	}
+}
+
+func TestLoadingConstraintArrayLeaf(t *testing.T) {
+	r, a, b, _, _ := constraintRuntime(t)
+	arrayType, _ := ParseFieldType("[[Lext/T;")
+	mt := &MethodType{Params: []Type{arrayType}, Return: Type{Kind: 'V', Descriptor: "V"}}
+	if r.imposeMethodConstraints(a, b, mt) {
+		t.Fatal("pending array leaf reported a conflict")
+	}
+	if len(r.constraints) != 1 {
+		t.Fatalf("array leaf staged %d edges, want 1", len(r.constraints))
 	}
 }
 
@@ -314,14 +393,20 @@ func TestOverridePreparationUsesLeafTypes(t *testing.T) {
 }
 
 func TestLoadingConstraintArrayLeafConflict(t *testing.T) {
-	r, a, b, _, _ := constraintRuntime(t)
+	r, a, b, ta, tb := constraintRuntime(t)
 	arrayType, _ := ParseFieldType("[[Lext/T;")
 	mt := &MethodType{Params: []Type{arrayType}, Return: Type{Kind: 'V', Descriptor: "V"}}
-	if !r.imposeMethodConstraints(a, b, mt) {
-		t.Fatal("distinct array leaf classes did not conflict")
+	if r.imposeMethodConstraints(a, b, mt) {
+		t.Fatal("pending array leaf reported a conflict")
 	}
-	if len(r.initiations) != 0 || len(r.constraints) != 0 {
-		t.Fatal("conflicting array constraint published state")
+	if r.recordInitiation(a, "ext/T", ta) {
+		t.Fatal("first array leaf initiation conflicted")
+	}
+	if !r.recordInitiation(b, "ext/T", tb) {
+		t.Fatal("distinct array leaf classes did not conflict on later initiation")
+	}
+	if _, ok := r.initiations[initiationKey{Loader: b, Name: "ext/T"}]; ok {
+		t.Fatal("conflicting array leaf initiation was published")
 	}
 }
 
@@ -376,5 +461,127 @@ func TestWorkLimitRefusalLeavesRunningLoaderUsable(t *testing.T) {
 	}
 	if current, ok := loader.Local("ext/Existing"); !ok || current != existing || existing.Mirror == nil {
 		t.Fatal("refusal made the existing loader unusable")
+	}
+}
+
+func hierarchyChain(prefix string, first, count int, base string) []*ClassDef {
+	defs := make([]*ClassDef, 0, count)
+	for i := 0; i < count; i++ {
+		n := first + i
+		super := base
+		if n > 0 {
+			super = fmt.Sprintf("%s/%03d", prefix, n-1)
+		} else if super == "" {
+			super = "java/lang/Object"
+		}
+		defs = append(defs, &ClassDef{Name: fmt.Sprintf("%s/%03d", prefix, n), Super: super})
+	}
+	return defs
+}
+
+func hierarchyNames(defs []*ClassDef) []string {
+	out := make([]string, 0, len(defs))
+	for _, d := range defs {
+		out = append(out, d.Name)
+	}
+	return out
+}
+
+func throwableCode(o *Object) string {
+	if data := ThrowableOf(o); data != nil {
+		return data.Code
+	}
+	return ""
+}
+
+func TestPluginHierarchyDepthExactBoundary(t *testing.T) {
+	for _, tc := range []struct {
+		edges int
+		ok    bool
+	}{
+		{128, true},
+		{129, false},
+	} {
+		r := gate3Runtime(t)
+		defs := hierarchyChain("depth", 0, tc.edges, "")
+		_, thrown := r.installPlugin(r.Loader, &AdmissionResult{Classes: defs, Defined: hierarchyNames(defs)})
+		if tc.ok {
+			if thrown != nil {
+				t.Fatalf("%d edges rejected: %v", tc.edges, thrown)
+			}
+			if len(r.pluginLoaders) != 1 {
+				t.Fatalf("%d edges did not publish one loader", tc.edges)
+			}
+			continue
+		}
+		if code := throwableCode(thrown); code != "LIMIT" {
+			t.Fatalf("%d edges: expected LIMIT, got %q", tc.edges, code)
+		}
+		if len(r.pluginLoaders) != 0 || r.nextLoaderID != 1 {
+			t.Fatalf("%d edges published state after refusal", tc.edges)
+		}
+	}
+
+	// Ancestor-first ClassDef order must not hide a longer path through an
+	// already completed node.
+	r := gate3Runtime(t)
+	defs := hierarchyChain("order", 0, 129, "")
+	for i, j := 0, len(defs)-1; i < j; i, j = i+1, j-1 {
+		defs[i], defs[j] = defs[j], defs[i]
+	}
+	_, thrown := r.installPlugin(r.Loader, &AdmissionResult{Classes: defs, Defined: hierarchyNames(defs)})
+	if code := throwableCode(thrown); code != "LIMIT" {
+		t.Fatalf("ancestor-first 129-edge chain was not refused: %q", code)
+	}
+}
+
+func TestPluginHierarchyDepthSpansParentLoader(t *testing.T) {
+	r := gate3Runtime(t)
+	parentDefs := hierarchyChain("span", 0, 120, "")
+	parent, thrown := r.installPlugin(r.Loader, &AdmissionResult{
+		Classes: parentDefs, Defined: hierarchyNames(parentDefs)})
+	if thrown != nil {
+		t.Fatal(thrown)
+	}
+	childDefs := []*ClassDef{}
+	for n := 120; n <= 127; n++ {
+		childDefs = append(childDefs, &ClassDef{
+			Name: fmt.Sprintf("span/%03d", n), Super: fmt.Sprintf("span/%03d", n-1)})
+	}
+	child, thrown := r.installPlugin(parent, &AdmissionResult{
+		Classes: childDefs, Defined: hierarchyNames(childDefs)})
+	if thrown != nil {
+		t.Fatalf("128-edge path spanning a parent loader was rejected: %v", thrown)
+	}
+	grandDefs := []*ClassDef{{Name: "span/128", Super: "span/127"}}
+	before := len(r.pluginLoaders)
+	_, thrown = r.installPlugin(child, &AdmissionResult{
+		Classes: grandDefs, Defined: hierarchyNames(grandDefs)})
+	if code := throwableCode(thrown); code != "LIMIT" {
+		t.Fatalf("129-edge path spanning parent loaders: got %q", code)
+	}
+	if len(r.pluginLoaders) != before {
+		t.Fatal("refused parent-spanning admission published a loader")
+	}
+	if _, ok := child.Local("span/127"); !ok {
+		t.Fatal("refusal damaged the existing parent loader")
+	}
+	if _, ok := parent.Local("span/119"); !ok {
+		t.Fatal("refusal damaged the first parent loader")
+	}
+}
+
+func TestPluginHierarchyCycleRejected(t *testing.T) {
+	r := gate3Runtime(t)
+	defs := []*ClassDef{
+		{Name: "cycle/A", Super: "cycle/B"},
+		{Name: "cycle/B", Super: "cycle/A"},
+	}
+	_, thrown := r.installPlugin(r.Loader, &AdmissionResult{Classes: defs, Defined: hierarchyNames(defs)})
+	if code := throwableCode(thrown); code != "VERIFY" {
+		t.Fatalf("cycle admission code %q", code)
+	}
+	if len(r.pluginLoaders) != 0 {
+		t.Fatal("cycle admission published a loader")
 	}
 }

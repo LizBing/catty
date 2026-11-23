@@ -31,35 +31,50 @@ func makeConstraintKey(a, b initiationKey) constraintKey {
 	return constraintKey{A: a, B: b}
 }
 
-// conflictWith checks the constraints involving key against one candidate
-// initiation map. It reports the first peer whose resolved class differs.
-func conflictWith(constraints map[constraintKey]struct{}, initiations map[initiationKey]*Class,
+// connectedConflict walks the full equality component for key/name and
+// compares every already-resolved peer with class. A constraint edge may have
+// been staged before either endpoint resolved, so a peer reached only through
+// another pending endpoint still participates; unresolved peers keep ordinary
+// lazy resolution timing and impose no immediate failure.
+func connectedConflict(constraints map[constraintKey]struct{}, initiations map[initiationKey]*Class,
 	key initiationKey, class *Class) bool {
-	for ck := range constraints {
-		if ck.A.Name != key.Name {
-			continue
+	if class == nil {
+		return false
+	}
+	seen := map[initiationKey]bool{key: true}
+	queue := []initiationKey{key}
+	for len(queue) > 0 {
+		cur := queue[0]
+		queue = queue[1:]
+		if cur != key {
+			if peerClass, ok := initiations[cur]; ok && peerClass != class {
+				return true
+			}
 		}
-		var peer initiationKey
-		switch key {
-		case ck.A:
-			peer = ck.B
-		case ck.B:
-			peer = ck.A
-		default:
-			continue
-		}
-		if peer.Loader == key.Loader {
-			continue
-		}
-		if peerClass, ok := initiations[peer]; ok && peerClass != class {
-			return true
+		for ck := range constraints {
+			if ck.A.Name != key.Name {
+				continue
+			}
+			var next initiationKey
+			switch cur {
+			case ck.A:
+				next = ck.B
+			case ck.B:
+				next = ck.A
+			default:
+				continue
+			}
+			if !seen[next] {
+				seen[next] = true
+				queue = append(queue, next)
+			}
 		}
 	}
 	return false
 }
 
-// recordInitiation commits one successful loader resolution after checking all
-// equality constraints already registered for the name. A conflict leaves both
+// recordInitiation commits one successful loader resolution after checking the
+// full connected equality component for the binary name. A conflict leaves both
 // maps unchanged.
 func (r *Runtime) recordInitiation(loader *Loader, name string, c *Class) bool {
 	if loader == nil || c == nil {
@@ -70,7 +85,7 @@ func (r *Runtime) recordInitiation(loader *Loader, name string, c *Class) bool {
 	if existing, ok := r.initiations[key]; ok {
 		return existing != c
 	}
-	if conflictWith(r.constraints, r.initiations, key, c) {
+	if connectedConflict(r.constraints, r.initiations, key, c) {
 		return true
 	}
 	r.initiations[key] = c
@@ -111,30 +126,17 @@ func (r *Runtime) imposeFieldConstraints(callerLoader, declaringLoader *Loader, 
 	return r.stageConstraints(callerLoader, declaringLoader, []Type{ft})
 }
 
-// stageConstraints resolves each leaf through both loaders on copies of the
-// constraint maps. It publishes initiation records and constraints only when
-// no conflict was observed. Absent classes keep ordinary resolution timing and
-// are not turned into a constraint failure here.
+// stageConstraints adds an equality edge for each reference leaf type. It
+// never resolves a descriptor leaf just to decide whether the edge can be
+// staged: when either side has not initiated the leaf yet the equality stays
+// pending, and recordInitiation enforces it when a later lookup publishes one
+// side. Primitive and void descriptors contribute no edge. All updates are
+// built on copies and published together only on success.
 func (r *Runtime) stageConstraints(a, b *Loader, types []Type) bool {
 	if a == nil || b == nil || a == b {
 		return false
 	}
-	arrays := make(map[*Class]*Class, len(r.arrayClasses))
-	for k, v := range r.arrayClasses {
-		arrays[k] = v
-	}
-	primitiveArrays := make(map[byte]*Class, len(r.primitiveArrayClass))
-	for k, v := range r.primitiveArrayClass {
-		primitiveArrays[k] = v
-	}
-	identity := r.nextIdentity
-	conflict := r.stageConstraintsTx(a, b, types)
-	if conflict {
-		r.arrayClasses = arrays
-		r.primitiveArrayClass = primitiveArrays
-		r.nextIdentity = identity
-	}
-	return conflict
+	return r.stageConstraintsTx(a, b, types)
 }
 
 func (r *Runtime) stageConstraintsTx(a, b *Loader, types []Type) bool {
@@ -152,31 +154,26 @@ func (r *Runtime) stageConstraintsTx(a, b *Loader, types []Type) bool {
 		if name == "" {
 			continue
 		}
-		ca, errA := r.classForLoaderName(a, name)
-		if errA != nil {
-			continue
-		}
-		cb, errB := r.classForLoaderName(b, name)
-		if errB != nil {
-			continue
-		}
-		if ca != cb {
-			return true
-		}
 		keyA := initiationKey{Loader: a, Name: name}
 		keyB := initiationKey{Loader: b, Name: name}
-		if existing, ok := initiations[keyA]; ok && existing != ca {
+		ca, okA := initiations[keyA]
+		cb, okB := initiations[keyB]
+		if okA && okB && ca != cb {
 			return true
 		}
-		if existing, ok := initiations[keyB]; ok && existing != cb {
+		if okA && connectedConflict(constraints, initiations, keyA, ca) {
 			return true
 		}
-		initiations[keyA] = ca
-		initiations[keyB] = cb
-		ck := makeConstraintKey(keyA, keyB)
-		constraints[ck] = struct{}{}
-		if conflictWith(constraints, initiations, keyA, ca) ||
-			conflictWith(constraints, initiations, keyB, cb) {
+		if okB && connectedConflict(constraints, initiations, keyB, cb) {
+			return true
+		}
+		constraints[makeConstraintKey(keyA, keyB)] = struct{}{}
+		// The new edge can connect two previously disjoint components, so
+		// recheck each already-resolved endpoint against the joined component.
+		if okA && connectedConflict(constraints, initiations, keyA, ca) {
+			return true
+		}
+		if okB && connectedConflict(constraints, initiations, keyB, cb) {
 			return true
 		}
 	}

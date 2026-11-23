@@ -73,13 +73,15 @@ func (c *Context) ShapesOf(m *classfile.Method) (map[int32][]int, bool) {
 	return s, ok
 }
 
-func isThrowable(ctx *Context, name string) bool {
-	_ = ctx.chargeSoft(1, "throwable hierarchy query")
+func isThrowable(ctx *Context, name string) (bool, error) {
 	seen := map[string]bool{}
 	for name != "" && !seen[name] {
+		if err := ctx.charge(1, "throwable hierarchy query"); err != nil {
+			return false, err
+		}
 		seen[name] = true
 		if name == "java/lang/Throwable" {
-			return true
+			return true, nil
 		}
 		if c, ok := ctx.Classes[name]; ok {
 			name = c.Super
@@ -89,9 +91,9 @@ func isThrowable(ctx *Context, name string) bool {
 			name = info.Super
 			continue
 		}
-		return false
+		return false, nil
 	}
-	return false
+	return false, nil
 }
 
 // VerifyClass checks one class's member descriptors, methods, exception tables
@@ -213,7 +215,11 @@ func verifyMethod(c *classfile.Class, m *classfile.Method, ctx *Context) error {
 			if !ctx.ClassExists(h.CatchType) {
 				return fmt.Errorf("%s: exception handler catch type %s is not available", display, h.CatchType)
 			}
-			if !isThrowable(ctx, h.CatchType) {
+			isThrowableType, err := isThrowable(ctx, h.CatchType)
+			if err != nil {
+				return err
+			}
+			if !isThrowableType {
 				return fmt.Errorf("%s: exception handler catch type %s is not a Throwable", display, h.CatchType)
 			}
 		}
@@ -332,14 +338,25 @@ func analyzeMethod(c *classfile.Class, m *classfile.Method, mt *rt.MethodType,
 			if len(fs.stack) != 1 {
 				return nil, nil, fmt.Errorf("handler pc %d: stack map declares %d operand values, want exactly the throwable", h.HandlerPC, len(fs.stack))
 			}
-			if !(fs.stack[0].kind == vtNull || (fs.stack[0].kind == vtRef && classAssignable(ctx, fs.stack[0].class, "java/lang/Throwable"))) {
+			throwable := fs.stack[0].kind == vtNull
+			if !throwable && fs.stack[0].kind == vtRef {
+				throwable, err = classAssignable(ctx, fs.stack[0].class, "java/lang/Throwable")
+				if err != nil {
+					return nil, nil, fmt.Errorf("handler pc %d: %w", h.HandlerPC, err)
+				}
+			}
+			if !throwable {
 				return nil, nil, fmt.Errorf("handler pc %d: stack map declares %s, not a Throwable", h.HandlerPC, fs.stack[0])
 			}
 			hs = fs
 		} else if m.HasStackMap {
 			return nil, nil, fmt.Errorf("handler pc %d: missing stack map frame", h.HandlerPC)
 		} else {
-			hs = copyState(ctx, initial)
+			var err error
+			hs, err = copyState(ctx, initial)
+			if err != nil {
+				return nil, nil, fmt.Errorf("handler pc %d: %w", h.HandlerPC, err)
+			}
 			hs.stack = nil
 			hs.stack = append(hs.stack, vtype{kind: vtRef, class: "java/lang/Throwable"})
 		}
@@ -370,12 +387,20 @@ func analyzeMethod(c *classfile.Class, m *classfile.Method, mt *rt.MethodType,
 			return nil
 		}
 		if existing, ok := states[target]; ok {
-			if !statesEqual(ctx, existing, state) {
+			equal, err := statesEqual(ctx, existing, state)
+			if err != nil {
+				return err
+			}
+			if !equal {
 				return fmt.Errorf("pc %d: control-flow join at %d has no stack map frame and the incoming states differ", fromPC, target)
 			}
 			return nil
 		}
-		states[target] = copyState(ctx, state)
+		copied, err := copyState(ctx, state)
+		if err != nil {
+			return err
+		}
+		states[target] = copied
 		queue = append(queue, target)
 		return nil
 	}
@@ -393,6 +418,9 @@ func analyzeMethod(c *classfile.Class, m *classfile.Method, mt *rt.MethodType,
 		// protected range covers this instruction receives the same edge check,
 		// including shared handler targets and catch-all handlers.
 		for _, h := range m.Handlers {
+			if err := ctx.charge(1, "handler range inspection"); err != nil {
+				return nil, nil, err
+			}
 			if pc < h.StartPC || pc >= h.EndPC {
 				continue
 			}
@@ -411,7 +439,10 @@ func analyzeMethod(c *classfile.Class, m *classfile.Method, mt *rt.MethodType,
 			if catch == "" {
 				catch = "java/lang/Throwable"
 			}
-			edge := copyState(ctx, state)
+			edge, err := copyState(ctx, state)
+			if err != nil {
+				return nil, nil, fmt.Errorf("exception edge at pc %d: %w", pc, err)
+			}
 			edge.stack = []vtype{{kind: vtRef, class: catch}}
 			if err := checkAssignableState(ctx, edge, fs); err != nil {
 				return nil, nil, fmt.Errorf("exception edge at pc %d to handler pc %d: %w", pc, h.HandlerPC, err)
@@ -427,7 +458,11 @@ func analyzeMethod(c *classfile.Class, m *classfile.Method, mt *rt.MethodType,
 			return nil, nil, err
 		}
 		insn := m.Insns[index[pc]]
-		t := &typeChecker{ctx: ctx, class: c, method: m, mt: mt, state: copyState(ctx, state), pc: pc, insn: insn}
+		stepState, err := copyState(ctx, state)
+		if err != nil {
+			return nil, nil, fmt.Errorf("pc %d: %w", pc, err)
+		}
+		t := &typeChecker{ctx: ctx, class: c, method: m, mt: mt, state: stepState, pc: pc, insn: insn}
 		succs, terminal, err := t.applyStep()
 		if err != nil {
 			return nil, nil, fmt.Errorf("pc %d: %w", pc, err)

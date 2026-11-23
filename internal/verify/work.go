@@ -50,12 +50,6 @@ func (c *Context) charge(n int64, operation string) error {
 	return nil
 }
 
-// chargeSoft records a budget failure but leaves the caller free to finish a
-// boolean query conservatively; the analysis loop rechecks WorkError.
-func (c *Context) chargeSoft(n int64, operation string) bool {
-	return c.charge(n, operation) == nil
-}
-
 // WorkError returns the first recorded budget failure, if any.
 func (c *Context) WorkError() error {
 	if c == nil {

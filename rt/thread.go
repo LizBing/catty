@@ -575,16 +575,26 @@ func (r *Runtime) ResolveMethod(owner, name, descriptor string) (*Method, error)
 
 // selectVirtual performs receiver-based method selection for invokevirtual and
 // invokeinterface after resolution has produced a declaration.
+//
+// JVMS 5.4.6 searches the receiver class and then its superclass chain for an
+// instance method that can override the resolved declaration. The search is
+// scoped by receiver type, so the hierarchy relation itself is implicit: an
+// inherited superclass implementation can satisfy an interface declaration
+// even when that superclass does not implement the interface. If no class
+// declaration matches, the maximally-specific superinterface defaults are
+// considered.
 func (r *Runtime) selectVirtual(receiver *Class, declaration *Method) (*Method, *Object) {
 	key := methodKey(declaration.Name, declaration.Descriptor)
 	for c := receiver; c != nil; c = c.Super {
 		if m := c.MethodIndex[key]; m != nil && m.Flags&AccStatic == 0 && m.Flags&AccPrivate == 0 {
-			// Selection uses the JVM override relation between the candidate
-			// and the resolved declaration, not just signature equality. In
-			// particular a package-private declaration is overridden only by
-			// same-runtime-package candidates or through a transitive chain of
-			// overriding declarations.
-			if !r.methodOverrides(m, declaration, map[*Method]bool{}) {
+			// Selection uses the JVMS 5.4.5 can-override relation between the
+			// candidate and the resolved declaration. In particular a
+			// package-private class declaration is overridden only by
+			// same-runtime-package candidates or through a transitive chain
+			// of overriding declarations; a public interface declaration is
+			// also satisfied by an inherited implementation from a superclass
+			// that does not itself implement the interface.
+			if !r.selectionOverrides(m, declaration, map[*Method]bool{}) {
 				continue
 			}
 			if m.Flags&AccAbstract != 0 {
@@ -627,6 +637,53 @@ func (r *Runtime) selectVirtual(receiver *Class, declaration *Method) (*Method, 
 		}
 	}
 	return best, nil
+}
+
+// selectionOverrides implements the JVMS 5.4.5 can-override relation used by
+// method selection, where the hierarchy relation is implicit in the
+// receiver-scoped search. methodOverrides below additionally requires the
+// declaring types to be related; preparation uses that stronger form to decide
+// which inherited declarations a candidate actually overrides.
+func (r *Runtime) selectionOverrides(candidate, declaration *Method, seen map[*Method]bool) bool {
+	if candidate == declaration {
+		return true
+	}
+	if candidate == nil || declaration == nil || candidate.Owner == nil || declaration.Owner == nil {
+		return false
+	}
+	if candidate.Flags&(AccStatic|AccPrivate) != 0 {
+		return false
+	}
+	if candidate.Name != declaration.Name || candidate.Descriptor != declaration.Descriptor {
+		return false
+	}
+	if declaration.Flags&AccPrivate != 0 {
+		return false
+	}
+	// A public or protected declaration (including every non-private
+	// interface method) is satisfied by any same-signature instance method
+	// reachable through the receiver's superclass chain.
+	if declaration.Flags&(AccPublic|AccProtected) != 0 {
+		return true
+	}
+	if r.samePackage(candidate.Owner, declaration.Owner) {
+		return true
+	}
+	if seen[candidate] {
+		return false
+	}
+	seen[candidate] = true
+	key := methodKey(candidate.Name, candidate.Descriptor)
+	for c := candidate.Owner.Super; c != nil && c != declaration.Owner; c = c.Super {
+		m := c.MethodIndex[key]
+		if m == nil || m.Flags&(AccStatic|AccPrivate) != 0 {
+			continue
+		}
+		if r.selectionOverrides(m, declaration, seen) && r.selectionOverrides(candidate, m, seen) {
+			return true
+		}
+	}
+	return false
 }
 
 // methodOverrides implements the JVMS 5.4.5 instance-method override relation,
@@ -829,6 +886,13 @@ func (t *Thread) InvokeInterface(caller *Method, pc int32, cp int, receiver Valu
 	target, hit, thrown := t.selectGuarded(caller, pc, OpInvokeinterface, recv.Class, decl)
 	if thrown != nil {
 		return ThrowOutcome(thrown)
+	}
+	// JVMS 6.5 invokeinterface: a selected method that is neither public nor
+	// private makes the instruction throw IllegalAccessError. A package-private
+	// superclass implementation therefore does not satisfy a public interface
+	// method even though selection can find it.
+	if target.Flags&(AccPublic|AccPrivate) == 0 {
+		return ThrowOutcome(t.RT.NewThrowable(t, "java/lang/IllegalAccessError"))
 	}
 	if tr := t.trace(); tr != nil {
 		tr.dispatch(t.ID, "invokeinterface", caller, pc, decl, target, recv.Class, hit)
