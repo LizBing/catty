@@ -1,14 +1,16 @@
 # Gate 3 acceptance evidence
 
-Review baseline `6a18827` on `codex/gate-3`. Final implementation:
-`be33262` (`Fix Gate 3 pending constraint merges and preparation staging`).
-This round is limited to the two loading-constraint gaps: rejecting a conflict
-when two pending equality groups are joined, and staging pending equalities
-during plugin preparation. The round-three inherited-interface dispatch, exact
-hierarchy-depth and verification-budget fixes and their reproducers are
-preserved; all Gate 3, Gate 2, Gate 1, Go and fuzz checks were re-run on the
-final commit. Earlier round evidence remains below as historical context.
-Default builds stay `catty-jvm21-gate2` / ABI `2`; plugin runs use the opt-in
+Review baseline `877dee3` on `codex/gate-3`. Final implementation:
+`1d5e17e` (`Fix Gate 3 inherited interface implementation constraints`).
+This follow-up is limited to the remaining plugin-preparation
+loading-constraint case: a candidate that declares no implementation method and
+satisfies an interface through an implementation inherited from a superclass or
+a superinterface. The round-four pending-group merge fix and preparation staging
+and the round-three inherited-interface dispatch, exact hierarchy-depth and
+verification-budget fixes and their reproducers are preserved; all Gate 3,
+Gate 2, Gate 1, Go and fuzz checks were re-run on the final commit. Earlier
+round evidence remains below as historical context. Default builds stay
+`catty-jvm21-gate2` / ABI `2`; plugin runs use the opt-in
 `catty-jvm21-gate3` profile / ABI `3`.
 
 ## Toolchains
@@ -20,19 +22,20 @@ Default builds stay `catty-jvm21-gate2` / ABI `2`; plugin runs use the opt-in
 | javac / javap / jar | `21.0.13.1` |
 | Python | `3.9.6` |
 
-Exact text: [round4/logs/toolchains.txt](round4/logs/toolchains.txt).
+Exact text: [round5/logs/toolchains.txt](round5/logs/toolchains.txt).
 
 ## Commands and statuses
 
 | Command | Status | Evidence |
 | --- | --- | --- |
-| `go test ./rt -run 'TestLoadingConstraintMergedGroups|TestLoadingConstraintStageRollsBack|TestPluginPreparation|TestOverridePreparation' -count=1 -v` | 0 | [round4/logs/focused-tests.txt](round4/logs/focused-tests.txt) |
-| `go vet ./...` | 0 | [round4/logs/go-vet.txt](round4/logs/go-vet.txt) |
-| `go test -count=1 ./...` | 0 | [round4/logs/go-test.txt](round4/logs/go-test.txt) |
-| `python3 -B tests/gate3.py --java-home JDK21` | 0 | [round4/logs/gate3-full.log](round4/logs/gate3-full.log) |
-| `python3 -B tests/gate2.py --java-home JDK21` | 0 | [round4/logs/gate2-full.log](round4/logs/gate2-full.log) |
-| `python3 -B tests/gate2.py --java-home JDK21 --enable-plugins` | 0 | [round4/logs/gate2-gate3-positive.log](round4/logs/gate2-gate3-positive.log) |
-| `go test ./internal/admission -run='^$' -fuzz=FuzzStageJar -fuzztime=30s -parallel=1` | 0 | [round4/logs/fuzz.txt](round4/logs/fuzz.txt) |
+| `go test ./rt -run 'TestLoadingConstraintMergedGroups|TestLoadingConstraintStageRollsBack|TestPluginPreparation|TestOverridePreparation' -count=1 -v` | 0 | [round5/logs/focused-tests.txt](round5/logs/focused-tests.txt) |
+| Reviewer reproducer `TestReviewRound4InheritedImplementationPreparation` | 0 | [round5/logs/reviewer-reproducer.txt](round5/logs/reviewer-reproducer.txt) |
+| `go vet ./...` | 0 | [round5/logs/go-vet.txt](round5/logs/go-vet.txt) |
+| `go test -count=1 ./...` | 0 | [round5/logs/go-test.txt](round5/logs/go-test.txt) |
+| `python3 -B tests/gate3.py --java-home JDK21` | 0 | [round5/logs/gate3-full.log](round5/logs/gate3-full.log) |
+| `python3 -B tests/gate2.py --java-home JDK21` | 0 | [round5/logs/gate2-full.log](round5/logs/gate2-full.log) |
+| `python3 -B tests/gate2.py --java-home JDK21 --enable-plugins` | 0 | [round5/logs/gate2-gate3-positive.log](round5/logs/gate2-gate3-positive.log) |
+| `go test ./internal/admission -run='^$' -fuzz=FuzzStageJar -fuzztime=30s -parallel=1` | 0 | [round5/logs/fuzz.txt](round5/logs/fuzz.txt) |
 
 The full Gate 3 run contains 17 Java cases and 3 policy/standalone/profile
 checks (20 `PASS` lines):
@@ -62,9 +65,57 @@ Gate 3 passed.
 ```
 
 Gate 2 ends `Gate 2 passed.` and includes `PASS Gate 1 regression`. The
-Gate 3-enabled Gate 2 positive run ends
+Gate-3-enabled Gate 2 positive run ends
 `Gate 2 positive corpus passed with Gate 3 enabled.` The fuzz target completed
-1,299,992 executions in 30 seconds without a panic or published loader.
+1,299,230 executions in 30 seconds without a panic or published loader.
+
+## Round-five corrected behavior: inherited interface implementations
+
+`checkOverrideConstraints` previously iterated only the methods declared by each
+candidate class. A prepared class `Child extends Base implements IFace` was
+therefore unconstrained when `Base` supplied `m` and `Child` declared no method
+for the interface signature, so a descriptor leaf could resolve to distinct
+classes in `Base`'s and `IFace`'s defining loaders.
+
+`rt/plugin.go` now walks the direct superinterface closure of every candidate
+class, including superinterfaces reached through an extended interface, and
+identifies the concrete implementation with the same receiver-scoped JVMS 5.4.6
+rule the interpreter uses. `rt/thread.go` factors that search into
+`selectedMethod`, the non-throwing core shared with `selectVirtual`, so
+preparation works over linked metadata only: it resolves no descriptor leaf,
+creates no `AbstractMethodError` object, and initializes no class. For each
+interface declaration satisfied by an inherited superclass method or a
+maximally-specific default, preparation stages the reference descriptor leaf
+equalities between the selected method's defining loader and the interface
+declaration's defining loader through the candidate `constraintTx`. Nested
+reference-array leaves contribute their element class; primitive and void
+descriptors add nothing; already-unresolved leaves stay pending until a later
+initiation enforces them. An admission-time conflict is reported as `VERIFY`
+before the transaction commits, so the loader registry, loader IDs, quotas,
+initiation records and constraint graph keep their prior values.
+
+Both regression cases run through the real `installPlugin` path with a candidate
+that declares no implementation method:
+
+| Case | Checked-in test | Result | Evidence |
+| --- | --- | --- | --- |
+| Pending equality | `TestPluginPreparationInheritedInterfaceImplementation` | PASS | [round5/logs/focused-tests.txt](round5/logs/focused-tests.txt) |
+| Known conflict | `TestPluginPreparationInheritedInterfaceImplementationConflict` | PASS | [round5/logs/focused-tests.txt](round5/logs/focused-tests.txt) |
+
+The pending case puts the superclass implementation and the interface
+declaration in distinct defining loaders, admits `Child` before either loader
+initiates the reference leaf, asserts that admission publishes the
+`l1 = l2` equality for the scalar leaf and for a reference-array leaf declared
+only on a superinterface, asserts that no descriptor leaf was resolved, and then
+enforces both equalities on later initiations. The conflict case has both
+defining loaders initiate the same binary name to distinct classes; it asserts
+that `installPlugin` returns `VERIFY` and leaves the loader registry,
+`nextLoaderID`, quota bytes, initiation records, constraint graph and identity
+counter unchanged. The reviewer's standalone reproducer
+`TestReviewRound4InheritedImplementationPreparation` also passes on the final
+commit ([round5/logs/reviewer-reproducer.txt](round5/logs/reviewer-reproducer.txt)).
+`TestOverridePreparationInheritedInterface` remains as the declared-method
+case and still asserts that a known conflict publishes no edges.
 
 ## Round-four corrected behaviors
 
@@ -105,8 +156,8 @@ Focused tests:
 
 `rt/plugin.go` no longer resolves descriptor leaves eagerly in
 `checkOverrideConstraints`. It stages one equality for every reference leaf of
-every declared override and inherited interface implementation, using the same
-transaction staging validation as member resolution. Pending equalities are kept
+every declared override, using the same transaction staging validation as
+member resolution. Pending equalities are kept
 without forcing a descriptor leaf lookup or class initialization; a conflict
 already visible from initiation records is reported as `VERIFY` and rejects the
 candidate. `installPluginTx` commits the transaction only at the publication
@@ -260,7 +311,10 @@ array leaves, and primitive descriptors outside the graph. Runtime collection is
 still unit-level because fixed parent-first visibility makes a conflicting
 public-API setup unreachable; the preparation path remains covered by
 `TestOverridePreparationUsesLeafTypes` and
-`TestOverridePreparationInheritedInterface`.
+`TestOverridePreparationInheritedInterface` for declared overrides, and by
+`TestPluginPreparationInheritedInterfaceImplementation` and
+`TestPluginPreparationInheritedInterfaceImplementationConflict` for
+implementations inherited without a candidate declaration.
 
 ## Round-two corrected review reproducers (preserved)
 
@@ -381,8 +435,15 @@ Go coverage:
   and shared array leaves commit; loader-specific initiations are distinct.
 - `TestLoadingConstraintArrayLeafConflict` — nested array leaf conflict.
 - `TestOverridePreparationUsesLeafTypes` — preparation-time leaf conflict.
-- `TestOverridePreparationInheritedInterface` — inherited interface
-  implementation conflict.
+- `TestOverridePreparationInheritedInterface` — declared-method override of an
+  interface declaration.
+- `TestPluginPreparationInheritedInterfaceImplementation` — a candidate that
+  declares no method is constrained through its superclass implementation,
+  including an array leaf declared on a superinterface; the equalities stay
+  pending until later initiation.
+- `TestPluginPreparationInheritedInterfaceImplementationConflict` — a known
+  conflict for that inherited implementation rejects the candidate with
+  `VERIFY` and leaves published runtime state unchanged.
 - `TestDeferredDescriptorLeavesArrayCacheUntouched` — unresolved descriptor
   types stay deferred and do not pollute the array cache.
 
@@ -416,9 +477,10 @@ descriptor type is retained lazily (see the new `ext.Sig` fixture in
    name resolve the same class, and an effective plugin class may not shadow a
    parent definition. The reviewed conflicting pending-merge and preparation-time
    conflict transitions therefore use manually linked runtime loaders; no Java
-   fixture can reach them. Pending equalities are exercised through the real
-   `installPlugin` preparation path, and execution-time conflicts remain covered
-   by the existing `LinkageError` unit tests.
+   fixture can reach them. Pending equalities, including those selected for an
+   inherited interface implementation, are exercised through the real
+   `installPlugin` preparation path, and execution-time conflicts remain
+   covered by the existing `LinkageError` unit tests.
 2. **Published preparation equalities are latent.** A pending constraint
    committed by a successful admission is only enforced when the affected class
    name is resolved later, so no end-to-end fixture observes an immediate
@@ -474,5 +536,9 @@ descriptor type is retained lazily (see the new `ext.Sig` fixture in
   exact 128/129 acceptance/rejection and trace fields.
 - [round4/logs/](round4/logs): round-four toolchains, focused constraint and
   preparation tests, review-baseline reproduction, full Gate 3/Gate 2/Go/vet and
-  fuzz logs. No new Java fixtures were added this round; the existing Gate 3
-  case set is unchanged.
+  fuzz logs. No new Java fixtures were added that round; the existing Gate 3
+  case set was unchanged.
+- [round5/logs/](round5/logs): round-five toolchains, reviewer reproducer,
+  focused preparation/constraint tests, full Gate 3/Gate 2/Gate 1/Go/vet and
+  fuzz logs. Round five also adds no Java fixture; the gate case set is
+  unchanged.

@@ -1,0 +1,9 @@
+=== RUN   TestReviewRound4InheritedImplementationPreparation
+=== RUN   TestReviewRound4InheritedImplementationPreparation/pending
+=== RUN   TestReviewRound4InheritedImplementationPreparation/conflict
+--- PASS: TestReviewRound4InheritedImplementationPreparation (0.00s)
+    --- PASS: TestReviewRound4InheritedImplementationPreparation/pending (0.00s)
+    --- PASS: TestReviewRound4InheritedImplementationPreparation/conflict (0.00s)
+PASS
+ok  	catty/rt	0.373s
+reviewer-reproducer exit=0

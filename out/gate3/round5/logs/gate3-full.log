@@ -1,0 +1,32 @@
+Gate 3 artifacts in /var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-poj4tw9h
+go version go1.27.1 darwin/arm64
+openjdk version "21.0.13.1" 2026-11-17 LTS
+OpenJDK Runtime Environment Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS, mixed mode, sharing)
+javac 21.0.13.1
+21.0.13.1
+jar 21.0.13.1
+PASS late-override
+PASS name-lookup
+PASS parent-first
+PASS loader-identity
+PASS handler-verify
+PASS package-access
+PASS package-dispatch
+PASS inherited-interface
+PASS hierarchy-depth
+PASS replacement
+PASS crossing-throw
+PASS initialization
+PASS deferred-linkage
+PASS uncaught-plugin
+PASS reflection-identity
+PASS access
+PASS rollback
+/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/zipfile.py:1505: UserWarning: Duplicate name: 'ext/Plain.class'
+  return self._open_to_write(zinfo, force_zip64=force_zip64)
+PASS admission-policy
+PASS standalone
+PASS profile-and-packaging
+Gate 3 passed.
+gate3 exit=0
