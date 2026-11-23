@@ -422,18 +422,19 @@ func (r *Runtime) installPluginTx(parent *Loader, res *AdmissionResult) (*Loader
 }
 
 // checkOverrideConstraints stages the loading-constraint equalities required by
-// declared overrides and inherited interface implementations. It never resolves
-// a descriptor leaf just to decide whether an equality can be recorded: when
-// either loader has not initiated the leaf yet the equality stays pending in
-// the candidate transaction, and recordInitiation enforces it when a later
-// lookup publishes one side. Primitive descriptors and same-loader declarations
-// impose no constraint. The candidate is compared with every inherited class
-// and interface declaration with the same name and descriptor, including default
-// methods inherited through the interface closure. A conflict rejects the
-// candidate before commit; the caller discards the transaction so none of its
-// earlier pending equalities survive.
+// declared overrides and by interface methods the candidate satisfies through
+// an inherited implementation. It never resolves a descriptor leaf just to
+// decide whether an equality can be recorded: when either loader has not
+// initiated the leaf yet the equality stays pending in the candidate
+// transaction, and recordInitiation enforces it when a later lookup publishes
+// one side. Primitive descriptors and same-loader declarations impose no
+// constraint. A conflict rejects the candidate before commit; the caller
+// discards the transaction so none of its earlier pending equalities survive.
 func (r *Runtime) checkOverrideConstraints(created []*Class, tx *constraintTx) error {
 	for _, c := range created {
+		// Declared overrides: compare each candidate method with every
+		// inherited class and interface declaration of the same name and
+		// descriptor.
 		for _, m := range c.Methods {
 			if m.Flags&(AccStatic|AccPrivate) != 0 || m.Name == "<init>" || m.Name == "<clinit>" {
 				continue
@@ -445,24 +446,7 @@ func (r *Runtime) checkOverrideConstraints(created []*Class, tx *constraintTx) e
 				if !r.methodOverrides(m, p, map[*Method]bool{}) {
 					continue
 				}
-				if len(p.Type.Params) != len(m.Type.Params) ||
-					p.Type.Return.Descriptor != m.Type.Return.Descriptor {
-					continue
-				}
-				types := make([]Type, 0, len(m.Type.Params)+1)
-				for i := range m.Type.Params {
-					name := leafClassName(m.Type.Params[i])
-					if name == "" || name != leafClassName(p.Type.Params[i]) {
-						continue
-					}
-					types = append(types, m.Type.Params[i])
-				}
-				if m.Type.Return.IsReference() {
-					name := leafClassName(m.Type.Return)
-					if name != "" && name == leafClassName(p.Type.Return) {
-						types = append(types, m.Type.Return)
-					}
-				}
+				types := constraintLeafTypes(m, p)
 				if len(types) == 0 {
 					continue
 				}
@@ -472,8 +456,109 @@ func (r *Runtime) checkOverrideConstraints(created []*Class, tx *constraintTx) e
 				}
 			}
 		}
+		// Inherited implementations: a candidate that declares no method for
+		// an interface signature can still satisfy it through a superclass
+		// implementation or a maximally-specific default method. Method
+		// selection is the same JVMS 5.4.6 procedure the interpreter uses,
+		// evaluated only over linked metadata so descriptor leaves stay
+		// unresolved and classes are not initialized. The equality is between
+		// the selected method's defining loader and the interface
+		// declaration's defining loader.
+		for _, p := range inheritedInterfaceMethods(c) {
+			impl := r.selectedMethod(c, p)
+			if impl == nil || impl.Owner == nil || impl.Owner.Loader == nil ||
+				p.Owner == nil || p.Owner.Loader == nil {
+				continue
+			}
+			if impl.Owner.Loader == p.Owner.Loader {
+				continue
+			}
+			types := constraintLeafTypes(impl, p)
+			if len(types) == 0 {
+				continue
+			}
+			if conflict := tx.stage(impl.Owner.Loader, p.Owner.Loader, types); conflict != nil {
+				return fmt.Errorf("loader constraint conflict: %s.%s%s leaf %s resolves to %s and %s",
+					impl.Owner.Name, impl.Name, impl.Descriptor, conflict.Name, conflict.A.Name, conflict.B.Name)
+			}
+		}
 	}
 	return nil
+}
+
+// constraintLeafTypes returns the reference descriptor leaves that an
+// implementation and the declaration it satisfies must resolve consistently.
+// Callers only pass matching declarations, so the textual leaf comparison
+// mainly guards against a malformed image; reference-array parameters and
+// returns contribute their element class leaf.
+func constraintLeafTypes(impl, decl *Method) []Type {
+	it, dt := methodTypeOf(impl), methodTypeOf(decl)
+	if it == nil || dt == nil || len(it.Params) != len(dt.Params) ||
+		it.Return.Descriptor != dt.Return.Descriptor {
+		return nil
+	}
+	types := make([]Type, 0, len(it.Params)+1)
+	for i := range it.Params {
+		name := leafClassName(it.Params[i])
+		if name == "" || name != leafClassName(dt.Params[i]) {
+			continue
+		}
+		types = append(types, it.Params[i])
+	}
+	if it.Return.IsReference() {
+		name := leafClassName(it.Return)
+		if name != "" && name == leafClassName(dt.Return) {
+			types = append(types, it.Return)
+		}
+	}
+	return types
+}
+
+func methodTypeOf(m *Method) *MethodType {
+	if m == nil {
+		return nil
+	}
+	if m.Type != nil {
+		return m.Type
+	}
+	if mt, err := ParseMethodType(m.Descriptor); err == nil {
+		return mt
+	}
+	return nil
+}
+
+// inheritedInterfaceMethods returns every instance method declaration in the
+// direct superinterface closure of c. Static and private interface methods are
+// not inherited for implementation. Traversal follows superinterfaces so a
+// declaration reached only through an extended interface is considered.
+func inheritedInterfaceMethods(c *Class) []*Method {
+	var out []*Method
+	seenMethod := map[*Method]bool{}
+	seenClass := map[*Class]bool{}
+	var visit func(in *Class)
+	visit = func(in *Class) {
+		if in == nil || seenClass[in] {
+			return
+		}
+		seenClass[in] = true
+		for _, m := range in.Methods {
+			if m == nil || m.Name == "<init>" || m.Name == "<clinit>" ||
+				m.Flags&(AccStatic|AccPrivate) != 0 {
+				continue
+			}
+			if !seenMethod[m] {
+				seenMethod[m] = true
+				out = append(out, m)
+			}
+		}
+		for _, sup := range in.Interfaces {
+			visit(sup)
+		}
+	}
+	for _, in := range c.Interfaces {
+		visit(in)
+	}
+	return out
 }
 
 // inheritedMethods returns every distinct same-signature method declaration in

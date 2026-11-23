@@ -321,3 +321,170 @@ func TestPluginPreparationPendingEqualityDiscardedOnRejection(t *testing.T) {
 		t.Fatalf("control admission published %d edges, want 1", len(f.r.constraints))
 	}
 }
+
+// TestPluginPreparationInheritedInterfaceImplementation covers a candidate that
+// declares no implementation method: Child extends Base and implements IFace
+// while Base supplies the implementations. Preparation must select those
+// inherited implementations with the same JVMS 5.4.6 rules used at a call site
+// and stage one pending equality per reference descriptor leaf between the
+// selected method's defining loader and the interface declaration's defining
+// loader. The array leaf is declared only on a superinterface, so it exercises
+// both nested reference descriptor handling and superinterface-hierarchy
+// traversal. The leaves stay unresolved during admission and the equalities
+// are enforced on a later initiation.
+func TestPluginPreparationInheritedInterfaceImplementation(t *testing.T) {
+	f := newPrepFixture(t)
+	// The fixture already initiated both sides to distinct classes for the
+	// conflict test. Pending staging needs unresolved leaves, exactly as when
+	// neither defining loader has loaded the descriptor type yet.
+	for k := range f.r.initiations {
+		delete(f.r.initiations, k)
+	}
+	object := f.r.mustClass("java/lang/Object")
+	// Declare the array method in a superinterface so its equality is reached
+	// only by walking the superinterface hierarchy.
+	superIface := testHiddenClass(f.l2, "ext/ISuper", AccPublic|AccInterface|AccAbstract, object)
+	f.iface.Interfaces = []*Class{superIface}
+	testHiddenMethod(f.base, "arr", "([[Lext/Arr;)V", AccPublic)
+	testHiddenMethod(superIface, "arr", "([[Lext/Arr;)V", AccPublic|AccAbstract)
+	arr1 := testHiddenClass(f.l1, "ext/Arr", AccPublic, object)
+	arr2 := testHiddenClass(f.l2, "ext/Arr", AccPublic, object)
+
+	def := &ClassDef{Name: "ext/Child", Flags: AccPublic, Super: "ext/Base", Interfaces: []string{"ext/IFace"}}
+	loader, thrown := f.r.installPlugin(f.l1, &AdmissionResult{Classes: []*ClassDef{def}, Defined: []string{"ext/Child"}})
+	if thrown != nil {
+		t.Fatalf("pending inherited-interface equality was rejected: %v", thrown)
+	}
+	if loader == nil {
+		t.Fatal("pending inherited-interface equality did not publish the loader")
+	}
+	child, ok := loader.Local("ext/Child")
+	if !ok || child.Super != f.base || len(child.Interfaces) != 1 || child.Interfaces[0] != f.iface {
+		t.Fatal("accepted candidate was not linked to its superclass and interface")
+	}
+	if len(child.Methods) != 0 {
+		t.Fatal("candidate test class unexpectedly declares an implementation method")
+	}
+
+	scalarKey := makeConstraintKey(initiationKey{Loader: f.l1, Name: "ext/N"}, initiationKey{Loader: f.l2, Name: "ext/N"})
+	arrayKey := makeConstraintKey(initiationKey{Loader: f.l1, Name: "ext/Arr"}, initiationKey{Loader: f.l2, Name: "ext/Arr"})
+	if _, ok := f.r.constraints[scalarKey]; !ok {
+		t.Fatal("preparation did not publish the superclass-implementation/interface equality")
+	}
+	if _, ok := f.r.constraints[arrayKey]; !ok {
+		t.Fatal("preparation did not publish the reference-array implementation equality")
+	}
+	if len(f.r.constraints) != 2 {
+		t.Fatalf("preparation published %d edges, want 2", len(f.r.constraints))
+	}
+	if len(f.r.initiations) != 0 {
+		t.Fatalf("preparation forced %d descriptor leaf resolutions", len(f.r.initiations))
+	}
+
+	// A later initiation resolves one side; a different class on the other side
+	// must be refused without being published.
+	if f.r.recordInitiation(f.l1, "ext/N", f.x1) {
+		t.Fatal("first pending inherited-implementation initiation conflicted")
+	}
+	if !f.r.recordInitiation(f.l2, "ext/N", f.x2) {
+		t.Fatal("inherited-implementation equality was not enforced on a later initiation")
+	}
+	if _, ok := f.r.initiations[initiationKey{Loader: f.l2, Name: "ext/N"}]; ok {
+		t.Fatal("conflicting inherited-implementation initiation was published")
+	}
+	if f.r.recordInitiation(f.l1, "ext/Arr", arr1) {
+		t.Fatal("first pending array-leaf initiation conflicted")
+	}
+	if !f.r.recordInitiation(f.l2, "ext/Arr", arr2) {
+		t.Fatal("reference-array implementation equality was not enforced on a later initiation")
+	}
+	if _, ok := f.r.initiations[initiationKey{Loader: f.l2, Name: "ext/Arr"}]; ok {
+		t.Fatal("conflicting array-leaf initiation was published")
+	}
+}
+
+// TestPluginPreparationInheritedInterfaceImplementationConflict covers the same
+// no-method candidate when both defining loaders already resolved the leaf to
+// distinct classes. Admission must report VERIFY and leave the loader registry,
+// loader IDs, quota accounting, initiations and the constraint graph unchanged.
+func TestPluginPreparationInheritedInterfaceImplementationConflict(t *testing.T) {
+	f := newPrepFixture(t)
+	beforeInitiations := cloneInitiations(f.r.initiations)
+	beforeConstraints := cloneConstraints(f.r.constraints)
+	loadersBefore := len(f.r.pluginLoaders)
+	bytesBefore := f.r.pluginClassBytes
+	idBefore := f.r.nextLoaderID
+	identityBefore := f.r.nextIdentity
+	if len(beforeInitiations) != 2 || len(beforeConstraints) != 0 {
+		t.Fatalf("fixture state is not the expected two unresolved initiations: %d initiations, %d edges",
+			len(beforeInitiations), len(beforeConstraints))
+	}
+
+	def := &ClassDef{Name: "ext/Child", Flags: AccPublic, Super: "ext/Base", Interfaces: []string{"ext/IFace"}}
+	loader, thrown := f.r.installPlugin(f.l1, &AdmissionResult{Classes: []*ClassDef{def}, Defined: []string{"ext/Child"}})
+	if thrown == nil || loader != nil {
+		t.Fatal("published a plugin whose inherited interface implementation conflicts")
+	}
+	if data := ThrowableOf(thrown); data == nil || data.Code != "VERIFY" {
+		t.Fatalf("wrong diagnostic for inherited implementation conflict: %#v", data)
+	}
+	if len(f.r.pluginLoaders) != loadersBefore {
+		t.Fatalf("rejected candidate changed the loader registry: %d -> %d",
+			loadersBefore, len(f.r.pluginLoaders))
+	}
+	if f.r.nextLoaderID != idBefore {
+		t.Fatalf("rejected candidate changed the next loader ID: %d -> %d", idBefore, f.r.nextLoaderID)
+	}
+	if f.r.pluginClassBytes != bytesBefore {
+		t.Fatalf("rejected candidate changed quota accounting: %d -> %d", bytesBefore, f.r.pluginClassBytes)
+	}
+	if !sameInitiations(f.r.initiations, beforeInitiations) {
+		t.Fatalf("rejected candidate changed initiation records: %v -> %v", beforeInitiations, f.r.initiations)
+	}
+	if !sameConstraints(f.r.constraints, beforeConstraints) {
+		t.Fatalf("rejected candidate changed the constraint graph: %v -> %v", beforeConstraints, f.r.constraints)
+	}
+	if f.r.nextIdentity != identityBefore {
+		t.Fatalf("rejected candidate allocated identities: %d -> %d", identityBefore, f.r.nextIdentity)
+	}
+}
+
+func cloneInitiations(in map[initiationKey]*Class) map[initiationKey]*Class {
+	out := make(map[initiationKey]*Class, len(in))
+	for k, v := range in {
+		out[k] = v
+	}
+	return out
+}
+
+func cloneConstraints(in map[constraintKey]struct{}) map[constraintKey]struct{} {
+	out := make(map[constraintKey]struct{}, len(in))
+	for k := range in {
+		out[k] = struct{}{}
+	}
+	return out
+}
+
+func sameInitiations(a, b map[initiationKey]*Class) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for k, v := range a {
+		if b[k] != v {
+			return false
+		}
+	}
+	return true
+}
+
+func sameConstraints(a, b map[constraintKey]struct{}) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for k := range a {
+		if _, ok := b[k]; !ok {
+			return false
+		}
+	}
+	return true
+}

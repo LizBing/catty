@@ -584,6 +584,19 @@ func (r *Runtime) ResolveMethod(owner, name, descriptor string) (*Method, error)
 // declaration matches, the maximally-specific superinterface defaults are
 // considered.
 func (r *Runtime) selectVirtual(receiver *Class, declaration *Method) (*Method, *Object) {
+	if m := r.selectedMethod(receiver, declaration); m != nil {
+		return m, nil
+	}
+	return nil, r.bootstrapThrowable("java/lang/AbstractMethodError")
+}
+
+// selectedMethod performs the receiver-scoped JVMS 5.4.6 search described for
+// selectVirtual without materializing the AbstractMethodError diagnostic. It
+// returns nil when no concrete implementation is available. Preparation uses
+// this form so it can inspect the selected implementation without running
+// bootstrap code, creating heap objects, resolving descriptor leaves or
+// initializing classes.
+func (r *Runtime) selectedMethod(receiver *Class, declaration *Method) *Method {
 	key := methodKey(declaration.Name, declaration.Descriptor)
 	for c := receiver; c != nil; c = c.Super {
 		if m := c.MethodIndex[key]; m != nil && m.Flags&AccStatic == 0 && m.Flags&AccPrivate == 0 {
@@ -598,14 +611,14 @@ func (r *Runtime) selectVirtual(receiver *Class, declaration *Method) (*Method, 
 				continue
 			}
 			if m.Flags&AccAbstract != 0 {
-				return nil, r.bootstrapThrowable("java/lang/AbstractMethodError")
+				return nil
 			}
-			return m, nil
+			return m
 		}
 	}
 	candidates := r.collectDefaultMethods(receiver, key)
 	if len(candidates) == 0 {
-		return nil, r.bootstrapThrowable("java/lang/AbstractMethodError")
+		return nil
 	}
 	// Keep the maximally specific declarations: remove any candidate whose
 	// owner is a superinterface of another candidate's owner.
@@ -626,7 +639,7 @@ func (r *Runtime) selectVirtual(receiver *Class, declaration *Method) (*Method, 
 		}
 	}
 	if len(maximal) == 0 {
-		return nil, r.bootstrapThrowable("java/lang/AbstractMethodError")
+		return nil
 	}
 	// With multiple unrelated maximally-specific defaults Java permits any;
 	// the profile selects deterministically so both engines agree.
@@ -636,7 +649,7 @@ func (r *Runtime) selectVirtual(receiver *Class, declaration *Method) (*Method, 
 			best = cand
 		}
 	}
-	return best, nil
+	return best
 }
 
 // selectionOverrides implements the JVMS 5.4.5 can-override relation used by
