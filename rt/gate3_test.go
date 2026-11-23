@@ -387,8 +387,17 @@ func TestOverridePreparationUsesLeafTypes(t *testing.T) {
 	m := &Method{Owner: cand, Name: "m", Descriptor: "(Lext/T;)V", Flags: AccPublic,
 		Type: &MethodType{Params: []Type{declType}, Return: Type{Kind: 'V', Descriptor: "V"}}, ParamClass: []*Class{ta}}
 	cand.addMethod(m)
-	if err := r.checkOverrideConstraints([]*Class{cand}); err == nil {
+	// Admission-time conflicts are visible only when both sides have already
+	// initiated the leaf; pending equalities stay lazy until a later lookup.
+	if r.recordInitiation(a, "ext/T", ta) || r.recordInitiation(b, "ext/T", tb) {
+		t.Fatal("initial initiations conflicted")
+	}
+	tx := r.newConstraintTx()
+	if err := r.checkOverrideConstraints([]*Class{cand}, tx); err == nil {
 		t.Fatal("override preparation did not report the leaf-type conflict")
+	}
+	if len(r.constraints) != 0 {
+		t.Fatal("rejected override preparation published constraints")
 	}
 }
 
@@ -424,8 +433,15 @@ func TestOverridePreparationInheritedInterface(t *testing.T) {
 	m := &Method{Owner: cand, Name: "m", Descriptor: "(Lext/T;)V", Flags: AccPublic,
 		Type: &MethodType{Params: []Type{declType}, Return: Type{Kind: 'V', Descriptor: "V"}}, ParamClass: []*Class{ta}}
 	cand.addMethod(m)
-	if err := r.checkOverrideConstraints([]*Class{cand}); err == nil {
+	if r.recordInitiation(a, "ext/T", ta) || r.recordInitiation(b, "ext/T", tb) {
+		t.Fatal("initial initiations conflicted")
+	}
+	tx := r.newConstraintTx()
+	if err := r.checkOverrideConstraints([]*Class{cand}, tx); err == nil {
 		t.Fatal("inherited interface implementation did not trigger preparation constraints")
+	}
+	if len(r.constraints) != 0 {
+		t.Fatal("rejected inherited-interface preparation published constraints")
 	}
 }
 

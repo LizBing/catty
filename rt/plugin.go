@@ -400,7 +400,8 @@ func (r *Runtime) installPluginTx(parent *Loader, res *AdmissionResult) (*Loader
 			return nil, r.NewPluginAdmissionException(nil, "DEPENDENCY", err.Error())
 		}
 	}
-	if err := r.checkOverrideConstraints(created); err != nil {
+	constraints := r.newConstraintTx()
+	if err := r.checkOverrideConstraints(created, constraints); err != nil {
 		return nil, r.NewPluginAdmissionException(nil, "VERIFY", err.Error())
 	}
 	for _, c := range created {
@@ -409,19 +410,29 @@ func (r *Runtime) installPluginTx(parent *Loader, res *AdmissionResult) (*Loader
 			c.Statics[i] = zeroValueFor(c.StaticField[i].Descriptor)
 		}
 	}
+	// No failure path remains: publish the immutable definitions, loader-local
+	// state, quota accounting and staged loading constraints together. A
+	// rejected candidate never reaches this point, so its transaction is
+	// discarded with every pending equality it staged.
+	constraints.commit(r)
 	r.nextLoaderID = loader.ID
 	r.pluginLoaders = append(r.pluginLoaders, loader)
 	r.pluginClassBytes += res.ClassBytes
 	return loader, nil
 }
 
-// checkOverrideConstraints rejects an override whose reference descriptor
-// leaf types resolve to different classes through the two defining loaders.
-// Primitive descriptors and same-loader declarations impose no constraint.
-// The candidate is compared with every inherited class and interface
-// declaration with the same name and descriptor, including default methods
-// inherited through the interface closure.
-func (r *Runtime) checkOverrideConstraints(created []*Class) error {
+// checkOverrideConstraints stages the loading-constraint equalities required by
+// declared overrides and inherited interface implementations. It never resolves
+// a descriptor leaf just to decide whether an equality can be recorded: when
+// either loader has not initiated the leaf yet the equality stays pending in
+// the candidate transaction, and recordInitiation enforces it when a later
+// lookup publishes one side. Primitive descriptors and same-loader declarations
+// impose no constraint. The candidate is compared with every inherited class
+// and interface declaration with the same name and descriptor, including default
+// methods inherited through the interface closure. A conflict rejects the
+// candidate before commit; the caller discards the transaction so none of its
+// earlier pending equalities survive.
+func (r *Runtime) checkOverrideConstraints(created []*Class, tx *constraintTx) error {
 	for _, c := range created {
 		for _, m := range c.Methods {
 			if m.Flags&(AccStatic|AccPrivate) != 0 || m.Name == "<init>" || m.Name == "<clinit>" {
@@ -438,16 +449,26 @@ func (r *Runtime) checkOverrideConstraints(created []*Class) error {
 					p.Type.Return.Descriptor != m.Type.Return.Descriptor {
 					continue
 				}
-				if ca, cb, name, conflict := r.leafTypeConflict(c.Loader, p.Owner.Loader, m.Type.Params, p.Type.Params); conflict {
-					return fmt.Errorf("loader constraint conflict: %s.%s%s parameter leaf %s resolves to %s and %s",
-						c.Name, m.Name, m.Descriptor, name, ca.Name, cb.Name)
+				types := make([]Type, 0, len(m.Type.Params)+1)
+				for i := range m.Type.Params {
+					name := leafClassName(m.Type.Params[i])
+					if name == "" || name != leafClassName(p.Type.Params[i]) {
+						continue
+					}
+					types = append(types, m.Type.Params[i])
 				}
 				if m.Type.Return.IsReference() {
-					if ca, cb, name, conflict := r.leafTypeConflict(c.Loader, p.Owner.Loader,
-						[]Type{m.Type.Return}, []Type{p.Type.Return}); conflict {
-						return fmt.Errorf("loader constraint conflict: %s.%s%s return leaf %s resolves to %s and %s",
-							c.Name, m.Name, m.Descriptor, name, ca.Name, cb.Name)
+					name := leafClassName(m.Type.Return)
+					if name != "" && name == leafClassName(p.Type.Return) {
+						types = append(types, m.Type.Return)
 					}
+				}
+				if len(types) == 0 {
+					continue
+				}
+				if conflict := tx.stage(c.Loader, p.Owner.Loader, types); conflict != nil {
+					return fmt.Errorf("loader constraint conflict: %s.%s%s leaf %s resolves to %s and %s",
+						c.Name, m.Name, m.Descriptor, conflict.Name, conflict.A.Name, conflict.B.Name)
 				}
 			}
 		}
@@ -488,30 +509,6 @@ func inheritedMethods(c *Class, key string) []*Method {
 		visitInterface(in)
 	}
 	return out
-}
-
-// leafTypeConflict resolves corresponding reference leaf types through two
-// loaders. It returns the two classes, the leaf name and whether a conflict
-// exists; unresolved types keep ordinary resolution timing and are skipped.
-func (r *Runtime) leafTypeConflict(aLoader, bLoader *Loader, aTypes, bTypes []Type) (*Class, *Class, string, bool) {
-	for i := range aTypes {
-		name := leafClassName(aTypes[i])
-		if name == "" || i >= len(bTypes) || leafClassName(bTypes[i]) != name {
-			continue
-		}
-		a, errA := r.classForLoaderName(aLoader, name)
-		if errA != nil {
-			continue
-		}
-		b, errB := r.classForLoaderName(bLoader, name)
-		if errB != nil {
-			continue
-		}
-		if a != b {
-			return a, b, name, true
-		}
-	}
-	return nil, nil, "", false
 }
 
 // checkPluginHierarchies revalidates the effective graph the candidate loader

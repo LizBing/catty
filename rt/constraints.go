@@ -31,24 +31,67 @@ func makeConstraintKey(a, b initiationKey) constraintKey {
 	return constraintKey{A: a, B: b}
 }
 
-// connectedConflict walks the full equality component for key/name and
-// compares every already-resolved peer with class. A constraint edge may have
-// been staged before either endpoint resolved, so a peer reached only through
-// another pending endpoint still participates; unresolved peers keep ordinary
-// lazy resolution timing and impose no immediate failure.
-func connectedConflict(constraints map[constraintKey]struct{}, initiations map[initiationKey]*Class,
-	key initiationKey, class *Class) bool {
-	if class == nil {
-		return false
+// constraintTx stages initiation and equality updates on detached copies. A
+// refused staging operation leaves the transaction itself unchanged, and only
+// commit publishes staged changes to the runtime. Callers discard the
+// transaction when the surrounding operation fails, so a rejected plugin
+// candidate cannot leave pending constraints behind.
+type constraintTx struct {
+	initiations map[initiationKey]*Class
+	constraints map[constraintKey]struct{}
+}
+
+func (r *Runtime) newConstraintTx() *constraintTx {
+	r.ensureConstraintState()
+	tx := &constraintTx{
+		initiations: make(map[initiationKey]*Class, len(r.initiations)),
+		constraints: make(map[constraintKey]struct{}, len(r.constraints)),
 	}
+	for k, v := range r.initiations {
+		tx.initiations[k] = v
+	}
+	for k := range r.constraints {
+		tx.constraints[k] = struct{}{}
+	}
+	return tx
+}
+
+// commit hands the staged maps to the runtime. The transaction must not be used
+// again afterwards.
+func (tx *constraintTx) commit(r *Runtime) {
+	r.initiations = tx.initiations
+	r.constraints = tx.constraints
+}
+
+// constraintConflict reports two distinct resolved classes that a loading
+// constraint would require to be the same class.
+type constraintConflict struct {
+	Name string
+	A, B *Class
+}
+
+// componentConflict walks the full equality component that contains key and
+// reports the first pair of resolved peers that disagree. pending supplies the
+// prospective resolution of key; nil means the recorded initiation is used.
+// Unresolved peers keep ordinary lazy resolution timing and impose no immediate
+// failure.
+func componentConflict(constraints map[constraintKey]struct{}, initiations map[initiationKey]*Class,
+	key initiationKey, pending *Class) *constraintConflict {
+	var first *Class
 	seen := map[initiationKey]bool{key: true}
 	queue := []initiationKey{key}
 	for len(queue) > 0 {
 		cur := queue[0]
 		queue = queue[1:]
-		if cur != key {
-			if peerClass, ok := initiations[cur]; ok && peerClass != class {
-				return true
+		c := initiations[cur]
+		if cur == key && pending != nil {
+			c = pending
+		}
+		if c != nil {
+			if first == nil {
+				first = c
+			} else if first != c {
+				return &constraintConflict{Name: key.Name, A: first, B: c}
 			}
 		}
 		for ck := range constraints {
@@ -70,7 +113,7 @@ func connectedConflict(constraints map[constraintKey]struct{}, initiations map[i
 			}
 		}
 	}
-	return false
+	return nil
 }
 
 // recordInitiation commits one successful loader resolution after checking the
@@ -85,7 +128,7 @@ func (r *Runtime) recordInitiation(loader *Loader, name string, c *Class) bool {
 	if existing, ok := r.initiations[key]; ok {
 		return existing != c
 	}
-	if connectedConflict(r.constraints, r.initiations, key, c) {
+	if componentConflict(r.constraints, r.initiations, key, c) != nil {
 		return true
 	}
 	r.initiations[key] = c
@@ -126,12 +169,12 @@ func (r *Runtime) imposeFieldConstraints(callerLoader, declaringLoader *Loader, 
 	return r.stageConstraints(callerLoader, declaringLoader, []Type{ft})
 }
 
-// stageConstraints adds an equality edge for each reference leaf type. It
-// never resolves a descriptor leaf just to decide whether the edge can be
-// staged: when either side has not initiated the leaf yet the equality stays
-// pending, and recordInitiation enforces it when a later lookup publishes one
-// side. Primitive and void descriptors contribute no edge. All updates are
-// built on copies and published together only on success.
+// stageConstraints adds an equality edge for each reference leaf type. It never
+// resolves a descriptor leaf just to decide whether the edge can be staged: when
+// either side has not initiated the leaf yet the equality stays pending, and
+// recordInitiation enforces it when a later lookup publishes one side. Primitive
+// and void descriptors contribute no edge. All updates are built on copies and
+// published together only on success.
 func (r *Runtime) stageConstraints(a, b *Loader, types []Type) bool {
 	if a == nil || b == nil || a == b {
 		return false
@@ -140,14 +183,27 @@ func (r *Runtime) stageConstraints(a, b *Loader, types []Type) bool {
 }
 
 func (r *Runtime) stageConstraintsTx(a, b *Loader, types []Type) bool {
-	r.ensureConstraintState()
-	initiations := make(map[initiationKey]*Class, len(r.initiations)+len(types)*2)
-	for k, v := range r.initiations {
-		initiations[k] = v
+	tx := r.newConstraintTx()
+	if tx.stage(a, b, types) != nil {
+		return true
 	}
-	constraints := make(map[constraintKey]struct{}, len(r.constraints)+len(types))
-	for k := range r.constraints {
-		constraints[k] = struct{}{}
+	tx.commit(r)
+	return false
+}
+
+// stage adds one equality edge for every reference leaf type and validates the
+// merged equality component as a whole. Joining two previously disjoint groups
+// is refused when their already-resolved members disagree, even when both new
+// endpoints are still unresolved. The transaction is unchanged on conflict, so
+// an earlier edge from the same descriptor never leaks out of a refused
+// operation.
+func (tx *constraintTx) stage(a, b *Loader, types []Type) *constraintConflict {
+	if a == nil || b == nil || a == b {
+		return nil
+	}
+	next := make(map[constraintKey]struct{}, len(tx.constraints)+len(types))
+	for k := range tx.constraints {
+		next[k] = struct{}{}
 	}
 	for _, t := range types {
 		name := leafClassName(t)
@@ -156,30 +212,13 @@ func (r *Runtime) stageConstraintsTx(a, b *Loader, types []Type) bool {
 		}
 		keyA := initiationKey{Loader: a, Name: name}
 		keyB := initiationKey{Loader: b, Name: name}
-		ca, okA := initiations[keyA]
-		cb, okB := initiations[keyB]
-		if okA && okB && ca != cb {
-			return true
-		}
-		if okA && connectedConflict(constraints, initiations, keyA, ca) {
-			return true
-		}
-		if okB && connectedConflict(constraints, initiations, keyB, cb) {
-			return true
-		}
-		constraints[makeConstraintKey(keyA, keyB)] = struct{}{}
-		// The new edge can connect two previously disjoint components, so
-		// recheck each already-resolved endpoint against the joined component.
-		if okA && connectedConflict(constraints, initiations, keyA, ca) {
-			return true
-		}
-		if okB && connectedConflict(constraints, initiations, keyB, cb) {
-			return true
+		next[makeConstraintKey(keyA, keyB)] = struct{}{}
+		if conflict := componentConflict(next, tx.initiations, keyA, nil); conflict != nil {
+			return conflict
 		}
 	}
-	r.initiations = initiations
-	r.constraints = constraints
-	return false
+	tx.constraints = next
+	return nil
 }
 
 // leafClassName returns the class leaf of a reference descriptor, including
