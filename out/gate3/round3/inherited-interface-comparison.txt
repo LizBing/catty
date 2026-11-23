@@ -1,0 +1,27 @@
+Inherited interface method selection comparison
+Fixture: testdata/gate3/inherited-interface
+Image classes: api.Base.value()I (public, returns 31), api.Step.value()I
+Plugin: ext.Child extends api.Base implements api.Step (inherits value; static create()Step)
+
+OpenJDK 21 oracle (Temurin 21.0.13.1+2, -Xverify:all):
+  status 0
+  stdout: 31 31 31 31 (compiled invokeinterface, direct call, reflection, image base)
+
+Catty 4860987 (review baseline, built in /private/tmp/catty-baseline):
+  status 0; stdout 31 31 31 31
+
+Catty 6b77273 (reviewed baseline, built in /private/tmp/catty-6b77273):
+  status 1
+  stderr: Exception in thread "main" java.lang.AbstractMethodError
+
+Catty 57332b8 (final implementation) all three image modes:
+  interp: status 0; stdout 31 31 31 31
+  mixed:  status 0; stdout 31 31 31 31
+  aot:    status 0; stdout 31 31 31 31
+
+Dispatch trace (final interp run), selected target is the image superclass:
+{"cache":{"hit":false,"miss":true},"caller":{"descriptor":"(Lapi/Step;)I","loaderId":1,"name":"call","owner":"app/Main"},"declaration":{"descriptor":"()I","loaderId":1,"name":"value","owner":"api/Step"},"event":"dispatch","opcode":"invokeinterface","pc":1,"pid":76744,"receiverLoaderId":2,"target":{"descriptor":"()I","loaderId":1,"name":"value","owner":"api/Base"},"thread":1}
+{"cache":{"hit":false,"miss":true},"caller":{"descriptor":"([Ljava/lang/String;)V","loaderId":1,"name":"main","owner":"app/Main"},"declaration":{"descriptor":"()I","loaderId":1,"name":"value","owner":"api/Step"},"event":"dispatch","opcode":"invokeinterface","pc":57,"pid":76744,"receiverLoaderId":2,"target":{"descriptor":"()I","loaderId":1,"name":"value","owner":"api/Base"},"thread":1}
+
+The reflection line is the third 31: Step.class.getMethod("value").invoke(child).
+The direct compiled invokeinterface lines are the first and second 31.

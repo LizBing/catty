@@ -1,43 +1,49 @@
 # Gate 3 acceptance evidence
 
-Baseline: `4860987`. Round-two fixes: `2047adf`
-(`Fix Gate 3 loader dispatch, access, handler verification, and work limits`),
-with test-only follow-up `d85fbbf`
-(`Add work-limit refusal usability regression test`) and documentation
-follow-up `9bd66f3` (`Document Gate 3-enabled Gate 2 positive corpus`), on
-`codex/gate-3`. Default builds remain `catty-jvm21-gate2` / ABI `2`;
-the plugin runs below use the opt-in `catty-jvm21-gate3` profile / ABI `3`.
+Review baseline `6b77273` on `codex/gate-3`. Final implementation:
+`57332b8` (`Fix Gate 3 inherited dispatch, hierarchy depth, budgets, and
+constraints`). This round preserves the previous package-private dispatch and
+superclass-access fixes and their reproducers; all Gate 3, Gate 2, Gate 1 and
+Go checks were re-run on the final commit. Earlier round-two evidence remains
+below as historical context. Default builds stay `catty-jvm21-gate2` / ABI `2`;
+plugin runs use the opt-in `catty-jvm21-gate3` profile / ABI `3`.
 
 ## Toolchains
 
 | Tool | Version |
 | --- | --- |
 | Go | `go1.27.1 darwin/arm64` |
-| OpenJDK | Microsoft build `21.0.6+7-LTS` |
-| javac / javap / jar | `21.0.6` |
+| OpenJDK | Temurin `21.0.13.1+2` (LTS) |
+| javac / javap / jar | `21.0.13.1` |
 | Python | `3.9.6` |
 
-Exact text: [logs/toolchains.txt](logs/toolchains.txt).
+Exact text: [round3/logs/toolchains.txt](round3/logs/toolchains.txt).
 
 ## Commands and statuses
 
 | Command | Status | Evidence |
 | --- | --- | --- |
-| `go vet ./...` | 0 | [logs/go-vet.txt](logs/go-vet.txt), [logs/go-vet-status.txt](logs/go-vet-status.txt) |
-| `go test -count=1 ./...` | 0 | [logs/go-test.txt](logs/go-test.txt), [logs/go-test-status.txt](logs/go-test-status.txt) |
-| `python3 -B tests/gate3.py --java-home JDK21` | 0 | [logs/full-gate.log](logs/full-gate.log) |
-| `python3 -B tests/gate3.py --java-home JDK21 --prepare-only` | 0 | [logs/prepare-only.log](logs/prepare-only.log) |
-| `python3 -B tests/gate2.py --java-home JDK21` | 0 | [logs/gate2-full.log](logs/gate2-full.log), [gate2/logs](gate2/logs) |
-| `python3 -B tests/gate2.py --java-home JDK21 --enable-plugins` | 0 | [logs/gate2-gate3-positive.log](logs/gate2-gate3-positive.log), [gate2-gate3/logs](gate2-gate3/logs) |
-| `go test ./internal/admission -run='^$' -fuzz=FuzzStageJar -fuzztime=30s -parallel=1` | 0 | [logs/fuzz.txt](logs/fuzz.txt) |
+| `go vet ./...` | 0 | [round3/logs/go-vet.txt](round3/logs/go-vet.txt) |
+| `go test -count=1 ./...` | 0 | [round3/logs/go-test.txt](round3/logs/go-test.txt) |
+| `python3 -B tests/gate3.py --java-home JDK21` | 0 | [round3/logs/gate3-full.log](round3/logs/gate3-full.log) |
+| `python3 -B tests/gate3.py --java-home JDK21 --prepare-only` | 0 | [round3/logs/prepare-only.log](round3/logs/prepare-only.log) |
+| `python3 -B tests/gate2.py --java-home JDK21` | 0 | [round3/logs/gate2-full.log](round3/logs/gate2-full.log) |
+| `python3 -B tests/gate2.py --java-home JDK21 --enable-plugins` | 0 | [round3/logs/gate2-gate3-positive.log](round3/logs/gate2-gate3-positive.log) |
+| `go test ./internal/admission -run='^$' -fuzz=FuzzStageJar -fuzztime=30s -parallel=1` | 0 | [round3/logs/fuzz.txt](round3/logs/fuzz.txt) |
 
-The full Gate 3 run ends with 18 `PASS` lines:
+The full Gate 3 run now contains 17 Java cases and 3 policy/standalone/profile
+checks (20 `PASS` lines):
 
 ```text
 PASS late-override
 PASS name-lookup
 PASS parent-first
 PASS loader-identity
+PASS handler-verify
+PASS package-access
+PASS package-dispatch
+PASS inherited-interface
+PASS hierarchy-depth
 PASS replacement
 PASS crossing-throw
 PASS initialization
@@ -46,22 +52,146 @@ PASS uncaught-plugin
 PASS reflection-identity
 PASS access
 PASS rollback
-PASS package-access
-PASS package-dispatch
-PASS handler-verify
 PASS admission-policy
 PASS standalone
 PASS profile-and-packaging
 Gate 3 passed.
 ```
 
-Gate 2 ends `Gate 2 passed.` and includes `PASS Gate 1 regression`.
-The Gate 3-enabled Gate 2 positive run ends
-`Gate 2 positive corpus passed with Gate 3 enabled.` and includes
-`PASS generated-go checks`; it intentionally skips the Gate 2-only
-wrong-profile/negative checks and the separately-run Gate 1 suite.
+Gate 2 ends `Gate 2 passed.` and includes `PASS Gate 1 regression`. The
+Gate 3-enabled Gate 2 positive run ends
+`Gate 2 positive corpus passed with Gate 3 enabled.` The fuzz target completed
+1,136,781 executions in 30 seconds without a panic or published loader.
 
-## Corrected review reproducers
+## Round-three review fixes
+
+### 1. Inherited interface method selection
+
+`rt/thread.go` now separates the receiver-scoped JVMS 5.4.6 selection rule from
+preparation's stronger override test. `selectVirtual` searches the receiver and
+its superclass chain with `selectionOverrides`, the JVMS 5.4.5 can-override
+relation, so a public superclass implementation satisfies an interface
+declaration even when that superclass does not implement the interface.
+Package-private class declarations still require same-runtime-package or
+transitive overriding, and the compiled dispatch cache still requires the
+identical resolved declaration and exact receiver `*Class`. Reflection uses the
+same general selector. `methodOverrides` (which additionally requires the
+declaring types to be related) is retained for override-preparation loading
+constraints. `invokeinterface` also rejects a selected method that is neither
+public nor private with `IllegalAccessError`, matching JVMS 6.5.
+
+New differential fixture `testdata/gate3/inherited-interface`: image
+`api.Base.value()` returns `31`, image `api.Step` declares `value()`, plugin
+`ext.Child extends api.Base implements api.Step` inherits `value()` and exposes
+`static Step create()`. The runner builds the image before packaging the JAR
+and runs all three image modes.
+
+| Implementation | Result |
+| --- | --- |
+| OpenJDK 21 oracle (`-Xverify:all`) | status 0, stdout `31` four times |
+| Catty `4860987` | status 0, stdout `31` four times |
+| Catty `6b77273` | status 1, `Exception in thread "main" java.lang.AbstractMethodError` |
+| Catty `57332b8` interp / mixed / aot | status 0, stdout `31` four times in every mode |
+
+The dispatch trace from the final interp run names the inherited image
+superclass as the target:
+
+```json
+{"event":"dispatch","opcode":"invokeinterface","declaration":{"owner":"api/Step","name":"value","loaderId":1},"receiverLoaderId":2,"target":{"owner":"api/Base","name":"value","loaderId":1},"cache":{"miss":true}}
+```
+
+The third `31` is the reflective `Step.class.getMethod("value").invoke(child)`
+call; the first two are compiled `invokeinterface` sites. Exact commands and
+outputs: [round3/inherited-interface-comparison.txt](round3/inherited-interface-comparison.txt);
+traces: [round3/traces/](round3/traces).
+
+### 2. Exact hierarchy depth
+
+New shared package `internal/hierarchy` computes the longest path through the
+effective superclass/interface graph with a memoized depth-first traversal. It
+detects cycles, charges one unit per newly visited node through a callback, and
+returns `DepthError` when a root's longest path exceeds the inclusive ceiling.
+Memoization keeps the full remaining path length for every ancestor, so visit
+order (including ancestor-first archive order) no longer affects enforcement.
+
+Admission applies the rule to effective definitions and reads parent-loader
+metadata; runtime revalidation applies the same rule to the candidate loader's
+effective graph through `Loader.Lookup`. A path spanning a published parent
+loader counts every edge. Depth failures keep code `LIMIT` with
+`limit=hierarchyDepth`; cycles remain `VERIFY`.
+
+The production-boundary fixture generates five JARs (386 class files) with
+ancestor-first archive order:
+
+| JAR | Definition | Result |
+| --- | --- | --- |
+| `big128.jar` | `chain.C000..C127`, 128-edge longest path | accepted, loader 2, `depth()` runs and returns 128 |
+| `big129.jar` | `chain.C000..C128`, 129-edge longest path | rejected `LIMIT/hierarchyDepth` at `chain/C128`, no loader |
+| `parent1.jar` | `span.P000..P119`, 120-edge path | accepted, loader 3 |
+| `parent2.jar` | `span.P120..P127` extending parent `P119`, combined 128-edge path | accepted, loader 4 |
+| `parent3.jar` | `span.P128` extending parent `P127`, combined 129-edge path | rejected `LIMIT/hierarchyDepth` at `span/P128`, no loader |
+
+Final run output, identical in interp, mixed and aot images:
+
+```text
+128
+120
+128
+LIMIT
+LIMIT
+true
+```
+
+Trace events:
+[round3/hierarchy-depth-boundary.txt](round3/hierarchy-depth-boundary.txt) and
+[round3/traces/hierarchy-depth-interp.jsonl](round3/traces/hierarchy-depth-interp.jsonl).
+Go coverage includes the exact 128/129 boundary in both orders, interface
+paths, cycles, admission with synthetic class files, and runtime revalidation
+with a parent-spanning chain.
+
+### 3. Verification work refusals stop the work
+
+`internal/verify/types.go` now returns a `WorkError` from `copyState` and
+`statesEqual` before copying or comparing, and `assignable`,
+`classAssignable`, `classIsInterface`, `classImplements`, `interfaceExtends`
+and `isThrowable` all propagate a refused charge instead of continuing the
+query. `applyStep` records the first successor-copy refusal and returns it
+before exposing partial successors. `analyzeMethod` charges handler-range
+inspection as well as matching exception edges, charges frame allocations and
+copies, and does not publish heights/shapes when any step is refused.
+Admission still classifies the propagated `WorkError` as `LIMIT` with
+`limit=verificationWork` and never publishes candidate definitions.
+
+New tests in `internal/verify/budget_test.go` exercise a refused copy, a
+refused comparison, a refused hierarchy visit at an exact step, and a sweep of
+every verifier budget boundary: each failure names the refused operation, does
+not consume the refused units, stops at the expected step, and leaves the
+analysis maps empty. `TestWorkLimitRefusalLeavesRunningLoaderUsable` (existing)
+continues to prove the runtime remains usable after a work-limit admission
+refusal.
+
+### 4. Pending and transitive loading constraints
+
+`rt/constraints.go` now stages an equality edge for every reference leaf type
+without resolving the descriptor leaf. When either loader has not initiated the
+leaf yet the edge is pending; `recordInitiation` walks the full connected
+component of equality edges for that binary name and compares every
+already-resolved peer, including peers reached through unresolved endpoints.
+Updates are built on copies and published atomically only after the whole
+staging operation succeeds. Reference-array leaves use the element class name,
+and primitive/void descriptors create no edge.
+
+The previous test that manually inserted into the private constraint map was
+replaced with staging-API coverage: pending equality then later initiation,
+transitive `A = B = C` conflict through an unresolved endpoint, successful
+shared parent-visible class, failed staging/initiation preserving prior state,
+array leaves, and primitive descriptors outside the graph. Runtime collection is
+still unit-level because fixed parent-first visibility makes a conflicting
+public-API setup unreachable; the preparation path remains covered by
+`TestOverridePreparationUsesLeafTypes` and
+`TestOverridePreparationInheritedInterface`.
+
+## Round-two corrected review reproducers (preserved)
 
 ### 1. Package-private virtual dispatch across defining loaders
 
@@ -210,39 +340,57 @@ descriptor type is retained lazily (see the new `ext.Sig` fixture in
 
 ## Remaining gaps / evidence limits
 
-1. **Runtime loading-constraint conflict is unit-level only** for the reason
-   above; there is no end-to-end Java reproducer that reaches the conflict
-   through normal parent-first registration. The preparation path is exercised
-   by `rt` unit tests, not by a public `Plugins.register` fixture.
+1. **Runtime loading-constraint conflicts remain unit-level only.** With fixed
+   parent-first visibility, two loaders that share a parent-visible name resolve
+   the same class, so the conflicting-pending and transitive cases cannot be
+   reached through a public `Plugins.register` fixture. Staging through the
+   public preparation path is exercised by `rt` unit tests.
 2. **Work units are deterministic Catty units**, not a byte-for-byte model of
-   every HotSpot verifier allocation. The boundary tests establish the profile
-   contract (`Used` accepted, one less `LIMIT`), not HotSpot equivalence.
+   HotSpot verifier allocations. The tests establish the profile contract
+   (`Used` accepted, one less `LIMIT`) and the stop-before-work behavior, not
+   HotSpot equivalence.
 3. No end-to-end Java fixture injects a small verification-work limit (the
-   production profile ceiling is 16,777,216 and would require a huge class).
-   Work-limit refusal is covered at admission/verifier unit level; runtime
-   rollback is covered by the `rollback` case and `rt` unit tests.
+   production ceiling is 16,777,216 and would require a very large class).
+   Refusal is covered at the verifier and admission unit boundaries; runtime
+   usability after refusal is covered by the existing `rt` test and the
+   `rollback` case.
 4. Handler-edge verification uses StackMapTable frames. Legacy classes without
    frame tables retain the pre-Gate-3 inference path; class-file version 65
-   requires frames for the fixtures used here.
-5. The exact 128/129 hierarchy-depth boundary and exact 16 MiB compressed-input
-   boundary are not constructed as fixtures; the checks enforce inclusive
-   ceilings and one-unit-over tests at smaller injected limits.
+   requires frames for these fixtures.
+5. An interface class file names `java/lang/Object` as its `super_class`, so the
+   depth traversal counts that artifact edge for interfaces exactly as the
+   previous admission/runtime traversals did. The interface-path unit test
+   accounts for it; the end-to-end boundary fixture uses class chains.
 6. `readJar` uses Unix `O_NONBLOCK`/regular-file checks; non-Unix behavior was
    not exercised.
 7. The fuzz target uses reduced test ceilings (1 MiB compressed, 4 MiB
    expanded, 128 entries, 32 classes) so it spends its budget in validation;
    production ceilings are tested separately.
-8. The OpenJDK reference is Microsoft build 21.0.6, not Temurin.
+8. The OpenJDK reference for this round is Temurin `21.0.13.1+2`; the earlier
+   round used Microsoft build `21.0.6`.
+9. The package-private inherited-interface edge case is not a valid Java-source
+   program; a hand-crafted class file now raises `IllegalAccessError` at the
+   invokeinterface site like OpenJDK, but no end-to-end fixture builds that
+   invalid class.
 
 ## Artifact map
 
-- [DIGESTS.txt](DIGESTS.txt): SHA-256 for saved binaries, JARs and reports.
-- [reports/](reports): all case/mode reports.
-- [traces/](traces): dispatch, admission, class-init, reflection, handler and
-  rollback traces.
-- [generated/](generated): generated Go, including `catty/plugin` adapter.
-- [bin/](bin): preserved mixed binary, standalone copy and launcher.
-- [jars/](jars): all plugin, malformed and boundary JARs.
+- [DIGESTS.txt](DIGESTS.txt): round-two SHA-256 manifest.
+- [reports/](reports), [traces/](traces), [generated/](generated),
+  [bin/](bin), [jars/](jars): round-two artifacts.
 - [gate2/](gate2): default Gate 2/Gate 1 logs and traces.
 - [gate2-gate3/](gate2-gate3): positive Gate 2 corpus logs/traces with Gate 3
   enabled.
+- [round3/DIGESTS.txt](round3/DIGESTS.txt): SHA-256 for the round-three JARs,
+  reports, traces and generated Go.
+- [round3/logs/](round3/logs): final command logs and new-case build/run/oracle
+  logs.
+- [round3/traces/](round3/traces): inherited-interface and hierarchy-depth
+  dispatch/admission traces in all three modes.
+- [round3/reports/](round3/reports): the corresponding build reports.
+- [round3/generated/](round3/generated): generated Go for the new fixtures.
+- [round3/jars/](round3/jars): inherited-interface and hierarchy-boundary JARs.
+- [round3/inherited-interface-comparison.txt](round3/inherited-interface-comparison.txt):
+  OpenJDK, `4860987`, `6b77273` and final-commit comparison.
+- [round3/hierarchy-depth-boundary.txt](round3/hierarchy-depth-boundary.txt):
+  exact 128/129 acceptance/rejection and trace fields.

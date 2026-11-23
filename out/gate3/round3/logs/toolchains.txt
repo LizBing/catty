@@ -1,0 +1,6 @@
+go: go version go1.27.1 darwin/arm64
+java: openjdk version "21.0.13.1" 2026-11-17 LTS
+javac: javac 21.0.13.1
+javap: 21.0.13.1
+jar: jar 21.0.13.1
+python: Python 3.9.6

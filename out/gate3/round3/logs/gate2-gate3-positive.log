@@ -1,0 +1,41 @@
+Gate 2 artifacts in /private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-_k6ttg7d
+go version go1.27.1 darwin/arm64
+openjdk version "21.0.13.1" 2026-11-17 LTS
+OpenJDK Runtime Environment Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS, mixed mode, sharing)
+javac 21.0.13.1
+21.0.13.1
+jar 21.0.13.1
+Verified 13 OpenJDK 21 runs and one verifier rejection.
+PASS long-crossing/auto
+PASS long-crossing/aot
+PASS long-crossing/interp
+PASS initialization/auto
+PASS initialization/aot
+PASS initialization/interp
+PASS numeric-edge-cases/auto
+PASS numeric-edge-cases/aot
+PASS numeric-edge-cases/interp
+PASS switch-and-wide/auto
+PASS switch-and-wide/aot
+PASS switch-and-wide/interp
+PASS arrays/auto
+PASS arrays/aot
+PASS arrays/interp
+PASS dispatch-and-constructors/auto
+PASS dispatch-and-constructors/aot
+PASS dispatch-and-constructors/interp
+PASS constant-values-and-reentry/auto
+PASS constant-values-and-reentry/aot
+PASS constant-values-and-reentry/interp
+PASS reflection/auto
+PASS reflection/aot
+PASS reflection/interp
+PASS profile-and-image/auto
+PASS profile-and-image/aot
+PASS profile-and-image/interp
+PASS deferred-linkage/auto
+PASS deferred-linkage/aot
+PASS deferred-linkage/interp
+PASS generated-go checks
+Gate 2 positive corpus passed with Gate 3 enabled.

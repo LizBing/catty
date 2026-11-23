@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-3o6aq7yh/bin/hierarchy-depth-aot",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-3o6aq7yh/hierarchy-depth-big128.jar",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-3o6aq7yh/hierarchy-depth-big129.jar",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-3o6aq7yh/hierarchy-depth-parent1.jar",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-3o6aq7yh/hierarchy-depth-parent2.jar",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-3o6aq7yh/hierarchy-depth-parent3.jar"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "LC_ALL": "C",
+    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-3o6aq7yh/traces/hierarchy-depth-aot.jsonl"
+  },
+  "pid": 76749,
+  "status": 0,
+  "stdout": "128\n120\n128\nLIMIT\nLIMIT\ntrue\n",
+  "stderr": ""
+}

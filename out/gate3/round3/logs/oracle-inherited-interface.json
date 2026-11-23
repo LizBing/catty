@@ -1,0 +1,20 @@
+{
+  "command": [
+    "java",
+    "-Xverify:all",
+    "-cp",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-3o6aq7yh/adapter:/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-3o6aq7yh/apps/inherited-interface",
+    "app.Main",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate3-3o6aq7yh/inherited-interface-a.jar"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "LC_ALL": "C"
+  },
+  "pid": 76473,
+  "status": 0,
+  "stdout": "31\n31\n31\n31\n",
+  "stderr": ""
+}
