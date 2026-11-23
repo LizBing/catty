@@ -1,0 +1,15 @@
+=== RUN   TestBaselinePendingGroupMergeRepro
+    constraints_bug_repro_test.go:27: joining two incompatible pending groups was accepted
+--- FAIL: TestBaselinePendingGroupMergeRepro (0.00s)
+FAIL
+FAIL	catty/rt	0.863s
+FAIL
+=== fixed commit be33262 ===
+=== RUN   TestBaselinePendingGroupMergeRepro
+--- PASS: TestBaselinePendingGroupMergeRepro (0.00s)
+PASS
+ok  	catty/rt	0.377s
+fixed exit=0
+
+baseline 6a18827: FAIL (joining two incompatible pending groups was accepted)
+fixed be33262: PASS

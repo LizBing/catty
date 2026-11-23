@@ -1,12 +1,15 @@
 # Gate 3 acceptance evidence
 
-Review baseline `6b77273` on `codex/gate-3`. Final implementation:
-`57332b8` (`Fix Gate 3 inherited dispatch, hierarchy depth, budgets, and
-constraints`). This round preserves the previous package-private dispatch and
-superclass-access fixes and their reproducers; all Gate 3, Gate 2, Gate 1 and
-Go checks were re-run on the final commit. Earlier round-two evidence remains
-below as historical context. Default builds stay `catty-jvm21-gate2` / ABI `2`;
-plugin runs use the opt-in `catty-jvm21-gate3` profile / ABI `3`.
+Review baseline `6a18827` on `codex/gate-3`. Final implementation:
+`be33262` (`Fix Gate 3 pending constraint merges and preparation staging`).
+This round is limited to the two loading-constraint gaps: rejecting a conflict
+when two pending equality groups are joined, and staging pending equalities
+during plugin preparation. The round-three inherited-interface dispatch, exact
+hierarchy-depth and verification-budget fixes and their reproducers are
+preserved; all Gate 3, Gate 2, Gate 1, Go and fuzz checks were re-run on the
+final commit. Earlier round evidence remains below as historical context.
+Default builds stay `catty-jvm21-gate2` / ABI `2`; plugin runs use the opt-in
+`catty-jvm21-gate3` profile / ABI `3`.
 
 ## Toolchains
 
@@ -17,21 +20,21 @@ plugin runs use the opt-in `catty-jvm21-gate3` profile / ABI `3`.
 | javac / javap / jar | `21.0.13.1` |
 | Python | `3.9.6` |
 
-Exact text: [round3/logs/toolchains.txt](round3/logs/toolchains.txt).
+Exact text: [round4/logs/toolchains.txt](round4/logs/toolchains.txt).
 
 ## Commands and statuses
 
 | Command | Status | Evidence |
 | --- | --- | --- |
-| `go vet ./...` | 0 | [round3/logs/go-vet.txt](round3/logs/go-vet.txt) |
-| `go test -count=1 ./...` | 0 | [round3/logs/go-test.txt](round3/logs/go-test.txt) |
-| `python3 -B tests/gate3.py --java-home JDK21` | 0 | [round3/logs/gate3-full.log](round3/logs/gate3-full.log) |
-| `python3 -B tests/gate3.py --java-home JDK21 --prepare-only` | 0 | [round3/logs/prepare-only.log](round3/logs/prepare-only.log) |
-| `python3 -B tests/gate2.py --java-home JDK21` | 0 | [round3/logs/gate2-full.log](round3/logs/gate2-full.log) |
-| `python3 -B tests/gate2.py --java-home JDK21 --enable-plugins` | 0 | [round3/logs/gate2-gate3-positive.log](round3/logs/gate2-gate3-positive.log) |
-| `go test ./internal/admission -run='^$' -fuzz=FuzzStageJar -fuzztime=30s -parallel=1` | 0 | [round3/logs/fuzz.txt](round3/logs/fuzz.txt) |
+| `go test ./rt -run 'TestLoadingConstraintMergedGroups|TestLoadingConstraintStageRollsBack|TestPluginPreparation|TestOverridePreparation' -count=1 -v` | 0 | [round4/logs/focused-tests.txt](round4/logs/focused-tests.txt) |
+| `go vet ./...` | 0 | [round4/logs/go-vet.txt](round4/logs/go-vet.txt) |
+| `go test -count=1 ./...` | 0 | [round4/logs/go-test.txt](round4/logs/go-test.txt) |
+| `python3 -B tests/gate3.py --java-home JDK21` | 0 | [round4/logs/gate3-full.log](round4/logs/gate3-full.log) |
+| `python3 -B tests/gate2.py --java-home JDK21` | 0 | [round4/logs/gate2-full.log](round4/logs/gate2-full.log) |
+| `python3 -B tests/gate2.py --java-home JDK21 --enable-plugins` | 0 | [round4/logs/gate2-gate3-positive.log](round4/logs/gate2-gate3-positive.log) |
+| `go test ./internal/admission -run='^$' -fuzz=FuzzStageJar -fuzztime=30s -parallel=1` | 0 | [round4/logs/fuzz.txt](round4/logs/fuzz.txt) |
 
-The full Gate 3 run now contains 17 Java cases and 3 policy/standalone/profile
+The full Gate 3 run contains 17 Java cases and 3 policy/standalone/profile
 checks (20 `PASS` lines):
 
 ```text
@@ -61,7 +64,75 @@ Gate 3 passed.
 Gate 2 ends `Gate 2 passed.` and includes `PASS Gate 1 regression`. The
 Gate 3-enabled Gate 2 positive run ends
 `Gate 2 positive corpus passed with Gate 3 enabled.` The fuzz target completed
-1,136,781 executions in 30 seconds without a panic or published loader.
+1,299,992 executions in 30 seconds without a panic or published loader.
+
+## Round-four corrected behaviors
+
+### 1. Pending equality-group merges are validated as a whole
+
+`rt/constraints.go` now stages equality edges in a `constraintTx` and validates
+the complete equality component after every edge addition instead of rechecking
+only the new endpoints. Joining two previously disjoint pending groups is
+refused when already-resolved members of the merged component disagree, even
+when both new endpoints are still unresolved. A refused staging operation leaves
+the transaction unchanged, so an operation that adds several descriptor leaves
+publishes none of them on conflict. `recordInitiation` uses the same component
+validation, so later lookups keep lazy JVMS 5.3.4 behavior and still produce
+`LinkageError` on a conflict.
+
+The reviewed scenario is exactly A initiates `X1`, D initiates a distinct `X2`
+with the same binary name, `A = B` and `C = D` are pending, and `B = C` joins the
+groups. On the baseline it grows the graph from two edges to three; on `be33262`
+it is refused:
+
+- [round4/logs/baseline-repro.txt](round4/logs/baseline-repro.txt) records the
+  identical runtime test failing on `6a18827` and passing on `be33262`.
+
+Focused tests:
+
+- `TestLoadingConstraintMergedGroupsConflict` — the reviewed scenario; the
+  refused merge publishes no edge, leaves both initiation records as they were,
+  and B can still resolve to A's class.
+- `TestLoadingConstraintMergedGroupsSameClass` — a compatible merge where both
+  groups resolve to the same class publishes three edges; a disagreeing late
+  initiation is refused and agreeing late initiations complete the component.
+- `TestLoadingConstraintStageRollsBackWholeDescriptor` — a conflict on a later
+  descriptor type leaves the edge staged for an earlier type unpublished.
+- The existing pending, transitive-component, shared-class, array-leaf and
+  primitive-descriptor tests continue to pass.
+
+### 2. Plugin preparation stages pending equalities in the candidate transaction
+
+`rt/plugin.go` no longer resolves descriptor leaves eagerly in
+`checkOverrideConstraints`. It stages one equality for every reference leaf of
+every declared override and inherited interface implementation, using the same
+transaction staging validation as member resolution. Pending equalities are kept
+without forcing a descriptor leaf lookup or class initialization; a conflict
+already visible from initiation records is reported as `VERIFY` and rejects the
+candidate. `installPluginTx` commits the transaction only at the publication
+point, after the last fallible preparation step: a rejected candidate discards
+every pending equality it staged, while a successful admission publishes them
+with the loader definitions and quota accounting. A conflict during later
+resolution still surfaces as the existing sticky `LinkageError` through
+`recordInitiation`.
+
+Focused tests (runtime unit tests use manually linked loaders because fixed
+parent-first visibility makes conflicting mixed-loader configurations
+unreachable through the Java API):
+
+- `TestPluginPreparationStagesPendingEqualities` — the real `installPlugin`
+  preparation path publishes pending reference and reference-array equalities,
+  adds no edge for primitive descriptors, and a pending equality is enforced
+  when a later initiation resolves the other side to a different class.
+- `TestPluginPreparationPendingEqualityDiscardedOnRejection` — a candidate whose
+  first class stages a pending equality and whose later class conflicts is
+  rejected with `VERIFY`; constraints, initiations, registry and loader ID stay
+  unchanged, and a control admission of the first class alone publishes the
+  pending equality.
+- `TestOverridePreparationUsesLeafTypes` and
+  `TestOverridePreparationInheritedInterface` now record the conflicting
+  initiations explicitly and assert that the rejected preparation transaction
+  publishes no edges.
 
 ## Round-three review fixes
 
@@ -341,37 +412,44 @@ descriptor type is retained lazily (see the new `ext.Sig` fixture in
 ## Remaining gaps / evidence limits
 
 1. **Runtime loading-constraint conflicts remain unit-level only.** With fixed
-   parent-first visibility, two loaders that share a parent-visible name resolve
-   the same class, so the conflicting-pending and transitive cases cannot be
-   reached through a public `Plugins.register` fixture. Staging through the
-   public preparation path is exercised by `rt` unit tests.
-2. **Work units are deterministic Catty units**, not a byte-for-byte model of
+   parent-first visibility, two published loaders that share a parent-visible
+   name resolve the same class, and an effective plugin class may not shadow a
+   parent definition. The reviewed conflicting pending-merge and preparation-time
+   conflict transitions therefore use manually linked runtime loaders; no Java
+   fixture can reach them. Pending equalities are exercised through the real
+   `installPlugin` preparation path, and execution-time conflicts remain covered
+   by the existing `LinkageError` unit tests.
+2. **Published preparation equalities are latent.** A pending constraint
+   committed by a successful admission is only enforced when the affected class
+   name is resolved later, so no end-to-end fixture observes an immediate
+   Java-visible effect at registration time. The focused tests assert the
+   published transaction state directly and then exercise the later initiation.
+3. **Work units are deterministic Catty units**, not a byte-for-byte model of
    HotSpot verifier allocations. The tests establish the profile contract
    (`Used` accepted, one less `LIMIT`) and the stop-before-work behavior, not
    HotSpot equivalence.
-3. No end-to-end Java fixture injects a small verification-work limit (the
+4. No end-to-end Java fixture injects a small verification-work limit (the
    production ceiling is 16,777,216 and would require a very large class).
    Refusal is covered at the verifier and admission unit boundaries; runtime
    usability after refusal is covered by the existing `rt` test and the
    `rollback` case.
-4. Handler-edge verification uses StackMapTable frames. Legacy classes without
+5. Handler-edge verification uses StackMapTable frames. Legacy classes without
    frame tables retain the pre-Gate-3 inference path; class-file version 65
    requires frames for these fixtures.
-5. An interface class file names `java/lang/Object` as its `super_class`, so the
+6. An interface class file names `java/lang/Object` as its `super_class`, so the
    depth traversal counts that artifact edge for interfaces exactly as the
    previous admission/runtime traversals did. The interface-path unit test
    accounts for it; the end-to-end boundary fixture uses class chains.
-6. `readJar` uses Unix `O_NONBLOCK`/regular-file checks; non-Unix behavior was
+7. `readJar` uses Unix `O_NONBLOCK`/regular-file checks; non-Unix behavior was
    not exercised.
-7. The fuzz target uses reduced test ceilings (1 MiB compressed, 4 MiB
+8. The fuzz target uses reduced test ceilings (1 MiB compressed, 4 MiB
    expanded, 128 entries, 32 classes) so it spends its budget in validation;
    production ceilings are tested separately.
-8. The OpenJDK reference for this round is Temurin `21.0.13.1+2`; the earlier
-   round used Microsoft build `21.0.6`.
-9. The package-private inherited-interface edge case is not a valid Java-source
-   program; a hand-crafted class file now raises `IllegalAccessError` at the
-   invokeinterface site like OpenJDK, but no end-to-end fixture builds that
-   invalid class.
+9. The OpenJDK reference is Temurin `21.0.13.1+2`.
+10. The package-private inherited-interface edge case is not a valid Java-source
+    program; a hand-crafted class file now raises `IllegalAccessError` at the
+    invokeinterface site like OpenJDK, but no end-to-end fixture builds that
+    invalid class.
 
 ## Artifact map
 
@@ -394,3 +472,7 @@ descriptor type is retained lazily (see the new `ext.Sig` fixture in
   OpenJDK, `4860987`, `6b77273` and final-commit comparison.
 - [round3/hierarchy-depth-boundary.txt](round3/hierarchy-depth-boundary.txt):
   exact 128/129 acceptance/rejection and trace fields.
+- [round4/logs/](round4/logs): round-four toolchains, focused constraint and
+  preparation tests, review-baseline reproduction, full Gate 3/Gate 2/Go/vet and
+  fuzz logs. No new Java fixtures were added this round; the existing Gate 3
+  case set is unchanged.

@@ -1,0 +1,17 @@
+=== RUN   TestLoadingConstraintMergedGroupsConflict
+--- PASS: TestLoadingConstraintMergedGroupsConflict (0.00s)
+=== RUN   TestLoadingConstraintMergedGroupsSameClass
+--- PASS: TestLoadingConstraintMergedGroupsSameClass (0.00s)
+=== RUN   TestLoadingConstraintStageRollsBackWholeDescriptor
+--- PASS: TestLoadingConstraintStageRollsBackWholeDescriptor (0.00s)
+=== RUN   TestPluginPreparationStagesPendingEqualities
+--- PASS: TestPluginPreparationStagesPendingEqualities (0.00s)
+=== RUN   TestPluginPreparationPendingEqualityDiscardedOnRejection
+--- PASS: TestPluginPreparationPendingEqualityDiscardedOnRejection (0.00s)
+=== RUN   TestOverridePreparationUsesLeafTypes
+--- PASS: TestOverridePreparationUsesLeafTypes (0.00s)
+=== RUN   TestOverridePreparationInheritedInterface
+--- PASS: TestOverridePreparationInheritedInterface (0.00s)
+PASS
+ok  	catty/rt	0.132s
+focused exit=0
