@@ -1,0 +1,35 @@
+{
+  "command": [
+    "javac",
+    "--release",
+    "21",
+    "-g",
+    "-d",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+    "/Users/services/Projects/catty/testdata/gate5/benchmark/gate5bench/Bench.java",
+    "/Users/services/Projects/catty/testdata/gate5/benchmark/gate5bench/Callback.java",
+    "/Users/services/Projects/catty/testdata/gate5/benchmark/gate5bench/Calls.java",
+    "/Users/services/Projects/catty/testdata/gate5/benchmark/gate5bench/Cell.java",
+    "/Users/services/Projects/catty/testdata/gate5/benchmark/gate5bench/Escape.java",
+    "/Users/services/Projects/catty/testdata/gate5/benchmark/gate5bench/Hot.java",
+    "/Users/services/Projects/catty/testdata/gate5/benchmark/gate5bench/Main.java",
+    "/Users/services/Projects/catty/testdata/gate5/benchmark/gate5bench/Memory.java",
+    "/Users/services/Projects/catty/testdata/gate5/benchmark/gate5bench/Node.java",
+    "/Users/services/Projects/catty/testdata/gate5/benchmark/gate5bench/ReflectTarget.java",
+    "/Users/services/Projects/catty/testdata/gate5/benchmark/gate5bench/Reflection.java",
+    "/Users/services/Projects/catty/testdata/gate5/benchmark/gate5bench/Report.java",
+    "/Users/services/Projects/catty/testdata/gate5/benchmark/gate5bench/Retained.java",
+    "/Users/services/Projects/catty/testdata/gate5/benchmark/gate5bench/Sizes.java",
+    "/Users/services/Projects/catty/testdata/gate5/benchmark/gate5bench/Workload.java"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "LC_ALL": "C"
+  },
+  "pid": 80217,
+  "status": 0,
+  "stdout": "",
+  "stderr": ""
+}

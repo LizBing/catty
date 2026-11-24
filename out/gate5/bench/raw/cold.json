@@ -1,0 +1,668 @@
+{
+  "aot": {
+    "checksum": 1534917405,
+    "elapsedToResult": {
+      "coefficientOfVariation": 0.042157960823530495,
+      "count": 7,
+      "max": 0.0037700409999992246,
+      "mean": 0.003574589428571124,
+      "median": 0.0035746250000006086,
+      "min": 0.0033126669999994363,
+      "p50": 0.0035746250000006086,
+      "p99": 0.0037700409999992246,
+      "stdev": 0.0001506974010899077
+    },
+    "ops": 1024,
+    "requestedSamples": 7,
+    "samples": [
+      {
+        "checksum": 1534917405,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/aot/attempt-0/app",
+          "cold"
+        ],
+        "config": "aot",
+        "elapsedToResultSeconds": 0.003662541999998936,
+        "failure": null,
+        "launchEpochSeconds": 10.640690166,
+        "ops": 1024,
+        "pid": 80505,
+        "sample": 0,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.003966208999999665
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/aot/attempt-0/app",
+          "cold"
+        ],
+        "config": "aot",
+        "elapsedToResultSeconds": 0.0035476669999994215,
+        "failure": null,
+        "launchEpochSeconds": 10.654318583,
+        "ops": 1024,
+        "pid": 80508,
+        "sample": 1,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.0038561670000003545
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/aot/attempt-0/app",
+          "cold"
+        ],
+        "config": "aot",
+        "elapsedToResultSeconds": 0.0035746250000006086,
+        "failure": null,
+        "launchEpochSeconds": 10.6787405,
+        "ops": 1024,
+        "pid": 80511,
+        "sample": 2,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.003973750000000109
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/aot/attempt-0/app",
+          "cold"
+        ],
+        "config": "aot",
+        "elapsedToResultSeconds": 0.003679709000000031,
+        "failure": null,
+        "launchEpochSeconds": 10.704905666,
+        "ops": 1024,
+        "pid": 80514,
+        "sample": 3,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.004004791999999924
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/aot/attempt-0/app",
+          "cold"
+        ],
+        "config": "aot",
+        "elapsedToResultSeconds": 0.0034748750000002104,
+        "failure": null,
+        "launchEpochSeconds": 10.761520416,
+        "ops": 1024,
+        "pid": 80521,
+        "sample": 4,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.003775750000000855
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/aot/attempt-0/app",
+          "cold"
+        ],
+        "config": "aot",
+        "elapsedToResultSeconds": 0.0033126669999994363,
+        "failure": null,
+        "launchEpochSeconds": 10.775058416,
+        "ops": 1024,
+        "pid": 80524,
+        "sample": 5,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.0036173749999992566
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/aot/attempt-0/app",
+          "cold"
+        ],
+        "config": "aot",
+        "elapsedToResultSeconds": 0.0037700409999992246,
+        "failure": null,
+        "launchEpochSeconds": 10.799874375,
+        "ops": 1024,
+        "pid": 80527,
+        "sample": 6,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.004077290999999761
+      }
+    ],
+    "successfulSamples": 7,
+    "totalProcessSeconds": {
+      "coefficientOfVariation": 0.0404972924152442,
+      "count": 7,
+      "max": 0.004077290999999761,
+      "mean": 0.0038959048571428462,
+      "median": 0.003966208999999665,
+      "min": 0.0036173749999992566,
+      "p50": 0.003966208999999665,
+      "p99": 0.004077290999999761,
+      "stdev": 0.00015777359822168402
+    }
+  },
+  "interp": {
+    "checksum": 1534917405,
+    "elapsedToResult": {
+      "coefficientOfVariation": 0.04729728072920693,
+      "count": 7,
+      "max": 0.005689874999999844,
+      "mean": 0.005386917000000173,
+      "median": 0.0055095420000004225,
+      "min": 0.00502241699999928,
+      "p50": 0.0055095420000004225,
+      "p99": 0.005689874999999844,
+      "stdev": 0.0002547865256139454
+    },
+    "ops": 1024,
+    "requestedSamples": 7,
+    "samples": [
+      {
+        "checksum": 1534917405,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/interp/attempt-0/app",
+          "cold"
+        ],
+        "config": "interp",
+        "elapsedToResultSeconds": 0.0055095420000004225,
+        "failure": null,
+        "launchEpochSeconds": 10.630674583,
+        "ops": 1024,
+        "pid": 80503,
+        "sample": 0,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.005857708000000628
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/interp/attempt-0/app",
+          "cold"
+        ],
+        "config": "interp",
+        "elapsedToResultSeconds": 0.00502241699999928,
+        "failure": null,
+        "launchEpochSeconds": 10.644725916,
+        "ops": 1024,
+        "pid": 80506,
+        "sample": 1,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.005358249999998677
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/interp/attempt-0/app",
+          "cold"
+        ],
+        "config": "interp",
+        "elapsedToResultSeconds": 0.005545875000001033,
+        "failure": null,
+        "launchEpochSeconds": 10.698938833,
+        "ops": 1024,
+        "pid": 80513,
+        "sample": 2,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.005898124999999865
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/interp/attempt-0/app",
+          "cold"
+        ],
+        "config": "interp",
+        "elapsedToResultSeconds": 0.005689874999999844,
+        "failure": null,
+        "launchEpochSeconds": 10.724951083,
+        "ops": 1024,
+        "pid": 80516,
+        "sample": 3,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.006042541999999429
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/interp/attempt-0/app",
+          "cold"
+        ],
+        "config": "interp",
+        "elapsedToResultSeconds": 0.005324542000000321,
+        "failure": null,
+        "launchEpochSeconds": 10.751340208,
+        "ops": 1024,
+        "pid": 80519,
+        "sample": 4,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.005690541999999965
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/interp/attempt-0/app",
+          "cold"
+        ],
+        "config": "interp",
+        "elapsedToResultSeconds": 0.005075459000000393,
+        "failure": null,
+        "launchEpochSeconds": 10.765362666,
+        "ops": 1024,
+        "pid": 80522,
+        "sample": 5,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.005416874999999877
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/interp/attempt-0/app",
+          "cold"
+        ],
+        "config": "interp",
+        "elapsedToResultSeconds": 0.0055407089999999215,
+        "failure": null,
+        "launchEpochSeconds": 10.819922166,
+        "ops": 1024,
+        "pid": 80529,
+        "sample": 6,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.005902750000000623
+      }
+    ],
+    "successfulSamples": 7,
+    "totalProcessSeconds": {
+      "coefficientOfVariation": 0.045525153263667226,
+      "count": 7,
+      "max": 0.006042541999999429,
+      "mean": 0.005738113142857009,
+      "median": 0.005857708000000628,
+      "min": 0.005358249999998677,
+      "p50": 0.005857708000000628,
+      "p99": 0.006042541999999429,
+      "stdev": 0.0002612284802728286
+    }
+  },
+  "java": {
+    "checksum": 1534917405,
+    "elapsedToResult": {
+      "coefficientOfVariation": 0.01965008830250269,
+      "count": 7,
+      "max": 0.015679125000000127,
+      "mean": 0.01518081542857124,
+      "median": 0.015138957999999647,
+      "min": 0.014855499999999466,
+      "p50": 0.015138957999999647,
+      "p99": 0.015679125000000127,
+      "stdev": 0.00029830436367542007
+    },
+    "ops": 1024,
+    "requestedSamples": 7,
+    "samples": [
+      {
+        "checksum": 1534917405,
+        "command": [
+          "java",
+          "-Xms256m",
+          "-Xmx256m",
+          "-XX:+UseSerialGC",
+          "-cp",
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+          "gate5bench.Main",
+          "cold"
+        ],
+        "config": "java",
+        "elapsedToResultSeconds": 0.015451207999999994,
+        "failure": null,
+        "launchEpochSeconds": 10.614158333,
+        "ops": 1024,
+        "pid": 80502,
+        "sample": 0,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.016402666999999482
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "java",
+          "-Xms256m",
+          "-Xmx256m",
+          "-XX:+UseSerialGC",
+          "-cp",
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+          "gate5bench.Main",
+          "cold"
+        ],
+        "config": "java",
+        "elapsedToResultSeconds": 0.015156125000000742,
+        "failure": null,
+        "launchEpochSeconds": 10.658229125,
+        "ops": 1024,
+        "pid": 80509,
+        "sample": 1,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.016043707999999768
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "java",
+          "-Xms256m",
+          "-Xmx256m",
+          "-XX:+UseSerialGC",
+          "-cp",
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+          "gate5bench.Main",
+          "cold"
+        ],
+        "config": "java",
+        "elapsedToResultSeconds": 0.015138957999999647,
+        "failure": null,
+        "launchEpochSeconds": 10.682798708,
+        "ops": 1024,
+        "pid": 80512,
+        "sample": 2,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.016046083000000877
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "java",
+          "-Xms256m",
+          "-Xmx256m",
+          "-XX:+UseSerialGC",
+          "-cp",
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+          "gate5bench.Main",
+          "cold"
+        ],
+        "config": "java",
+        "elapsedToResultSeconds": 0.014855499999999466,
+        "failure": null,
+        "launchEpochSeconds": 10.7089765,
+        "ops": 1024,
+        "pid": 80515,
+        "sample": 3,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.01586745799999889
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "java",
+          "-Xms256m",
+          "-Xmx256m",
+          "-XX:+UseSerialGC",
+          "-cp",
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+          "gate5bench.Main",
+          "cold"
+        ],
+        "config": "java",
+        "elapsedToResultSeconds": 0.015121416999999582,
+        "failure": null,
+        "launchEpochSeconds": 10.735259083,
+        "ops": 1024,
+        "pid": 80518,
+        "sample": 4,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.0159868749999994
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "java",
+          "-Xms256m",
+          "-Xmx256m",
+          "-XX:+UseSerialGC",
+          "-cp",
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+          "gate5bench.Main",
+          "cold"
+        ],
+        "config": "java",
+        "elapsedToResultSeconds": 0.015679125000000127,
+        "failure": null,
+        "launchEpochSeconds": 10.778731708,
+        "ops": 1024,
+        "pid": 80525,
+        "sample": 5,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.01660449999999969
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "java",
+          "-Xms256m",
+          "-Xmx256m",
+          "-XX:+UseSerialGC",
+          "-cp",
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+          "gate5bench.Main",
+          "cold"
+        ],
+        "config": "java",
+        "elapsedToResultSeconds": 0.014863374999999124,
+        "failure": null,
+        "launchEpochSeconds": 10.804019,
+        "ops": 1024,
+        "pid": 80528,
+        "sample": 6,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.015802916000000167
+      }
+    ],
+    "successfulSamples": 7,
+    "totalProcessSeconds": {
+      "coefficientOfVariation": 0.018045024545539474,
+      "count": 7,
+      "max": 0.01660449999999969,
+      "mean": 0.01610774385714261,
+      "median": 0.016043707999999768,
+      "min": 0.015802916000000167,
+      "p50": 0.016043707999999768,
+      "p99": 0.01660449999999969,
+      "stdev": 0.00029066463327540113
+    }
+  },
+  "mixed": {
+    "checksum": 1534917405,
+    "elapsedToResult": {
+      "coefficientOfVariation": 0.03211313778653975,
+      "count": 7,
+      "max": 0.004069749999999317,
+      "mean": 0.003892773571428571,
+      "median": 0.0038455000000006123,
+      "min": 0.0037292079999993177,
+      "p50": 0.0038455000000006123,
+      "p99": 0.004069749999999317,
+      "stdev": 0.00012500917407108614
+    },
+    "ops": 1024,
+    "requestedSamples": 7,
+    "samples": [
+      {
+        "checksum": 1534917405,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/mixed/attempt-0/app",
+          "cold"
+        ],
+        "config": "mixed",
+        "elapsedToResultSeconds": 0.0037292079999993177,
+        "failure": null,
+        "launchEpochSeconds": 10.636598333,
+        "ops": 1024,
+        "pid": 80504,
+        "sample": 0,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.0040311669999990585
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/mixed/attempt-0/app",
+          "cold"
+        ],
+        "config": "mixed",
+        "elapsedToResultSeconds": 0.003796124999999151,
+        "failure": null,
+        "launchEpochSeconds": 10.65014475,
+        "ops": 1024,
+        "pid": 80507,
+        "sample": 1,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.004106750000000048
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/mixed/attempt-0/app",
+          "cold"
+        ],
+        "config": "mixed",
+        "elapsedToResultSeconds": 0.003992249999999586,
+        "failure": null,
+        "launchEpochSeconds": 10.674368541,
+        "ops": 1024,
+        "pid": 80510,
+        "sample": 2,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.004301584000000247
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/mixed/attempt-0/app",
+          "cold"
+        ],
+        "config": "mixed",
+        "elapsedToResultSeconds": 0.0038254160000015247,
+        "failure": null,
+        "launchEpochSeconds": 10.73106075,
+        "ops": 1024,
+        "pid": 80517,
+        "sample": 3,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.004133666000001313
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/mixed/attempt-0/app",
+          "cold"
+        ],
+        "config": "mixed",
+        "elapsedToResultSeconds": 0.00399116600000049,
+        "failure": null,
+        "launchEpochSeconds": 10.757112625,
+        "ops": 1024,
+        "pid": 80520,
+        "sample": 4,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.0043325830000000565
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/mixed/attempt-0/app",
+          "cold"
+        ],
+        "config": "mixed",
+        "elapsedToResultSeconds": 0.0038455000000006123,
+        "failure": null,
+        "launchEpochSeconds": 10.770855375,
+        "ops": 1024,
+        "pid": 80523,
+        "sample": 5,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.004146541000000781
+      },
+      {
+        "checksum": 1534917405,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/mixed/attempt-0/app",
+          "cold"
+        ],
+        "config": "mixed",
+        "elapsedToResultSeconds": 0.004069749999999317,
+        "failure": null,
+        "launchEpochSeconds": 10.795436875,
+        "ops": 1024,
+        "pid": 80526,
+        "sample": 6,
+        "status": "ok",
+        "stdoutMatchesOracle": true,
+        "timedOut": false,
+        "totalSeconds": 0.0043742909999995305
+      }
+    ],
+    "successfulSamples": 7,
+    "totalProcessSeconds": {
+      "coefficientOfVariation": 0.031111744917475627,
+      "count": 7,
+      "max": 0.0043742909999995305,
+      "mean": 0.004203797428571576,
+      "median": 0.004146541000000781,
+      "min": 0.0040311669999990585,
+      "p50": 0.004146541000000781,
+      "p99": 0.0043742909999995305,
+      "stdev": 0.00013078747328245884
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "command": [
+    "sysctl",
+    "-n",
+    "hw.ncpu"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "LC_ALL": "C"
+  },
+  "pid": 80213,
+  "status": 0,
+  "stdout": "12\n",
+  "stderr": ""
+}

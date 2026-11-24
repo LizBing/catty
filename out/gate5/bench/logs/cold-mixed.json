@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/mixed/attempt-0/app",
+    "cold"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "CATTY_TRACE": "",
+    "LC_ALL": "C"
+  },
+  "pid": 80486,
+  "status": 0,
+  "stdout": "CATTY-GATE5-BENCH\n1\nCOMMAND\ncold\nRESULT\n1534917405\n1024\napp\nEND\n0\n",
+  "stderr": ""
+}

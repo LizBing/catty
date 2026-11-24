@@ -1,0 +1,16 @@
+{
+  "command": [
+    "jar",
+    "--version"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "LC_ALL": "C"
+  },
+  "pid": 79998,
+  "status": 0,
+  "stdout": "jar 21.0.13.1\n",
+  "stderr": ""
+}

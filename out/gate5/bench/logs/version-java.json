@@ -1,0 +1,16 @@
+{
+  "command": [
+    "java",
+    "-version"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "LC_ALL": "C"
+  },
+  "pid": 79995,
+  "status": 0,
+  "stdout": "",
+  "stderr": "openjdk version \"21.0.13.1\" 2026-11-17 LTS\nOpenJDK Runtime Environment Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS)\nOpenJDK 64-Bit Server VM Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS, mixed mode, sharing)\n"
+}

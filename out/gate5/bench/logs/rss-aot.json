@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/aot/attempt-0/app",
+    "rss"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "CATTY_TRACE": "",
+    "LC_ALL": "C"
+  },
+  "pid": 80497,
+  "status": 0,
+  "stdout": "CATTY-GATE5-BENCH\n1\nCOMMAND\nrss\nCHECK\nmemory-alloc\n-1598656455\nCHECK\nshared-1\n174057529\nCHECK\nshared-4\n-130890666\nCHECK\nmonitor\n131072\nWORK\n4096\nCHECK\nring-live\n1085734912\nEND\n0\n",
+  "stderr": ""
+}

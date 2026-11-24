@@ -1,0 +1,189 @@
+{
+  "classDirectory": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+  "classDirectoryDigest": "f357f7e1a0a8b76b0a7a04e19c4b7229a426b30cadd3a8bdefa9b3ff2be2ae18",
+  "classManifestSha256": "01828da24d10ddd1ab23fb7c0647e31491e94f5820b2eefef7f25720d12ab70d",
+  "classes": [
+    {
+      "bytes": 8030,
+      "path": "gate5bench/Bench.class",
+      "sha256": "c02c1ee148845271f804e392e23ea5b5b7bacc201b51114737e947f37bf7af5a"
+    },
+    {
+      "bytes": 426,
+      "path": "gate5bench/Callback.class",
+      "sha256": "957d61916d34aae73f6e4d337b3420659e317b096a7da4fbf28f4c14fd6e7582"
+    },
+    {
+      "bytes": 513,
+      "path": "gate5bench/Calls$Alpha.class",
+      "sha256": "776ea9893f88e78946fd839bfd905ce7b8fcdb9d139f2b4cf0f5ea093bffdfaf"
+    },
+    {
+      "bytes": 374,
+      "path": "gate5bench/Calls$Base.class",
+      "sha256": "7df062766feb098284201439cd8af77a0de4438b4aad2a4afcfca819f248a58f"
+    },
+    {
+      "bytes": 533,
+      "path": "gate5bench/Calls$Beta.class",
+      "sha256": "61935d63049c372722b28069d6c9ae6449b0754712fc5563a838d770f4329130"
+    },
+    {
+      "bytes": 1348,
+      "path": "gate5bench/Calls.class",
+      "sha256": "5ea48b25bf059cc2f34deaf5d23293f66842e6c611b2ccac406698254d2d0554"
+    },
+    {
+      "bytes": 279,
+      "path": "gate5bench/Cell.class",
+      "sha256": "8a081c1b0bdbd85bbfcdd0a5ac6518de78034c824446c5f1af625d504d41f31c"
+    },
+    {
+      "bytes": 321,
+      "path": "gate5bench/Escape.class",
+      "sha256": "5ad14b04961917ed28f0359ab3328bd6ac68b6a105633fc3c4868960a1060aa1"
+    },
+    {
+      "bytes": 418,
+      "path": "gate5bench/Hot.class",
+      "sha256": "e10026cd474de92fba3eac4431cd6819c39b61ced457f43f90d9061129064d45"
+    },
+    {
+      "bytes": 1065,
+      "path": "gate5bench/Main.class",
+      "sha256": "a90671968f80c4a8029cb993a3ada3defc418fae91903667a9a47d08affbaffe"
+    },
+    {
+      "bytes": 539,
+      "path": "gate5bench/Memory$Counter.class",
+      "sha256": "9becd175ecf3fde9794c14b719b70ab2db6aa64431eba5fe8edc65c7d922e6c9"
+    },
+    {
+      "bytes": 798,
+      "path": "gate5bench/Memory$MonitorWorker.class",
+      "sha256": "0473db7e1fa416946759eb43f5766fa1b80e969ce7d5334bf98a97ae34112a1b"
+    },
+    {
+      "bytes": 926,
+      "path": "gate5bench/Memory$SharedWorker.class",
+      "sha256": "412446d11123abb4ffbc910403e77736a258200bca0d4b6aecffb66e10ee9445"
+    },
+    {
+      "bytes": 3168,
+      "path": "gate5bench/Memory.class",
+      "sha256": "84c0ef71460528dc6e5dd1671bdca6f7fe73dc05ca32a09655fe52acf6c1fdf6"
+    },
+    {
+      "bytes": 334,
+      "path": "gate5bench/Node.class",
+      "sha256": "f44fb2457c8ddf26eb54ee415193fd6e62a93759284efdce175845ed97def7e6"
+    },
+    {
+      "bytes": 396,
+      "path": "gate5bench/ReflectTarget.class",
+      "sha256": "143b06ddc79e678bcb12a4c78793d931683aff84df6c7b6f15e691e30bda346d"
+    },
+    {
+      "bytes": 1547,
+      "path": "gate5bench/Reflection.class",
+      "sha256": "5c3a124989c702aa81efd7809a8c9ae04cfb1062d54a456efd153f249e06a17f"
+    },
+    {
+      "bytes": 880,
+      "path": "gate5bench/Report.class",
+      "sha256": "7048f256dac67e30ffe94d97e7944ed5786bdfedfbfb03b2249e8151a657d98b"
+    },
+    {
+      "bytes": 1747,
+      "path": "gate5bench/Retained.class",
+      "sha256": "dd1f49b66cac991b1a6f97fa5fdb789a2da62a429c9c75735abac70097908b0a"
+    },
+    {
+      "bytes": 1033,
+      "path": "gate5bench/Sizes.class",
+      "sha256": "094197d3671b1710e9d8f2a8f0a6b62395f6b381bea131c21e38b5562c92aff9"
+    },
+    {
+      "bytes": 1727,
+      "path": "gate5bench/Workload.class",
+      "sha256": "42ed5feb09c94f13da46c4c97164b2399f5da98c85a920f079f52ca31456b139"
+    }
+  ],
+  "sources": [
+    {
+      "bytes": 14080,
+      "path": "testdata/gate5/benchmark/gate5bench/Bench.java",
+      "sha256": "ede9468b4d23eaa8317a30553798476c320cd0257d53bed7dd35f1c8a66f9c73"
+    },
+    {
+      "bytes": 530,
+      "path": "testdata/gate5/benchmark/gate5bench/Callback.java",
+      "sha256": "fa7e9233eb0eb6111e1f0b6364e92bd2354eadcbfe7165d879769511099ee207"
+    },
+    {
+      "bytes": 1882,
+      "path": "testdata/gate5/benchmark/gate5bench/Calls.java",
+      "sha256": "fee3cc279830276abe90632636c2f8a3c7286857e05e5e4c21b95a3d9cbd1de1"
+    },
+    {
+      "bytes": 124,
+      "path": "testdata/gate5/benchmark/gate5bench/Cell.java",
+      "sha256": "40bb0e5b290f5b788b0e4bfb530443048db67fc3e7b855416e35622a2921bccd"
+    },
+    {
+      "bytes": 150,
+      "path": "testdata/gate5/benchmark/gate5bench/Escape.java",
+      "sha256": "098256c46b6e54d2a5e4859a48b61414fed1268a9b56f4c997d29ce1272a7c12"
+    },
+    {
+      "bytes": 412,
+      "path": "testdata/gate5/benchmark/gate5bench/Hot.java",
+      "sha256": "b2e02a1a7d0c957f3e778a67be09f15ab664b1450d98dcadee3249db159191e1"
+    },
+    {
+      "bytes": 1046,
+      "path": "testdata/gate5/benchmark/gate5bench/Main.java",
+      "sha256": "ba1ead5112709eb7b14104295e1f8803cbb41e6396323f50de73d81b66693b7d"
+    },
+    {
+      "bytes": 5490,
+      "path": "testdata/gate5/benchmark/gate5bench/Memory.java",
+      "sha256": "361f115ec6c8a7ad6d2874bb3ca358a02670fce394bbd1037063742f04ff8c71"
+    },
+    {
+      "bytes": 173,
+      "path": "testdata/gate5/benchmark/gate5bench/Node.java",
+      "sha256": "1ad4f5a10633e4d83eddd41611b99442824f6ee5572bcb13257b6fdb9952cf85"
+    },
+    {
+      "bytes": 222,
+      "path": "testdata/gate5/benchmark/gate5bench/ReflectTarget.java",
+      "sha256": "68f8f05fbf5ff42ebce034648a41a6c39ecc3cd1d9ac59d3b6eb8633d04fc203"
+    },
+    {
+      "bytes": 1561,
+      "path": "testdata/gate5/benchmark/gate5bench/Reflection.java",
+      "sha256": "77c46eb74d5f1815fc2dd554cc95766ed93695937a8112028732a6a38433da9e"
+    },
+    {
+      "bytes": 991,
+      "path": "testdata/gate5/benchmark/gate5bench/Report.java",
+      "sha256": "cd54281d02a665fa2c3d0c4684705c15873ca2d7542814296d27c1b4e4a93101"
+    },
+    {
+      "bytes": 1879,
+      "path": "testdata/gate5/benchmark/gate5bench/Retained.java",
+      "sha256": "9dc01d9e5e27b98805128080d2fa34a644d08bcc77bf82be4bd70382af62b688"
+    },
+    {
+      "bytes": 1525,
+      "path": "testdata/gate5/benchmark/gate5bench/Sizes.java",
+      "sha256": "fe1a8a02aa5bd9f0e0c18affc1aa21aa677e34838109c1743a199cc2a27ff77b"
+    },
+    {
+      "bytes": 2607,
+      "path": "testdata/gate5/benchmark/gate5bench/Workload.java",
+      "sha256": "827bf04f8ffc52953f812eec1db6568574e23499719be26ad9016dfd97b27039"
+    }
+  ]
+}

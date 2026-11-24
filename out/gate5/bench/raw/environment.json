@@ -1,0 +1,86 @@
+{
+  "benchmark": {
+    "batchesPerProcess": 30,
+    "buildRepeatsPerMode": 3,
+    "configs": [
+      "java",
+      "interp",
+      "mixed",
+      "aot"
+    ],
+    "executionOrderPolicy": "configurations interleaved by rotating order per sample",
+    "mode": "full",
+    "normalizedMetric": "batch elapsed System.nanoTime() divided by the batch's documented operation count; not individual operation latency",
+    "processesPerConfig": 7,
+    "quantileMethod": "nearest-rank over the ascending pooled sample (index = ceil(p * n) - 1, clamped to [0, n-1])",
+    "warmupBatches": 10
+  },
+  "jvm": {
+    "flags": [
+      "-Xms256m",
+      "-Xmx256m",
+      "-XX:+UseSerialGC"
+    ],
+    "retainedGcLogging": "-Xlog:gc:file=<path> (retained-graph runs only)",
+    "verifyClasses": "java -Xverify:all (correctness oracle only, never a timed run)"
+  },
+  "platform": {
+    "cpu": {
+      "hw.memsize": "34359738368",
+      "hw.model": "Mac18,5",
+      "hw.ncpu": "12",
+      "machdep.cpu.brand_string": "Apple M6"
+    },
+    "executable": "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "logicalCpuCount": 12,
+    "machine": "arm64",
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "python": "3.9.6",
+    "release": "27.0.0",
+    "system": "Darwin",
+    "version": "Darwin Kernel Version 27.0.0: Tue Aug 11 21:06:15 PDT 2026; root:xnu-13432.1.9~1/RELEASE_ARM64_T8152"
+  },
+  "processEnvironment": {
+    "CGO_ENABLED": "",
+    "GOCACHE": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/go-cache",
+    "GOCACHEPolicy": "suite work-directory cache; the first builder run compiles the Go runtime and dependencies, later runs reuse the cache",
+    "GOFLAGS": "",
+    "GOGC": "",
+    "GOGCMeaning": "empty means the Go default (100)",
+    "GOMAXPROCS": "",
+    "GOMAXPROCSMeaning": "empty means the Go runtime default (logical CPU count)",
+    "GOMEMLIMIT": "",
+    "GOMEMLIMITMeaning": "empty means unlimited",
+    "LC_ALL": "C",
+    "timedRunExclusions": [
+      "CATTY_TRACE",
+      "CATTY_METRICS",
+      "GORACE",
+      "GC logging"
+    ]
+  },
+  "repository": {
+    "branch": "codex/gate-5",
+    "dirty": false,
+    "revision": "7469e36c0ec954d94f793962e065ab9f7ec956cc",
+    "root": "/Users/services/Projects/catty",
+    "statusPorcelain": [],
+    "statusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "toolchains": {
+    "go": "go version go1.27.1 darwin/arm64",
+    "goEnv": {
+      "CGO_ENABLED": "1",
+      "GOARCH": "arm64",
+      "GOCACHE": "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/go-cache",
+      "GODEBUG": "",
+      "GOEXPERIMENT": "",
+      "GOFLAGS": "",
+      "GOMAXPROCS": "",
+      "GOOS": "darwin",
+      "GOVERSION": "go1.27.1"
+    },
+    "java": "openjdk version \"21.0.13.1\" 2026-11-17 LTS\nOpenJDK Runtime Environment Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS)\nOpenJDK 64-Bit Server VM Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS, mixed mode, sharing)",
+    "javac": "javac 21.0.13.1"
+  }
+}

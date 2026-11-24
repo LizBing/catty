@@ -1,0 +1,19 @@
+{
+  "command": [
+    "git",
+    "-C",
+    "/Users/services/Projects/catty",
+    "rev-parse",
+    "HEAD"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "LC_ALL": "C"
+  },
+  "pid": 80196,
+  "status": 0,
+  "stdout": "7469e36c0ec954d94f793962e065ab9f7ec956cc\n",
+  "stderr": ""
+}

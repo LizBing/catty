@@ -1,0 +1,10 @@
+{
+  "methods": [
+    {
+      "descriptor": "(II)I",
+      "engine": "interp",
+      "name": "mix",
+      "owner": "gate5bench/Hot"
+    }
+  ]
+}

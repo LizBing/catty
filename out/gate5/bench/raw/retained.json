@@ -1,0 +1,1027 @@
+{
+  "aot": {
+    "collectionConfirmed": true,
+    "heapAfterBytes": {
+      "coefficientOfVariation": 0.0003832295780557743,
+      "count": 7,
+      "max": 6696976,
+      "mean": 6693036.571428572,
+      "median": 6691848,
+      "min": 6691048,
+      "p50": 6691848,
+      "p99": 6696976,
+      "stdev": 2564.969581180438
+    },
+    "heapMetric": {
+      "collectionConfirmed": true,
+      "heapAllocBytes": 6701184,
+      "numGC": 3,
+      "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+      "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+      "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+      "totalAllocBytes": 7214056,
+      "units": "bytes"
+    },
+    "peakRssBytes": {
+      "coefficientOfVariation": 0.003844990665146238,
+      "count": 7,
+      "max": 15368192,
+      "mean": 15307337.142857144,
+      "median": 15319040,
+      "min": 15220736,
+      "p50": 15319040,
+      "p99": 15368192,
+      "stdev": 58856.568422532
+    },
+    "requestedSamples": 7,
+    "retainedItems": 12000,
+    "samples": [
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/aot/attempt-0/app",
+          "retained"
+        ],
+        "config": "aot",
+        "failure": null,
+        "heapAfterBytes": 6691160,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "heapAllocBytes": 6701184,
+          "numGC": 3,
+          "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+          "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+          "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+          "totalAllocBytes": 7214056,
+          "units": "bytes"
+        },
+        "peakRssBytes": 15319040,
+        "peakRssRaw": 15319040,
+        "peakRssUnits": "bytes",
+        "pid": 80579,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 0,
+        "status": "ok",
+        "wallSeconds": 0.02118550000000141
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/aot/attempt-0/app",
+          "retained"
+        ],
+        "config": "aot",
+        "failure": null,
+        "heapAfterBytes": 6691048,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "heapAllocBytes": 6701072,
+          "numGC": 3,
+          "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+          "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+          "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+          "totalAllocBytes": 7213944,
+          "units": "bytes"
+        },
+        "peakRssBytes": 15368192,
+        "peakRssRaw": 15368192,
+        "peakRssUnits": "bytes",
+        "pid": 80586,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 1,
+        "status": "ok",
+        "wallSeconds": 0.021477499999999594
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/aot/attempt-0/app",
+          "retained"
+        ],
+        "config": "aot",
+        "failure": null,
+        "heapAfterBytes": 6692008,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "heapAllocBytes": 6702032,
+          "numGC": 3,
+          "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+          "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+          "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+          "totalAllocBytes": 7214904,
+          "units": "bytes"
+        },
+        "peakRssBytes": 15237120,
+        "peakRssRaw": 15237120,
+        "peakRssUnits": "bytes",
+        "pid": 80593,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 2,
+        "status": "ok",
+        "wallSeconds": 0.021418624999999025
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/aot/attempt-0/app",
+          "retained"
+        ],
+        "config": "aot",
+        "failure": null,
+        "heapAfterBytes": 6696528,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "heapAllocBytes": 6706552,
+          "numGC": 3,
+          "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+          "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+          "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+          "totalAllocBytes": 7219424,
+          "units": "bytes"
+        },
+        "peakRssBytes": 15302656,
+        "peakRssRaw": 15302656,
+        "peakRssUnits": "bytes",
+        "pid": 80600,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 3,
+        "status": "ok",
+        "wallSeconds": 0.022574375000001368
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/aot/attempt-0/app",
+          "retained"
+        ],
+        "config": "aot",
+        "failure": null,
+        "heapAfterBytes": 6691848,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "heapAllocBytes": 6701872,
+          "numGC": 3,
+          "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+          "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+          "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+          "totalAllocBytes": 7214744,
+          "units": "bytes"
+        },
+        "peakRssBytes": 15335424,
+        "peakRssRaw": 15335424,
+        "peakRssUnits": "bytes",
+        "pid": 80611,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 4,
+        "status": "ok",
+        "wallSeconds": 0.02197966700000009
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/aot/attempt-0/app",
+          "retained"
+        ],
+        "config": "aot",
+        "failure": null,
+        "heapAfterBytes": 6696976,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "heapAllocBytes": 6707000,
+          "numGC": 3,
+          "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+          "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+          "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+          "totalAllocBytes": 7219872,
+          "units": "bytes"
+        },
+        "peakRssBytes": 15368192,
+        "peakRssRaw": 15368192,
+        "peakRssUnits": "bytes",
+        "pid": 80618,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 5,
+        "status": "ok",
+        "wallSeconds": 0.02208299999999852
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/aot/attempt-0/app",
+          "retained"
+        ],
+        "config": "aot",
+        "failure": null,
+        "heapAfterBytes": 6691688,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "heapAllocBytes": 6701712,
+          "numGC": 3,
+          "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+          "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+          "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+          "totalAllocBytes": 7214584,
+          "units": "bytes"
+        },
+        "peakRssBytes": 15220736,
+        "peakRssRaw": 15220736,
+        "peakRssUnits": "bytes",
+        "pid": 80625,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 6,
+        "status": "ok",
+        "wallSeconds": 0.021783042000002695
+      }
+    ],
+    "successfulSamples": 7
+  },
+  "interp": {
+    "collectionConfirmed": true,
+    "heapAfterBytes": {
+      "coefficientOfVariation": 0.00038597911110219217,
+      "count": 7,
+      "max": 6985512,
+      "mean": 6983612.571428572,
+      "median": 6985032,
+      "min": 6979552,
+      "p50": 6985032,
+      "p99": 6985512,
+      "stdev": 2695.5285726020948
+    },
+    "heapMetric": {
+      "collectionConfirmed": true,
+      "heapAllocBytes": 7000456,
+      "numGC": 4,
+      "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+      "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+      "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+      "totalAllocBytes": 10258392,
+      "units": "bytes"
+    },
+    "peakRssBytes": {
+      "coefficientOfVariation": 0.007757900499721456,
+      "count": 7,
+      "max": 17596416,
+      "mean": 17409170.285714287,
+      "median": 17432576,
+      "min": 17154048,
+      "p50": 17432576,
+      "p99": 17596416,
+      "stdev": 135058.6108592788
+    },
+    "requestedSamples": 7,
+    "retainedItems": 12000,
+    "samples": [
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/interp/attempt-0/app",
+          "retained"
+        ],
+        "config": "interp",
+        "failure": null,
+        "heapAfterBytes": 6985192,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "heapAllocBytes": 7000456,
+          "numGC": 4,
+          "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+          "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+          "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+          "totalAllocBytes": 10258392,
+          "units": "bytes"
+        },
+        "peakRssBytes": 17154048,
+        "peakRssRaw": 17154048,
+        "peakRssUnits": "bytes",
+        "pid": 80577,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 0,
+        "status": "ok",
+        "wallSeconds": 0.03731291599999764
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/interp/attempt-0/app",
+          "retained"
+        ],
+        "config": "interp",
+        "failure": null,
+        "heapAfterBytes": 6979552,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "heapAllocBytes": 6994816,
+          "numGC": 4,
+          "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+          "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+          "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+          "totalAllocBytes": 10252752,
+          "units": "bytes"
+        },
+        "peakRssBytes": 17383424,
+        "peakRssRaw": 17383424,
+        "peakRssUnits": "bytes",
+        "pid": 80584,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 1,
+        "status": "ok",
+        "wallSeconds": 0.03666270800000149
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/interp/attempt-0/app",
+          "retained"
+        ],
+        "config": "interp",
+        "failure": null,
+        "heapAfterBytes": 6985032,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "heapAllocBytes": 7000296,
+          "numGC": 4,
+          "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+          "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+          "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+          "totalAllocBytes": 10258232,
+          "units": "bytes"
+        },
+        "peakRssBytes": 17465344,
+        "peakRssRaw": 17465344,
+        "peakRssUnits": "bytes",
+        "pid": 80595,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 2,
+        "status": "ok",
+        "wallSeconds": 0.034453540999997756
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/interp/attempt-0/app",
+          "retained"
+        ],
+        "config": "interp",
+        "failure": null,
+        "heapAfterBytes": 6985464,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "heapAllocBytes": 7000744,
+          "numGC": 4,
+          "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+          "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+          "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+          "totalAllocBytes": 10258680,
+          "units": "bytes"
+        },
+        "peakRssBytes": 17465344,
+        "peakRssRaw": 17465344,
+        "peakRssUnits": "bytes",
+        "pid": 80602,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 3,
+        "status": "ok",
+        "wallSeconds": 0.03741624999999971
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/interp/attempt-0/app",
+          "retained"
+        ],
+        "config": "interp",
+        "failure": null,
+        "heapAfterBytes": 6979824,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "heapAllocBytes": 6995104,
+          "numGC": 4,
+          "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+          "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+          "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+          "totalAllocBytes": 10253040,
+          "units": "bytes"
+        },
+        "peakRssBytes": 17367040,
+        "peakRssRaw": 17367040,
+        "peakRssUnits": "bytes",
+        "pid": 80609,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 4,
+        "status": "ok",
+        "wallSeconds": 0.038058457999998296
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/interp/attempt-0/app",
+          "retained"
+        ],
+        "config": "interp",
+        "failure": null,
+        "heapAfterBytes": 6985512,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "heapAllocBytes": 7000792,
+          "numGC": 4,
+          "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+          "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+          "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+          "totalAllocBytes": 10258728,
+          "units": "bytes"
+        },
+        "peakRssBytes": 17596416,
+        "peakRssRaw": 17596416,
+        "peakRssUnits": "bytes",
+        "pid": 80616,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 5,
+        "status": "ok",
+        "wallSeconds": 0.03814116699999914
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/interp/attempt-0/app",
+          "retained"
+        ],
+        "config": "interp",
+        "failure": null,
+        "heapAfterBytes": 6984712,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "heapAllocBytes": 6999976,
+          "numGC": 4,
+          "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+          "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+          "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+          "totalAllocBytes": 10257912,
+          "units": "bytes"
+        },
+        "peakRssBytes": 17432576,
+        "peakRssRaw": 17432576,
+        "peakRssUnits": "bytes",
+        "pid": 80627,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 6,
+        "status": "ok",
+        "wallSeconds": 0.032187708999998677
+      }
+    ],
+    "successfulSamples": 7
+  },
+  "java": {
+    "collectionConfirmed": true,
+    "heapAfterBytes": {
+      "coefficientOfVariation": 0.0,
+      "count": 7,
+      "max": 1048576,
+      "mean": 1048576.0,
+      "median": 1048576,
+      "min": 1048576,
+      "p50": 1048576,
+      "p99": 1048576,
+      "stdev": 0.0
+    },
+    "heapMetric": {
+      "collectionConfirmed": true,
+      "rawLine": "[0.012s][info][gc] GC(0) Pause Full (System.gc()) 6M->1M(247M) 0.888ms",
+      "scope": "OpenJDK Java heap occupancy after the explicit collection",
+      "source": "OpenJDK -Xlog:gc:file, Pause Full (System.gc()) heap-after field",
+      "units": "MiB in the log; heapAfterBytes converted *1024*1024"
+    },
+    "peakRssBytes": {
+      "coefficientOfVariation": 0.0008816894175988102,
+      "count": 7,
+      "max": 42778624,
+      "mean": 42722450.28571428,
+      "median": 42713088,
+      "min": 42663936,
+      "p50": 42713088,
+      "p99": 42778624,
+      "stdev": 37667.93231080555
+    },
+    "requestedSamples": 7,
+    "retainedItems": 12000,
+    "samples": [
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "java",
+          "-Xms256m",
+          "-Xmx256m",
+          "-XX:+UseSerialGC",
+          "-Xlog:gc:file=/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/child/retained-java-0.gc.log",
+          "-cp",
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+          "gate5bench.Main",
+          "retained"
+        ],
+        "config": "java",
+        "failure": null,
+        "heapAfterBytes": 1048576,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "rawLine": "[0.012s][info][gc] GC(0) Pause Full (System.gc()) 6M->1M(247M) 0.888ms",
+          "scope": "OpenJDK Java heap occupancy after the explicit collection",
+          "source": "OpenJDK -Xlog:gc:file, Pause Full (System.gc()) heap-after field",
+          "units": "MiB in the log; heapAfterBytes converted *1024*1024"
+        },
+        "peakRssBytes": 42745856,
+        "peakRssRaw": 42745856,
+        "peakRssUnits": "bytes",
+        "pid": 80576,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 0,
+        "status": "ok",
+        "wallSeconds": 0.038796791999999414
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "java",
+          "-Xms256m",
+          "-Xmx256m",
+          "-XX:+UseSerialGC",
+          "-Xlog:gc:file=/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/child/retained-java-1.gc.log",
+          "-cp",
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+          "gate5bench.Main",
+          "retained"
+        ],
+        "config": "java",
+        "failure": null,
+        "heapAfterBytes": 1048576,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "rawLine": "[0.012s][info][gc] GC(0) Pause Full (System.gc()) 6M->1M(247M) 0.885ms",
+          "scope": "OpenJDK Java heap occupancy after the explicit collection",
+          "source": "OpenJDK -Xlog:gc:file, Pause Full (System.gc()) heap-after field",
+          "units": "MiB in the log; heapAfterBytes converted *1024*1024"
+        },
+        "peakRssBytes": 42713088,
+        "peakRssRaw": 42713088,
+        "peakRssUnits": "bytes",
+        "pid": 80587,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 1,
+        "status": "ok",
+        "wallSeconds": 0.03893495800000224
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "java",
+          "-Xms256m",
+          "-Xmx256m",
+          "-XX:+UseSerialGC",
+          "-Xlog:gc:file=/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/child/retained-java-2.gc.log",
+          "-cp",
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+          "gate5bench.Main",
+          "retained"
+        ],
+        "config": "java",
+        "failure": null,
+        "heapAfterBytes": 1048576,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "rawLine": "[0.012s][info][gc] GC(0) Pause Full (System.gc()) 6M->1M(247M) 0.906ms",
+          "scope": "OpenJDK Java heap occupancy after the explicit collection",
+          "source": "OpenJDK -Xlog:gc:file, Pause Full (System.gc()) heap-after field",
+          "units": "MiB in the log; heapAfterBytes converted *1024*1024"
+        },
+        "peakRssBytes": 42663936,
+        "peakRssRaw": 42663936,
+        "peakRssUnits": "bytes",
+        "pid": 80594,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 2,
+        "status": "ok",
+        "wallSeconds": 0.023820666999998963
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "java",
+          "-Xms256m",
+          "-Xmx256m",
+          "-XX:+UseSerialGC",
+          "-Xlog:gc:file=/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/child/retained-java-3.gc.log",
+          "-cp",
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+          "gate5bench.Main",
+          "retained"
+        ],
+        "config": "java",
+        "failure": null,
+        "heapAfterBytes": 1048576,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "rawLine": "[0.012s][info][gc] GC(0) Pause Full (System.gc()) 6M->1M(247M) 0.878ms",
+          "scope": "OpenJDK Java heap occupancy after the explicit collection",
+          "source": "OpenJDK -Xlog:gc:file, Pause Full (System.gc()) heap-after field",
+          "units": "MiB in the log; heapAfterBytes converted *1024*1024"
+        },
+        "peakRssBytes": 42713088,
+        "peakRssRaw": 42713088,
+        "peakRssUnits": "bytes",
+        "pid": 80601,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 3,
+        "status": "ok",
+        "wallSeconds": 0.03882904099999962
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "java",
+          "-Xms256m",
+          "-Xmx256m",
+          "-XX:+UseSerialGC",
+          "-Xlog:gc:file=/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/child/retained-java-4.gc.log",
+          "-cp",
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+          "gate5bench.Main",
+          "retained"
+        ],
+        "config": "java",
+        "failure": null,
+        "heapAfterBytes": 1048576,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "rawLine": "[0.012s][info][gc] GC(0) Pause Full (System.gc()) 6M->1M(247M) 0.856ms",
+          "scope": "OpenJDK Java heap occupancy after the explicit collection",
+          "source": "OpenJDK -Xlog:gc:file, Pause Full (System.gc()) heap-after field",
+          "units": "MiB in the log; heapAfterBytes converted *1024*1024"
+        },
+        "peakRssBytes": 42778624,
+        "peakRssRaw": 42778624,
+        "peakRssUnits": "bytes",
+        "pid": 80608,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 4,
+        "status": "ok",
+        "wallSeconds": 0.039077958000000024
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "java",
+          "-Xms256m",
+          "-Xmx256m",
+          "-XX:+UseSerialGC",
+          "-Xlog:gc:file=/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/child/retained-java-5.gc.log",
+          "-cp",
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+          "gate5bench.Main",
+          "retained"
+        ],
+        "config": "java",
+        "failure": null,
+        "heapAfterBytes": 1048576,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "rawLine": "[0.012s][info][gc] GC(0) Pause Full (System.gc()) 6M->1M(247M) 0.835ms",
+          "scope": "OpenJDK Java heap occupancy after the explicit collection",
+          "source": "OpenJDK -Xlog:gc:file, Pause Full (System.gc()) heap-after field",
+          "units": "MiB in the log; heapAfterBytes converted *1024*1024"
+        },
+        "peakRssBytes": 42745856,
+        "peakRssRaw": 42745856,
+        "peakRssUnits": "bytes",
+        "pid": 80619,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 5,
+        "status": "ok",
+        "wallSeconds": 0.023779874999998896
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "java",
+          "-Xms256m",
+          "-Xmx256m",
+          "-XX:+UseSerialGC",
+          "-Xlog:gc:file=/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/child/retained-java-6.gc.log",
+          "-cp",
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+          "gate5bench.Main",
+          "retained"
+        ],
+        "config": "java",
+        "failure": null,
+        "heapAfterBytes": 1048576,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "rawLine": "[0.012s][info][gc] GC(0) Pause Full (System.gc()) 6M->1M(247M) 0.868ms",
+          "scope": "OpenJDK Java heap occupancy after the explicit collection",
+          "source": "OpenJDK -Xlog:gc:file, Pause Full (System.gc()) heap-after field",
+          "units": "MiB in the log; heapAfterBytes converted *1024*1024"
+        },
+        "peakRssBytes": 42696704,
+        "peakRssRaw": 42696704,
+        "peakRssUnits": "bytes",
+        "pid": 80626,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 6,
+        "status": "ok",
+        "wallSeconds": 0.03901254199999826
+      }
+    ],
+    "successfulSamples": 7
+  },
+  "mixed": {
+    "collectionConfirmed": true,
+    "heapAfterBytes": {
+      "coefficientOfVariation": 0.00035726915349171046,
+      "count": 7,
+      "max": 6702600,
+      "mean": 6697304.0,
+      "median": 6696640,
+      "min": 6695360,
+      "p50": 6696640,
+      "p99": 6702600,
+      "stdev": 2392.7401307566465
+    },
+    "heapMetric": {
+      "collectionConfirmed": true,
+      "heapAllocBytes": 6712624,
+      "numGC": 3,
+      "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+      "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+      "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+      "totalAllocBytes": 7227864,
+      "units": "bytes"
+    },
+    "peakRssBytes": {
+      "coefficientOfVariation": 0.005694231837962831,
+      "count": 7,
+      "max": 15515648,
+      "mean": 15354148.57142857,
+      "median": 15351808,
+      "min": 15253504,
+      "p50": 15351808,
+      "p99": 15515648,
+      "stdev": 87430.0816402401
+    },
+    "requestedSamples": 7,
+    "retainedItems": 12000,
+    "samples": [
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/mixed/attempt-0/app",
+          "retained"
+        ],
+        "config": "mixed",
+        "failure": null,
+        "heapAfterBytes": 6702600,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "heapAllocBytes": 6712624,
+          "numGC": 3,
+          "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+          "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+          "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+          "totalAllocBytes": 7227864,
+          "units": "bytes"
+        },
+        "peakRssBytes": 15515648,
+        "peakRssRaw": 15515648,
+        "peakRssUnits": "bytes",
+        "pid": 80578,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 0,
+        "status": "ok",
+        "wallSeconds": 0.02162033299999777
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/mixed/attempt-0/app",
+          "retained"
+        ],
+        "config": "mixed",
+        "failure": null,
+        "heapAfterBytes": 6695360,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "heapAllocBytes": 6705384,
+          "numGC": 3,
+          "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+          "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+          "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+          "totalAllocBytes": 7220624,
+          "units": "bytes"
+        },
+        "peakRssBytes": 15400960,
+        "peakRssRaw": 15400960,
+        "peakRssUnits": "bytes",
+        "pid": 80585,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 1,
+        "status": "ok",
+        "wallSeconds": 0.0215368749999989
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/mixed/attempt-0/app",
+          "retained"
+        ],
+        "config": "mixed",
+        "failure": null,
+        "heapAfterBytes": 6696960,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "heapAllocBytes": 6706984,
+          "numGC": 3,
+          "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+          "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+          "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+          "totalAllocBytes": 7222224,
+          "units": "bytes"
+        },
+        "peakRssBytes": 15269888,
+        "peakRssRaw": 15269888,
+        "peakRssUnits": "bytes",
+        "pid": 80592,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 2,
+        "status": "ok",
+        "wallSeconds": 0.022645125000000377
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/mixed/attempt-0/app",
+          "retained"
+        ],
+        "config": "mixed",
+        "failure": null,
+        "heapAfterBytes": 6696288,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "heapAllocBytes": 6706312,
+          "numGC": 3,
+          "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+          "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+          "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+          "totalAllocBytes": 7221552,
+          "units": "bytes"
+        },
+        "peakRssBytes": 15253504,
+        "peakRssRaw": 15253504,
+        "peakRssUnits": "bytes",
+        "pid": 80603,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 3,
+        "status": "ok",
+        "wallSeconds": 0.021428916000001408
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/mixed/attempt-0/app",
+          "retained"
+        ],
+        "config": "mixed",
+        "failure": null,
+        "heapAfterBytes": 6696640,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "heapAllocBytes": 6706664,
+          "numGC": 3,
+          "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+          "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+          "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+          "totalAllocBytes": 7221904,
+          "units": "bytes"
+        },
+        "peakRssBytes": 15351808,
+        "peakRssRaw": 15351808,
+        "peakRssUnits": "bytes",
+        "pid": 80610,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 4,
+        "status": "ok",
+        "wallSeconds": 0.021637625000000327
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/mixed/attempt-0/app",
+          "retained"
+        ],
+        "config": "mixed",
+        "failure": null,
+        "heapAfterBytes": 6696480,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "heapAllocBytes": 6706504,
+          "numGC": 3,
+          "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+          "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+          "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+          "totalAllocBytes": 7221744,
+          "units": "bytes"
+        },
+        "peakRssBytes": 15351808,
+        "peakRssRaw": 15351808,
+        "peakRssUnits": "bytes",
+        "pid": 80617,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 5,
+        "status": "ok",
+        "wallSeconds": 0.021311665999999008
+      },
+      {
+        "collectionConfirmed": true,
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/mixed/attempt-0/app",
+          "retained"
+        ],
+        "config": "mixed",
+        "failure": null,
+        "heapAfterBytes": 6696800,
+        "heapMetric": {
+          "collectionConfirmed": true,
+          "heapAllocBytes": 6706824,
+          "numGC": 3,
+          "scope": "Catty live Go-managed heap after Runtime.gc(), including runtime structures",
+          "scopeLabel": "live Go-managed heap observed immediately after Runtime.gc()",
+          "source": "CATTY_METRICS goRuntime.postGCHeapBytes",
+          "totalAllocBytes": 7222064,
+          "units": "bytes"
+        },
+        "peakRssBytes": 15335424,
+        "peakRssRaw": 15335424,
+        "peakRssUnits": "bytes",
+        "pid": 80624,
+        "retainedItems": 12000,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 6,
+        "status": "ok",
+        "wallSeconds": 0.021341708999997877
+      }
+    ],
+    "successfulSamples": 7
+  }
+}

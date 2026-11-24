@@ -1,0 +1,644 @@
+{
+  "aot": {
+    "peakRss": {
+      "coefficientOfVariation": 0.00431219379681394,
+      "count": 7,
+      "max": 26574848,
+      "mean": 26401645.714285713,
+      "median": 26411008,
+      "min": 26230784,
+      "p50": 26411008,
+      "p99": 26574848,
+      "stdev": 113849.01287482219
+    },
+    "peakRssMiB": {
+      "coefficientOfVariation": 0.00431219379681394,
+      "count": 7,
+      "max": 25.34375,
+      "mean": 25.178571428571427,
+      "median": 25.1875,
+      "min": 25.015625,
+      "p50": 25.1875,
+      "p99": 25.34375,
+      "stdev": 0.10857487952692241
+    },
+    "requestedSamples": 7,
+    "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+    "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+    "rssUnits": "bytes",
+    "samples": [
+      {
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/aot/attempt-0/app",
+          "rss"
+        ],
+        "config": "aot",
+        "failure": null,
+        "peakRssBytes": 26230784,
+        "peakRssRaw": 26230784,
+        "peakRssUnits": "bytes",
+        "pid": 80575,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 0,
+        "status": "ok",
+        "wallSeconds": 0.042321916999998876
+      },
+      {
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/aot/attempt-0/app",
+          "rss"
+        ],
+        "config": "aot",
+        "failure": null,
+        "peakRssBytes": 26361856,
+        "peakRssRaw": 26361856,
+        "peakRssUnits": "bytes",
+        "pid": 80582,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 1,
+        "status": "ok",
+        "wallSeconds": 0.04224849999999947
+      },
+      {
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/aot/attempt-0/app",
+          "rss"
+        ],
+        "config": "aot",
+        "failure": null,
+        "peakRssBytes": 26427392,
+        "peakRssRaw": 26427392,
+        "peakRssUnits": "bytes",
+        "pid": 80589,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 2,
+        "status": "ok",
+        "wallSeconds": 0.041311666999998664
+      },
+      {
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/aot/attempt-0/app",
+          "rss"
+        ],
+        "config": "aot",
+        "failure": null,
+        "peakRssBytes": 26312704,
+        "peakRssRaw": 26312704,
+        "peakRssUnits": "bytes",
+        "pid": 80596,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 3,
+        "status": "ok",
+        "wallSeconds": 0.04115737499999739
+      },
+      {
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/aot/attempt-0/app",
+          "rss"
+        ],
+        "config": "aot",
+        "failure": null,
+        "peakRssBytes": 26411008,
+        "peakRssRaw": 26411008,
+        "peakRssUnits": "bytes",
+        "pid": 80607,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 4,
+        "status": "ok",
+        "wallSeconds": 0.04171424999999829
+      },
+      {
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/aot/attempt-0/app",
+          "rss"
+        ],
+        "config": "aot",
+        "failure": null,
+        "peakRssBytes": 26492928,
+        "peakRssRaw": 26492928,
+        "peakRssUnits": "bytes",
+        "pid": 80614,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 5,
+        "status": "ok",
+        "wallSeconds": 0.04465179099999972
+      },
+      {
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/aot/attempt-0/app",
+          "rss"
+        ],
+        "config": "aot",
+        "failure": null,
+        "peakRssBytes": 26574848,
+        "peakRssRaw": 26574848,
+        "peakRssUnits": "bytes",
+        "pid": 80621,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 6,
+        "status": "ok",
+        "wallSeconds": 0.04188458399999817
+      }
+    ],
+    "successfulSamples": 7
+  },
+  "interp": {
+    "peakRss": {
+      "coefficientOfVariation": 0.007976352495459409,
+      "count": 7,
+      "max": 31227904,
+      "mean": 30762130.285714287,
+      "median": 30703616,
+      "min": 30556160,
+      "p50": 30703616,
+      "p99": 31227904,
+      "stdev": 245369.59467010462
+    },
+    "peakRssMiB": {
+      "coefficientOfVariation": 0.007976352495459409,
+      "count": 7,
+      "max": 29.78125,
+      "mean": 29.337053571428573,
+      "median": 29.28125,
+      "min": 29.140625,
+      "p50": 29.28125,
+      "p99": 29.78125,
+      "stdev": 0.23400268046389067
+    },
+    "requestedSamples": 7,
+    "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+    "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+    "rssUnits": "bytes",
+    "samples": [
+      {
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/interp/attempt-0/app",
+          "rss"
+        ],
+        "config": "interp",
+        "failure": null,
+        "peakRssBytes": 30834688,
+        "peakRssRaw": 30834688,
+        "peakRssUnits": "bytes",
+        "pid": 80573,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 0,
+        "status": "ok",
+        "wallSeconds": 0.05838862500000275
+      },
+      {
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/interp/attempt-0/app",
+          "rss"
+        ],
+        "config": "interp",
+        "failure": null,
+        "peakRssBytes": 31227904,
+        "peakRssRaw": 31227904,
+        "peakRssUnits": "bytes",
+        "pid": 80580,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 1,
+        "status": "ok",
+        "wallSeconds": 0.05556749999999866
+      },
+      {
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/interp/attempt-0/app",
+          "rss"
+        ],
+        "config": "interp",
+        "failure": null,
+        "peakRssBytes": 30572544,
+        "peakRssRaw": 30572544,
+        "peakRssUnits": "bytes",
+        "pid": 80591,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 2,
+        "status": "ok",
+        "wallSeconds": 0.05570175000000077
+      },
+      {
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/interp/attempt-0/app",
+          "rss"
+        ],
+        "config": "interp",
+        "failure": null,
+        "peakRssBytes": 30883840,
+        "peakRssRaw": 30883840,
+        "peakRssUnits": "bytes",
+        "pid": 80598,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 3,
+        "status": "ok",
+        "wallSeconds": 0.059275875000000866
+      },
+      {
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/interp/attempt-0/app",
+          "rss"
+        ],
+        "config": "interp",
+        "failure": null,
+        "peakRssBytes": 30703616,
+        "peakRssRaw": 30703616,
+        "peakRssUnits": "bytes",
+        "pid": 80605,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 4,
+        "status": "ok",
+        "wallSeconds": 0.055929750000000666
+      },
+      {
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/interp/attempt-0/app",
+          "rss"
+        ],
+        "config": "interp",
+        "failure": null,
+        "peakRssBytes": 30556160,
+        "peakRssRaw": 30556160,
+        "peakRssUnits": "bytes",
+        "pid": 80612,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 5,
+        "status": "ok",
+        "wallSeconds": 0.05530095800000012
+      },
+      {
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/interp/attempt-0/app",
+          "rss"
+        ],
+        "config": "interp",
+        "failure": null,
+        "peakRssBytes": 30556160,
+        "peakRssRaw": 30556160,
+        "peakRssUnits": "bytes",
+        "pid": 80623,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 6,
+        "status": "ok",
+        "wallSeconds": 0.05827758300000241
+      }
+    ],
+    "successfulSamples": 7
+  },
+  "java": {
+    "peakRss": {
+      "coefficientOfVariation": 0.0011006550275533067,
+      "count": 7,
+      "max": 43417600,
+      "mean": 43338020.571428575,
+      "median": 43335680,
+      "min": 43270144,
+      "p50": 43335680,
+      "p99": 43417600,
+      "stdev": 47700.210226151496
+    },
+    "peakRssMiB": {
+      "coefficientOfVariation": 0.0011006550275533067,
+      "count": 7,
+      "max": 41.40625,
+      "mean": 41.330357142857146,
+      "median": 41.328125,
+      "min": 41.265625,
+      "p50": 41.328125,
+      "p99": 41.40625,
+      "stdev": 0.04549046537985944
+    },
+    "requestedSamples": 7,
+    "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+    "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+    "rssUnits": "bytes",
+    "samples": [
+      {
+        "command": [
+          "java",
+          "-Xms256m",
+          "-Xmx256m",
+          "-XX:+UseSerialGC",
+          "-cp",
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+          "gate5bench.Main",
+          "rss"
+        ],
+        "config": "java",
+        "failure": null,
+        "peakRssBytes": 43335680,
+        "peakRssRaw": 43335680,
+        "peakRssUnits": "bytes",
+        "pid": 80572,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 0,
+        "status": "ok",
+        "wallSeconds": 0.024530125000001846
+      },
+      {
+        "command": [
+          "java",
+          "-Xms256m",
+          "-Xmx256m",
+          "-XX:+UseSerialGC",
+          "-cp",
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+          "gate5bench.Main",
+          "rss"
+        ],
+        "config": "java",
+        "failure": null,
+        "peakRssBytes": 43368448,
+        "peakRssRaw": 43368448,
+        "peakRssUnits": "bytes",
+        "pid": 80583,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 1,
+        "status": "ok",
+        "wallSeconds": 0.0240845419999971
+      },
+      {
+        "command": [
+          "java",
+          "-Xms256m",
+          "-Xmx256m",
+          "-XX:+UseSerialGC",
+          "-cp",
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+          "gate5bench.Main",
+          "rss"
+        ],
+        "config": "java",
+        "failure": null,
+        "peakRssBytes": 43417600,
+        "peakRssRaw": 43417600,
+        "peakRssUnits": "bytes",
+        "pid": 80590,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 2,
+        "status": "ok",
+        "wallSeconds": 0.02386845899999912
+      },
+      {
+        "command": [
+          "java",
+          "-Xms256m",
+          "-Xmx256m",
+          "-XX:+UseSerialGC",
+          "-cp",
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+          "gate5bench.Main",
+          "rss"
+        ],
+        "config": "java",
+        "failure": null,
+        "peakRssBytes": 43319296,
+        "peakRssRaw": 43319296,
+        "peakRssUnits": "bytes",
+        "pid": 80597,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 3,
+        "status": "ok",
+        "wallSeconds": 0.024058541999998795
+      },
+      {
+        "command": [
+          "java",
+          "-Xms256m",
+          "-Xmx256m",
+          "-XX:+UseSerialGC",
+          "-cp",
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+          "gate5bench.Main",
+          "rss"
+        ],
+        "config": "java",
+        "failure": null,
+        "peakRssBytes": 43302912,
+        "peakRssRaw": 43302912,
+        "peakRssUnits": "bytes",
+        "pid": 80604,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 4,
+        "status": "ok",
+        "wallSeconds": 0.023912708000001004
+      },
+      {
+        "command": [
+          "java",
+          "-Xms256m",
+          "-Xmx256m",
+          "-XX:+UseSerialGC",
+          "-cp",
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+          "gate5bench.Main",
+          "rss"
+        ],
+        "config": "java",
+        "failure": null,
+        "peakRssBytes": 43352064,
+        "peakRssRaw": 43352064,
+        "peakRssUnits": "bytes",
+        "pid": 80615,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 5,
+        "status": "ok",
+        "wallSeconds": 0.024120916000001102
+      },
+      {
+        "command": [
+          "java",
+          "-Xms256m",
+          "-Xmx256m",
+          "-XX:+UseSerialGC",
+          "-cp",
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+          "gate5bench.Main",
+          "rss"
+        ],
+        "config": "java",
+        "failure": null,
+        "peakRssBytes": 43270144,
+        "peakRssRaw": 43270144,
+        "peakRssUnits": "bytes",
+        "pid": 80622,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 6,
+        "status": "ok",
+        "wallSeconds": 0.024023834000001187
+      }
+    ],
+    "successfulSamples": 7
+  },
+  "mixed": {
+    "peakRss": {
+      "coefficientOfVariation": 0.004250250837198415,
+      "count": 7,
+      "max": 26574848,
+      "mean": 26427392.0,
+      "median": 26460160,
+      "min": 26279936,
+      "p50": 26460160,
+      "p99": 26574848,
+      "stdev": 112323.0449729707
+    },
+    "peakRssMiB": {
+      "coefficientOfVariation": 0.004250250837198415,
+      "count": 7,
+      "max": 25.34375,
+      "mean": 25.203125,
+      "median": 25.234375,
+      "min": 25.0625,
+      "p50": 25.234375,
+      "p99": 25.34375,
+      "stdev": 0.10711960313126631
+    },
+    "requestedSamples": 7,
+    "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+    "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+    "rssUnits": "bytes",
+    "samples": [
+      {
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/mixed/attempt-0/app",
+          "rss"
+        ],
+        "config": "mixed",
+        "failure": null,
+        "peakRssBytes": 26460160,
+        "peakRssRaw": 26460160,
+        "peakRssUnits": "bytes",
+        "pid": 80574,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 0,
+        "status": "ok",
+        "wallSeconds": 0.042686584000001915
+      },
+      {
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/mixed/attempt-0/app",
+          "rss"
+        ],
+        "config": "mixed",
+        "failure": null,
+        "peakRssBytes": 26411008,
+        "peakRssRaw": 26411008,
+        "peakRssUnits": "bytes",
+        "pid": 80581,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 1,
+        "status": "ok",
+        "wallSeconds": 0.04197070899999744
+      },
+      {
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/mixed/attempt-0/app",
+          "rss"
+        ],
+        "config": "mixed",
+        "failure": null,
+        "peakRssBytes": 26279936,
+        "peakRssRaw": 26279936,
+        "peakRssUnits": "bytes",
+        "pid": 80588,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 2,
+        "status": "ok",
+        "wallSeconds": 0.044407041999999564
+      },
+      {
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/mixed/attempt-0/app",
+          "rss"
+        ],
+        "config": "mixed",
+        "failure": null,
+        "peakRssBytes": 26509312,
+        "peakRssRaw": 26509312,
+        "peakRssUnits": "bytes",
+        "pid": 80599,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 3,
+        "status": "ok",
+        "wallSeconds": 0.041186957999997276
+      },
+      {
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/mixed/attempt-0/app",
+          "rss"
+        ],
+        "config": "mixed",
+        "failure": null,
+        "peakRssBytes": 26279936,
+        "peakRssRaw": 26279936,
+        "peakRssUnits": "bytes",
+        "pid": 80606,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 4,
+        "status": "ok",
+        "wallSeconds": 0.04206812500000012
+      },
+      {
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/mixed/attempt-0/app",
+          "rss"
+        ],
+        "config": "mixed",
+        "failure": null,
+        "peakRssBytes": 26574848,
+        "peakRssRaw": 26574848,
+        "peakRssUnits": "bytes",
+        "pid": 80613,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 5,
+        "status": "ok",
+        "wallSeconds": 0.044438542000001746
+      },
+      {
+        "command": [
+          "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/builds/mixed/attempt-0/app",
+          "rss"
+        ],
+        "config": "mixed",
+        "failure": null,
+        "peakRssBytes": 26476544,
+        "peakRssRaw": 26476544,
+        "peakRssUnits": "bytes",
+        "pid": 80620,
+        "rssMethod": "os.wait4 ru_maxrss (per-child high-water mark)",
+        "rssSource": "POSIX wait4 rusage (Darwin units bytes, Linux units KiB); platform=darwin",
+        "sample": 6,
+        "status": "ok",
+        "wallSeconds": 0.042112041999999406
+      }
+    ],
+    "successfulSamples": 7
+  }
+}

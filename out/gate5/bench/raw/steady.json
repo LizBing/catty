@@ -1,0 +1,3398 @@
+{
+  "aot": {
+    "batchesPerProcess": 30,
+    "command": "steady",
+    "kernels": {
+      "app": {
+        "aggregateOpsPerSecond": 2395581.67578313,
+        "expectedChecksum": -199667991,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.1168202079371771,
+          "count": 210,
+          "max": 567.423828125,
+          "mean": 417.4351515997024,
+          "median": 403.34033203125,
+          "min": 378.4990234375,
+          "p50": 403.279296875,
+          "p99": 562.744140625,
+          "stdev": 48.76486121016428
+        },
+        "opsPerBatch": 1024,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 399.2109375,
+            "ops": 30720,
+            "opsPerSecond": 2404570.750854613,
+            "pid": 80557,
+            "process": 0,
+            "seconds": 0.012775669
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 389.2412109375,
+            "ops": 30720,
+            "opsPerSecond": 2420215.2258323943,
+            "pid": 80558,
+            "process": 1,
+            "seconds": 0.012693086
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 404.6220703125,
+            "ops": 30720,
+            "opsPerSecond": 2389670.2768423683,
+            "pid": 80559,
+            "process": 2,
+            "seconds": 0.01285533
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 388.3876953125,
+            "ops": 30720,
+            "opsPerSecond": 2437022.947998119,
+            "pid": 80560,
+            "process": 3,
+            "seconds": 0.012605544
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 406.8603515625,
+            "ops": 30720,
+            "opsPerSecond": 2375081.8657164895,
+            "pid": 80565,
+            "process": 4,
+            "seconds": 0.012934291
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 405.5986328125,
+            "ops": 30720,
+            "opsPerSecond": 2374767.5383192166,
+            "pid": 80566,
+            "process": 5,
+            "seconds": 0.012936003
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 402.9140625,
+            "ops": 30720,
+            "opsPerSecond": 2369395.5542364824,
+            "pid": 80571,
+            "process": 6,
+            "seconds": 0.012965332
+          }
+        ],
+        "totalCompletedOps": 215040,
+        "totalMeasuredSeconds": 0.089765255
+      },
+      "calls-mixed": {
+        "aggregateOpsPerSecond": 10293197.692515055,
+        "expectedChecksum": 550353427,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.0931260362070778,
+          "count": 210,
+          "max": 131.625,
+          "mean": 97.15153928571428,
+          "median": 95.63024999999999,
+          "min": 87.70825,
+          "p50": 95.59375,
+          "p99": 126.8335,
+          "stdev": 9.047337765094769
+        },
+        "opsPerBatch": 4000,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 95.33325,
+            "ops": 120000,
+            "opsPerSecond": 10332765.863572532,
+            "pid": 80557,
+            "process": 0,
+            "seconds": 0.011613541
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 95.8645,
+            "ops": 120000,
+            "opsPerSecond": 10275800.780310059,
+            "pid": 80558,
+            "process": 1,
+            "seconds": 0.011677922
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 92.375,
+            "ops": 120000,
+            "opsPerSecond": 10517626.753617056,
+            "pid": 80559,
+            "process": 2,
+            "seconds": 0.011409418
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 95.3855,
+            "ops": 120000,
+            "opsPerSecond": 10250094.621185971,
+            "pid": 80560,
+            "process": 3,
+            "seconds": 0.011707209
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 95.729,
+            "ops": 120000,
+            "opsPerSecond": 10274747.607246745,
+            "pid": 80565,
+            "process": 4,
+            "seconds": 0.011679119
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 95.75,
+            "ops": 120000,
+            "opsPerSecond": 10162924.381490774,
+            "pid": 80566,
+            "process": 5,
+            "seconds": 0.011807625
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 95.97925,
+            "ops": 120000,
+            "opsPerSecond": 10245500.112316296,
+            "pid": 80571,
+            "process": 6,
+            "seconds": 0.011712459
+          }
+        ],
+        "totalCompletedOps": 840000,
+        "totalMeasuredSeconds": 0.081607293
+      },
+      "calls-static": {
+        "aggregateOpsPerSecond": 21753575.28167345,
+        "expectedChecksum": -1132101895,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.025171209360634324,
+          "count": 210,
+          "max": 48.03335,
+          "mean": 45.96945499999999,
+          "median": 46.398975,
+          "min": 42.71875,
+          "p50": 46.3917,
+          "p99": 47.7,
+          "stdev": 1.1571067759992582
+        },
+        "opsPerBatch": 20000,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 45.0646,
+            "ops": 600000,
+            "opsPerSecond": 22199439.841534477,
+            "pid": 80557,
+            "process": 0,
+            "seconds": 0.027027709
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 45.93955,
+            "ops": 600000,
+            "opsPerSecond": 21776578.25932406,
+            "pid": 80558,
+            "process": 1,
+            "seconds": 0.027552538
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 46.93335,
+            "ops": 600000,
+            "opsPerSecond": 21398447.000576116,
+            "pid": 80559,
+            "process": 2,
+            "seconds": 0.028039418
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 46.725,
+            "ops": 600000,
+            "opsPerSecond": 21644468.040121198,
+            "pid": 80560,
+            "process": 3,
+            "seconds": 0.027720709
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 47.0229,
+            "ops": 600000,
+            "opsPerSecond": 21481508.00186173,
+            "pid": 80565,
+            "process": 4,
+            "seconds": 0.027931
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 45.93335,
+            "ops": 600000,
+            "opsPerSecond": 21777233.49212203,
+            "pid": 80566,
+            "process": 5,
+            "seconds": 0.027551709
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 46.35625,
+            "ops": 600000,
+            "opsPerSecond": 22019457.273224913,
+            "pid": 80571,
+            "process": 6,
+            "seconds": 0.027248628
+          }
+        ],
+        "totalCompletedOps": 4200000,
+        "totalMeasuredSeconds": 0.193071711
+      },
+      "calls-virtual": {
+        "aggregateOpsPerSecond": 9970544.400507843,
+        "expectedChecksum": 403981648,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.022443885358687823,
+          "count": 210,
+          "max": 109.43125,
+          "mean": 100.29542619047612,
+          "median": 100.23852500000001,
+          "min": 94.7354,
+          "p50": 100.2333,
+          "p99": 107.23125,
+          "stdev": 2.251019047419782
+        },
+        "opsPerBatch": 20000,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 99.525,
+            "ops": 600000,
+            "opsPerSecond": 10038761.162663218,
+            "pid": 80557,
+            "process": 0,
+            "seconds": 0.059768331
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 100.8521,
+            "ops": 600000,
+            "opsPerSecond": 9908545.610298783,
+            "pid": 80558,
+            "process": 1,
+            "seconds": 0.060553791
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 100.6229,
+            "ops": 600000,
+            "opsPerSecond": 9914132.541410051,
+            "pid": 80559,
+            "process": 2,
+            "seconds": 0.060519667
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 99.14795,
+            "ops": 600000,
+            "opsPerSecond": 10033528.708434017,
+            "pid": 80560,
+            "process": 3,
+            "seconds": 0.0597995
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 100.275,
+            "ops": 600000,
+            "opsPerSecond": 9971567.073646205,
+            "pid": 80565,
+            "process": 4,
+            "seconds": 0.060171084
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 99.68335,
+            "ops": 600000,
+            "opsPerSecond": 10006615.206536122,
+            "pid": 80566,
+            "process": 5,
+            "seconds": 0.059960335
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 100.6021,
+            "ops": 600000,
+            "opsPerSecond": 9922590.235291405,
+            "pid": 80571,
+            "process": 6,
+            "seconds": 0.060468082
+          }
+        ],
+        "totalCompletedOps": 4200000,
+        "totalMeasuredSeconds": 0.42124079
+      },
+      "memory-alloc": {
+        "aggregateOpsPerSecond": 1340612.584111318,
+        "expectedChecksum": -1985233234,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.025512988258831464,
+          "count": 210,
+          "max": 786.43798828125,
+          "mean": 745.9276541573661,
+          "median": 748.4129638671875,
+          "min": 698.0185546875,
+          "p50": 748.362060546875,
+          "p99": 777.618408203125,
+          "stdev": 19.03084348245458
+        },
+        "opsPerBatch": 4096,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 742.950439453125,
+            "ops": 122880,
+            "opsPerSecond": 1341683.6104994211,
+            "pid": 80557,
+            "process": 0,
+            "seconds": 0.091586421
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 748.199462890625,
+            "ops": 122880,
+            "opsPerSecond": 1345301.4656582132,
+            "pid": 80558,
+            "process": 1,
+            "seconds": 0.091340122
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 744.578125,
+            "ops": 122880,
+            "opsPerSecond": 1345684.4563129258,
+            "pid": 80559,
+            "process": 2,
+            "seconds": 0.091314126
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 754.52685546875,
+            "ops": 122880,
+            "opsPerSecond": 1329500.186371301,
+            "pid": 80560,
+            "process": 3,
+            "seconds": 0.092425711
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 750.193115234375,
+            "ops": 122880,
+            "opsPerSecond": 1338754.125428362,
+            "pid": 80565,
+            "process": 4,
+            "seconds": 0.091786832
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 747.599365234375,
+            "ops": 122880,
+            "opsPerSecond": 1336545.5819962611,
+            "pid": 80566,
+            "process": 5,
+            "seconds": 0.091938503
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 744.557861328125,
+            "ops": 122880,
+            "opsPerSecond": 1346993.0353619873,
+            "pid": 80571,
+            "process": 6,
+            "seconds": 0.091225416
+          }
+        ],
+        "totalCompletedOps": 860160,
+        "totalMeasuredSeconds": 0.641617131
+      },
+      "monitor": {
+        "aggregateOpsPerSecond": 1430998.2710384624,
+        "expectedChecksum": 3932217,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.030143624372340323,
+          "count": 210,
+          "max": 767.618896484375,
+          "mean": 698.8128638857887,
+          "median": 699.396728515625,
+          "min": 630.106689453125,
+          "p50": 699.361083984375,
+          "p99": 747.61962890625,
+          "stdev": 21.0647524755326
+        },
+        "opsPerBatch": 4096,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 709.1572265625,
+            "ops": 122880,
+            "opsPerSecond": 1412624.874981319,
+            "pid": 80557,
+            "process": 0,
+            "seconds": 0.086987
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 704.65087890625,
+            "ops": 122880,
+            "opsPerSecond": 1416540.5992028986,
+            "pid": 80558,
+            "process": 1,
+            "seconds": 0.086746543
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 699.432373046875,
+            "ops": 122880,
+            "opsPerSecond": 1428928.5610375416,
+            "pid": 80559,
+            "process": 2,
+            "seconds": 0.085994502
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 697.3876953125,
+            "ops": 122880,
+            "opsPerSecond": 1427107.9527263057,
+            "pid": 80560,
+            "process": 3,
+            "seconds": 0.086104208
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 693.2578125,
+            "ops": 122880,
+            "opsPerSecond": 1445897.2160524619,
+            "pid": 80565,
+            "process": 4,
+            "seconds": 0.084985294
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 701.802490234375,
+            "ops": 122880,
+            "opsPerSecond": 1433730.247224309,
+            "pid": 80566,
+            "process": 5,
+            "seconds": 0.085706499
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 690.510986328125,
+            "ops": 122880,
+            "opsPerSecond": 1453052.0342214094,
+            "pid": 80571,
+            "process": 6,
+            "seconds": 0.084566827
+          }
+        ],
+        "totalCompletedOps": 860160,
+        "totalMeasuredSeconds": 0.601090873
+      },
+      "reflect-invoke": {
+        "aggregateOpsPerSecond": 2976721.506263607,
+        "expectedChecksum": -1369594686,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.08608503454189682,
+          "count": 210,
+          "max": 454.4165,
+          "mean": 335.94005952380957,
+          "median": 327.0105,
+          "min": 302.0,
+          "p50": 326.9585,
+          "p99": 404.4795,
+          "stdev": 28.91941162811402
+        },
+        "opsPerBatch": 2000,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 316.9375,
+            "ops": 60000,
+            "opsPerSecond": 3067883.361937937,
+            "pid": 80557,
+            "process": 0,
+            "seconds": 0.019557458
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 326.5,
+            "ops": 60000,
+            "opsPerSecond": 2973075.0887277094,
+            "pid": 80558,
+            "process": 1,
+            "seconds": 0.020181125
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 319.5205,
+            "ops": 60000,
+            "opsPerSecond": 3045505.022393091,
+            "pid": 80559,
+            "process": 2,
+            "seconds": 0.019701166
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 335.271,
+            "ops": 60000,
+            "opsPerSecond": 2854628.2015666296,
+            "pid": 80560,
+            "process": 3,
+            "seconds": 0.021018499
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 324.4165,
+            "ops": 60000,
+            "opsPerSecond": 2979140.357133388,
+            "pid": 80565,
+            "process": 4,
+            "seconds": 0.020140038
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 326.9585,
+            "ops": 60000,
+            "opsPerSecond": 2976984.190973536,
+            "pid": 80566,
+            "process": 5,
+            "seconds": 0.020154625
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 328.625,
+            "ops": 60000,
+            "opsPerSecond": 2949574.951501614,
+            "pid": 80571,
+            "process": 6,
+            "seconds": 0.020341914
+          }
+        ],
+        "totalCompletedOps": 420000,
+        "totalMeasuredSeconds": 0.14109482499999998
+      },
+      "reflect-lookup": {
+        "aggregateOpsPerSecond": 2646053.6566760503,
+        "expectedChecksum": 370350,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.19096968460485128,
+          "count": 210,
+          "max": 829.0266666666666,
+          "mean": 377.9212857142858,
+          "median": 365.34833333333336,
+          "min": 343.89,
+          "p50": 365.28,
+          "p99": 797.78,
+          "stdev": 72.17150873831704
+        },
+        "opsPerBatch": 300,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 366.25,
+            "ops": 9000,
+            "opsPerSecond": 2626332.425984116,
+            "pid": 80557,
+            "process": 0,
+            "seconds": 0.003426832
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 362.78,
+            "ops": 9000,
+            "opsPerSecond": 2664529.516621779,
+            "pid": 80558,
+            "process": 1,
+            "seconds": 0.003377707
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 362.5,
+            "ops": 9000,
+            "opsPerSecond": 2655684.3300165804,
+            "pid": 80559,
+            "process": 2,
+            "seconds": 0.003388957
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 361.11,
+            "ops": 9000,
+            "opsPerSecond": 2684058.570929677,
+            "pid": 80560,
+            "process": 3,
+            "seconds": 0.003353131
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 364.72,
+            "ops": 9000,
+            "opsPerSecond": 2663084.325085663,
+            "pid": 80565,
+            "process": 4,
+            "seconds": 0.00337954
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 368.75,
+            "ops": 9000,
+            "opsPerSecond": 2596964.8982682284,
+            "pid": 80566,
+            "process": 5,
+            "seconds": 0.003465584
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 370.27666666666664,
+            "ops": 9000,
+            "opsPerSecond": 2633665.858033705,
+            "pid": 80571,
+            "process": 6,
+            "seconds": 0.00341729
+          }
+        ],
+        "totalCompletedOps": 63000,
+        "totalMeasuredSeconds": 0.023809041
+      },
+      "shared-1": {
+        "aggregateOpsPerSecond": 8126160.493323014,
+        "expectedChecksum": 2063040174,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.01776232833553493,
+          "count": 210,
+          "max": 126.3580322265625,
+          "mean": 123.05934651692708,
+          "median": 123.58343505859375,
+          "min": 116.9332275390625,
+          "p50": 123.5809326171875,
+          "p99": 126.3072509765625,
+          "stdev": 2.1858205175900256
+        },
+        "opsPerBatch": 8192,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 124.0743408203125,
+            "ops": 245760,
+            "opsPerSecond": 8126043.881364388,
+            "pid": 80557,
+            "process": 0,
+            "seconds": 0.030243499
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 125.18310546875,
+            "ops": 245760,
+            "opsPerSecond": 8034621.3192674285,
+            "pid": 80558,
+            "process": 1,
+            "seconds": 0.030587627
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 123.5452880859375,
+            "ops": 245760,
+            "opsPerSecond": 8123738.124082233,
+            "pid": 80559,
+            "process": 2,
+            "seconds": 0.030252083
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 123.321533203125,
+            "ops": 245760,
+            "opsPerSecond": 8157918.934000059,
+            "pid": 80560,
+            "process": 3,
+            "seconds": 0.03012533
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 123.1842041015625,
+            "ops": 245760,
+            "opsPerSecond": 8191613.901931422,
+            "pid": 80565,
+            "process": 4,
+            "seconds": 0.030001414
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 123.5809326171875,
+            "ops": 245760,
+            "opsPerSecond": 8121925.649877983,
+            "pid": 80566,
+            "process": 5,
+            "seconds": 0.030258834
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 123.565673828125,
+            "ops": 245760,
+            "opsPerSecond": 8128955.076012477,
+            "pid": 80571,
+            "process": 6,
+            "seconds": 0.030232668
+          }
+        ],
+        "totalCompletedOps": 1720320,
+        "totalMeasuredSeconds": 0.211701455
+      },
+      "shared-4": {
+        "aggregateOpsPerSecond": 2181809.2606622158,
+        "expectedChecksum": 1706379868,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.013597140933219355,
+          "count": 210,
+          "max": 473.6837158203125,
+          "mean": 458.3352074032738,
+          "median": 458.8343505859375,
+          "min": 428.44140625,
+          "p50": 458.8114013671875,
+          "p99": 469.8028564453125,
+          "stdev": 6.232048409718637
+        },
+        "opsPerBatch": 8192,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 460.4696044921875,
+            "ops": 245760,
+            "opsPerSecond": 2170968.7922617756,
+            "pid": 80557,
+            "process": 0,
+            "seconds": 0.113202917
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 457.9061279296875,
+            "ops": 245760,
+            "opsPerSecond": 2188319.1254203105,
+            "pid": 80558,
+            "process": 1,
+            "seconds": 0.112305375
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 457.0667724609375,
+            "ops": 245760,
+            "opsPerSecond": 2185459.2492817645,
+            "pid": 80559,
+            "process": 2,
+            "seconds": 0.112452337
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 455.4901123046875,
+            "ops": 245760,
+            "opsPerSecond": 2193364.462044433,
+            "pid": 80560,
+            "process": 3,
+            "seconds": 0.112047042
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 460.9273681640625,
+            "ops": 245760,
+            "opsPerSecond": 2172792.9123947863,
+            "pid": 80565,
+            "process": 4,
+            "seconds": 0.11310788
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 459.1114501953125,
+            "ops": 245760,
+            "opsPerSecond": 2176551.0403743046,
+            "pid": 80566,
+            "process": 5,
+            "seconds": 0.112912583
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 458.8826904296875,
+            "ops": 245760,
+            "opsPerSecond": 2185405.7473076587,
+            "pid": 80571,
+            "process": 6,
+            "seconds": 0.11245509
+          }
+        ],
+        "totalCompletedOps": 1720320,
+        "totalMeasuredSeconds": 0.7884832239999999
+      }
+    },
+    "processes": 7,
+    "requestedProcesses": 7,
+    "warmupBatches": 10
+  },
+  "interp": {
+    "batchesPerProcess": 30,
+    "command": "steady",
+    "kernels": {
+      "app": {
+        "aggregateOpsPerSecond": 1181567.1632331244,
+        "expectedChecksum": -199667991,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.09129885379141435,
+          "count": 210,
+          "max": 987.58984375,
+          "mean": 846.3336077008929,
+          "median": 876.9736328125,
+          "min": 744.0185546875,
+          "p50": 872.1923828125,
+          "p99": 970.5400390625,
+          "stdev": 77.26928830824406
+        },
+        "opsPerBatch": 1024,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 886.1494140625,
+            "ops": 30720,
+            "opsPerSecond": 1183036.0942309815,
+            "pid": 80537,
+            "process": 0,
+            "seconds": 0.025967086
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 846.0693359375,
+            "ops": 30720,
+            "opsPerSecond": 1183427.484903017,
+            "pid": 80538,
+            "process": 1,
+            "seconds": 0.025958498
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 852.5791015625,
+            "ops": 30720,
+            "opsPerSecond": 1181333.9998846354,
+            "pid": 80539,
+            "process": 2,
+            "seconds": 0.0260045
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 872.1923828125,
+            "ops": 30720,
+            "opsPerSecond": 1176040.8325052173,
+            "pid": 80540,
+            "process": 3,
+            "seconds": 0.026121542
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 865.8447265625,
+            "ops": 30720,
+            "opsPerSecond": 1184832.7979922947,
+            "pid": 80546,
+            "process": 4,
+            "seconds": 0.025927709
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 864.705078125,
+            "ops": 30720,
+            "opsPerSecond": 1178590.2633251485,
+            "pid": 80548,
+            "process": 5,
+            "seconds": 0.026065038
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 868.0830078125,
+            "ops": 30720,
+            "opsPerSecond": 1183760.0148524889,
+            "pid": 80549,
+            "process": 6,
+            "seconds": 0.025951206
+          }
+        ],
+        "totalCompletedOps": 215040,
+        "totalMeasuredSeconds": 0.18199557900000002
+      },
+      "calls-mixed": {
+        "aggregateOpsPerSecond": 2604381.6234249766,
+        "expectedChecksum": 550353427,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.040776546766354005,
+          "count": 210,
+          "max": 421.71875,
+          "mean": 383.96830595238106,
+          "median": 378.609375,
+          "min": 362.85425,
+          "p50": 378.60425,
+          "p99": 418.146,
+          "stdev": 15.65690158446499
+        },
+        "opsPerBatch": 4000,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 378.25,
+            "ops": 120000,
+            "opsPerSecond": 2603688.702197659,
+            "pid": 80537,
+            "process": 0,
+            "seconds": 0.046088459
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 372.1875,
+            "ops": 120000,
+            "opsPerSecond": 2632055.0260933163,
+            "pid": 80538,
+            "process": 1,
+            "seconds": 0.045591752
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 378.16675,
+            "ops": 120000,
+            "opsPerSecond": 2609731.148106853,
+            "pid": 80539,
+            "process": 2,
+            "seconds": 0.045981748
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 378.91675,
+            "ops": 120000,
+            "opsPerSecond": 2607391.8995417096,
+            "pid": 80540,
+            "process": 3,
+            "seconds": 0.046023001
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 378.6145,
+            "ops": 120000,
+            "opsPerSecond": 2610999.121007146,
+            "pid": 80546,
+            "process": 4,
+            "seconds": 0.045959418
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 381.5415,
+            "ops": 120000,
+            "opsPerSecond": 2584958.0386992777,
+            "pid": 80548,
+            "process": 5,
+            "seconds": 0.046422417
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 380.5,
+            "ops": 120000,
+            "opsPerSecond": 2582501.1187610053,
+            "pid": 80549,
+            "process": 6,
+            "seconds": 0.046466582
+          }
+        ],
+        "totalCompletedOps": 840000,
+        "totalMeasuredSeconds": 0.322533377
+      },
+      "calls-static": {
+        "aggregateOpsPerSecond": 4456104.967728522,
+        "expectedChecksum": -1132101895,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.01634668246790916,
+          "count": 210,
+          "max": 235.29795,
+          "mean": 224.41123071428575,
+          "median": 223.616675,
+          "min": 216.675,
+          "p50": 223.60625,
+          "p99": 233.3625,
+          "stdev": 3.6683791307191327
+        },
+        "opsPerBatch": 20000,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 222.69795,
+            "ops": 600000,
+            "opsPerSecond": 4485134.649124328,
+            "pid": 80537,
+            "process": 0,
+            "seconds": 0.133775248
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 222.83335,
+            "ops": 600000,
+            "opsPerSecond": 4473773.809619943,
+            "pid": 80538,
+            "process": 1,
+            "seconds": 0.134114961
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 223.83335,
+            "ops": 600000,
+            "opsPerSecond": 4447568.647276963,
+            "pid": 80539,
+            "process": 2,
+            "seconds": 0.134905169
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 224.2229,
+            "ops": 600000,
+            "opsPerSecond": 4449788.37659357,
+            "pid": 80540,
+            "process": 3,
+            "seconds": 0.134837873
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 223.25835,
+            "ops": 600000,
+            "opsPerSecond": 4465318.418842358,
+            "pid": 80546,
+            "process": 4,
+            "seconds": 0.134368917
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 223.7542,
+            "ops": 600000,
+            "opsPerSecond": 4447233.650562663,
+            "pid": 80548,
+            "process": 5,
+            "seconds": 0.134915331
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 224.71665,
+            "ops": 600000,
+            "opsPerSecond": 4424463.240711374,
+            "pid": 80549,
+            "process": 6,
+            "seconds": 0.13560967
+          }
+        ],
+        "totalCompletedOps": 4200000,
+        "totalMeasuredSeconds": 0.942527169
+      },
+      "calls-virtual": {
+        "aggregateOpsPerSecond": 3247809.201515792,
+        "expectedChecksum": 403981648,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.014935523584782293,
+          "count": 210,
+          "max": 320.45,
+          "mean": 307.8998604761904,
+          "median": 307.4979,
+          "min": 298.39795,
+          "p50": 307.48955,
+          "p99": 318.575,
+          "stdev": 4.598645627893319
+        },
+        "opsPerBatch": 20000,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 305.7917,
+            "ops": 600000,
+            "opsPerSecond": 3260402.2113678,
+            "pid": 80537,
+            "process": 0,
+            "seconds": 0.184026375
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 307.4146,
+            "ops": 600000,
+            "opsPerSecond": 3247549.968468184,
+            "pid": 80538,
+            "process": 1,
+            "seconds": 0.184754663
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 306.70835,
+            "ops": 600000,
+            "opsPerSecond": 3254179.220340963,
+            "pid": 80539,
+            "process": 2,
+            "seconds": 0.18437829
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 307.99585,
+            "ops": 600000,
+            "opsPerSecond": 3245564.0671615177,
+            "pid": 80540,
+            "process": 3,
+            "seconds": 0.184867711
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 307.48955,
+            "ops": 600000,
+            "opsPerSecond": 3253058.8295303485,
+            "pid": 80546,
+            "process": 4,
+            "seconds": 0.184441792
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 307.9521,
+            "ops": 600000,
+            "opsPerSecond": 3249896.7128659706,
+            "pid": 80548,
+            "process": 5,
+            "seconds": 0.184621252
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 308.4604,
+            "ops": 600000,
+            "opsPerSecond": 3224257.9237387874,
+            "pid": 80549,
+            "process": 6,
+            "seconds": 0.186089331
+          }
+        ],
+        "totalCompletedOps": 4200000,
+        "totalMeasuredSeconds": 1.2931794140000001
+      },
+      "memory-alloc": {
+        "aggregateOpsPerSecond": 952368.8638695619,
+        "expectedChecksum": -1985233234,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.020589141449930848,
+          "count": 210,
+          "max": 1121.877197265625,
+          "mean": 1050.0133277529762,
+          "median": 1049.1739501953125,
+          "min": 1012.552734375,
+          "p50": 1049.123046875,
+          "p99": 1102.447509765625,
+          "stdev": 21.61887292941863
+        },
+        "opsPerBatch": 4096,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1042.429443359375,
+            "ops": 122880,
+            "opsPerSecond": 957960.5693045531,
+            "pid": 80537,
+            "process": 0,
+            "seconds": 0.128272503
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1038.299560546875,
+            "ops": 122880,
+            "opsPerSecond": 959499.6584085952,
+            "pid": 80538,
+            "process": 1,
+            "seconds": 0.128066747
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1034.62744140625,
+            "ops": 122880,
+            "opsPerSecond": 962012.3193318475,
+            "pid": 80539,
+            "process": 2,
+            "seconds": 0.127732252
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1050.96435546875,
+            "ops": 122880,
+            "opsPerSecond": 952652.2674868325,
+            "pid": 80540,
+            "process": 3,
+            "seconds": 0.128987254
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1049.31640625,
+            "ops": 122880,
+            "opsPerSecond": 950561.834414774,
+            "pid": 80546,
+            "process": 4,
+            "seconds": 0.129270917
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1071.52294921875,
+            "ops": 122880,
+            "opsPerSecond": 930313.8451005341,
+            "pid": 80548,
+            "process": 5,
+            "seconds": 0.132084458
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1047.56689453125,
+            "ops": 122880,
+            "opsPerSecond": 954294.1188992226,
+            "pid": 80549,
+            "process": 6,
+            "seconds": 0.128765333
+          }
+        ],
+        "totalCompletedOps": 860160,
+        "totalMeasuredSeconds": 0.903179464
+      },
+      "monitor": {
+        "aggregateOpsPerSecond": 1198768.0083236333,
+        "expectedChecksum": 3932217,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.03307194648609106,
+          "count": 210,
+          "max": 895.61962890625,
+          "mean": 834.1897623697917,
+          "median": 836.7158203125,
+          "min": 727.396484375,
+          "p50": 836.588623046875,
+          "p99": 889.617919921875,
+          "stdev": 27.58827918033877
+        },
+        "opsPerBatch": 4096,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 834.16748046875,
+            "ops": 122880,
+            "opsPerSecond": 1200374.1205083597,
+            "pid": 80537,
+            "process": 0,
+            "seconds": 0.102368085
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 849.853515625,
+            "ops": 122880,
+            "opsPerSecond": 1181416.3212664784,
+            "pid": 80538,
+            "process": 1,
+            "seconds": 0.104010752
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 830.38330078125,
+            "ops": 122880,
+            "opsPerSecond": 1201771.6390753896,
+            "pid": 80539,
+            "process": 2,
+            "seconds": 0.102249043
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 827.402587890625,
+            "ops": 122880,
+            "opsPerSecond": 1213736.498379092,
+            "pid": 80540,
+            "process": 3,
+            "seconds": 0.101241085
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 844.045166015625,
+            "ops": 122880,
+            "opsPerSecond": 1188069.9905490037,
+            "pid": 80546,
+            "process": 4,
+            "seconds": 0.10342825
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 829.243896484375,
+            "ops": 122880,
+            "opsPerSecond": 1208739.4934441128,
+            "pid": 80548,
+            "process": 5,
+            "seconds": 0.101659622
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 835.6220703125,
+            "ops": 122880,
+            "opsPerSecond": 1197896.3232625392,
+            "pid": 80549,
+            "process": 6,
+            "seconds": 0.102579829
+          }
+        ],
+        "totalCompletedOps": 860160,
+        "totalMeasuredSeconds": 0.7175366659999999
+      },
+      "reflect-invoke": {
+        "aggregateOpsPerSecond": 1468940.8253591678,
+        "expectedChecksum": -1369594686,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.03764757318722341,
+          "count": 210,
+          "max": 725.875,
+          "mean": 680.7626166666663,
+          "median": 686.6355,
+          "min": 603.7705,
+          "p50": 686.625,
+          "p99": 716.8125,
+          "stdev": 25.629060434084032
+        },
+        "opsPerBatch": 2000,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 696.875,
+            "ops": 60000,
+            "opsPerSecond": 1449964.1303040232,
+            "pid": 80537,
+            "process": 0,
+            "seconds": 0.041380334
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 679.125,
+            "ops": 60000,
+            "opsPerSecond": 1484181.188740576,
+            "pid": 80538,
+            "process": 1,
+            "seconds": 0.040426331
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 682.75,
+            "ops": 60000,
+            "opsPerSecond": 1479330.863146658,
+            "pid": 80539,
+            "process": 2,
+            "seconds": 0.040558878
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 690.9375,
+            "ops": 60000,
+            "opsPerSecond": 1460015.2556994068,
+            "pid": 80540,
+            "process": 3,
+            "seconds": 0.041095461
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 674.354,
+            "ops": 60000,
+            "opsPerSecond": 1487641.713989376,
+            "pid": 80546,
+            "process": 4,
+            "seconds": 0.040332292
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 687.396,
+            "ops": 60000,
+            "opsPerSecond": 1470709.857231821,
+            "pid": 80548,
+            "process": 5,
+            "seconds": 0.040796626
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 695.396,
+            "ops": 60000,
+            "opsPerSecond": 1451716.7360946164,
+            "pid": 80549,
+            "process": 6,
+            "seconds": 0.041330377
+          }
+        ],
+        "totalCompletedOps": 420000,
+        "totalMeasuredSeconds": 0.285920299
+      },
+      "reflect-lookup": {
+        "aggregateOpsPerSecond": 1730097.5346604444,
+        "expectedChecksum": 370350,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.21312788573137922,
+          "count": 210,
+          "max": 1095.2766666666666,
+          "mean": 578.0020952380951,
+          "median": 541.5983333333334,
+          "min": 512.5,
+          "p50": 541.53,
+          "p99": 1022.3633333333333,
+          "stdev": 123.1883645064025
+        },
+        "opsPerBatch": 300,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 538.89,
+            "ops": 9000,
+            "opsPerSecond": 1709901.2019085537,
+            "pid": 80537,
+            "process": 0,
+            "seconds": 0.005263462
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 541.6666666666666,
+            "ops": 9000,
+            "opsPerSecond": 1721059.805680874,
+            "pid": 80538,
+            "process": 1,
+            "seconds": 0.005229336
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 549.1666666666666,
+            "ops": 9000,
+            "opsPerSecond": 1742708.7968454647,
+            "pid": 80539,
+            "process": 2,
+            "seconds": 0.005164374
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 541.6666666666666,
+            "ops": 9000,
+            "opsPerSecond": 1701283.6941598523,
+            "pid": 80540,
+            "process": 3,
+            "seconds": 0.005290123
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 538.0533333333333,
+            "ops": 9000,
+            "opsPerSecond": 1759716.2242511967,
+            "pid": 80546,
+            "process": 4,
+            "seconds": 0.005114461
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 539.86,
+            "ops": 9000,
+            "opsPerSecond": 1751910.0686164775,
+            "pid": 80548,
+            "process": 5,
+            "seconds": 0.00513725
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 544.5833333333334,
+            "ops": 9000,
+            "opsPerSecond": 1725749.291579916,
+            "pid": 80549,
+            "process": 6,
+            "seconds": 0.005215126
+          }
+        ],
+        "totalCompletedOps": 63000,
+        "totalMeasuredSeconds": 0.036414132
+      },
+      "shared-1": {
+        "aggregateOpsPerSecond": 4063646.8690870763,
+        "expectedChecksum": 2063040174,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.02168026454069359,
+          "count": 210,
+          "max": 257.8125,
+          "mean": 246.084375,
+          "median": 246.7041015625,
+          "min": 230.840087890625,
+          "p50": 246.673583984375,
+          "p99": 257.0546875,
+          "stdev": 5.335174349331243
+        },
+        "opsPerBatch": 8192,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 245.966552734375,
+            "ops": 245760,
+            "opsPerSecond": 4093711.683397509,
+            "pid": 80537,
+            "process": 0,
+            "seconds": 0.060033539
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 251.1138916015625,
+            "ops": 245760,
+            "opsPerSecond": 3976157.4224404194,
+            "pid": 80538,
+            "process": 1,
+            "seconds": 0.061808418
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 245.5343017578125,
+            "ops": 245760,
+            "opsPerSecond": 4076196.5463821026,
+            "pid": 80539,
+            "process": 2,
+            "seconds": 0.060291499
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 243.0267333984375,
+            "ops": 245760,
+            "opsPerSecond": 4098624.2124624327,
+            "pid": 80540,
+            "process": 3,
+            "seconds": 0.059961584
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 245.9766845703125,
+            "ops": 245760,
+            "opsPerSecond": 4083613.3118615737,
+            "pid": 80546,
+            "process": 4,
+            "seconds": 0.060181996
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 247.1771240234375,
+            "ops": 245760,
+            "opsPerSecond": 4057814.1428989563,
+            "pid": 80548,
+            "process": 5,
+            "seconds": 0.060564627
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 246.6278076171875,
+            "ops": 245760,
+            "opsPerSecond": 4062000.446958887,
+            "pid": 80549,
+            "process": 6,
+            "seconds": 0.060502209
+          }
+        ],
+        "totalCompletedOps": 1720320,
+        "totalMeasuredSeconds": 0.423343872
+      },
+      "shared-4": {
+        "aggregateOpsPerSecond": 1978896.7351851494,
+        "expectedChecksum": 1706379868,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.01267136849602986,
+          "count": 210,
+          "max": 523.3814697265625,
+          "mean": 505.3320783342634,
+          "median": 505.59747314453125,
+          "min": 482.1727294921875,
+          "p50": 505.5440673828125,
+          "p99": 519.1600341796875,
+          "stdev": 6.4032489774380785
+        },
+        "opsPerBatch": 8192,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 501.8564453125,
+            "ops": 245760,
+            "opsPerSecond": 1992841.8735194933,
+            "pid": 80537,
+            "process": 0,
+            "seconds": 0.123321375
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 512.75634765625,
+            "ops": 245760,
+            "opsPerSecond": 1950018.3230786645,
+            "pid": 80538,
+            "process": 1,
+            "seconds": 0.126029585
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 507.171630859375,
+            "ops": 245760,
+            "opsPerSecond": 1971433.1032769193,
+            "pid": 80539,
+            "process": 2,
+            "seconds": 0.124660583
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 498.723388671875,
+            "ops": 245760,
+            "opsPerSecond": 2005755.7911199585,
+            "pid": 80540,
+            "process": 3,
+            "seconds": 0.122527379
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 507.2479248046875,
+            "ops": 245760,
+            "opsPerSecond": 1970455.7200811782,
+            "pid": 80546,
+            "process": 4,
+            "seconds": 0.124722417
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 508.3160400390625,
+            "ops": 245760,
+            "opsPerSecond": 1967179.6849187445,
+            "pid": 80548,
+            "process": 5,
+            "seconds": 0.124930123
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 501.556396484375,
+            "ops": 245760,
+            "opsPerSecond": 1995754.1661916368,
+            "pid": 80549,
+            "process": 6,
+            "seconds": 0.123141419
+          }
+        ],
+        "totalCompletedOps": 1720320,
+        "totalMeasuredSeconds": 0.8693328810000001
+      }
+    },
+    "processes": 7,
+    "requestedProcesses": 7,
+    "warmupBatches": 10
+  },
+  "java": {
+    "batchesPerProcess": 30,
+    "command": "steady",
+    "kernels": {
+      "app": {
+        "aggregateOpsPerSecond": 16084978.713807583,
+        "expectedChecksum": -199667991,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.04284530730430052,
+          "count": 210,
+          "max": 79.6708984375,
+          "mean": 62.169805617559526,
+          "median": 61.2587890625,
+          "min": 59.041015625,
+          "p50": 61.23828125,
+          "p99": 69.05078125,
+          "stdev": 2.6636844267329667
+        },
+        "opsPerBatch": 1024,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 62.0927734375,
+            "ops": 30720,
+            "opsPerSecond": 15857914.735833054,
+            "pid": 80530,
+            "process": 0,
+            "seconds": 0.001937203
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 61.5234375,
+            "ops": 30720,
+            "opsPerSecond": 16048068.981621513,
+            "pid": 80531,
+            "process": 1,
+            "seconds": 0.001914249
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 61.23828125,
+            "ops": 30720,
+            "opsPerSecond": 16058169.044638261,
+            "pid": 80532,
+            "process": 2,
+            "seconds": 0.001913045
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 60.546875,
+            "ops": 30720,
+            "opsPerSecond": 16244307.61811494,
+            "pid": 80533,
+            "process": 3,
+            "seconds": 0.001891124
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 60.505859375,
+            "ops": 30720,
+            "opsPerSecond": 16234306.704736963,
+            "pid": 80534,
+            "process": 4,
+            "seconds": 0.001892289
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 60.6279296875,
+            "ops": 30720,
+            "opsPerSecond": 16214649.872821618,
+            "pid": 80535,
+            "process": 5,
+            "seconds": 0.001894583
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 61.1171875,
+            "ops": 30720,
+            "opsPerSecond": 15945999.536984649,
+            "pid": 80536,
+            "process": 6,
+            "seconds": 0.001926502
+          }
+        ],
+        "totalCompletedOps": 215040,
+        "totalMeasuredSeconds": 0.013368995
+      },
+      "calls-mixed": {
+        "aggregateOpsPerSecond": 266931479.6425025,
+        "expectedChecksum": 550353427,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.9007340581649065,
+          "count": 210,
+          "max": 14.6145,
+          "mean": 3.7462797619047645,
+          "median": 1.85425,
+          "min": 1.8125,
+          "p50": 1.85425,
+          "p99": 11.42725,
+          "stdev": 3.374401772961538
+        },
+        "opsPerBatch": 4000,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1.8645,
+            "ops": 120000,
+            "opsPerSecond": 257303671.9378183,
+            "pid": 80530,
+            "process": 0,
+            "seconds": 0.000466375
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1.84375,
+            "ops": 120000,
+            "opsPerSecond": 272418325.5807618,
+            "pid": 80531,
+            "process": 1,
+            "seconds": 0.000440499
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1.85425,
+            "ops": 120000,
+            "opsPerSecond": 270066503.8765796,
+            "pid": 80532,
+            "process": 2,
+            "seconds": 0.000444335
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1.85425,
+            "ops": 120000,
+            "opsPerSecond": 271545432.9452496,
+            "pid": 80533,
+            "process": 3,
+            "seconds": 0.000441915
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1.854,
+            "ops": 120000,
+            "opsPerSecond": 275411912.94229436,
+            "pid": 80534,
+            "process": 4,
+            "seconds": 0.000435711
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1.875,
+            "ops": 120000,
+            "opsPerSecond": 274337132.902624,
+            "pid": 80535,
+            "process": 5,
+            "seconds": 0.000437418
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 2.02075,
+            "ops": 120000,
+            "opsPerSecond": 249676460.91939196,
+            "pid": 80536,
+            "process": 6,
+            "seconds": 0.000480622
+          }
+        ],
+        "totalCompletedOps": 840000,
+        "totalMeasuredSeconds": 0.003146875
+      },
+      "calls-static": {
+        "aggregateOpsPerSecond": 552940934.8493395,
+        "expectedChecksum": -1132101895,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.15253512862924518,
+          "count": 210,
+          "max": 2.55625,
+          "mean": 1.8085114285714297,
+          "median": 1.7021,
+          "min": 1.4729,
+          "p50": 1.7021,
+          "p99": 2.4479,
+          "stdev": 0.27586152338460296
+        },
+        "opsPerBatch": 20000,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1.70205,
+            "ops": 600000,
+            "opsPerSecond": 545682243.7726287,
+            "pid": 80530,
+            "process": 0,
+            "seconds": 0.001099541
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1.70625,
+            "ops": 600000,
+            "opsPerSecond": 551155497.5005099,
+            "pid": 80531,
+            "process": 1,
+            "seconds": 0.001088622
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1.67085,
+            "ops": 600000,
+            "opsPerSecond": 552062228.4543914,
+            "pid": 80532,
+            "process": 2,
+            "seconds": 0.001086834
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1.59585,
+            "ops": 600000,
+            "opsPerSecond": 562897194.332751,
+            "pid": 80533,
+            "process": 3,
+            "seconds": 0.001065914
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1.60205,
+            "ops": 600000,
+            "opsPerSecond": 553419765.202441,
+            "pid": 80534,
+            "process": 4,
+            "seconds": 0.001084168
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1.7021,
+            "ops": 600000,
+            "opsPerSecond": 546903342.1263238,
+            "pid": 80535,
+            "process": 5,
+            "seconds": 0.001097086
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1.6,
+            "ops": 600000,
+            "opsPerSecond": 558876211.7134866,
+            "pid": 80536,
+            "process": 6,
+            "seconds": 0.001073583
+          }
+        ],
+        "totalCompletedOps": 4200000,
+        "totalMeasuredSeconds": 0.007595747999999999
+      },
+      "calls-virtual": {
+        "aggregateOpsPerSecond": 421834897.43687093,
+        "expectedChecksum": 403981648,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.034914853146504096,
+          "count": 210,
+          "max": 2.6979,
+          "mean": 2.3705957142857157,
+          "median": 2.3375,
+          "min": 2.275,
+          "p50": 2.3375,
+          "p99": 2.675,
+          "stdev": 0.08276900123401774
+        },
+        "opsPerBatch": 20000,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 2.33335,
+            "ops": 600000,
+            "opsPerSecond": 424828988.6308682,
+            "pid": 80530,
+            "process": 0,
+            "seconds": 0.001412333
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 2.3354,
+            "ops": 600000,
+            "opsPerSecond": 424791392.027232,
+            "pid": 80531,
+            "process": 1,
+            "seconds": 0.001412458
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 2.34795,
+            "ops": 600000,
+            "opsPerSecond": 419078990.10344964,
+            "pid": 80532,
+            "process": 2,
+            "seconds": 0.001431711
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 2.54795,
+            "ops": 600000,
+            "opsPerSecond": 400946233.1101399,
+            "pid": 80533,
+            "process": 3,
+            "seconds": 0.00149646
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 2.3354,
+            "ops": 600000,
+            "opsPerSecond": 426919858.60414284,
+            "pid": 80534,
+            "process": 4,
+            "seconds": 0.001405416
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 2.3354,
+            "ops": 600000,
+            "opsPerSecond": 425054708.0830529,
+            "pid": 80535,
+            "process": 5,
+            "seconds": 0.001411583
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 2.29165,
+            "ops": 600000,
+            "opsPerSecond": 432731523.98666894,
+            "pid": 80536,
+            "process": 6,
+            "seconds": 0.001386541
+          }
+        ],
+        "totalCompletedOps": 4200000,
+        "totalMeasuredSeconds": 0.009956501999999999
+      },
+      "memory-alloc": {
+        "aggregateOpsPerSecond": 49906303.83874025,
+        "expectedChecksum": -1985233234,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 1.2376309803571903,
+          "count": 210,
+          "max": 79.254150390625,
+          "mean": 20.037548828125,
+          "median": 8.809326171875,
+          "min": 7.6396484375,
+          "p50": 8.799072265625,
+          "p99": 78.25732421875,
+          "stdev": 24.799091200107416
+        },
+        "opsPerBatch": 4096,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 8.62646484375,
+            "ops": 122880,
+            "opsPerSecond": 49645114.998254664,
+            "pid": 80530,
+            "process": 0,
+            "seconds": 0.002475168
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 9.196044921875,
+            "ops": 122880,
+            "opsPerSecond": 49363453.28850665,
+            "pid": 80531,
+            "process": 1,
+            "seconds": 0.002489291
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 8.13818359375,
+            "ops": 122880,
+            "opsPerSecond": 49887845.72443542,
+            "pid": 80532,
+            "process": 2,
+            "seconds": 0.002463125
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 8.7685546875,
+            "ops": 122880,
+            "opsPerSecond": 49887015.32905212,
+            "pid": 80533,
+            "process": 3,
+            "seconds": 0.002463166
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 8.768798828125,
+            "ops": 122880,
+            "opsPerSecond": 50464894.700528964,
+            "pid": 80534,
+            "process": 4,
+            "seconds": 0.00243496
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 8.799072265625,
+            "ops": 122880,
+            "opsPerSecond": 49445448.849833995,
+            "pid": 80535,
+            "process": 5,
+            "seconds": 0.002485163
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 8.402587890625,
+            "ops": 122880,
+            "opsPerSecond": 50680002.06217456,
+            "pid": 80536,
+            "process": 6,
+            "seconds": 0.002424625
+          }
+        ],
+        "totalCompletedOps": 860160,
+        "totalMeasuredSeconds": 0.017235498000000002
+      },
+      "monitor": {
+        "aggregateOpsPerSecond": 34112286.59396972,
+        "expectedChecksum": 3932217,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.6072491104075085,
+          "count": 210,
+          "max": 162.648681640625,
+          "mean": 29.314950706845238,
+          "median": 25.614501953125,
+          "min": 15.482666015625,
+          "p50": 25.59423828125,
+          "p99": 133.748291015625,
+          "stdev": 17.801477738371734
+        },
+        "opsPerBatch": 4096,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 25.634765625,
+            "ops": 122880,
+            "opsPerSecond": 39170108.82073364,
+            "pid": 80530,
+            "process": 0,
+            "seconds": 0.003137086
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 25.014404296875,
+            "ops": 122880,
+            "opsPerSecond": 33711961.9028493,
+            "pid": 80531,
+            "process": 1,
+            "seconds": 0.003644997
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 24.86181640625,
+            "ops": 122880,
+            "opsPerSecond": 35870376.230271,
+            "pid": 80532,
+            "process": 2,
+            "seconds": 0.003425668
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 25.9296875,
+            "ops": 122880,
+            "opsPerSecond": 36468773.316064484,
+            "pid": 80533,
+            "process": 3,
+            "seconds": 0.003369458
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 25.736328125,
+            "ops": 122880,
+            "opsPerSecond": 33724656.07739545,
+            "pid": 80534,
+            "process": 4,
+            "seconds": 0.003643625
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 26.2451171875,
+            "ops": 122880,
+            "opsPerSecond": 28840818.77131728,
+            "pid": 80535,
+            "process": 5,
+            "seconds": 0.004260628
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 23.854736328125,
+            "ops": 122880,
+            "opsPerSecond": 32907651.29672964,
+            "pid": 80536,
+            "process": 6,
+            "seconds": 0.003734086
+          }
+        ],
+        "totalCompletedOps": 860160,
+        "totalMeasuredSeconds": 0.025215548
+      },
+      "reflect-invoke": {
+        "aggregateOpsPerSecond": 8890073.479420666,
+        "expectedChecksum": -1369594686,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.1437705358457228,
+          "count": 210,
+          "max": 132.4585,
+          "mean": 112.4850095238095,
+          "median": 121.09375,
+          "min": 81.6875,
+          "p50": 121.0835,
+          "p99": 130.4375,
+          "stdev": 16.172030093849322
+        },
+        "opsPerBatch": 2000,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 119.9375,
+            "ops": 60000,
+            "opsPerSecond": 8943266.599671662,
+            "pid": 80530,
+            "process": 0,
+            "seconds": 0.006708958
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 122.4585,
+            "ops": 60000,
+            "opsPerSecond": 8858923.41637885,
+            "pid": 80531,
+            "process": 1,
+            "seconds": 0.006772832
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 122.0415,
+            "ops": 60000,
+            "opsPerSecond": 8836521.697637202,
+            "pid": 80532,
+            "process": 2,
+            "seconds": 0.006790002
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 121.4165,
+            "ops": 60000,
+            "opsPerSecond": 8866344.729689533,
+            "pid": 80533,
+            "process": 3,
+            "seconds": 0.006767163
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 121.729,
+            "ops": 60000,
+            "opsPerSecond": 8817043.698150272,
+            "pid": 80534,
+            "process": 4,
+            "seconds": 0.006805002
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 119.646,
+            "ops": 60000,
+            "opsPerSecond": 8954947.212824918,
+            "pid": 80535,
+            "process": 5,
+            "seconds": 0.006700207
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 120.104,
+            "ops": 60000,
+            "opsPerSecond": 8955838.759078981,
+            "pid": 80536,
+            "process": 6,
+            "seconds": 0.00669954
+          }
+        ],
+        "totalCompletedOps": 420000,
+        "totalMeasuredSeconds": 0.047243704
+      },
+      "reflect-lookup": {
+        "aggregateOpsPerSecond": 6635390.455338397,
+        "expectedChecksum": 370350,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.11091936978397321,
+          "count": 210,
+          "max": 248.75,
+          "mean": 150.7070317460317,
+          "median": 147.15166666666667,
+          "min": 130.97333333333333,
+          "p50": 147.08333333333334,
+          "p99": 231.66666666666666,
+          "stdev": 16.71632898328308
+        },
+        "opsPerBatch": 300,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 144.86,
+            "ops": 9000,
+            "opsPerSecond": 6771372.143327377,
+            "pid": 80530,
+            "process": 0,
+            "seconds": 0.001329125
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 147.08333333333334,
+            "ops": 9000,
+            "opsPerSecond": 6594020.102969288,
+            "pid": 80531,
+            "process": 1,
+            "seconds": 0.001364873
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 146.94333333333333,
+            "ops": 9000,
+            "opsPerSecond": 6706603.247039221,
+            "pid": 80532,
+            "process": 2,
+            "seconds": 0.001341961
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 147.36333333333334,
+            "ops": 9000,
+            "opsPerSecond": 6563153.580710745,
+            "pid": 80533,
+            "process": 3,
+            "seconds": 0.001371292
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 148.33333333333334,
+            "ops": 9000,
+            "opsPerSecond": 6333001.906233574,
+            "pid": 80534,
+            "process": 4,
+            "seconds": 0.001421127
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 143.19333333333333,
+            "ops": 9000,
+            "opsPerSecond": 6813221.586405654,
+            "pid": 80535,
+            "process": 5,
+            "seconds": 0.001320961
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 148.19333333333333,
+            "ops": 9000,
+            "opsPerSecond": 6690435.056690286,
+            "pid": 80536,
+            "process": 6,
+            "seconds": 0.001345204
+          }
+        ],
+        "totalCompletedOps": 63000,
+        "totalMeasuredSeconds": 0.009494543000000001
+      },
+      "shared-1": {
+        "aggregateOpsPerSecond": 682112315.0709265,
+        "expectedChecksum": 2063040174,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.11491102634901268,
+          "count": 210,
+          "max": 2.9754638671875,
+          "mean": 1.4660342261904762,
+          "median": 1.41143798828125,
+          "min": 1.1953125,
+          "p50": 1.408935546875,
+          "p99": 1.861572265625,
+          "stdev": 0.16846349759432822
+        },
+        "opsPerBatch": 8192,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1.4139404296875,
+            "ops": 245760,
+            "opsPerSecond": 692607508.3208158,
+            "pid": 80530,
+            "process": 0,
+            "seconds": 0.000354833
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1.4140625,
+            "ops": 245760,
+            "opsPerSecond": 660125223.9499534,
+            "pid": 80531,
+            "process": 1,
+            "seconds": 0.000372293
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1.408935546875,
+            "ops": 245760,
+            "opsPerSecond": 696780339.5443256,
+            "pid": 80532,
+            "process": 2,
+            "seconds": 0.000352708
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1.5157470703125,
+            "ops": 245760,
+            "opsPerSecond": 636270197.3587123,
+            "pid": 80533,
+            "process": 3,
+            "seconds": 0.000386251
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1.4088134765625,
+            "ops": 245760,
+            "opsPerSecond": 703087451.0791202,
+            "pid": 80534,
+            "process": 4,
+            "seconds": 0.000349544
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1.4088134765625,
+            "ops": 245760,
+            "opsPerSecond": 693992234.3805153,
+            "pid": 80535,
+            "process": 5,
+            "seconds": 0.000354125
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 1.4140625,
+            "ops": 245760,
+            "opsPerSecond": 697599164.3343344,
+            "pid": 80536,
+            "process": 6,
+            "seconds": 0.000352294
+          }
+        ],
+        "totalCompletedOps": 1720320,
+        "totalMeasuredSeconds": 0.002522048
+      },
+      "shared-4": {
+        "aggregateOpsPerSecond": 93317127.38038495,
+        "expectedChecksum": 1706379868,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.12586530224100312,
+          "count": 210,
+          "max": 15.162109375,
+          "mean": 10.716146414620535,
+          "median": 10.54132080078125,
+          "min": 7.87353515625,
+          "p50": 10.538818359375,
+          "p99": 14.404296875,
+          "stdev": 1.3487910073350555
+        },
+        "opsPerBatch": 8192,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 10.6048583984375,
+            "ops": 245760,
+            "opsPerSecond": 94109790.15998206,
+            "pid": 80530,
+            "process": 0,
+            "seconds": 0.002611418
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 11.1949462890625,
+            "ops": 245760,
+            "opsPerSecond": 89939648.65128952,
+            "pid": 80531,
+            "process": 1,
+            "seconds": 0.002732499
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 10.6353759765625,
+            "ops": 245760,
+            "opsPerSecond": 91966135.38660504,
+            "pid": 80532,
+            "process": 2,
+            "seconds": 0.002672288
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 10.370849609375,
+            "ops": 245760,
+            "opsPerSecond": 94892683.92697248,
+            "pid": 80533,
+            "process": 3,
+            "seconds": 0.002589873
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 10.4217529296875,
+            "ops": 245760,
+            "opsPerSecond": 91910211.02398956,
+            "pid": 80534,
+            "process": 4,
+            "seconds": 0.002673914
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 10.498046875,
+            "ops": 245760,
+            "opsPerSecond": 96234986.28878562,
+            "pid": 80535,
+            "process": 5,
+            "seconds": 0.002553749
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 10.4776611328125,
+            "ops": 245760,
+            "opsPerSecond": 94470028.36868528,
+            "pid": 80536,
+            "process": 6,
+            "seconds": 0.00260146
+          }
+        ],
+        "totalCompletedOps": 1720320,
+        "totalMeasuredSeconds": 0.018435201
+      }
+    },
+    "processes": 7,
+    "requestedProcesses": 7,
+    "warmupBatches": 10
+  },
+  "mixed": {
+    "batchesPerProcess": 30,
+    "command": "steady",
+    "kernels": {
+      "app": {
+        "aggregateOpsPerSecond": 1900447.0805292004,
+        "expectedChecksum": -199667991,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.12619845918830605,
+          "count": 210,
+          "max": 702.921875,
+          "mean": 526.1919735863095,
+          "median": 491.90234375,
+          "min": 470.78515625,
+          "p50": 491.69921875,
+          "p99": 689.208984375,
+          "stdev": 66.4046163038461
+        },
+        "opsPerBatch": 1024,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 490.8046875,
+            "ops": 30720,
+            "opsPerSecond": 1902172.011706036,
+            "pid": 80550,
+            "process": 0,
+            "seconds": 0.016149959
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 498.208984375,
+            "ops": 30720,
+            "opsPerSecond": 1872762.0356508782,
+            "pid": 80551,
+            "process": 1,
+            "seconds": 0.016403579
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 495.890625,
+            "ops": 30720,
+            "opsPerSecond": 1903606.4977674452,
+            "pid": 80552,
+            "process": 2,
+            "seconds": 0.016137789
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 493.896484375,
+            "ops": 30720,
+            "opsPerSecond": 1895911.1454580429,
+            "pid": 80553,
+            "process": 3,
+            "seconds": 0.016203291
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 484.578125,
+            "ops": 30720,
+            "opsPerSecond": 1902717.1444972456,
+            "pid": 80554,
+            "process": 4,
+            "seconds": 0.016145332
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 480.671875,
+            "ops": 30720,
+            "opsPerSecond": 1921912.3027412274,
+            "pid": 80555,
+            "process": 5,
+            "seconds": 0.01598408
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 491.1708984375,
+            "ops": 30720,
+            "opsPerSecond": 1904727.4193696396,
+            "pid": 80556,
+            "process": 6,
+            "seconds": 0.016128292
+          }
+        ],
+        "totalCompletedOps": 215040,
+        "totalMeasuredSeconds": 0.113152322
+      },
+      "calls-mixed": {
+        "aggregateOpsPerSecond": 4889920.809653528,
+        "expectedChecksum": 550353427,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.08184561314999599,
+          "count": 210,
+          "max": 234.63525,
+          "mean": 204.50228928571423,
+          "median": 213.421875,
+          "min": 178.85425,
+          "p50": 213.375,
+          "p99": 226.354,
+          "stdev": 16.737615257167135
+        },
+        "opsPerBatch": 4000,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 212.3645,
+            "ops": 120000,
+            "opsPerSecond": 4880106.3602914205,
+            "pid": 80550,
+            "process": 0,
+            "seconds": 0.024589628
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 211.8855,
+            "ops": 120000,
+            "opsPerSecond": 4914658.793055636,
+            "pid": 80551,
+            "process": 1,
+            "seconds": 0.024416751
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 214.2915,
+            "ops": 120000,
+            "opsPerSecond": 4895693.97604439,
+            "pid": 80552,
+            "process": 2,
+            "seconds": 0.024511336
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 212.86475,
+            "ops": 120000,
+            "opsPerSecond": 4901609.582385314,
+            "pid": 80553,
+            "process": 3,
+            "seconds": 0.024481754
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 215.3335,
+            "ops": 120000,
+            "opsPerSecond": 4813461.7121009985,
+            "pid": 80554,
+            "process": 4,
+            "seconds": 0.024930083
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 212.59375,
+            "ops": 120000,
+            "opsPerSecond": 4935741.580365225,
+            "pid": 80555,
+            "process": 5,
+            "seconds": 0.024312456
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 212.8855,
+            "ops": 120000,
+            "opsPerSecond": 4889992.487749041,
+            "pid": 80556,
+            "process": 6,
+            "seconds": 0.024539915
+          }
+        ],
+        "totalCompletedOps": 840000,
+        "totalMeasuredSeconds": 0.171781923
+      },
+      "calls-static": {
+        "aggregateOpsPerSecond": 21689459.551652227,
+        "expectedChecksum": -1132101895,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.026369828643573578,
+          "count": 210,
+          "max": 47.86455,
+          "mean": 46.10534428571429,
+          "median": 46.877075000000005,
+          "min": 42.7375,
+          "p50": 46.875,
+          "p99": 47.78955,
+          "stdev": 1.21579002836725
+        },
+        "opsPerBatch": 20000,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 46.3271,
+            "ops": 600000,
+            "opsPerSecond": 21861473.099657748,
+            "pid": 80550,
+            "process": 0,
+            "seconds": 0.027445543
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 47.0396,
+            "ops": 600000,
+            "opsPerSecond": 21549597.044084873,
+            "pid": 80551,
+            "process": 1,
+            "seconds": 0.027842748
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 46.9479,
+            "ops": 600000,
+            "opsPerSecond": 21639593.01119048,
+            "pid": 80552,
+            "process": 2,
+            "seconds": 0.027726954
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 46.85625,
+            "ops": 600000,
+            "opsPerSecond": 21648077.52263153,
+            "pid": 80553,
+            "process": 3,
+            "seconds": 0.027716087
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 46.9021,
+            "ops": 600000,
+            "opsPerSecond": 21628704.14538988,
+            "pid": 80554,
+            "process": 4,
+            "seconds": 0.027740913
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 46.6896,
+            "ops": 600000,
+            "opsPerSecond": 21911908.21276945,
+            "pid": 80555,
+            "process": 5,
+            "seconds": 0.027382371
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 46.94585,
+            "ops": 600000,
+            "opsPerSecond": 21592186.219650835,
+            "pid": 80556,
+            "process": 6,
+            "seconds": 0.02778783
+          }
+        ],
+        "totalCompletedOps": 4200000,
+        "totalMeasuredSeconds": 0.19364244599999997
+      },
+      "calls-virtual": {
+        "aggregateOpsPerSecond": 10007961.61941,
+        "expectedChecksum": 403981648,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.022155183681269872,
+          "count": 210,
+          "max": 108.05,
+          "mean": 99.92044714285716,
+          "median": 99.8323,
+          "min": 93.8354,
+          "p50": 99.83125,
+          "p99": 106.1042,
+          "stdev": 2.2137558599646177
+        },
+        "opsPerBatch": 20000,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 99.80835,
+            "ops": 600000,
+            "opsPerSecond": 10005364.209264727,
+            "pid": 80550,
+            "process": 0,
+            "seconds": 0.059967832
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 98.9875,
+            "ops": 600000,
+            "opsPerSecond": 10089784.79077612,
+            "pid": 80551,
+            "process": 1,
+            "seconds": 0.059466085
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 99.3625,
+            "ops": 600000,
+            "opsPerSecond": 10108064.985827988,
+            "pid": 80552,
+            "process": 2,
+            "seconds": 0.059358542
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 100.1,
+            "ops": 600000,
+            "opsPerSecond": 10003209.363003964,
+            "pid": 80553,
+            "process": 3,
+            "seconds": 0.05998075
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 99.9167,
+            "ops": 600000,
+            "opsPerSecond": 10056399.472769793,
+            "pid": 80554,
+            "process": 4,
+            "seconds": 0.059663501
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 99.64165,
+            "ops": 600000,
+            "opsPerSecond": 9998339.942291582,
+            "pid": 80555,
+            "process": 5,
+            "seconds": 0.060009962
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 102.075,
+            "ops": 600000,
+            "opsPerSecond": 9800845.832597045,
+            "pid": 80556,
+            "process": 6,
+            "seconds": 0.061219206
+          }
+        ],
+        "totalCompletedOps": 4200000,
+        "totalMeasuredSeconds": 0.419665878
+      },
+      "memory-alloc": {
+        "aggregateOpsPerSecond": 1345978.9107719183,
+        "expectedChecksum": -1985233234,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.02670698443941804,
+          "count": 210,
+          "max": 795.0947265625,
+          "mean": 742.9536911737351,
+          "median": 743.927001953125,
+          "min": 696.390625,
+          "p50": 743.672607421875,
+          "p99": 782.267333984375,
+          "stdev": 19.84205266938514
+        },
+        "opsPerBatch": 4096,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 740.46826171875,
+            "ops": 122880,
+            "opsPerSecond": 1344891.0197200554,
+            "pid": 80550,
+            "process": 0,
+            "seconds": 0.091367998
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 741.353271484375,
+            "ops": 122880,
+            "opsPerSecond": 1352407.8307318962,
+            "pid": 80551,
+            "process": 1,
+            "seconds": 0.090860166
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 754.791259765625,
+            "ops": 122880,
+            "opsPerSecond": 1327553.9935428887,
+            "pid": 80552,
+            "process": 2,
+            "seconds": 0.092561207
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 740.95654296875,
+            "ops": 122880,
+            "opsPerSecond": 1350614.7094010334,
+            "pid": 80553,
+            "process": 3,
+            "seconds": 0.090980795
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 743.458984375,
+            "ops": 122880,
+            "opsPerSecond": 1348458.8392815716,
+            "pid": 80554,
+            "process": 4,
+            "seconds": 0.091126252
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 740.24462890625,
+            "ops": 122880,
+            "opsPerSecond": 1349476.3119299999,
+            "pid": 80555,
+            "process": 5,
+            "seconds": 0.091057545
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 747.01953125,
+            "ops": 122880,
+            "opsPerSecond": 1348772.1497518185,
+            "pid": 80556,
+            "process": 6,
+            "seconds": 0.091105084
+          }
+        ],
+        "totalCompletedOps": 860160,
+        "totalMeasuredSeconds": 0.6390590469999999
+      },
+      "monitor": {
+        "aggregateOpsPerSecond": 1424365.5673971067,
+        "expectedChecksum": 3932217,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.031326238954308055,
+          "count": 210,
+          "max": 764.68896484375,
+          "mean": 702.0669573102679,
+          "median": 701.5533447265625,
+          "min": 646.413330078125,
+          "p50": 701.5380859375,
+          "p99": 747.090576171875,
+          "stdev": 21.993117266625443
+        },
+        "opsPerBatch": 4096,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 715.6982421875,
+            "ops": 122880,
+            "opsPerSecond": 1400395.773635642,
+            "pid": 80550,
+            "process": 0,
+            "seconds": 0.087746623
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 694.895263671875,
+            "ops": 122880,
+            "opsPerSecond": 1440031.6300697497,
+            "pid": 80551,
+            "process": 1,
+            "seconds": 0.085331459
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 692.02685546875,
+            "ops": 122880,
+            "opsPerSecond": 1443199.257053049,
+            "pid": 80552,
+            "process": 2,
+            "seconds": 0.085144168
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 695.9736328125,
+            "ops": 122880,
+            "opsPerSecond": 1439391.3623586227,
+            "pid": 80553,
+            "process": 3,
+            "seconds": 0.085369416
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 706.3701171875,
+            "ops": 122880,
+            "opsPerSecond": 1418761.4951085981,
+            "pid": 80554,
+            "process": 4,
+            "seconds": 0.086610752
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 711.212158203125,
+            "ops": 122880,
+            "opsPerSecond": 1403246.352424522,
+            "pid": 80555,
+            "process": 5,
+            "seconds": 0.087568373
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 697.865966796875,
+            "ops": 122880,
+            "opsPerSecond": 1426860.7914179524,
+            "pid": 80556,
+            "process": 6,
+            "seconds": 0.086119123
+          }
+        ],
+        "totalCompletedOps": 860160,
+        "totalMeasuredSeconds": 0.603889914
+      },
+      "reflect-invoke": {
+        "aggregateOpsPerSecond": 2989296.375931521,
+        "expectedChecksum": -1369594686,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.08067858065568687,
+          "count": 210,
+          "max": 411.229,
+          "mean": 334.52688333333344,
+          "median": 325.229,
+          "min": 305.708,
+          "p50": 325.229,
+          "p99": 400.2295,
+          "stdev": 26.989154138503892
+        },
+        "opsPerBatch": 2000,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 315.0835,
+            "ops": 60000,
+            "opsPerSecond": 3022442.0858537774,
+            "pid": 80550,
+            "process": 0,
+            "seconds": 0.019851497
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 323.229,
+            "ops": 60000,
+            "opsPerSecond": 3015150.9829316824,
+            "pid": 80551,
+            "process": 1,
+            "seconds": 0.019899501
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 327.354,
+            "ops": 60000,
+            "opsPerSecond": 2976485.319503127,
+            "pid": 80552,
+            "process": 2,
+            "seconds": 0.020158003
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 324.5205,
+            "ops": 60000,
+            "opsPerSecond": 2981323.054526461,
+            "pid": 80553,
+            "process": 3,
+            "seconds": 0.020125293
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 321.3955,
+            "ops": 60000,
+            "opsPerSecond": 3024466.878483524,
+            "pid": 80554,
+            "process": 4,
+            "seconds": 0.019838207
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 327.9585,
+            "ops": 60000,
+            "opsPerSecond": 2964359.7985776807,
+            "pid": 80555,
+            "process": 5,
+            "seconds": 0.020240458
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 329.396,
+            "ops": 60000,
+            "opsPerSecond": 2942859.6709137363,
+            "pid": 80556,
+            "process": 6,
+            "seconds": 0.020388332
+          }
+        ],
+        "totalCompletedOps": 420000,
+        "totalMeasuredSeconds": 0.140501291
+      },
+      "reflect-lookup": {
+        "aggregateOpsPerSecond": 2523652.027321778,
+        "expectedChecksum": 370350,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.2555054818890421,
+          "count": 210,
+          "max": 890.4166666666666,
+          "mean": 396.25114285714267,
+          "median": 370.695,
+          "min": 346.8066666666667,
+          "p50": 370.6933333333333,
+          "p99": 849.86,
+          "stdev": 101.2443392047979
+        },
+        "opsPerBatch": 300,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 364.72333333333336,
+            "ops": 9000,
+            "opsPerSecond": 2528060.7723338017,
+            "pid": 80550,
+            "process": 0,
+            "seconds": 0.003560041
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 365.0,
+            "ops": 9000,
+            "opsPerSecond": 2552317.546871185,
+            "pid": 80551,
+            "process": 1,
+            "seconds": 0.003526207
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 360.6933333333333,
+            "ops": 9000,
+            "opsPerSecond": 2556213.985785178,
+            "pid": 80552,
+            "process": 2,
+            "seconds": 0.003520832
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 373.61,
+            "ops": 9000,
+            "opsPerSecond": 2461904.0858580847,
+            "pid": 80553,
+            "process": 3,
+            "seconds": 0.003655707
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 375.8333333333333,
+            "ops": 9000,
+            "opsPerSecond": 2578212.9546606927,
+            "pid": 80554,
+            "process": 4,
+            "seconds": 0.00349079
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 374.3066666666667,
+            "ops": 9000,
+            "opsPerSecond": 2481078.331778065,
+            "pid": 80555,
+            "process": 5,
+            "seconds": 0.003627455
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 370.4166666666667,
+            "ops": 9000,
+            "opsPerSecond": 2512008.797613033,
+            "pid": 80556,
+            "process": 6,
+            "seconds": 0.00358279
+          }
+        ],
+        "totalCompletedOps": 63000,
+        "totalMeasuredSeconds": 0.024963822
+      },
+      "shared-1": {
+        "aggregateOpsPerSecond": 8106546.652782044,
+        "expectedChecksum": 2063040174,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.021545603764054126,
+          "count": 210,
+          "max": 127.5430908203125,
+          "mean": 123.35708937872023,
+          "median": 123.7996826171875,
+          "min": 116.1956787109375,
+          "p50": 123.78955078125,
+          "p99": 127.3853759765625,
+          "stdev": 2.6578029692409157
+        },
+        "opsPerBatch": 8192,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 126.6275634765625,
+            "ops": 245760,
+            "opsPerSecond": 7967557.878345934,
+            "pid": 80550,
+            "process": 0,
+            "seconds": 0.030845085
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 124.50146484375,
+            "ops": 245760,
+            "opsPerSecond": 8090875.9176474195,
+            "pid": 80551,
+            "process": 1,
+            "seconds": 0.030374956
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 122.9400634765625,
+            "ops": 245760,
+            "opsPerSecond": 8202913.429456998,
+            "pid": 80552,
+            "process": 2,
+            "seconds": 0.029960087
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 124.05908203125,
+            "ops": 245760,
+            "opsPerSecond": 8151863.7553429855,
+            "pid": 80553,
+            "process": 3,
+            "seconds": 0.030147707
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 126.190185546875,
+            "ops": 245760,
+            "opsPerSecond": 7983054.45969199,
+            "pid": 80554,
+            "process": 4,
+            "seconds": 0.030785209
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 122.55859375,
+            "ops": 245760,
+            "opsPerSecond": 8220428.983568174,
+            "pid": 80555,
+            "process": 5,
+            "seconds": 0.02989625
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 123.8504638671875,
+            "ops": 245760,
+            "opsPerSecond": 8136569.888851197,
+            "pid": 80556,
+            "process": 6,
+            "seconds": 0.030204374
+          }
+        ],
+        "totalCompletedOps": 1720320,
+        "totalMeasuredSeconds": 0.212213668
+      },
+      "shared-4": {
+        "aggregateOpsPerSecond": 2058015.501489271,
+        "expectedChecksum": 1706379868,
+        "measuredBatches": 210,
+        "normalizedNsPerOp": {
+          "coefficientOfVariation": 0.01630311132763135,
+          "count": 210,
+          "max": 506.0628662109375,
+          "mean": 485.90498918805804,
+          "median": 485.90850830078125,
+          "min": 460.357666015625,
+          "p50": 485.865234375,
+          "p99": 502.3905029296875,
+          "stdev": 7.9217631333844185
+        },
+        "opsPerBatch": 8192,
+        "perProcess": [
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 490.3310546875,
+            "ops": 245760,
+            "opsPerSecond": 2039192.5235714426,
+            "pid": 80550,
+            "process": 0,
+            "seconds": 0.120518292
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 487.665771484375,
+            "ops": 245760,
+            "opsPerSecond": 2047901.9396287908,
+            "pid": 80551,
+            "process": 1,
+            "seconds": 0.120005746
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 488.58642578125,
+            "ops": 245760,
+            "opsPerSecond": 2047730.569850272,
+            "pid": 80552,
+            "process": 2,
+            "seconds": 0.120015789
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 488.9678955078125,
+            "ops": 245760,
+            "opsPerSecond": 2040305.6164617464,
+            "pid": 80553,
+            "process": 3,
+            "seconds": 0.120452543
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 481.14013671875,
+            "ops": 245760,
+            "opsPerSecond": 2079874.1405328033,
+            "pid": 80554,
+            "process": 4,
+            "seconds": 0.118160996
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 480.0516357421875,
+            "ops": 245760,
+            "opsPerSecond": 2083327.611303151,
+            "pid": 80555,
+            "process": 5,
+            "seconds": 0.117965124
+          },
+          {
+            "batches": 30,
+            "normalizedNsPerOpP50": 483.9681396484375,
+            "ops": 245760,
+            "opsPerSecond": 2068798.6499876622,
+            "pid": 80556,
+            "process": 6,
+            "seconds": 0.118793581
+          }
+        ],
+        "totalCompletedOps": 1720320,
+        "totalMeasuredSeconds": 0.835912071
+      }
+    },
+    "processes": 7,
+    "requestedProcesses": 7,
+    "warmupBatches": 10
+  }
+}

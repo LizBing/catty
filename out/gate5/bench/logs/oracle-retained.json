@@ -1,0 +1,23 @@
+{
+  "command": [
+    "java",
+    "-Xms256m",
+    "-Xmx256m",
+    "-XX:+UseSerialGC",
+    "-Xlog:gc:file=/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/raw/oracle-retained-gc.log",
+    "-cp",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+    "gate5bench.Main",
+    "retained"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "LC_ALL": "C"
+  },
+  "pid": 80498,
+  "status": 0,
+  "stdout": "CATTY-GATE5-BENCH\n1\nCOMMAND\nretained\nRETAINED\n12000\nCHECK-BEFORE\n2146313669\nGC-CALLS\n1\nCHECK-AFTER\n2146313669\nEND\n0\n",
+  "stderr": ""
+}

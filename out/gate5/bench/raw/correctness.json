@@ -1,0 +1,489 @@
+{
+  "enginePlacement": {
+    "expected": {
+      "aot": "all application methods AOT",
+      "interp": "all application methods interpreted",
+      "mixed": {
+        "callback": [
+          "gate5bench/Callback",
+          "mix",
+          "(II)I"
+        ],
+        "callbackEngine": "aot",
+        "caller": [
+          "gate5bench/Workload",
+          "process",
+          "(Lgate5bench/Node;II)I"
+        ],
+        "callerEngine": "aot",
+        "forced": [
+          "gate5bench/Hot",
+          "mix",
+          "(II)I"
+        ],
+        "forcedEngine": "interp"
+      }
+    },
+    "reflectionLookupName": "combine",
+    "reports": {
+      "aot": {
+        "gate5bench/Bench/<init>()V": "aot",
+        "gate5bench/Bench/batch(J)V": "aot",
+        "gate5bench/Bench/cells(I)[Lgate5bench/Cell;": "aot",
+        "gate5bench/Bench/check(Ljava/lang/String;I)V": "aot",
+        "gate5bench/Bench/cold()V": "aot",
+        "gate5bench/Bench/kernelHeader(Ljava/lang/String;III)V": "aot",
+        "gate5bench/Bench/receivers()[Lgate5bench/Calls$Base;": "aot",
+        "gate5bench/Bench/rss()V": "aot",
+        "gate5bench/Bench/slots()[I": "aot",
+        "gate5bench/Bench/steady(II)V": "aot",
+        "gate5bench/Bench/steadyApp(II)V": "aot",
+        "gate5bench/Bench/steadyCalls(II)V": "aot",
+        "gate5bench/Bench/steadyMemory(II)V": "aot",
+        "gate5bench/Bench/steadyReflection(II)V": "aot",
+        "gate5bench/Bench/verify()V": "aot",
+        "gate5bench/Callback/<init>()V": "aot",
+        "gate5bench/Callback/mix(II)I": "aot",
+        "gate5bench/Calls$Alpha/<init>()V": "aot",
+        "gate5bench/Calls$Alpha/pick(II)I": "aot",
+        "gate5bench/Calls$Base/<init>()V": "aot",
+        "gate5bench/Calls$Base/pick(II)I": "abstract",
+        "gate5bench/Calls$Beta/<init>()V": "aot",
+        "gate5bench/Calls$Beta/pick(II)I": "aot",
+        "gate5bench/Calls/<init>()V": "aot",
+        "gate5bench/Calls/crossingKernel(II)I": "aot",
+        "gate5bench/Calls/directTarget(II)I": "aot",
+        "gate5bench/Calls/staticKernel(II)I": "aot",
+        "gate5bench/Calls/virtualKernel([Lgate5bench/Calls$Base;II)I": "aot",
+        "gate5bench/Cell/<init>()V": "aot",
+        "gate5bench/Escape/<init>()V": "aot",
+        "gate5bench/Hot/<init>()V": "aot",
+        "gate5bench/Hot/mix(II)I": "aot",
+        "gate5bench/Main/<init>()V": "aot",
+        "gate5bench/Main/main([Ljava/lang/String;)V": "aot",
+        "gate5bench/Memory$Counter/<init>()V": "aot",
+        "gate5bench/Memory$Counter/bump()V": "aot",
+        "gate5bench/Memory$Counter/value()I": "aot",
+        "gate5bench/Memory$MonitorWorker/<init>(Lgate5bench/Memory$Counter;I)V": "aot",
+        "gate5bench/Memory$MonitorWorker/run()V": "aot",
+        "gate5bench/Memory$SharedWorker/<init>([ILgate5bench/Cell;IIII)V": "aot",
+        "gate5bench/Memory$SharedWorker/run()V": "aot",
+        "gate5bench/Memory/<init>()V": "aot",
+        "gate5bench/Memory/allocKernel([Lgate5bench/Escape;II)I": "aot",
+        "gate5bench/Memory/monitorKernel(Lgate5bench/Memory$Counter;II)I": "aot",
+        "gate5bench/Memory/sharedOps([ILgate5bench/Cell;IIII)I": "aot",
+        "gate5bench/Memory/sharedSingle([ILgate5bench/Cell;II)I": "aot",
+        "gate5bench/Memory/sharedThreaded([I[Lgate5bench/Cell;III)I": "aot",
+        "gate5bench/Node/<init>()V": "aot",
+        "gate5bench/ReflectTarget/<init>()V": "aot",
+        "gate5bench/ReflectTarget/combine(II)I": "aot",
+        "gate5bench/Reflection/<init>()V": "aot",
+        "gate5bench/Reflection/invokeKernel(Ljava/lang/reflect/Method;[Ljava/lang/Object;II)I": "aot",
+        "gate5bench/Reflection/lookupCombine()Ljava/lang/reflect/Method;": "aot",
+        "gate5bench/Reflection/lookupKernel(II)I": "aot",
+        "gate5bench/Report/<init>()V": "aot",
+        "gate5bench/Report/begin()V": "aot",
+        "gate5bench/Report/bignumber(J)V": "aot",
+        "gate5bench/Report/end()V": "aot",
+        "gate5bench/Report/number(I)V": "aot",
+        "gate5bench/Report/word(Ljava/lang/String;)V": "aot",
+        "gate5bench/Retained/<init>()V": "aot",
+        "gate5bench/Retained/checksum([Lgate5bench/Node;)I": "aot",
+        "gate5bench/Retained/run()V": "aot",
+        "gate5bench/Sizes/<init>()V": "aot",
+        "gate5bench/Workload/<init>()V": "aot",
+        "gate5bench/Workload/buildGraph(II)Lgate5bench/Node;": "aot",
+        "gate5bench/Workload/checksum(Lgate5bench/Node;I)I": "aot",
+        "gate5bench/Workload/process(Lgate5bench/Node;II)I": "aot"
+      },
+      "interp": {
+        "gate5bench/Bench/<init>()V": "interp",
+        "gate5bench/Bench/batch(J)V": "interp",
+        "gate5bench/Bench/cells(I)[Lgate5bench/Cell;": "interp",
+        "gate5bench/Bench/check(Ljava/lang/String;I)V": "interp",
+        "gate5bench/Bench/cold()V": "interp",
+        "gate5bench/Bench/kernelHeader(Ljava/lang/String;III)V": "interp",
+        "gate5bench/Bench/receivers()[Lgate5bench/Calls$Base;": "interp",
+        "gate5bench/Bench/rss()V": "interp",
+        "gate5bench/Bench/slots()[I": "interp",
+        "gate5bench/Bench/steady(II)V": "interp",
+        "gate5bench/Bench/steadyApp(II)V": "interp",
+        "gate5bench/Bench/steadyCalls(II)V": "interp",
+        "gate5bench/Bench/steadyMemory(II)V": "interp",
+        "gate5bench/Bench/steadyReflection(II)V": "interp",
+        "gate5bench/Bench/verify()V": "interp",
+        "gate5bench/Callback/<init>()V": "interp",
+        "gate5bench/Callback/mix(II)I": "interp",
+        "gate5bench/Calls$Alpha/<init>()V": "interp",
+        "gate5bench/Calls$Alpha/pick(II)I": "interp",
+        "gate5bench/Calls$Base/<init>()V": "interp",
+        "gate5bench/Calls$Base/pick(II)I": "abstract",
+        "gate5bench/Calls$Beta/<init>()V": "interp",
+        "gate5bench/Calls$Beta/pick(II)I": "interp",
+        "gate5bench/Calls/<init>()V": "interp",
+        "gate5bench/Calls/crossingKernel(II)I": "interp",
+        "gate5bench/Calls/directTarget(II)I": "interp",
+        "gate5bench/Calls/staticKernel(II)I": "interp",
+        "gate5bench/Calls/virtualKernel([Lgate5bench/Calls$Base;II)I": "interp",
+        "gate5bench/Cell/<init>()V": "interp",
+        "gate5bench/Escape/<init>()V": "interp",
+        "gate5bench/Hot/<init>()V": "interp",
+        "gate5bench/Hot/mix(II)I": "interp",
+        "gate5bench/Main/<init>()V": "interp",
+        "gate5bench/Main/main([Ljava/lang/String;)V": "interp",
+        "gate5bench/Memory$Counter/<init>()V": "interp",
+        "gate5bench/Memory$Counter/bump()V": "interp",
+        "gate5bench/Memory$Counter/value()I": "interp",
+        "gate5bench/Memory$MonitorWorker/<init>(Lgate5bench/Memory$Counter;I)V": "interp",
+        "gate5bench/Memory$MonitorWorker/run()V": "interp",
+        "gate5bench/Memory$SharedWorker/<init>([ILgate5bench/Cell;IIII)V": "interp",
+        "gate5bench/Memory$SharedWorker/run()V": "interp",
+        "gate5bench/Memory/<init>()V": "interp",
+        "gate5bench/Memory/allocKernel([Lgate5bench/Escape;II)I": "interp",
+        "gate5bench/Memory/monitorKernel(Lgate5bench/Memory$Counter;II)I": "interp",
+        "gate5bench/Memory/sharedOps([ILgate5bench/Cell;IIII)I": "interp",
+        "gate5bench/Memory/sharedSingle([ILgate5bench/Cell;II)I": "interp",
+        "gate5bench/Memory/sharedThreaded([I[Lgate5bench/Cell;III)I": "interp",
+        "gate5bench/Node/<init>()V": "interp",
+        "gate5bench/ReflectTarget/<init>()V": "interp",
+        "gate5bench/ReflectTarget/combine(II)I": "interp",
+        "gate5bench/Reflection/<init>()V": "interp",
+        "gate5bench/Reflection/invokeKernel(Ljava/lang/reflect/Method;[Ljava/lang/Object;II)I": "interp",
+        "gate5bench/Reflection/lookupCombine()Ljava/lang/reflect/Method;": "interp",
+        "gate5bench/Reflection/lookupKernel(II)I": "interp",
+        "gate5bench/Report/<init>()V": "interp",
+        "gate5bench/Report/begin()V": "interp",
+        "gate5bench/Report/bignumber(J)V": "interp",
+        "gate5bench/Report/end()V": "interp",
+        "gate5bench/Report/number(I)V": "interp",
+        "gate5bench/Report/word(Ljava/lang/String;)V": "interp",
+        "gate5bench/Retained/<init>()V": "interp",
+        "gate5bench/Retained/checksum([Lgate5bench/Node;)I": "interp",
+        "gate5bench/Retained/run()V": "interp",
+        "gate5bench/Sizes/<init>()V": "interp",
+        "gate5bench/Workload/<init>()V": "interp",
+        "gate5bench/Workload/buildGraph(II)Lgate5bench/Node;": "interp",
+        "gate5bench/Workload/checksum(Lgate5bench/Node;I)I": "interp",
+        "gate5bench/Workload/process(Lgate5bench/Node;II)I": "interp"
+      },
+      "mixed": {
+        "gate5bench/Bench/<init>()V": "aot",
+        "gate5bench/Bench/batch(J)V": "aot",
+        "gate5bench/Bench/cells(I)[Lgate5bench/Cell;": "aot",
+        "gate5bench/Bench/check(Ljava/lang/String;I)V": "aot",
+        "gate5bench/Bench/cold()V": "aot",
+        "gate5bench/Bench/kernelHeader(Ljava/lang/String;III)V": "aot",
+        "gate5bench/Bench/receivers()[Lgate5bench/Calls$Base;": "aot",
+        "gate5bench/Bench/rss()V": "aot",
+        "gate5bench/Bench/slots()[I": "aot",
+        "gate5bench/Bench/steady(II)V": "aot",
+        "gate5bench/Bench/steadyApp(II)V": "aot",
+        "gate5bench/Bench/steadyCalls(II)V": "aot",
+        "gate5bench/Bench/steadyMemory(II)V": "aot",
+        "gate5bench/Bench/steadyReflection(II)V": "aot",
+        "gate5bench/Bench/verify()V": "aot",
+        "gate5bench/Callback/<init>()V": "aot",
+        "gate5bench/Callback/mix(II)I": "aot",
+        "gate5bench/Calls$Alpha/<init>()V": "aot",
+        "gate5bench/Calls$Alpha/pick(II)I": "aot",
+        "gate5bench/Calls$Base/<init>()V": "aot",
+        "gate5bench/Calls$Base/pick(II)I": "abstract",
+        "gate5bench/Calls$Beta/<init>()V": "aot",
+        "gate5bench/Calls$Beta/pick(II)I": "aot",
+        "gate5bench/Calls/<init>()V": "aot",
+        "gate5bench/Calls/crossingKernel(II)I": "aot",
+        "gate5bench/Calls/directTarget(II)I": "aot",
+        "gate5bench/Calls/staticKernel(II)I": "aot",
+        "gate5bench/Calls/virtualKernel([Lgate5bench/Calls$Base;II)I": "aot",
+        "gate5bench/Cell/<init>()V": "aot",
+        "gate5bench/Escape/<init>()V": "aot",
+        "gate5bench/Hot/<init>()V": "aot",
+        "gate5bench/Hot/mix(II)I": "interp",
+        "gate5bench/Main/<init>()V": "aot",
+        "gate5bench/Main/main([Ljava/lang/String;)V": "aot",
+        "gate5bench/Memory$Counter/<init>()V": "aot",
+        "gate5bench/Memory$Counter/bump()V": "aot",
+        "gate5bench/Memory$Counter/value()I": "aot",
+        "gate5bench/Memory$MonitorWorker/<init>(Lgate5bench/Memory$Counter;I)V": "aot",
+        "gate5bench/Memory$MonitorWorker/run()V": "aot",
+        "gate5bench/Memory$SharedWorker/<init>([ILgate5bench/Cell;IIII)V": "aot",
+        "gate5bench/Memory$SharedWorker/run()V": "aot",
+        "gate5bench/Memory/<init>()V": "aot",
+        "gate5bench/Memory/allocKernel([Lgate5bench/Escape;II)I": "aot",
+        "gate5bench/Memory/monitorKernel(Lgate5bench/Memory$Counter;II)I": "aot",
+        "gate5bench/Memory/sharedOps([ILgate5bench/Cell;IIII)I": "aot",
+        "gate5bench/Memory/sharedSingle([ILgate5bench/Cell;II)I": "aot",
+        "gate5bench/Memory/sharedThreaded([I[Lgate5bench/Cell;III)I": "aot",
+        "gate5bench/Node/<init>()V": "aot",
+        "gate5bench/ReflectTarget/<init>()V": "aot",
+        "gate5bench/ReflectTarget/combine(II)I": "aot",
+        "gate5bench/Reflection/<init>()V": "aot",
+        "gate5bench/Reflection/invokeKernel(Ljava/lang/reflect/Method;[Ljava/lang/Object;II)I": "aot",
+        "gate5bench/Reflection/lookupCombine()Ljava/lang/reflect/Method;": "aot",
+        "gate5bench/Reflection/lookupKernel(II)I": "aot",
+        "gate5bench/Report/<init>()V": "aot",
+        "gate5bench/Report/begin()V": "aot",
+        "gate5bench/Report/bignumber(J)V": "aot",
+        "gate5bench/Report/end()V": "aot",
+        "gate5bench/Report/number(I)V": "aot",
+        "gate5bench/Report/word(Ljava/lang/String;)V": "aot",
+        "gate5bench/Retained/<init>()V": "aot",
+        "gate5bench/Retained/checksum([Lgate5bench/Node;)I": "aot",
+        "gate5bench/Retained/run()V": "aot",
+        "gate5bench/Sizes/<init>()V": "aot",
+        "gate5bench/Workload/<init>()V": "aot",
+        "gate5bench/Workload/buildGraph(II)Lgate5bench/Node;": "aot",
+        "gate5bench/Workload/checksum(Lgate5bench/Node;I)I": "aot",
+        "gate5bench/Workload/process(Lgate5bench/Node;II)I": "aot"
+      }
+    },
+    "selectedTargets": {
+      "aot": {
+        "appCallback": "aot",
+        "appProcess": "aot",
+        "callsCrossingKernel": "aot",
+        "callsStaticTarget": "aot",
+        "callsVirtualAlpha": "aot",
+        "callsVirtualBeta": "aot",
+        "hotMethod": "aot",
+        "main": "aot",
+        "memorySharedKernel": "aot",
+        "monitorBump": "aot",
+        "reflectTarget": "aot"
+      },
+      "interp": {
+        "appCallback": "interp",
+        "appProcess": "interp",
+        "callsCrossingKernel": "interp",
+        "callsStaticTarget": "interp",
+        "callsVirtualAlpha": "interp",
+        "callsVirtualBeta": "interp",
+        "hotMethod": "interp",
+        "main": "interp",
+        "memorySharedKernel": "interp",
+        "monitorBump": "interp",
+        "reflectTarget": "interp"
+      },
+      "mixed": {
+        "appCallback": "aot",
+        "appProcess": "aot",
+        "callsCrossingKernel": "aot",
+        "callsStaticTarget": "aot",
+        "callsVirtualAlpha": "aot",
+        "callsVirtualBeta": "aot",
+        "hotMethod": "interp",
+        "main": "aot",
+        "memorySharedKernel": "aot",
+        "monitorBump": "aot",
+        "reflectTarget": "aot"
+      }
+    },
+    "virtualReceiverTypes": [
+      "gate5bench/Calls$Alpha",
+      "gate5bench/Calls$Beta"
+    ]
+  },
+  "openjdkVerifyAll": {
+    "command": [
+      "java",
+      "-Xms256m",
+      "-Xmx256m",
+      "-XX:+UseSerialGC",
+      "-Xverify:all",
+      "-cp",
+      "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+      "gate5bench.Main",
+      "verify"
+    ],
+    "status": 0,
+    "stdoutSha256": "add2dba8358d8868c86e0a366aed16a33b9f604d17173d7341ea801bc8f75847"
+  },
+  "oracle": {
+    "cold": {
+      "stdoutSha256": "7b0499897a5fec935fbcceae0b3e427d03cb766ff9ae6951ec9e28745cd2ef21"
+    },
+    "retained": {
+      "gc": {
+        "collectionConfirmed": true,
+        "heapAfterBytes": 1048576,
+        "heapAfterMiB": 1,
+        "heapBeforeMiB": 6,
+        "heapTotalMiB": 247,
+        "rawLine": "[0.012s][info][gc] GC(0) Pause Full (System.gc()) 6M->1M(247M) 0.870ms",
+        "source": "OpenJDK -Xlog:gc:file, Pause Full (System.gc()) heap-after field",
+        "status": "ok",
+        "units": "MiB in the log; heapAfterBytes converted *1024*1024"
+      },
+      "values": {
+        "CHECK-AFTER": 2146313669,
+        "CHECK-BEFORE": 2146313669,
+        "GC-CALLS": 1,
+        "RETAINED": 12000
+      }
+    },
+    "rss": {
+      "stdoutSha256": "497724bad8ac3e8d14fb70648cfad1c7870021ea58f8c8df26a83b6661920f93"
+    },
+    "steady": {
+      "batchCommand": "steady",
+      "batches": 30,
+      "checksums": [
+        [
+          "app",
+          -199667991
+        ],
+        [
+          "calls-static",
+          -1132101895
+        ],
+        [
+          "calls-virtual",
+          403981648
+        ],
+        [
+          "calls-mixed",
+          550353427
+        ],
+        [
+          "reflect-lookup",
+          370350
+        ],
+        [
+          "reflect-invoke",
+          -1369594686
+        ],
+        [
+          "memory-alloc",
+          -1985233234
+        ],
+        [
+          "shared-1",
+          2063040174
+        ],
+        [
+          "shared-4",
+          1706379868
+        ],
+        [
+          "monitor",
+          3932217
+        ]
+      ],
+      "warmup": 10
+    },
+    "verify": {
+      "kernelOrder": [
+        "app",
+        "calls-static",
+        "calls-virtual",
+        "calls-mixed",
+        "reflect-lookup",
+        "reflect-invoke",
+        "memory-alloc",
+        "shared-1",
+        "shared-4",
+        "monitor"
+      ],
+      "work": 4096
+    }
+  },
+  "retained": {
+    "aot": {
+      "collectionConfirmed": true,
+      "postGCHeapBytes": 6690808,
+      "stdoutMatches": true
+    },
+    "interp": {
+      "collectionConfirmed": true,
+      "postGCHeapBytes": 6979312,
+      "stdoutMatches": true
+    },
+    "java": {
+      "collectionConfirmed": true,
+      "stdoutMatches": true
+    },
+    "mixed": {
+      "collectionConfirmed": true,
+      "postGCHeapBytes": 6696240,
+      "stdoutMatches": true
+    }
+  },
+  "runtimeMetrics": {
+    "aot": {
+      "counters": {
+        "classesLoaded": 98,
+        "crossEngineCalls": 0,
+        "javaExceptions": 0,
+        "liveJavaThreads": 0,
+        "methodsByEngine": {
+          "abstract": 2,
+          "aot": 67,
+          "interp": 0,
+          "intrinsic": 159
+        },
+        "monitorContentions": 1254,
+        "peakJavaThreads": 5,
+        "reflectionLookupMisses": 0,
+        "reflectiveInvocations": 2000
+      },
+      "goRuntime": {
+        "heapAllocBytes": 3345544,
+        "heapAllocScope": "live Go-managed heap for the process, including runtime structures",
+        "numGC": 1,
+        "totalAllocBytes": 5568512
+      },
+      "peakJavaThreads": 5
+    },
+    "interp": {
+      "counters": {
+        "classesLoaded": 98,
+        "crossEngineCalls": 0,
+        "javaExceptions": 0,
+        "liveJavaThreads": 0,
+        "methodsByEngine": {
+          "abstract": 2,
+          "aot": 0,
+          "interp": 67,
+          "intrinsic": 159
+        },
+        "monitorContentions": 1538,
+        "peakJavaThreads": 5,
+        "reflectionLookupMisses": 0,
+        "reflectiveInvocations": 2000
+      },
+      "goRuntime": {
+        "heapAllocBytes": 4633744,
+        "heapAllocScope": "live Go-managed heap for the process, including runtime structures",
+        "numGC": 13,
+        "totalAllocBytes": 33512920
+      },
+      "peakJavaThreads": 5
+    },
+    "mixed": {
+      "counters": {
+        "classesLoaded": 98,
+        "crossEngineCalls": 10048,
+        "javaExceptions": 0,
+        "liveJavaThreads": 0,
+        "methodsByEngine": {
+          "abstract": 2,
+          "aot": 66,
+          "interp": 1,
+          "intrinsic": 159
+        },
+        "monitorContentions": 1247,
+        "peakJavaThreads": 5,
+        "reflectionLookupMisses": 0,
+        "reflectiveInvocations": 2000
+      },
+      "goRuntime": {
+        "heapAllocBytes": 3280056,
+        "heapAllocScope": "live Go-managed heap for the process, including runtime structures",
+        "numGC": 2,
+        "totalAllocBytes": 7549584
+      },
+      "peakJavaThreads": 5
+    }
+  },
+  "status": "ok"
+}

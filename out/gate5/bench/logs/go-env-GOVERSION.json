@@ -1,0 +1,17 @@
+{
+  "command": [
+    "go",
+    "env",
+    "GOVERSION"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "LC_ALL": "C"
+  },
+  "pid": 80202,
+  "status": 0,
+  "stdout": "go1.27.1\n",
+  "stderr": ""
+}

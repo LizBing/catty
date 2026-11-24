@@ -1,0 +1,31 @@
+Gate 5 application benchmark summary
+mode: full
+status: ok
+started: 2026-11-24T23:27:03+0800
+finished: 2026-11-24T23:27:33+0800
+durationSeconds: 29.848893167
+git revision: 7469e36c0ec954d94f793962e065ab9f7ec956cc
+git dirty: False
+go: go version go1.27.1 darwin/arm64
+java: openjdk version "21.0.13.1" 2026-11-17 LTS
+class manifest sha256: 01828da24d10ddd1ab23fb7c0647e31491e94f5820b2eefef7f25720d12ab70d
+failures: none
+
+cold launch->result (median seconds): {"java": 0.015138957999999647, "interp": 0.0055095420000004225, "mixed": 0.0038455000000006123, "aot": 0.0035746250000006086}
+
+steady aggregate ops/s by kernel:
+  app: {"java": 16084978.713807583, "interp": 1181567.1632331244, "mixed": 1900447.0805292004, "aot": 2395581.67578313}
+  calls-static: {"java": 552940934.8493395, "interp": 4456104.967728522, "mixed": 21689459.551652227, "aot": 21753575.28167345}
+  calls-virtual: {"java": 421834897.43687093, "interp": 3247809.201515792, "mixed": 10007961.61941, "aot": 9970544.400507843}
+  calls-mixed: {"java": 266931479.6425025, "interp": 2604381.6234249766, "mixed": 4889920.809653528, "aot": 10293197.692515055}
+  reflect-lookup: {"java": 6635390.455338397, "interp": 1730097.5346604444, "mixed": 2523652.027321778, "aot": 2646053.6566760503}
+  reflect-invoke: {"java": 8890073.479420666, "interp": 1468940.8253591678, "mixed": 2989296.375931521, "aot": 2976721.506263607}
+  memory-alloc: {"java": 49906303.83874025, "interp": 952368.8638695619, "mixed": 1345978.9107719183, "aot": 1340612.584111318}
+  shared-1: {"java": 682112315.0709265, "interp": 4063646.8690870763, "mixed": 8106546.652782044, "aot": 8126160.493323014}
+  shared-4: {"java": 93317127.38038495, "interp": 1978896.7351851494, "mixed": 2058015.501489271, "aot": 2181809.2606622158}
+  monitor: {"java": 34112286.59396972, "interp": 1198768.0083236333, "mixed": 1424365.5673971067, "aot": 1430998.2710384624}
+
+peak RSS bytes (median): {"java": 43335680, "interp": 30703616, "mixed": 26460160, "aot": 26411008}
+retained heap after GC bytes (median): {"java": 1048576, "interp": 6985032, "mixed": 6696640, "aot": 6691848}
+
+Quantile method: nearest-rank over the ascending pooled sample (index = ceil(p * n) - 1, clamped to [0, n-1])

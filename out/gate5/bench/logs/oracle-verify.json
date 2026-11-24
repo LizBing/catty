@@ -1,0 +1,23 @@
+{
+  "command": [
+    "java",
+    "-Xms256m",
+    "-Xmx256m",
+    "-XX:+UseSerialGC",
+    "-Xverify:all",
+    "-cp",
+    "/private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-bench-pogn6hro/classes/benchmark",
+    "gate5bench.Main",
+    "verify"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "LC_ALL": "C"
+  },
+  "pid": 80475,
+  "status": 0,
+  "stdout": "CATTY-GATE5-BENCH\n1\nCOMMAND\nverify\nCHECK\napp\n1534917405\nCHECK\ncalls-static\n221583271\nCHECK\ncalls-virtual\n-1922394947\nCHECK\ncalls-mixed\n-1727435405\nCHECK\nreflect-lookup\n12345\nCHECK\nreflect-invoke\n31899279\nCHECK\nmemory-alloc\n94021689\nCHECK\nshared-1\n174057529\nCHECK\nshared-4\n-130890666\nCHECK\nmonitor\n131072\nWORK\n4096\nEND\n0\n",
+  "stderr": ""
+}

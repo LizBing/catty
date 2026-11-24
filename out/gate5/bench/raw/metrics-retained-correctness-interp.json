@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "pid": 80499,
+  "profile": "catty-jvm21-gate5",
+  "terminalReason": "natural",
+  "status": 0,
+  "counters": {
+    "classesLoaded": 96,
+    "methodsByEngine": {
+      "abstract": 2,
+      "aot": 0,
+      "interp": 67,
+      "intrinsic": 159
+    },
+    "crossEngineCalls": 0,
+    "reflectiveInvocations": 0,
+    "reflectionLookupMisses": 0,
+    "javaExceptions": 0,
+    "monitorContentions": 0,
+    "liveJavaThreads": 0,
+    "peakJavaThreads": 1
+  },
+  "goRuntime": {
+    "heapAllocBytes": 6994576,
+    "totalAllocBytes": 10252512,
+    "numGC": 4,
+    "postGCHeapBytes": 6979312,
+    "postGCHeapScope": "live Go-managed heap observed immediately after Runtime.gc()",
+    "heapAllocScope": "live Go-managed heap for the process, including runtime structures"
+  }
+}
