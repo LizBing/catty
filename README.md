@@ -26,6 +26,11 @@ Gate 3 plugin admission surface. See the
 [test plan](GATE4-TESTING.md), and run the differential suite with
 `python3 -B tests/gate4.py --java-home /path/to/jdk-21 --race`.
 
+The Gate 5 plan covers application shutdown, process diagnostics, and workload
+measurements. See the [implementation specification and plan](GATE5.md),
+[acceptance and measurement plan](GATE5-TESTING.md), and
+[implementation-agent prompt](GATE5-IMPL-PROMPT.md).
+
 ## Requirements
 
 - Go 1.21 or newer (validated with **go1.27.1** on darwin/arm64).
