@@ -216,6 +216,9 @@ func (r *Runtime) activateShutdown(plan *lifecyclePlan) {
 	if plan == nil {
 		return
 	}
+	if hook := r.ShutdownCoordinatorDoneHook; hook != nil {
+		defer hook()
+	}
 	r.keepShutdownAlive()
 	if hook := r.ActivateShutdownHook; hook != nil {
 		hook()
@@ -224,19 +227,20 @@ func (r *Runtime) activateShutdown(plan *lifecyclePlan) {
 	// that already won still owes the trace the begin record for the frozen
 	// snapshot; terminal publication emits it if this coordinator is late.
 	r.ensureShutdownBegin()
-	r.thrMu.Lock()
-	terminal := r.lifeState == lifecycleTerminal
-	r.thrMu.Unlock()
-	if terminal {
-		return
-	}
 	if hook := r.BeforeHookStartHook; hook != nil {
 		hook()
 	}
 
 	// Publish the new-to-started transition for every eligible snapshot member
-	// under the lifecycle lock, then start the goroutines outside it.
+	// under the lifecycle lock, then start the goroutines outside it. The
+	// terminal check is part of this same critical section: otherwise a halt
+	// could commit after the check and the coordinator would still start hooks
+	// for an application that had already terminated.
 	r.thrMu.Lock()
+	if r.lifeState == lifecycleTerminal {
+		r.thrMu.Unlock()
+		return
+	}
 	var started []*hookStart
 	for _, start := range plan.starts {
 		p, ok := peerOfObject(start.peer)

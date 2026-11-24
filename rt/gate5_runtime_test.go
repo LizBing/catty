@@ -1084,3 +1084,120 @@ func TestGate5MonitorContentionCountedAtFirstBlock(t *testing.T) {
 		t.Fatalf("wake/retry monitorContentions = %d, want 2", got)
 	}
 }
+
+func TestGate5HaltBeforeHookStartLeavesPeerNew(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "halt-before-start.jsonl")
+	var bodyRuns int32
+	r := gate5Runtime(t, gate5RunnableClass("app/Hook", func(*Thread) {
+		atomic.AddInt32(&bodyRuns, 1)
+	}))
+	if err := r.SetTracePath(path); err != nil {
+		t.Fatal(err)
+	}
+	defer r.CloseTrace()
+	hook := gate5Peer(r, "hook", false, gate5Runnable(r, "app/Hook"))
+	gate5Register(t, r, hook)
+	reached := make(chan struct{})
+	release := make(chan struct{})
+	done := make(chan struct{})
+	r.BeforeHookStartHook = func() {
+		close(reached)
+		<-release
+	}
+	r.ShutdownCoordinatorDoneHook = func() { close(done) }
+	go intrinsicSystemExit(testThread(r, "exit"), r.mustClass("java/lang/System").MethodIndex["exit(I)V"],
+		nil, []Value{IntValue(5)})
+	<-reached
+	r.thrMu.Lock()
+	p, _ := peerOfObject(hook)
+	if p == nil || p.state != threadNew {
+		state := threadState(255)
+		if p != nil {
+			state = p.state
+		}
+		r.thrMu.Unlock()
+		t.Fatalf("peer state before hook start = %d, want new", state)
+	}
+	r.thrMu.Unlock()
+	if live := r.LiveNonDaemon(); live != 0 {
+		t.Fatalf("live non-daemon before hook start = %d", live)
+	}
+	halter := testThread(r, "halter")
+	if !r.publishTerminal("halt", 31, halter.ID) {
+		t.Fatal("halt did not commit")
+	}
+	result := gate5WaitTerminal(t, r)
+	if result.reason != "halt" || result.status != 31 {
+		t.Fatalf("terminal = %+v", result)
+	}
+	close(release)
+	select {
+	case <-done:
+	case <-time.After(5 * time.Second):
+		t.Fatal("shutdown coordinator did not return")
+	}
+	r.thrMu.Lock()
+	if p, _ := peerOfObject(hook); p == nil || p.state != threadNew {
+		state := threadState(255)
+		if p != nil {
+			state = p.state
+		}
+		r.thrMu.Unlock()
+		t.Fatalf("peer state after halt = %d, want new", state)
+	}
+	r.thrMu.Unlock()
+	if got := atomic.LoadInt32(&bodyRuns); got != 0 {
+		t.Fatalf("hook body ran %d times after halt", got)
+	}
+	if live := r.LiveNonDaemon(); live != 0 {
+		t.Fatalf("live non-daemon after halt = %d", live)
+	}
+	r.trace.processExit(result.reason, result.status, result.requester)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var events []map[string]any
+	for _, line := range strings.Split(strings.TrimSpace(string(data)), "\n") {
+		if line == "" {
+			continue
+		}
+		var event map[string]any
+		if err := json.Unmarshal([]byte(line), &event); err != nil {
+			t.Fatal(err)
+		}
+		events = append(events, event)
+	}
+	begins, exits, hookStarts, hookEnters := 0, 0, 0, 0
+	beginIndex, exitIndex := -1, -1
+	for i, event := range events {
+		switch event["event"] {
+		case "shutdown_begin":
+			begins++
+			beginIndex = i
+			if event["reason"] != "exit" || event["status"] != float64(5) {
+				t.Fatalf("shutdown_begin = %v", event)
+			}
+		case "process_exit":
+			exits++
+			exitIndex = i
+			if event["reason"] != "halt" || event["status"] != float64(31) {
+				t.Fatalf("process_exit = %v", event)
+			}
+		case "thread_start":
+			if event["shutdownHook"] == true {
+				hookStarts++
+			}
+		case "enter":
+			if event["owner"] == "app/Hook" {
+				hookEnters++
+			}
+		}
+	}
+	if begins != 1 || exits != 1 || beginIndex >= exitIndex {
+		t.Fatalf("trace ordering = %d begins at %d, %d exits at %d\n%s", begins, beginIndex, exits, exitIndex, data)
+	}
+	if hookStarts != 0 || hookEnters != 0 {
+		t.Fatalf("hook started after halt: %d starts, %d enters\n%s", hookStarts, hookEnters, data)
+	}
+}

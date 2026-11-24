@@ -162,9 +162,12 @@ type Runtime struct {
 	// recorded or hooks are started.
 	ActivateShutdownHook func()
 	// BeforeHookStartHook is an optional deterministic-race hook invoked after
-	// the shutdown event and terminal check but before snapshot hooks are
-	// started.
+	// the shutdown event but before the lifecycle lock that publishes snapshot
+	// hook starts.
 	BeforeHookStartHook func()
+	// ShutdownCoordinatorDoneHook is an optional deterministic-race hook
+	// invoked when the shutdown coordinator returns.
+	ShutdownCoordinatorDoneHook func()
 
 	// AllocHook is an optional testing hook invoked after each instance
 	// allocation. It must not retain the object; the garbage-collection
