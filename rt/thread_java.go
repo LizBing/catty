@@ -128,25 +128,23 @@ func millisToDuration(ms int64) time.Duration {
 	return time.Duration(ms) * time.Millisecond
 }
 
-// waitTimeout converts the two-argument wait/join forms into one duration. A
-// zero remainder stays indefinite (timed=false); a positive nanosecond remainder
-// rounds up to one millisecond with saturation.
-func waitTimeout(ms int64, nanos int32) (time.Duration, bool) {
+// waitTimeoutMillis converts the two-argument wait/join forms into one Java
+// millisecond timeout. A zero remainder stays indefinite (timed=false); a
+// positive nanosecond remainder rounds up to one millisecond with saturation.
+// The full int64 millisecond range is preserved so the wait layer can walk
+// durations beyond Go's representable duration range in bounded segments.
+func waitTimeoutMillis(ms int64, nanos int32) (int64, bool) {
 	if ms == 0 && nanos == 0 {
 		return 0, false
 	}
-	d := millisToDuration(ms)
-	if nanos > 0 {
-		if d > maxTimerDuration-time.Millisecond {
-			d = maxTimerDuration
-		} else {
-			d += time.Millisecond
-		}
+	total := ms
+	if nanos > 0 && total < math.MaxInt64 {
+		total++
 	}
-	if d <= 0 {
-		d = time.Millisecond
+	if total <= 0 {
+		total = 1
 	}
-	return d, true
+	return total, true
 }
 
 // sleepNanos sums a sleep duration in nanoseconds, saturating at the signed
@@ -188,14 +186,14 @@ func intrinsicObjectWait(t *Thread, m *Method, receiver *Object, args []Value) O
 		if ms < 0 {
 			return ThrowOutcome(t.RT.NewThrowable(t, "java/lang/IllegalArgumentException"))
 		}
-		return t.objectWait(receiver, millisToDuration(ms), ms > 0)
+		return t.objectWait(receiver, ms, ms > 0)
 	case "(JI)V":
 		ms, nanos := AsLong(args[0]), AsInt(args[1])
 		if ms < 0 || nanos < 0 || nanos > 999999 {
 			return ThrowOutcome(t.RT.NewThrowable(t, "java/lang/IllegalArgumentException"))
 		}
-		d, timed := waitTimeout(ms, nanos)
-		return t.objectWait(receiver, d, timed)
+		millis, timed := waitTimeoutMillis(ms, nanos)
+		return t.objectWait(receiver, millis, timed)
 	}
 	return ThrowOutcome(t.RT.NewThrowable(t, "java/lang/IllegalArgumentException"))
 }
@@ -330,8 +328,25 @@ func (r *Runtime) finishThread(t *Thread, peer *Object, out Outcome) {
 	if tr := r.trace; tr != nil {
 		tr.threadEnd(t.ID, result, out.Thrown)
 	}
+	r.publishTermination(t, peer, true)
+}
+
+// publishTermination performs the JVM thread-termination publication. The
+// terminating thread releases every monitor it still owns, then acquires the
+// target's peer monitor, publishes the terminated state and notifies all
+// joiners while owning it, and releases it. A daemon or main termination may
+// skip the launcher counter. The silent monitor helpers keep this VM-internal
+// transition out of the thread's trace lifetime, which already ended.
+func (r *Runtime) publishTermination(t *Thread, peer *Object, countLive bool) {
 	r.thrMu.Lock()
 	r.releaseHeldMonitorsLocked(t)
+	r.thrMu.Unlock()
+	if peer == nil {
+		// Earlier profiles have no Java peer; there is nothing to publish.
+		return
+	}
+	entered := t.monitorEnterSilent(peer) == nil
+	r.thrMu.Lock()
 	p, _ := peerOfObject(peer)
 	if p != nil {
 		p.state = threadTerminated
@@ -341,12 +356,15 @@ func (r *Runtime) finishThread(t *Thread, peer *Object, out Outcome) {
 				r.wakeWaiterLocked(peer.monitor, w, waiterNotified)
 			}
 		}
-		if !p.daemon {
+		if countLive && !p.daemon {
 			r.liveNonDaemon--
 			r.liveCond.Broadcast()
 		}
 	}
 	r.thrMu.Unlock()
+	if entered {
+		t.monitorExitSilent(peer)
+	}
 }
 
 func peerName(peer *Object) string {
@@ -433,14 +451,14 @@ func intrinsicThreadJoin(t *Thread, m *Method, receiver *Object, args []Value) O
 		if ms < 0 {
 			return ThrowOutcome(t.RT.NewThrowable(t, "java/lang/IllegalArgumentException"))
 		}
-		return t.joinPeer(receiver, millisToDuration(ms), ms > 0)
+		return t.joinPeer(receiver, ms, ms > 0)
 	case "(JI)V":
 		ms, nanos := AsLong(args[0]), AsInt(args[1])
 		if ms < 0 || nanos < 0 || nanos > 999999 {
 			return ThrowOutcome(t.RT.NewThrowable(t, "java/lang/IllegalArgumentException"))
 		}
-		d, timed := waitTimeout(ms, nanos)
-		return t.joinPeer(receiver, d, timed)
+		millis, timed := waitTimeoutMillis(ms, nanos)
+		return t.joinPeer(receiver, millis, timed)
 	}
 	return ThrowOutcome(t.RT.NewThrowable(t, "java/lang/IllegalArgumentException"))
 }

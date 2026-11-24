@@ -21,18 +21,7 @@ func (r *Runtime) Launch(args []Value) Outcome {
 	out := r.launchMain(t, args)
 	// The canonical main platform thread terminates when main returns or
 	// throws; joiners and isAlive observers of the main peer must see that.
-	r.thrMu.Lock()
-	r.releaseHeldMonitorsLocked(t)
-	if p, ok := peerOfObject(t.peer); ok {
-		p.state = threadTerminated
-		p.thread = nil
-		if t.peer.monitor != nil {
-			for _, w := range append([]*waiter(nil), t.peer.monitor.waiters...) {
-				r.wakeWaiterLocked(t.peer.monitor, w, waiterNotified)
-			}
-		}
-	}
-	r.thrMu.Unlock()
+	r.publishTermination(t, t.peer, false)
 	result := "terminated"
 	if out.Thrown != nil {
 		result = "uncaught"

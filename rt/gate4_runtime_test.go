@@ -24,8 +24,11 @@ type testClock struct {
 }
 
 type testTimer struct {
-	at time.Time
-	ch chan time.Time
+	clock   *testClock
+	at      time.Time
+	ch      chan time.Time
+	stopped bool
+	fired   bool
 }
 
 func newTestClock() *testClock {
@@ -38,12 +41,32 @@ func (c *testClock) Now() time.Time {
 	return c.now
 }
 
-func (c *testClock) After(d time.Duration) <-chan time.Time {
+func (c *testClock) NewTimer(d time.Duration) runtimeTimer {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	ch := make(chan time.Time, 1)
-	c.timers = append(c.timers, &testTimer{at: c.now.Add(d), ch: ch})
-	return ch
+	timer := &testTimer{clock: c, at: c.now.Add(d), ch: make(chan time.Time, 1)}
+	c.timers = append(c.timers, timer)
+	return timer
+}
+
+func (t *testTimer) C() <-chan time.Time { return t.ch }
+
+func (t *testTimer) Stop() bool {
+	c := t.clock
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if t.stopped || t.fired {
+		t.stopped = true
+		return false
+	}
+	t.stopped = true
+	for i, candidate := range c.timers {
+		if candidate == t {
+			c.timers = append(c.timers[:i], c.timers[i+1:]...)
+			break
+		}
+	}
+	return true
 }
 
 // Advance moves the clock and fires every due timer exactly once.
@@ -53,7 +76,8 @@ func (c *testClock) Advance(d time.Duration) {
 	var due []*testTimer
 	keep := c.timers[:0]
 	for _, tm := range c.timers {
-		if !tm.at.After(c.now) {
+		if !tm.stopped && !tm.fired && !tm.at.After(c.now) {
+			tm.fired = true
 			due = append(due, tm)
 			continue
 		}
@@ -520,7 +544,7 @@ type waitResult struct {
 
 // startWaiter enters obj depth times, records the restored depth, exits the
 // same number of times and reports the wait outcome.
-func startWaiter(link *Thread, obj *Object, depth int, timeout time.Duration, timed bool, ready chan<- struct{}, done chan<- waitResult) {
+func startWaiter(link *Thread, obj *Object, depth int, timeoutMillis int64, timed bool, ready chan<- struct{}, done chan<- waitResult) {
 	if thrown := link.MonitorEnter(nil, 0, RefValue(obj)); thrown != nil {
 		done <- waitResult{out: ThrowOutcome(thrown)}
 		close(ready)
@@ -534,7 +558,7 @@ func startWaiter(link *Thread, obj *Object, depth int, timeout time.Duration, ti
 		}
 	}
 	close(ready)
-	out := link.objectWait(obj, timeout, timed)
+	out := link.objectWait(obj, timeoutMillis, timed)
 	restored := monitorDepth(link.RT, obj)
 	for i := 0; i < depth; i++ {
 		if thrown := link.MonitorExit(nil, int32(i), RefValue(obj)); thrown != nil {
@@ -616,7 +640,7 @@ func TestGate4WaitSetTimeoutAndInterrupt(t *testing.T) {
 	timed := testThread(r, "timed")
 	timedReady := make(chan struct{})
 	timedDone := make(chan waitResult, 1)
-	go startWaiter(timed, obj, depth, time.Second, true, timedReady, timedDone)
+	go startWaiter(timed, obj, depth, 1000, true, timedReady, timedDone)
 	waitForGoroutine(t, "timed waiter enrollment", timedReady)
 	owner := testThread(r, "owner")
 	if thrown := owner.MonitorEnter(nil, 0, RefValue(obj)); thrown != nil {
@@ -773,7 +797,7 @@ func TestGate4WaitSetWinnerTransitions(t *testing.T) {
 	timed := testThread(r, "timed")
 	timedReady := make(chan struct{})
 	timedDone := make(chan waitResult, 1)
-	go startWaiter(timed, obj, 1, time.Second, true, timedReady, timedDone)
+	go startWaiter(timed, obj, 1, 1000, true, timedReady, timedDone)
 	waitForGoroutine(t, "timed enrollment", timedReady)
 	owner = testThread(r, "owner3")
 	if thrown := owner.MonitorEnter(nil, 4, RefValue(obj)); thrown != nil {
@@ -885,16 +909,16 @@ func TestGate4WaitRestoresDepthAndRetainsUnrelatedMonitor(t *testing.T) {
 // ----------------------------------------------------- timers and overloads
 
 func TestGate4TimerOverloadsAndSaturation(t *testing.T) {
-	if d, timed := waitTimeout(0, 0); timed || d != 0 {
-		t.Fatalf("waitTimeout(0,0) = %v,%v; want indefinite", d, timed)
+	if d, timed := waitTimeoutMillis(0, 0); timed || d != 0 {
+		t.Fatalf("waitTimeoutMillis(0,0) = %v,%v; want indefinite", d, timed)
 	}
-	if d, timed := waitTimeout(0, 1); !timed || d != time.Millisecond {
-		t.Fatalf("waitTimeout(0,1) = %v,%v; want one millisecond", d, timed)
+	if d, timed := waitTimeoutMillis(0, 1); !timed || d != 1 {
+		t.Fatalf("waitTimeoutMillis(0,1) = %v,%v; want one millisecond", d, timed)
 	}
-	if d, timed := waitTimeout(5, 999999); !timed || d != 6*time.Millisecond {
-		t.Fatalf("waitTimeout(5,999999) = %v,%v; want rounded six milliseconds", d, timed)
+	if d, timed := waitTimeoutMillis(5, 999999); !timed || d != 6 {
+		t.Fatalf("waitTimeoutMillis(5,999999) = %v,%v; want rounded six milliseconds", d, timed)
 	}
-	if d, timed := waitTimeout(math.MaxInt64, 999999); !timed || d != maxTimerDuration {
+	if d, timed := waitTimeoutMillis(math.MaxInt64, 999999); !timed || d != math.MaxInt64 {
 		t.Fatalf("overflowing wait did not saturate: %v", d)
 	}
 	if d := sleepNanos(math.MaxInt64, 999999); d != maxTimerDuration {
@@ -1052,7 +1076,7 @@ func TestGate4TimedJoinOneDeadline(t *testing.T) {
 	r.thrMu.Unlock()
 
 	done := make(chan Outcome, 1)
-	go func() { done <- main.joinPeer(peer, 10*time.Second, true) }()
+	go func() { done <- main.joinPeer(peer, 10000, true) }()
 	waitFor(t, "join enrolled", func() bool {
 		r.thrMu.Lock()
 		defer r.thrMu.Unlock()
@@ -2517,4 +2541,540 @@ func TestGate4AdmissionRollbackAfterMetadataStaging(t *testing.T) {
 	if len(f.r.pluginLoaders) != loadersBefore+1 {
 		t.Fatal("valid admission after rejection did not publish exactly one loader")
 	}
+}
+
+// ---------------------------------------------------- timer ownership rework
+
+// expectNoTimerWork waits until neither an armed test timer nor a wait-timer
+// goroutine remains. Early completion must release both without advancing the
+// clock to the Java deadline.
+func expectNoTimerWork(t *testing.T, r *Runtime, clock *testClock) {
+	t.Helper()
+	waitFor(t, "timer resources released", func() bool {
+		return clock.pendingTimers() == 0 && r.timerWorkers.Load() == 0
+	})
+}
+
+// TestGate4EarlyWaitReleasesTimers covers repeated long notified waits. The
+// host timer and its goroutine must end promptly, without advancing the clock
+// to the Java deadline.
+func TestGate4EarlyWaitReleasesTimers(t *testing.T) {
+	r := gate4Runtime(t)
+	clock := newTestClock()
+	r.clock = clock
+	owner := testThread(r, "owner")
+	for i := 0; i < 32; i++ {
+		obj := newTestObject(r)
+		waiter := testThread(r, "waiter")
+		ready := make(chan struct{})
+		done := make(chan waitResult, 1)
+		go startWaiter(waiter, obj, 1, math.MaxInt64, true, ready, done)
+		waitForGoroutine(t, "waiter enrollment", ready)
+		waitFor(t, "long timer armed", func() bool { return clock.pendingTimers() == 1 })
+		if thrown := owner.MonitorEnter(nil, 0, RefValue(obj)); thrown != nil {
+			t.Fatal(thrown)
+		}
+		if out := owner.notifyObject(obj, false); out.Thrown != nil {
+			t.Fatal(out.Thrown)
+		}
+		if thrown := owner.MonitorExit(nil, 1, RefValue(obj)); thrown != nil {
+			t.Fatal(thrown)
+		}
+		select {
+		case result := <-done:
+			if result.out.Thrown != nil {
+				t.Fatalf("wait %d outcome: %v", i, result.out.Thrown)
+			}
+		case <-time.After(5 * time.Second):
+			t.Fatalf("wait %d did not resume", i)
+		}
+		expectNoTimerWork(t, r, clock)
+	}
+	t.Logf("32 notified long waits: armed timers=%d timer workers=%d", clock.pendingTimers(), r.timerWorkers.Load())
+}
+
+// TestGate4EarlyJoinReleasesTimers covers repeated long joins ended by target
+// termination. The join deadline is far beyond Go's duration range, so an
+// implementation that retained the timer would keep timer work parked forever.
+func TestGate4EarlyJoinReleasesTimers(t *testing.T) {
+	clock := newTestClock()
+	entered := make(chan struct{}, 16)
+	releases := make(chan chan struct{}, 16)
+	run := aotMethod("app/JoinTarget", "run", "()V", AccPublic, func(th *Thread, m *Method, receiver *Object, args []Value) Outcome {
+		entered <- struct{}{}
+		release := <-releases
+		<-release
+		return Normal()
+	})
+	r := gate4Runtime(t, &ClassDef{Name: "app/JoinTarget", Super: "java/lang/Object", Flags: AccPublic,
+		Interfaces: []string{"java/lang/Runnable"}, Methods: []*MethodDef{run}})
+	r.clock = clock
+	start := r.mustClass("java/lang/Thread").MethodIndex["start()V"]
+	for i := 0; i < 16; i++ {
+		peer := r.newPeerObject("join-target", false, threadNew)
+		peerData(peer).runnable = r.NewInstance(r.mustClass("app/JoinTarget"))
+		main := testThread(r, "main")
+		if out := intrinsicThreadStart(main, start, peer, nil); out.Thrown != nil {
+			t.Fatal(out.Thrown)
+		}
+		select {
+		case <-entered:
+		case <-time.After(5 * time.Second):
+			t.Fatalf("join target %d did not start", i)
+		}
+		joiner := testThread(r, "joiner")
+		done := make(chan Outcome, 1)
+		go func() { done <- joiner.joinPeer(peer, math.MaxInt64, true) }()
+		waitFor(t, "join timer armed", func() bool { return clock.pendingTimers() == 1 })
+		release := make(chan struct{})
+		releases <- release
+		close(release)
+		select {
+		case out := <-done:
+			if out.Thrown != nil {
+				t.Fatalf("join %d outcome: %v", i, out.Thrown)
+			}
+		case <-time.After(5 * time.Second):
+			t.Fatalf("join %d did not return after termination", i)
+		}
+		expectNoTimerWork(t, r, clock)
+	}
+}
+
+// TestGate4InterruptedWaitReleasesTimers covers interruption winning before the
+// deadline.
+func TestGate4InterruptedWaitReleasesTimers(t *testing.T) {
+	r := gate4Runtime(t)
+	clock := newTestClock()
+	r.clock = clock
+	obj := newTestObject(r)
+	waiter := testThread(r, "waiter")
+	ready := make(chan struct{})
+	done := make(chan waitResult, 1)
+	go startWaiter(waiter, obj, 1, math.MaxInt64, true, ready, done)
+	waitForGoroutine(t, "enrollment", ready)
+	waitFor(t, "timer armed", func() bool { return clock.pendingTimers() == 1 })
+	owner := testThread(r, "owner")
+	if thrown := owner.MonitorEnter(nil, 0, RefValue(obj)); thrown != nil {
+		t.Fatal(thrown)
+	}
+	owner.interruptPeer(waiter.peer)
+	if thrown := owner.MonitorExit(nil, 1, RefValue(obj)); thrown != nil {
+		t.Fatal(thrown)
+	}
+	select {
+	case result := <-done:
+		if result.out.Thrown == nil || result.out.Thrown.Class.Name != "java/lang/InterruptedException" {
+			t.Fatalf("interrupted wait outcome: %v", result.out.Thrown)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("interrupted wait stranded")
+	}
+	expectNoTimerWork(t, r, clock)
+}
+
+// TestGate4TimeoutReleasesTimers covers the timeout transition itself.
+func TestGate4TimeoutReleasesTimers(t *testing.T) {
+	r := gate4Runtime(t)
+	clock := newTestClock()
+	r.clock = clock
+	obj := newTestObject(r)
+	waiter := testThread(r, "waiter")
+	ready := make(chan struct{})
+	done := make(chan waitResult, 1)
+	go startWaiter(waiter, obj, 1, 1000, true, ready, done)
+	waitForGoroutine(t, "enrollment", ready)
+	waitFor(t, "timer armed", func() bool { return clock.pendingTimers() == 1 })
+	clock.Advance(time.Second)
+	select {
+	case result := <-done:
+		if result.out.Thrown != nil {
+			t.Fatalf("timeout outcome: %v", result.out.Thrown)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("timed wait stranded")
+	}
+	expectNoTimerWork(t, r, clock)
+	if clock.Now().IsZero() {
+		t.Fatal("clock lost its time")
+	}
+}
+
+// TestGate4StaleTimerDoesNotAffectLaterWait proves that a completed wait stops
+// its timer, so advancing through the old deadline cannot wake or arm work for
+// a later wait.
+func TestGate4StaleTimerDoesNotAffectLaterWait(t *testing.T) {
+	r := gate4Runtime(t)
+	clock := newTestClock()
+	r.clock = clock
+	obj := newTestObject(r)
+	owner := testThread(r, "owner")
+	first := testThread(r, "first")
+	firstReady := make(chan struct{})
+	firstDone := make(chan waitResult, 1)
+	go startWaiter(first, obj, 1, 5000, true, firstReady, firstDone)
+	waitForGoroutine(t, "first enrollment", firstReady)
+	waitFor(t, "first timer", func() bool { return clock.pendingTimers() == 1 })
+	if thrown := owner.MonitorEnter(nil, 0, RefValue(obj)); thrown != nil {
+		t.Fatal(thrown)
+	}
+	if out := owner.notifyObject(obj, false); out.Thrown != nil {
+		t.Fatal(out.Thrown)
+	}
+	if thrown := owner.MonitorExit(nil, 1, RefValue(obj)); thrown != nil {
+		t.Fatal(thrown)
+	}
+	if result := <-firstDone; result.out.Thrown != nil {
+		t.Fatalf("first wait outcome: %v", result.out.Thrown)
+	}
+	expectNoTimerWork(t, r, clock)
+
+	second := testThread(r, "second")
+	secondReady := make(chan struct{})
+	secondDone := make(chan waitResult, 1)
+	go startWaiter(second, obj, 1, 10000, true, secondReady, secondDone)
+	waitForGoroutine(t, "second enrollment", secondReady)
+	waitFor(t, "second timer", func() bool { return clock.pendingTimers() == 1 })
+	// Crossing the first wait's old deadline must leave the second waiter
+	// pending and leave exactly its own timer armed.
+	clock.Advance(5 * time.Second)
+	select {
+	case result := <-secondDone:
+		t.Fatalf("stale timer completed a later wait: %+v", result)
+	case <-time.After(20 * time.Millisecond):
+	}
+	if got := clock.pendingTimers(); got != 1 {
+		t.Fatalf("armed timers after stale deadline = %d, want 1", got)
+	}
+	clock.Advance(5 * time.Second)
+	select {
+	case result := <-secondDone:
+		if result.out.Thrown != nil {
+			t.Fatalf("second wait outcome: %v", result.out.Thrown)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("second wait did not reach its own deadline")
+	}
+	expectNoTimerWork(t, r, clock)
+}
+
+// TestGate4BoundedWaitAndJoinSegments forces the segment limit so Java
+// timeouts longer than one host timer segment are walked exactly, and one join
+// deadline survives unrelated wakeups.
+func TestGate4BoundedWaitAndJoinSegments(t *testing.T) {
+	r := gate4Runtime(t)
+	clock := newTestClock()
+	r.clock = clock
+	r.maxTimerSegmentMillis = 1000
+
+	// Timed wait: 2500ms is three bounded segments.
+	obj := newTestObject(r)
+	waiter := testThread(r, "waiter")
+	ready := make(chan struct{})
+	done := make(chan waitResult, 1)
+	go startWaiter(waiter, obj, 1, 2500, true, ready, done)
+	waitForGoroutine(t, "timed enrollment", ready)
+	waitFor(t, "first segment", func() bool { return clock.pendingTimers() == 1 })
+	clock.Advance(time.Second)
+	waitFor(t, "second segment", func() bool { return clock.pendingTimers() == 1 })
+	select {
+	case result := <-done:
+		t.Fatalf("wait ended before its Java deadline: %+v", result)
+	default:
+	}
+	clock.Advance(time.Second)
+	waitFor(t, "final segment", func() bool { return clock.pendingTimers() == 1 })
+	select {
+	case result := <-done:
+		t.Fatalf("wait ended before 2500ms: %+v", result)
+	default:
+	}
+	clock.Advance(500 * time.Millisecond)
+	select {
+	case result := <-done:
+		if result.out.Thrown != nil {
+			t.Fatalf("segmented wait outcome: %v", result.out.Thrown)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("segmented wait did not time out")
+	}
+	expectNoTimerWork(t, r, clock)
+
+	// Timed join: 2500ms, with an unrelated wakeup after 1000ms. The deadline
+	// stays fixed at 2500ms and each wait record owns one segment timer.
+	entered := make(chan struct{}, 1)
+	release := make(chan struct{})
+	run := aotMethod("app/JoinSeg", "run", "()V", AccPublic, func(th *Thread, m *Method, receiver *Object, args []Value) Outcome {
+		entered <- struct{}{}
+		<-release
+		return Normal()
+	})
+	r2 := gate4Runtime(t, &ClassDef{Name: "app/JoinSeg", Super: "java/lang/Object", Flags: AccPublic,
+		Interfaces: []string{"java/lang/Runnable"}, Methods: []*MethodDef{run}})
+	r2.clock = clock
+	r2.maxTimerSegmentMillis = 1000
+	target := r2.newPeerObject("seg-target", false, threadNew)
+	peerData(target).runnable = r2.NewInstance(r2.mustClass("app/JoinSeg"))
+	main := testThread(r2, "main")
+	start := r2.mustClass("java/lang/Thread").MethodIndex["start()V"]
+	if out := intrinsicThreadStart(main, start, target, nil); out.Thrown != nil {
+		t.Fatal(out.Thrown)
+	}
+	waitForGoroutine(t, "segmented target entered", entered)
+	joiner := testThread(r2, "seg-joiner")
+	joinDone := make(chan Outcome, 1)
+	go func() { joinDone <- joiner.joinPeer(target, 2500, true) }()
+	waitFor(t, "join first segment", func() bool { return clock.pendingTimers() == 1 })
+	clock.Advance(time.Second)
+	// Unrelated notification wakes the join record early; total elapsed remains
+	// 1000ms and the same 2500ms deadline is recomputed.
+	notifier := testThread(r2, "notifier")
+	if thrown := notifier.MonitorEnter(nil, 0, RefValue(target)); thrown != nil {
+		t.Fatal(thrown)
+	}
+	if out := notifier.notifyObject(target, true); out.Thrown != nil {
+		t.Fatal(out.Thrown)
+	}
+	if thrown := notifier.MonitorExit(nil, 1, RefValue(target)); thrown != nil {
+		t.Fatal(thrown)
+	}
+	waitFor(t, "join rearmed", func() bool { return clock.pendingTimers() == 1 })
+	clock.Advance(time.Second)
+	waitFor(t, "join final segment", func() bool { return clock.pendingTimers() == 1 })
+	select {
+	case out := <-joinDone:
+		t.Fatalf("join ended before its single deadline: %v", out.Thrown)
+	default:
+	}
+	clock.Advance(500 * time.Millisecond)
+	select {
+	case out := <-joinDone:
+		if out.Thrown != nil {
+			t.Fatalf("segmented join outcome: %v", out.Thrown)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("segmented join did not time out")
+	}
+	expectNoTimerWork(t, r2, clock)
+	close(release)
+	r2.WaitForNonDaemon()
+}
+
+// TestGate4HugeWaitSegmentsAndCancellation exercises a Java timeout far beyond
+// Go's representable duration and verifies it stays pending across segments
+// until interrupted, then releases all timer work.
+func TestGate4HugeWaitSegmentsAndCancellation(t *testing.T) {
+	r := gate4Runtime(t)
+	clock := newTestClock()
+	r.clock = clock
+	r.maxTimerSegmentMillis = 1000
+	obj := newTestObject(r)
+	waiter := testThread(r, "waiter")
+	ready := make(chan struct{})
+	done := make(chan waitResult, 1)
+	go startWaiter(waiter, obj, 1, math.MaxInt64, true, ready, done)
+	waitForGoroutine(t, "huge enrollment", ready)
+	waitFor(t, "huge timer", func() bool { return clock.pendingTimers() == 1 })
+	for i := 0; i < 3; i++ {
+		clock.Advance(time.Second)
+		waitFor(t, "huge wait remains armed", func() bool { return clock.pendingTimers() == 1 })
+	}
+	select {
+	case result := <-done:
+		t.Fatalf("huge wait ended after a few segments: %+v", result)
+	default:
+	}
+	owner := testThread(r, "owner")
+	if thrown := owner.MonitorEnter(nil, 0, RefValue(obj)); thrown != nil {
+		t.Fatal(thrown)
+	}
+	owner.interruptPeer(waiter.peer)
+	if thrown := owner.MonitorExit(nil, 1, RefValue(obj)); thrown != nil {
+		t.Fatal(thrown)
+	}
+	select {
+	case result := <-done:
+		if result.out.Thrown == nil || result.out.Thrown.Class.Name != "java/lang/InterruptedException" {
+			t.Fatalf("huge wait outcome: %v", result.out.Thrown)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("huge wait did not interrupt")
+	}
+	expectNoTimerWork(t, r, clock)
+}
+
+// TestGate4InterruptedSleepReleasesTimer verifies the sleeping goroutine stops
+// its own timer instead of leaving an armed deadline behind.
+func TestGate4InterruptedSleepReleasesTimer(t *testing.T) {
+	r := gate4Runtime(t)
+	clock := newTestClock()
+	r.clock = clock
+	sleeper := testThread(r, "sleeper")
+	done := make(chan Outcome, 1)
+	go func() { done <- sleeper.sleepFor(maxTimerDuration) }()
+	waitFor(t, "sleep timer", func() bool { return clock.pendingTimers() == 1 })
+	sleeper.interruptPeer(sleeper.peer)
+	select {
+	case out := <-done:
+		if out.Thrown == nil || out.Thrown.Class.Name != "java/lang/InterruptedException" {
+			t.Fatalf("interrupted sleep outcome: %v", out.Thrown)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("interrupted sleep stranded")
+	}
+	expectNoTimerWork(t, r, clock)
+}
+
+// TestGate4TerminationPublishesUnderPeerMonitor proves that termination
+// acquires the target's peer monitor, publishes the terminated state and
+// notifies joiners while holding it, and does not expose a terminated state
+// while another thread owns that monitor.
+func TestGate4TerminationPublishesUnderPeerMonitor(t *testing.T) {
+	release := make(chan struct{})
+	entered := make(chan struct{})
+	run := aotMethod("app/HoldTarget", "run", "()V", AccPublic, func(th *Thread, m *Method, receiver *Object, args []Value) Outcome {
+		close(entered)
+		<-release
+		return Normal()
+	})
+	r := gate4Runtime(t, &ClassDef{Name: "app/HoldTarget", Super: "java/lang/Object", Flags: AccPublic,
+		Interfaces: []string{"java/lang/Runnable"}, Methods: []*MethodDef{run}})
+	main := testThread(r, "main")
+	peer := r.newPeerObject("hold-target", false, threadNew)
+	peerData(peer).runnable = r.NewInstance(r.mustClass("app/HoldTarget"))
+	start := r.mustClass("java/lang/Thread").MethodIndex["start()V"]
+	if out := intrinsicThreadStart(main, start, peer, nil); out.Thrown != nil {
+		t.Fatal(out.Thrown)
+	}
+	waitForGoroutine(t, "target entered", entered)
+	// Hold the peer monitor before allowing the target to terminate.
+	if thrown := main.MonitorEnter(nil, 0, RefValue(peer)); thrown != nil {
+		t.Fatal(thrown)
+	}
+	close(release)
+	waitFor(t, "termination blocked on the peer monitor", func() bool {
+		r.thrMu.Lock()
+		defer r.thrMu.Unlock()
+		mo := peer.monitor
+		return mo != nil && mo.contenders == 1
+	})
+	r.thrMu.Lock()
+	state := peerData(peer).state
+	r.thrMu.Unlock()
+	if state != threadStarted {
+		t.Fatalf("terminated state was published without the peer monitor: %v", state)
+	}
+	joiner := testThread(r, "joiner")
+	joined := make(chan Outcome, 1)
+	go func() { joined <- joiner.joinPeer(peer, 0, false) }()
+	select {
+	case out := <-joined:
+		t.Fatalf("join returned before termination publication: %v", out.Thrown)
+	case <-time.After(20 * time.Millisecond):
+	}
+	if thrown := main.MonitorExit(nil, 1, RefValue(peer)); thrown != nil {
+		t.Fatal(thrown)
+	}
+	waitFor(t, "target terminated", func() bool {
+		r.thrMu.Lock()
+		defer r.thrMu.Unlock()
+		return peerData(peer).state == threadTerminated
+	})
+	select {
+	case out := <-joined:
+		if out.Thrown != nil {
+			t.Fatalf("join outcome: %v", out.Thrown)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("joiner stranded after termination publication")
+	}
+	if got := r.LiveNonDaemon(); got != 0 {
+		t.Fatalf("live non-daemon count = %d", got)
+	}
+}
+
+// TestGate4RealClockEarlyWaitsDoNotParkTimers reproduces the original leak with
+// the production clock: 32 long notified waits must not leave 32 goroutines
+// parked until their deadlines. The runtime also reports zero live wait-timer
+// workers.
+func TestGate4RealClockEarlyWaitsDoNotParkTimers(t *testing.T) {
+	r := gate4Runtime(t)
+	before := runtime.NumGoroutine()
+	owner := testThread(r, "owner")
+	for i := 0; i < 32; i++ {
+		obj := newTestObject(r)
+		waiter := testThread(r, "waiter")
+		ready := make(chan struct{})
+		done := make(chan waitResult, 1)
+		go startWaiter(waiter, obj, 1, 600000, true, ready, done)
+		waitForGoroutine(t, "real-clock enrollment", ready)
+		waitFor(t, "real-clock timer started", func() bool { return r.timerWorkers.Load() == 1 })
+		if thrown := owner.MonitorEnter(nil, 0, RefValue(obj)); thrown != nil {
+			t.Fatal(thrown)
+		}
+		if out := owner.notifyObject(obj, false); out.Thrown != nil {
+			t.Fatal(out.Thrown)
+		}
+		if thrown := owner.MonitorExit(nil, 1, RefValue(obj)); thrown != nil {
+			t.Fatal(thrown)
+		}
+		select {
+		case result := <-done:
+			if result.out.Thrown != nil {
+				t.Fatalf("wait %d: %v", i, result.out.Thrown)
+			}
+		case <-time.After(5 * time.Second):
+			t.Fatalf("wait %d did not resume", i)
+		}
+	}
+	waitFor(t, "all wait-timer workers exited", func() bool { return r.timerWorkers.Load() == 0 })
+	// Each stopped timer goroutine may take a scheduling instant to exit; give
+	// it a bounded window, then require no 32-goroutine accumulation.
+	waitFor(t, "no parked timer goroutines", func() bool {
+		return runtime.NumGoroutine() <= before+4
+	})
+	t.Logf("32 real-clock notified waits: goroutines before=%d after=%d timer workers=%d",
+		before, runtime.NumGoroutine(), r.timerWorkers.Load())
+}
+
+// TestGate4InterruptedJoinReleasesTimers covers interruption of a timed join
+// before its deadline, using the same timer helper as timed waits.
+func TestGate4InterruptedJoinReleasesTimers(t *testing.T) {
+	r := gate4Runtime(t)
+	clock := newTestClock()
+	r.clock = clock
+	entered := make(chan struct{}, 1)
+	release := make(chan struct{})
+	run := aotMethod("app/JoinInterrupt", "run", "()V", AccPublic, func(th *Thread, m *Method, receiver *Object, args []Value) Outcome {
+		entered <- struct{}{}
+		<-release
+		return Normal()
+	})
+	r = gate4Runtime(t, &ClassDef{Name: "app/JoinInterrupt", Super: "java/lang/Object", Flags: AccPublic,
+		Interfaces: []string{"java/lang/Runnable"}, Methods: []*MethodDef{run}})
+	r.clock = clock
+	target := r.newPeerObject("interrupt-target", false, threadNew)
+	peerData(target).runnable = r.NewInstance(r.mustClass("app/JoinInterrupt"))
+	main := testThread(r, "main")
+	start := r.mustClass("java/lang/Thread").MethodIndex["start()V"]
+	if out := intrinsicThreadStart(main, start, target, nil); out.Thrown != nil {
+		t.Fatal(out.Thrown)
+	}
+	waitForGoroutine(t, "interrupt target entered", entered)
+	joiner := testThread(r, "joiner")
+	done := make(chan Outcome, 1)
+	go func() { done <- joiner.joinPeer(target, math.MaxInt64, true) }()
+	waitFor(t, "join timer armed", func() bool { return clock.pendingTimers() == 1 })
+	joiner.interruptPeer(joiner.peer)
+	select {
+	case out := <-done:
+		if out.Thrown == nil || out.Thrown.Class.Name != "java/lang/InterruptedException" {
+			t.Fatalf("interrupted join outcome: %v", out.Thrown)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("interrupted join stranded")
+	}
+	expectNoTimerWork(t, r, clock)
+	close(release)
+	r.WaitForNonDaemon()
 }

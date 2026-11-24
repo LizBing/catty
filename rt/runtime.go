@@ -9,17 +9,33 @@ import (
 	"unicode/utf16"
 )
 
+// runtimeTimer is one cancelable timer from the runtime clock. Stop releases
+// the timer without waiting for its deadline, which lets a notified or
+// interrupted wait release both the timer and the goroutine that owns it.
+type runtimeTimer interface {
+	C() <-chan time.Time
+	Stop() bool
+}
+
 // runtimeClock is the monotonic clock used for every Java timer wait. Tests
 // inject a manual clock so timeout transitions are deterministic.
 type runtimeClock interface {
 	Now() time.Time
-	After(d time.Duration) <-chan time.Time
+	NewTimer(d time.Duration) runtimeTimer
 }
 
 type realRuntimeClock struct{}
 
-func (realRuntimeClock) Now() time.Time                         { return time.Now() }
-func (realRuntimeClock) After(d time.Duration) <-chan time.Time { return time.After(d) }
+func (realRuntimeClock) Now() time.Time { return time.Now() }
+
+func (realRuntimeClock) NewTimer(d time.Duration) runtimeTimer {
+	return &realRuntimeTimer{timer: time.NewTimer(d)}
+}
+
+type realRuntimeTimer struct{ timer *time.Timer }
+
+func (t *realRuntimeTimer) C() <-chan time.Time { return t.timer.C }
+func (t *realRuntimeTimer) Stop() bool          { return t.timer.Stop() }
 
 // Runtime owns loader state, class metadata, static storage, mirrors, strings
 // and the logical Java threads used by the launcher.
@@ -82,6 +98,13 @@ type Runtime struct {
 	liveNonDaemon int
 	liveCond      *sync.Cond
 	clock         runtimeClock
+	// maxTimerSegmentMillis bounds one timer segment for wait/join deadlines
+	// that exceed Go's duration range. Production uses the largest duration
+	// Go can represent; tests lower it to exercise segmentation.
+	maxTimerSegmentMillis int64
+	// timerWorkers reports live wait-timer goroutines. Tests use it to prove
+	// early completion leaves no parked timer work.
+	timerWorkers atomic.Int64
 
 	// ClassInitWaitHook is a deterministic-test hook invoked immediately
 	// before a competing thread parks on an in-progress class initialization.
@@ -133,6 +156,7 @@ func NewRuntime(img *Image) *Runtime {
 	}
 	r.liveCond = sync.NewCond(&r.thrMu)
 	r.clock = realRuntimeClock{}
+	r.maxTimerSegmentMillis = int64(maxTimerDuration / time.Millisecond)
 	r.BootstrapLoader = &Loader{ID: 0, Name: "bootstrap", Runtime: r, Classes: r.Bootstrap}
 	r.Loader = &Loader{ID: 1, Name: "app", Runtime: r, Parent: r.BootstrapLoader, Classes: r.Classes}
 	r.nextLoaderID = 1
