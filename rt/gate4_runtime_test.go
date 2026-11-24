@@ -3078,3 +3078,168 @@ func TestGate4InterruptedJoinReleasesTimers(t *testing.T) {
 	close(release)
 	r.WaitForNonDaemon()
 }
+
+// TestGate4RemoveWaiterReleasesBackingArray verifies that removing a wait
+// record clears the slice element, so a long-lived monitor does not retain the
+// completed waiter and its Java thread through the backing array. It covers
+// removals from the middle and the end of the wait set.
+func TestGate4RemoveWaiterReleasesBackingArray(t *testing.T) {
+	makeWaiter := func() *waiter { return &waiter{object: new(Object)} }
+	a, b, c := makeWaiter(), makeWaiter(), makeWaiter()
+	mo := &monitor{waiters: make([]*waiter, 3, 8)}
+	mo.waiters[0], mo.waiters[1], mo.waiters[2] = a, b, c
+
+	removeWaiterLocked(mo, b)
+	if len(mo.waiters) != 2 || mo.waiters[0] != a || mo.waiters[1] != c {
+		t.Fatalf("middle removal left waiters %#v", mo.waiters)
+	}
+	full := mo.waiters[:cap(mo.waiters)]
+	for i := len(mo.waiters); i < len(full); i++ {
+		if full[i] != nil {
+			t.Fatalf("middle removal retained waiter at backing index %d: %p", i, full[i])
+		}
+	}
+	for i, w := range full {
+		if w == b {
+			t.Fatalf("middle removal retained the removed waiter at index %d", i)
+		}
+	}
+
+	removeWaiterLocked(mo, c)
+	if len(mo.waiters) != 1 || mo.waiters[0] != a {
+		t.Fatalf("end removal left waiters %#v", mo.waiters)
+	}
+	full = mo.waiters[:cap(mo.waiters)]
+	for i := len(mo.waiters); i < len(full); i++ {
+		if full[i] != nil {
+			t.Fatalf("end removal retained waiter at backing index %d: %p", i, full[i])
+		}
+	}
+	for i, w := range full {
+		if w == c {
+			t.Fatalf("end removal retained the removed waiter at index %d", i)
+		}
+	}
+
+	// A direct removal at the end of a separate wait set must clear its slot.
+	x, y := makeWaiter(), makeWaiter()
+	mo = &monitor{waiters: make([]*waiter, 2, 4)}
+	mo.waiters[0], mo.waiters[1] = x, y
+	removeWaiterLocked(mo, y)
+	if len(mo.waiters) != 1 || mo.waiters[0] != x {
+		t.Fatalf("direct end removal left waiters %#v", mo.waiters)
+	}
+	if mo.waiters[:cap(mo.waiters)][1] != nil {
+		t.Fatal("direct end removal retained the removed waiter")
+	}
+}
+
+// largestWholeMillisecondTimeout is the largest timeout expressible as a whole
+// number of Go milliseconds without exceeding time.Duration's nanosecond range.
+func largestWholeMillisecondTimeout() int64 {
+	return int64(maxTimerDuration / time.Millisecond)
+}
+
+// TestGate4WaitTimerCrossesDurationCeiling checks the deadline arithmetic
+// directly at a Java timeout 10ms beyond the largest whole-millisecond Go
+// duration. Clock advances use two representable chunks that together land on
+// the exact deadline.
+func TestGate4WaitTimerCrossesDurationCeiling(t *testing.T) {
+	r := gate4Runtime(t)
+	clock := newTestClock()
+	r.clock = clock
+	limit := largestWholeMillisecondTimeout()
+	deadline := r.newWaitTimer(limit + 10)
+	clock.Advance(time.Duration(limit) * time.Millisecond)
+	if remaining, expired := deadline.remaining(clock.Now()); expired || remaining != 10*time.Millisecond {
+		t.Fatalf("before exact deadline: remaining=%v expired=%v; want 10ms,false", remaining, expired)
+	}
+	clock.Advance(10 * time.Millisecond)
+	if remaining, expired := deadline.remaining(clock.Now()); !expired || remaining != 0 {
+		t.Fatalf("at exact deadline: remaining=%v expired=%v; want 0,true", remaining, expired)
+	}
+}
+
+// TestGate4TimedWaitCrossesDurationCeiling proves a timed Object.wait expires
+// at its original deadline even when the timeout is beyond Go's duration
+// ceiling. The test does not use the Java timeout path's saturation; it drives
+// the same millisecond deadline directly.
+func TestGate4TimedWaitCrossesDurationCeiling(t *testing.T) {
+	r := gate4Runtime(t)
+	clock := newTestClock()
+	r.clock = clock
+	limit := largestWholeMillisecondTimeout()
+	obj := newTestObject(r)
+	waiter := testThread(r, "waiter")
+	ready := make(chan struct{})
+	done := make(chan waitResult, 1)
+	go startWaiter(waiter, obj, 1, limit+10, true, ready, done)
+	waitForGoroutine(t, "ceiling wait enrollment", ready)
+	waitFor(t, "ceiling wait first segment", func() bool { return clock.pendingTimers() == 1 })
+	clock.Advance(time.Duration(limit) * time.Millisecond)
+	waitFor(t, "ceiling wait final segment", func() bool { return clock.pendingTimers() == 1 })
+	select {
+	case result := <-done:
+		t.Fatalf("wait expired before its deadline: %+v", result)
+	default:
+	}
+	clock.Advance(10 * time.Millisecond)
+	select {
+	case result := <-done:
+		if result.out.Thrown != nil {
+			t.Fatalf("ceiling wait outcome: %v", result.out.Thrown)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("ceiling wait did not expire at its deadline")
+	}
+	expectNoTimerWork(t, r, clock)
+}
+
+// TestGate4TimedJoinCrossesDurationCeiling proves a timed join expires at its
+// original deadline beyond Go's duration ceiling, with the same one-deadline
+// accounting used across ordinary join wakeups.
+func TestGate4TimedJoinCrossesDurationCeiling(t *testing.T) {
+	clock := newTestClock()
+	entered := make(chan struct{}, 1)
+	release := make(chan struct{})
+	run := aotMethod("app/JoinCeiling", "run", "()V", AccPublic, func(th *Thread, m *Method, receiver *Object, args []Value) Outcome {
+		entered <- struct{}{}
+		<-release
+		return Normal()
+	})
+	r := gate4Runtime(t, &ClassDef{Name: "app/JoinCeiling", Super: "java/lang/Object", Flags: AccPublic,
+		Interfaces: []string{"java/lang/Runnable"}, Methods: []*MethodDef{run}})
+	r.clock = clock
+	limit := largestWholeMillisecondTimeout()
+	target := r.newPeerObject("ceiling-target", false, threadNew)
+	peerData(target).runnable = r.NewInstance(r.mustClass("app/JoinCeiling"))
+	main := testThread(r, "main")
+	start := r.mustClass("java/lang/Thread").MethodIndex["start()V"]
+	if out := intrinsicThreadStart(main, start, target, nil); out.Thrown != nil {
+		t.Fatal(out.Thrown)
+	}
+	waitForGoroutine(t, "ceiling join target entered", entered)
+	joiner := testThread(r, "ceiling-joiner")
+	done := make(chan Outcome, 1)
+	go func() { done <- joiner.joinPeer(target, limit+10, true) }()
+	waitFor(t, "ceiling join first segment", func() bool { return clock.pendingTimers() == 1 })
+	clock.Advance(time.Duration(limit) * time.Millisecond)
+	waitFor(t, "ceiling join final segment", func() bool { return clock.pendingTimers() == 1 })
+	select {
+	case out := <-done:
+		t.Fatalf("join expired before its deadline: %v", out.Thrown)
+	default:
+	}
+	clock.Advance(10 * time.Millisecond)
+	select {
+	case out := <-done:
+		if out.Thrown != nil {
+			t.Fatalf("ceiling join outcome: %v", out.Thrown)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("ceiling join did not expire at its deadline")
+	}
+	expectNoTimerWork(t, r, clock)
+	close(release)
+	r.WaitForNonDaemon()
+}

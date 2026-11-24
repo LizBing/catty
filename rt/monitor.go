@@ -2,6 +2,7 @@ package rt
 
 import (
 	"fmt"
+	"math"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -89,16 +90,44 @@ type waitTimer struct {
 	millis int64
 }
 
+// wallElapsedMillis returns the non-negative elapsed whole milliseconds between
+// start and now without using time.Time.Sub, which saturates beyond Go's
+// duration range. It is used only after the monotonic reading saturates.
+func wallElapsedMillis(start, now time.Time) int64 {
+	seconds := now.Unix() - start.Unix()
+	nanos := int64(now.Nanosecond()) - int64(start.Nanosecond())
+	if nanos < 0 {
+		seconds--
+		nanos += int64(time.Second)
+	}
+	if seconds < 0 {
+		return 0
+	}
+	maxMillis := int64(math.MaxInt64)
+	if seconds > (maxMillis-nanos/int64(time.Millisecond))/1000 {
+		return maxMillis
+	}
+	return seconds*1000 + nanos/int64(time.Millisecond)
+}
+
 func (r *Runtime) newWaitTimer(millis int64) waitTimer {
 	return waitTimer{start: r.clock.Now(), millis: millis}
 }
 
 func (d waitTimer) remaining(now time.Time) (time.Duration, bool) {
 	elapsed := now.Sub(d.start)
+	var elapsedMillis int64
 	if elapsed < 0 {
-		elapsed = 0
+		elapsedMillis = 0
+	} else if elapsed < maxTimerDuration {
+		// The monotonic reading covers every duration Go can represent.
+		elapsedMillis = int64(elapsed / time.Millisecond)
+	} else {
+		// Sub saturates at MaxInt64 nanoseconds, which is less than the largest
+		// Java timeouts. Fall back to whole seconds and nanoseconds for the
+		// overflow range so the exact Java deadline is preserved.
+		elapsedMillis = wallElapsedMillis(d.start, now)
 	}
-	elapsedMillis := int64(elapsed / time.Millisecond)
 	remainingMillis := d.millis - elapsedMillis
 	if remainingMillis <= 0 {
 		return 0, true
@@ -350,7 +379,13 @@ func (r *Runtime) releaseHeldMonitorsLocked(t *Thread) {
 func removeWaiterLocked(mo *monitor, w *waiter) {
 	for i, existing := range mo.waiters {
 		if existing == w {
-			mo.waiters = append(mo.waiters[:i], mo.waiters[i+1:]...)
+			copy(mo.waiters[i:], mo.waiters[i+1:])
+			last := len(mo.waiters) - 1
+			// Clear the vacated slot: shortening the slice alone would keep the
+			// completed waiter and its Java thread reachable through the
+			// backing array for the lifetime of a long-lived monitor.
+			mo.waiters[last] = nil
+			mo.waiters = mo.waiters[:last]
 			return
 		}
 	}
