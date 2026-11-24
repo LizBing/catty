@@ -11,8 +11,11 @@ Branch: `codex/gate-5`
 | `a9dcee0` | Generated-body inspection checks, executable digest stability and their retained evidence |
 
 The measurement run recorded below was taken from the clean `7469e36` revision
-(`environment.repository.dirty = false`). Implementation and fixture sources
-are unchanged since `f28e8fc`; only evidence and documentation follow.
+(`environment.repository.dirty = false`). The runtime implementation and Java
+fixture sources are unchanged since `f28e8fc`; `a9dcee0` only adds generated-
+body/digest checks to the differential runner and their retained evidence after
+the measurement run. The benchmark workload and the measured executables are
+unchanged from the recorded run.
 
 ## 1. Delivered surface
 
