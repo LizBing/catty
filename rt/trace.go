@@ -14,6 +14,10 @@ type trace struct {
 	file          *os.File
 	pid           int
 	nextThrowable int64
+	// sealed is set by the terminal process_exit record. A trace sealed while
+	// ordinary Java threads are still live drops every later event, so the
+	// prefix remains well formed.
+	sealed bool
 }
 
 func openTrace(path string) (*trace, error) {
@@ -46,7 +50,7 @@ func (tr *trace) enabled() bool {
 	}
 	tr.mu.Lock()
 	defer tr.mu.Unlock()
-	return tr.file != nil
+	return tr.file != nil && !tr.sealed
 }
 
 func (t *Thread) trace() *trace {
@@ -63,7 +67,7 @@ func (tr *trace) emit(fields map[string]any) {
 	fields["pid"] = tr.pid
 	tr.mu.Lock()
 	defer tr.mu.Unlock()
-	if tr.file == nil {
+	if tr.file == nil || tr.sealed {
 		return
 	}
 	data, err := json.Marshal(fields)
@@ -80,6 +84,9 @@ func (tr *trace) throwableID(o *Object) int64 {
 	}
 	tr.mu.Lock()
 	defer tr.mu.Unlock()
+	if tr.sealed {
+		return 0
+	}
 	if o.TraceID == 0 {
 		tr.nextThrowable++
 		o.TraceID = tr.nextThrowable
@@ -376,4 +383,80 @@ func (tr *trace) monitor(thread int64, object uint64, phase string, depth int, m
 		fields["reason"] = reason
 	}
 	tr.emit(fields)
+}
+
+// appStart records the process profile and the canonical application entry
+// thread before the first Java entry.
+func (tr *trace) appStart(profile string, imageABI int, argc int, mainThread int64) {
+	if !tr.enabled() {
+		return
+	}
+	tr.emit(map[string]any{
+		"event":      "app_start",
+		"profile":    profile,
+		"imageABI":   imageABI,
+		"argc":       argc,
+		"mainThread": mainThread,
+	})
+}
+
+// shutdownBegin records the one frozen-registry transition. A halt in the
+// running state never emits it.
+func (tr *trace) shutdownBegin(reason string, status int32, hookCount int, requester int64) {
+	if !tr.enabled() {
+		return
+	}
+	fields := map[string]any{
+		"event":     "shutdown_begin",
+		"reason":    reason,
+		"status":    status,
+		"hookCount": hookCount,
+	}
+	if requester != 0 {
+		fields["requesterThread"] = requester
+	}
+	tr.emit(fields)
+}
+
+// threadStartShutdownHook records a VM-started shutdown hook. Hooks have their
+// own logical thread and no ordinary parent thread.
+func (tr *trace) threadStartShutdownHook(thread int64, daemon bool, name string) {
+	if !tr.enabled() {
+		return
+	}
+	tr.emit(map[string]any{
+		"event":        "thread_start",
+		"thread":       thread,
+		"daemon":       daemon,
+		"name":         name,
+		"shutdownHook": true,
+	})
+}
+
+// processExit writes the terminal record and seals the trace in one critical
+// section, so no later event can follow it.
+func (tr *trace) processExit(reason string, status int32, requester int64) {
+	if tr == nil {
+		return
+	}
+	tr.mu.Lock()
+	defer tr.mu.Unlock()
+	if tr.file == nil || tr.sealed {
+		return
+	}
+	fields := map[string]any{
+		"pid":    tr.pid,
+		"event":  "process_exit",
+		"reason": reason,
+		"status": status,
+	}
+	if requester != 0 {
+		fields["requesterThread"] = requester
+	}
+	data, err := json.Marshal(fields)
+	if err == nil {
+		data = append(data, '\n')
+		_, _ = tr.file.Write(data)
+	}
+	tr.sealed = true
 }

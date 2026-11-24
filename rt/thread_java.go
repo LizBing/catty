@@ -276,6 +276,9 @@ func intrinsicThreadStart(t *Thread, m *Method, receiver *Object, args []Value) 
 		return ThrowOutcome(t.RT.NewThrowable(t, "java/lang/NullPointerException"))
 	}
 	r := t.RT
+	if hook := r.ThreadStartHook; hook != nil {
+		hook(receiver)
+	}
 	r.thrMu.Lock()
 	p, ok := peerOfObject(receiver)
 	if !ok || p.state != threadNew {
@@ -286,6 +289,7 @@ func intrinsicThreadStart(t *Thread, m *Method, receiver *Object, args []Value) 
 	if !p.daemon {
 		r.liveNonDaemon++
 	}
+	r.noteLiveThreadStartLocked()
 	// Create the logical thread and publish thread_start before start returns,
 	// so the parent's own termination cannot precede its child's first trace
 	// event.
@@ -305,6 +309,12 @@ func intrinsicThreadStart(t *Thread, m *Method, receiver *Object, args []Value) 
 // runPeer runs the virtual run()V selection with the peer as receiver on the
 // already-published worker logical thread, then publishes termination.
 func (r *Runtime) runPeer(p *threadPeer, peer *Object, t *Thread) {
+	defer func() {
+		if value := recover(); value != nil {
+			r.reportHostFault(t, value)
+			panic(value)
+		}
+	}()
 	var out Outcome
 	decl := r.mustClass("java/lang/Thread").MethodIndex["run()V"]
 	target := r.selectVirtual(peer.Class, decl)
@@ -346,24 +356,39 @@ func (r *Runtime) publishTermination(t *Thread, peer *Object, countLive bool) {
 		return
 	}
 	entered := t.monitorEnterSilent(peer) == nil
+	var plan *lifecyclePlan
 	r.thrMu.Lock()
 	p, _ := peerOfObject(peer)
 	if p != nil {
 		p.state = threadTerminated
 		p.thread = nil
+		if p.hookDone != nil {
+			close(p.hookDone)
+			p.hookDone = nil
+		}
 		if peer.monitor != nil {
 			for _, w := range append([]*waiter(nil), peer.monitor.waiters...) {
 				r.wakeWaiterLocked(peer.monitor, w, waiterNotified)
 			}
 		}
+		if r.mainThread == t {
+			// Main participates in the natural-termination count without being
+			// part of the Gate 4 liveNonDaemon worker counter.
+			r.mainRetired = true
+		}
 		if countLive && !p.daemon {
 			r.liveNonDaemon--
-			r.liveCond.Broadcast()
 		}
+		r.liveCond.Broadcast()
+		r.noteLiveThreadEndLocked()
+		plan = r.beginNaturalShutdownLocked()
 	}
 	r.thrMu.Unlock()
 	if entered {
 		t.monitorExitSilent(peer)
+	}
+	if plan != nil {
+		go r.activateShutdown(plan)
 	}
 }
 

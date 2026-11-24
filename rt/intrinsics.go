@@ -351,6 +351,7 @@ func intrinsicClassGetMethod(t *Thread, m *Method, receiver *Object, args []Valu
 func (r *Runtime) lookupPublicMethod(c *Class, name string, params []*Class) (*Method, *Object) {
 	candidates := r.publicMethodCandidates(c, name, params)
 	if len(candidates) == 0 {
+		r.metrics.reflectionMiss()
 		return nil, r.bootstrapThrowable("java/lang/NoSuchMethodException")
 	}
 	return selectMostSpecific(candidates, c), nil
@@ -556,6 +557,7 @@ func intrinsicMethodInvoke(t *Thread, m *Method, receiver *Object, args []Value)
 	if tr := t.trace(); tr != nil {
 		tr.reflect(t.ID, decl, target)
 	}
+	t.RT.metrics.reflectiveInvocation()
 	var callReceiver *Object
 	if !isStatic {
 		callReceiver = realReceiver

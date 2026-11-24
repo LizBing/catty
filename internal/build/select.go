@@ -56,6 +56,9 @@ func (b *Build) prepare() error {
 		return fmt.Errorf("catty: --report and --output are required")
 	}
 	switch {
+	case b.opts.EnableLifecycle:
+		// Gate 5 includes Gate 4 threading and Gate 3 plugin admission.
+		b.profile = rt.Gate5Profile
 	case b.opts.EnableThreads:
 		// Gate 4 includes Gate 3 plugin admission.
 		b.profile = rt.Gate4Profile
@@ -554,6 +557,7 @@ func (b *Build) buildImage() error {
 		},
 	}
 	image.Threads = b.profile.Threads
+	image.Lifecycle = b.profile.Lifecycle
 	if b.profile.Plugins {
 		image.Capabilities = rt.ProfileCapabilities(b.profile.ID)
 		image.Limits = b.profile.Limits
@@ -568,6 +572,7 @@ type Report struct {
 	ImageABI     int                `json:"imageABI"`
 	Plugins      bool               `json:"plugins"`
 	Threads      bool               `json:"threads"`
+	Lifecycle    bool               `json:"lifecycle"`
 	Capabilities []string           `json:"capabilities,omitempty"`
 	PluginLimits *rt.PluginLimits   `json:"pluginLimits,omitempty"`
 	Main         string             `json:"main"`
@@ -641,11 +646,12 @@ type UnresolvedRecord struct {
 
 func (b *Build) buildReport() {
 	r := &Report{
-		Profile:  b.profile.ID,
-		ImageABI: b.profile.ABI,
-		Plugins:  b.profile.Plugins,
-		Threads:  b.profile.Threads,
-		Main:     b.opts.Main,
+		Profile:   b.profile.ID,
+		ImageABI:  b.profile.ABI,
+		Plugins:   b.profile.Plugins,
+		Threads:   b.profile.Threads,
+		Lifecycle: b.profile.Lifecycle,
+		Main:      b.opts.Main,
 		Toolchains: Toolchains{
 			Go: runtime.Version(),
 		},

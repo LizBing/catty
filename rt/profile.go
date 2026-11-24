@@ -21,11 +21,12 @@ type PluginLimits struct {
 // profile, the image carries its identity and ABI, and Install accepts only the
 // matching pair before any Java code runs.
 type Profile struct {
-	ID      string
-	ABI     int
-	Plugins bool
-	Threads bool
-	Limits  *PluginLimits
+	ID        string
+	ABI       int
+	Plugins   bool
+	Threads   bool
+	Lifecycle bool
+	Limits    *PluginLimits
 }
 
 // Profile identity constants. Gate 2 remains the default so builds without the
@@ -37,6 +38,8 @@ const (
 	Gate3ABI       = 3
 	Gate4ProfileID = "catty-jvm21-gate4"
 	Gate4ABI       = 4
+	Gate5ProfileID = "catty-jvm21-gate5"
+	Gate5ABI       = 5
 
 	// ABIRevision and ProfileID name the default (Gate 2) pair.
 	ABIRevision = Gate2ABI
@@ -60,6 +63,7 @@ var (
 	Gate2Profile = &Profile{ID: Gate2ProfileID, ABI: Gate2ABI}
 	Gate3Profile = &Profile{ID: Gate3ProfileID, ABI: Gate3ABI, Plugins: true, Limits: Gate3PluginLimits}
 	Gate4Profile = &Profile{ID: Gate4ProfileID, ABI: Gate4ABI, Plugins: true, Threads: true, Limits: Gate3PluginLimits}
+	Gate5Profile = &Profile{ID: Gate5ProfileID, ABI: Gate5ABI, Plugins: true, Threads: true, Lifecycle: true, Limits: Gate3PluginLimits}
 )
 
 // ProfileByID returns the published profile with the exact identity.
@@ -71,6 +75,8 @@ func ProfileByID(id string) (*Profile, bool) {
 		return Gate3Profile, true
 	case Gate4ProfileID:
 		return Gate4Profile, true
+	case Gate5ProfileID:
+		return Gate5Profile, true
 	}
 	return nil, false
 }
@@ -78,12 +84,12 @@ func ProfileByID(id string) (*Profile, bool) {
 // ProfileHasThreads reports whether the profile enables Java platform threads.
 // An unknown profile never admits the threaded feature set.
 func ProfileHasThreads(id string) bool {
-	return id == Gate4ProfileID
+	return id == Gate4ProfileID || id == Gate5ProfileID
 }
 
 // ProfileAdmitsPlugins reports whether the profile enables plugin admission.
 func ProfileAdmitsPlugins(id string) bool {
-	return id == Gate3ProfileID || id == Gate4ProfileID
+	return id == Gate3ProfileID || id == Gate4ProfileID || id == Gate5ProfileID
 }
 
 // ProfileCapabilities returns the canonical capability inventory for one
@@ -96,6 +102,10 @@ func ProfileCapabilities(id string) []string {
 	case Gate4ProfileID:
 		return []string{"plugin-admission", "loader-identity", "guarded-dispatch",
 			"threads", "monitors", "synchronized-memory"}
+	case Gate5ProfileID:
+		return []string{"plugin-admission", "loader-identity", "guarded-dispatch",
+			"threads", "monitors", "synchronized-memory",
+			"application-lifecycle", "shutdown-hooks", "application-diagnostics"}
 	}
 	return nil
 }
@@ -185,6 +195,9 @@ func BootstrapClassesFor(profile string) []BootstrapClassInfo {
 }
 
 func (p *Profile) bootstrapInventory() []*bsClass {
+	if p.Lifecycle {
+		return gate5BootstrapInventory()
+	}
 	if p.Threads {
 		return gate4BootstrapInventory()
 	}
@@ -195,6 +208,9 @@ func (p *Profile) bootstrapInventory() []*bsClass {
 }
 
 func (p *Profile) bootstrapByName() map[string]*bsClass {
+	if p.Lifecycle {
+		return gate5BootstrapByName()
+	}
 	if p.Threads {
 		return gate4BootstrapByName()
 	}

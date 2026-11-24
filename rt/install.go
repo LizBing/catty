@@ -26,6 +26,9 @@ func (r *Runtime) Install() error {
 	if r.Image.Threads != profile.Threads {
 		return fmt.Errorf("catty: image profile %q threading flag %v is inconsistent", r.Image.Profile, r.Image.Threads)
 	}
+	if r.Image.Lifecycle != profile.Lifecycle {
+		return fmt.Errorf("catty: image profile %q lifecycle flag %v is inconsistent", r.Image.Profile, r.Image.Lifecycle)
+	}
 	if profile.Plugins && r.Image.Limits == nil {
 		r.Image.Limits = profile.Limits
 	}
@@ -56,6 +59,11 @@ func (r *Runtime) Install() error {
 	if err := r.installBootstrap(profile); err != nil {
 		return err
 	}
+	// Cache the Thread class identity so lifecycle hook validation can run
+	// under the lifecycle guard without acquiring the metadata mutex.
+	if profile.Threads {
+		r.threadClass = r.Bootstrap["java/lang/Thread"]
+	}
 	if err := r.installImageClasses(); err != nil {
 		return err
 	}
@@ -76,6 +84,11 @@ func (r *Runtime) Install() error {
 	}
 	if err := r.buildMirrors(); err != nil {
 		return err
+	}
+	if profile.Lifecycle {
+		// The Runtime singleton is created before any Java code can ask for it.
+		// It has no public constructor in the bootstrap inventory.
+		r.runtimeObject = r.NewInstance(r.Bootstrap["java/lang/Runtime"])
 	}
 	if err := r.initBootstrapStatics(profile); err != nil {
 		return err
@@ -164,6 +177,7 @@ func (r *Runtime) installBootstrap(profile *Profile) error {
 		r.Bootstrap[bc.name] = c
 		r.BootstrapLoader.Classes[bc.name] = c
 		r.classOrder = append(r.classOrder, c)
+		r.metrics.classLoaded()
 	}
 	for _, pc := range PrimitiveClasses {
 		c := &Class{
@@ -178,6 +192,7 @@ func (r *Runtime) installBootstrap(profile *Profile) error {
 		r.primitives[pc.Descriptor[0]] = c
 		r.classOrder = append(r.classOrder, c)
 		r.primitiveOrder = append(r.primitiveOrder, c)
+		r.metrics.classLoaded()
 	}
 	return nil
 }
@@ -221,6 +236,7 @@ func (r *Runtime) installImageClasses() error {
 		}
 		r.Classes[def.Name] = c
 		r.Loader.Classes[def.Name] = c
+		r.metrics.classLoaded()
 	}
 	return nil
 }
@@ -413,6 +429,7 @@ func (r *Runtime) installAllMethods(profile *Profile) error {
 			if err := c.addMethod(m); err != nil {
 				return err
 			}
+			r.metrics.methodPublished(engine)
 		}
 	}
 	for _, def := range r.Image.Classes {
@@ -421,6 +438,7 @@ func (r *Runtime) installAllMethods(profile *Profile) error {
 			if err := r.installMethodDef(c, md); err != nil {
 				return err
 			}
+			r.metrics.methodPublished(md.Engine)
 		}
 	}
 	return nil

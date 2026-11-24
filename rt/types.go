@@ -339,6 +339,7 @@ type Image struct {
 	Capabilities []string      `json:"capabilities,omitempty"`
 	Plugins      bool          `json:"plugins,omitempty"`
 	Threads      bool          `json:"threads,omitempty"`
+	Lifecycle    bool          `json:"lifecycle,omitempty"`
 	Limits       *PluginLimits `json:"pluginLimits,omitempty"`
 	Classes      []*ClassDef   `json:"classes,omitempty"`
 	Main         MethodKey     `json:"main,omitempty"`

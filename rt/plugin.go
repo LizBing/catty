@@ -456,6 +456,12 @@ func (r *Runtime) installPluginLocked(parent *Loader, res *AdmissionResult) (*Lo
 	r.nextLoaderID = loader.ID
 	r.pluginLoaders = append(r.pluginLoaders, loader)
 	r.pluginClassBytes += res.ClassBytes
+	for _, c := range created {
+		r.metrics.classLoaded()
+		for _, method := range c.Methods {
+			r.metrics.methodPublished(method.Engine)
+		}
+	}
 	return loader, nil
 }
 

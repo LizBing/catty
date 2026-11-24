@@ -31,6 +31,10 @@ type threadPeer struct {
 	// pendingInterrupt is the Java interrupt status. It survives termination
 	// and can be set on a peer that has not started yet.
 	pendingInterrupt bool
+	// hookDone closes exactly once when this peer terminates while it is a
+	// member of the frozen shutdown snapshot. It is nil for ordinary peers and
+	// for snapshot members that had already terminated at freeze time.
+	hookDone chan struct{}
 }
 
 func peerData(o *Object) *threadPeer {
@@ -255,6 +259,9 @@ func (t *Thread) monitorEnter(o *Object, m *Method, pc int32, traced bool) *Obje
 	t.held[o] = mo
 	depth := mo.depth
 	r.thrMu.Unlock()
+	if contended && r.metrics != nil {
+		r.metrics.monitorContention()
+	}
 	if traced {
 		if tr := t.trace(); tr != nil {
 			if contended {
@@ -724,6 +731,7 @@ func (t *Thread) currentPeer() *Object {
 		if p, ok := peerOfObject(peer); ok {
 			p.thread = t
 		}
+		r.noteLiveThreadStartLocked()
 	}
 	result := t.peer
 	r.thrMu.Unlock()

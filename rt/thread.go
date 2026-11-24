@@ -19,6 +19,11 @@ type Thread struct {
 	// thread that entered Java without a peer.
 	peer *Object
 
+	// engineStack is the thread's stack of non-intrinsic execution engines.
+	// Intrinsic frames are adapters for cross-engine accounting, so they are
+	// not pushed; a new logical thread starts with an empty stack.
+	engineStack []string
+
 	// The following fields are guarded by RT.thrMu.
 	blocker       *threadBlocker
 	hostInterrupt bool // pending interrupt for a host thread without a peer
@@ -90,6 +95,7 @@ func (r *Runtime) MainThread() *Thread {
 			p.thread = t
 		}
 		t.peer = peer
+		r.noteLiveThreadStartLocked()
 	}
 	result := r.mainThread
 	r.thrMu.Unlock()
@@ -150,6 +156,16 @@ func (t *Thread) Call(m *Method, receiver *Object, args []Value) Outcome {
 	if tr := t.trace(); tr != nil {
 		tr.enter(t.ID, m, depth)
 	}
+	if hook := t.RT.HostFaultHook; hook != nil {
+		hook(t, m)
+	}
+	if metrics := t.RT.metrics; metrics != nil && (m.Engine == "aot" || m.Engine == "interp") {
+		if n := len(t.engineStack); n > 0 && t.engineStack[n-1] != m.Engine {
+			metrics.crossEngineCall()
+		}
+		t.engineStack = append(t.engineStack, m.Engine)
+		defer func() { t.engineStack = t.engineStack[:len(t.engineStack)-1] }()
+	}
 	var out Outcome
 	switch m.Engine {
 	case "aot":
@@ -170,6 +186,9 @@ func (t *Thread) Call(m *Method, receiver *Object, args []Value) Outcome {
 		out = ThrowOutcome(t.RT.NewThrowable(t, "java/lang/AbstractMethodError"))
 	default:
 		out = ThrowOutcome(t.RT.NewThrowable(t, "java/lang/NoSuchMethodError"))
+	}
+	if t.RT.metrics != nil && out.Thrown != nil {
+		t.RT.metrics.javaException()
 	}
 	if lock != nil {
 		// Release exactly one implicit acquisition. A body that already

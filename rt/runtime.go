@@ -63,6 +63,7 @@ type Runtime struct {
 
 	profile       *Profile
 	bootstrapDefs map[string]*bsClass
+	threadClass   *Class
 
 	primitives          map[byte]*Class
 	arrayClasses        map[*Class]*Class
@@ -95,6 +96,22 @@ type Runtime struct {
 	trace        *trace
 	mainThread   *Thread
 
+	// Gate 5 lifecycle state. lifeState, hooks, hookSet, mainRetired and
+	// liveNonDaemon are guarded by thrMu so thread publication, hook registry
+	// mutations and the first-zero transition share one linearization point.
+	lifeState         lifecycleState
+	lifeReason        string
+	lifeStatus        int32
+	lifeRequester     int64
+	hooks             []*Object
+	hookSet           map[*Object]struct{}
+	lifecycleTerminal chan terminalResult
+	mainRetired       bool
+	mainStatus        int32
+	runtimeObject     *Object
+	appStartOnce      sync.Once
+	metrics           *metricsRecorder
+
 	liveNonDaemon int
 	liveCond      *sync.Cond
 	clock         runtimeClock
@@ -115,6 +132,19 @@ type Runtime struct {
 
 	// diagMu serializes uncaught-thread diagnostics.
 	diagMu sync.Mutex
+
+	// HostFaultHook is an optional testing hook invoked from Thread.Call after
+	// the Java frame is published. A host-fault acceptance fixture uses it to
+	// panic with Java frames active so both the Java frame snapshot and the
+	// original Go stack are observable.
+	HostFaultHook func(t *Thread, m *Method)
+	// ThreadStartHook is an optional deterministic-race hook invoked at the
+	// entry of Thread.start before the lifecycle guard is acquired.
+	ThreadStartHook func(peer *Object)
+	// ExitRequestHook is an optional deterministic-race hook invoked at the
+	// entry of an explicit exit request before the lifecycle guard is
+	// acquired.
+	ExitRequestHook func(status int32)
 
 	// AllocHook is an optional testing hook invoked after each instance
 	// allocation. It must not retain the object; the garbage-collection
@@ -153,6 +183,8 @@ func NewRuntime(img *Image) *Runtime {
 		initiations:         map[initiationKey]*Class{},
 		constraints:         map[constraintKey]struct{}{},
 		admit:               defaultAdmission,
+		hookSet:             map[*Object]struct{}{},
+		lifecycleTerminal:   make(chan terminalResult, 1),
 	}
 	r.liveCond = sync.NewCond(&r.thrMu)
 	r.clock = realRuntimeClock{}
@@ -483,6 +515,7 @@ func (r *Runtime) newArrayClassLocked(desc string, component *Class, loader *Loa
 	}
 	classClass := r.mustClassLocked("java/lang/Class")
 	c.Mirror = &Object{Class: classClass, Payload: c, Identity: r.newIdentity()}
+	r.metrics.classLoaded()
 	return c
 }
 
