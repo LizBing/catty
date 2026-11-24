@@ -1,4 +1,4 @@
-Gate 2 artifacts in /private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-3qyz3dw1
+Gate 2 artifacts in /private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-u6x7vs0i
 go version go1.27.1 darwin/arm64
 openjdk version "21.0.13.1" 2026-11-17 LTS
 OpenJDK Runtime Environment Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS)
@@ -42,5 +42,5 @@ PASS bad-long-slot
 PASS bad-stack-shape
 PASS bad-control-flow
 PASS profile-and-image checks
-PASS Gate 1 regression. See /private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-3qyz3dw1/logs/gate1-regression.json
+PASS Gate 1 regression. See /private/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate2-u6x7vs0i/logs/gate1-regression.json
 Gate 2 passed.

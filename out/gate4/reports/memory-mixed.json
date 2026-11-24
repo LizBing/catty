@@ -29,38 +29,38 @@
   },
   "inputs": [
     {
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/memory",
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-cjso4_fs/classes/memory",
       "digest": "3a56f00cb19e65dddc49e26196dbc1d92231cb0e73909b4ea3be4cd5b9d068da"
     }
   ],
   "classes": [
     {
       "name": "Check",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/memory/Check.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-cjso4_fs/classes/memory/Check.class"
     },
     {
       "name": "Memory$Box",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/memory/Memory$Box.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-cjso4_fs/classes/memory/Memory$Box.class"
     },
     {
       "name": "Memory$Left",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/memory/Memory$Left.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-cjso4_fs/classes/memory/Memory$Left.class"
     },
     {
       "name": "Memory$Publisher",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/memory/Memory$Publisher.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-cjso4_fs/classes/memory/Memory$Publisher.class"
     },
     {
       "name": "Memory$RacyPublisher",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/memory/Memory$RacyPublisher.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-cjso4_fs/classes/memory/Memory$RacyPublisher.class"
     },
     {
       "name": "Memory$Right",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/memory/Memory$Right.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-cjso4_fs/classes/memory/Memory$Right.class"
     },
     {
       "name": "Memory",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/memory/Memory.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-cjso4_fs/classes/memory/Memory.class"
     }
   ],
   "methods": [

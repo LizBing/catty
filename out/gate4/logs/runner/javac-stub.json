@@ -5,17 +5,17 @@
     "21",
     "-g",
     "-d",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/stub",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-cjso4_fs/classes/stub",
     "/Users/services/Projects/catty/testdata/gate3/stub/catty/runtime/PluginAdmissionException.java",
     "/Users/services/Projects/catty/testdata/gate3/stub/catty/runtime/Plugins.java"
   ],
   "cwd": "/Users/services/Projects/catty",
   "environment": {
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
     "LC_ALL": "C",
-    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home"
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin"
   },
-  "pid": 43492,
+  "pid": 52025,
   "status": 0,
   "stdout": "",
   "stderr": ""

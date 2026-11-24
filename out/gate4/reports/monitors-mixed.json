@@ -29,22 +29,22 @@
   },
   "inputs": [
     {
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/monitors",
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-cjso4_fs/classes/monitors",
       "digest": "d939696a31addf9ba18422809d5ebc45d701925136e1de42b8e923c9bd226277"
     }
   ],
   "classes": [
     {
       "name": "Check",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/monitors/Check.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-cjso4_fs/classes/monitors/Check.class"
     },
     {
       "name": "Monitors$Worker",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/monitors/Monitors$Worker.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-cjso4_fs/classes/monitors/Monitors$Worker.class"
     },
     {
       "name": "Monitors",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/monitors/Monitors.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-cjso4_fs/classes/monitors/Monitors.class"
     }
   ],
   "methods": [

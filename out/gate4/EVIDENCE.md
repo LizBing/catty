@@ -27,6 +27,7 @@ Full logs are under [logs/](logs/); the status table is
 | 5 | `python3 -B tests/gate3.py --java-home <jdk-21>` | 0 | [gate3.log](logs/gate3.log) |
 | 6 | `python3 -B tests/gate2.py --java-home <jdk-21>` | 0 | [gate2.log](logs/gate2.log) |
 | 7 | `go test -race -count=1 -v -run '<follow-up timer regex>' ./rt/` | 0 | [followup-timer-tests.log](logs/followup-timer-tests.log) |
+| 8 | `go test -race -count=1 -v -run '<blocker regressions>' ./rt/` | 0 | [blocker-regressions.log](logs/blocker-regressions.log) |
 
 The Gate 4 runner compiled the fixtures, recorded the OpenJDK 21 oracle and
 exercised the same class files through all-interpreted, mixed and forced-AOT
@@ -102,8 +103,8 @@ directories or adapter on any path:
 
 ```text
 status=0
-before=19508d631bb2eb4a786ae49210d0ca00b1d7ef592bb408c3d158d6c34713d983
-after =19508d631bb2eb4a786ae49210d0ca00b1d7ef592bb408c3d158d6c34713d983
+before=6da2523db0e489354f1f8f64f33c95c880b9e5bfe7e08ebe3a1f9ffba15daca2
+after =6da2523db0e489354f1f8f64f33c95c880b9e5bfe7e08ebe3a1f9ffba15daca2
 stdout=plugin
 ```
 
@@ -121,11 +122,11 @@ Main is a root; workers carry `parentThread`; every non-daemon thread has one
 start and one end:
 
 ```json
-{"daemon": false, "event": "thread_start", "name": "main", "pid": 43182, "thread": 2}
-{"daemon": false, "event": "thread_start", "name": "counted", "parentThread": 14, "pid": 43182, "thread": 15}
-{"event": "thread_end", "pid": 43182, "result": "terminated", "thread": 15}
-{"event": "thread_end", "pid": 43182, "result": "terminated", "thread": 14}
-{"event": "thread_end", "pid": 43182, "result": "terminated", "thread": 2}
+{"daemon": false, "event": "thread_start", "name": "main", "pid": 51707, "thread": 2}
+{"daemon": false, "event": "thread_start", "name": "counted", "parentThread": 13, "pid": 51707, "thread": 15}
+{"event": "thread_end", "pid": 51707, "result": "terminated", "thread": 15}
+{"event": "thread_end", "pid": 51707, "result": "terminated", "thread": 14}
+{"event": "thread_end", "pid": 51707, "result": "terminated", "thread": 2}
 ```
 
 The launcher case trace (`traces/launcher-interp-worker-uncaught.jsonl`) ends
@@ -140,9 +141,9 @@ through synchronized methods and the explicit block, and the throwable
 identity is preserved through unwind and catch:
 
 ```json
-{"depth": 4, "event": "monitor", "method": {"descriptor": "()V", "loaderId": 1, "name": "nested", "owner": "Monitors"}, "object": 77, "pc": 3, "phase": "enter", "pid": 43242, "thread": 2}
-{"depth": 2, "descriptor": "()V", "event": "unwind", "loaderId": 1, "name": "nested", "owner": "Monitors", "pid": 43242, "thread": 2, "throwable": 1, "throwableLoaderId": 0}
-{"descriptor": "([Ljava/lang/String;)V", "event": "catch", "handlerPC": 22, "loaderId": 1, "name": "main", "owner": "Monitors", "pid": 43242, "thread": 2, "throwPC": 9, "throwable": 1, "throwableLoaderId": 0}
+{"depth": 4, "event": "monitor", "method": {"descriptor": "()V", "loaderId": 1, "name": "nested", "owner": "Monitors"}, "object": 77, "pc": 3, "phase": "enter", "pid": 51766, "thread": 2}
+{"depth": 2, "descriptor": "()V", "event": "unwind", "loaderId": 1, "name": "nested", "owner": "Monitors", "pid": 51766, "thread": 2, "throwable": 1, "throwableLoaderId": 0}
+{"descriptor": "([Ljava/lang/String;)V", "event": "catch", "handlerPC": 22, "loaderId": 1, "name": "main", "owner": "Monitors", "pid": 51766, "thread": 2, "throwPC": 9, "throwable": 1, "throwableLoaderId": 0}
 ```
 
 ### Wait outcomes (`traces/wait-set-interp-normal.jsonl`)
@@ -151,12 +152,12 @@ One resume per waiter, each with a single reason, and full recursion depth
 restored (depth 2 waiters resume at depth 2):
 
 ```json
-{"depth": 2, "event": "monitor", "object": 91, "phase": "wait", "pid": 43301, "thread": 8}
-{"depth": 2, "event": "monitor", "object": 91, "phase": "wait", "pid": 43301, "thread": 7}
-{"depth": 1, "event": "monitor", "object": 91, "phase": "wait", "pid": 43301, "thread": 2}
-{"depth": 2, "event": "monitor", "object": 91, "phase": "resume", "pid": 43301, "reason": "interrupted", "thread": 7}
-{"depth": 2, "event": "monitor", "object": 91, "phase": "resume", "pid": 43301, "reason": "notified", "thread": 8}
-{"depth": 1, "event": "monitor", "object": 91, "phase": "resume", "pid": 43301, "reason": "notified", "thread": 2}
+{"depth": 2, "event": "monitor", "object": 91, "phase": "wait", "pid": 51825, "thread": 7}
+{"depth": 2, "event": "monitor", "object": 91, "phase": "wait", "pid": 51825, "thread": 8}
+{"depth": 1, "event": "monitor", "object": 91, "phase": "wait", "pid": 51825, "thread": 2}
+{"depth": 2, "event": "monitor", "object": 91, "phase": "resume", "pid": 51825, "reason": "interrupted", "thread": 7}
+{"depth": 2, "event": "monitor", "object": 91, "phase": "resume", "pid": 51825, "reason": "notified", "thread": 8}
+{"depth": 1, "event": "monitor", "object": 91, "phase": "resume", "pid": 51825, "reason": "notified", "thread": 2}
 ```
 
 ### Class initialization (`traces/initialization-interp-normal.jsonl`)
@@ -165,10 +166,10 @@ The owner starts, a competing thread records a wait with the owner identity,
 and completion is published before the waiter proceeds:
 
 ```json
-{"class": "Initialization$Ready", "event": "class_init", "loaderId": 1, "phase": "start", "pid": 43360, "thread": 5}
-{"class": "Initialization$Ready", "event": "class_init_wait", "loaderId": 1, "ownerThread": 5, "pid": 43360, "thread": 6}
-{"class": "Initialization$Ready", "event": "class_init", "loaderId": 1, "phase": "complete", "pid": 43360, "thread": 5}
-{"class": "Initialization$Broken", "event": "class_init", "failed": true, "loaderId": 1, "phase": "complete", "pid": 43360, "thread": 9, "throwable": 2}
+{"class": "Initialization$Ready", "event": "class_init", "loaderId": 1, "phase": "start", "pid": 51887, "thread": 5}
+{"class": "Initialization$Ready", "event": "class_init_wait", "loaderId": 1, "ownerThread": 5, "pid": 51887, "thread": 6}
+{"class": "Initialization$Ready", "event": "class_init", "loaderId": 1, "phase": "complete", "pid": 51887, "thread": 5}
+{"class": "Initialization$Broken", "event": "class_init", "failed": true, "loaderId": 1, "phase": "complete", "pid": 51887, "thread": 9, "throwable": 2}
 ```
 
 ### Concurrent plugin admission (`traces/plugin-interp-normal.jsonl`)
@@ -178,12 +179,12 @@ distinct loader IDs and publishes each class once. Their plugin threads use
 distinct class mirrors as the static synchronized monitor:
 
 ```json
-{"deferredReferences": 0, "definedClasses": 1, "event": "plugin_admission", "interpretedMethods": 5, "jarSHA256": "a05d597abf9f477c575881a9acfe57c8e1ca0af12fc6c81aab95d4ca95227438", "loaderId": 2, "parentLoaderId": 1, "pid": 43549, "result": "accepted", "shadowedClasses": 0, "thread": 6}
-{"class": "ext/Worker", "event": "class_define", "jarSHA256": "a05d597abf9f477c575881a9acfe57c8e1ca0af12fc6c81aab95d4ca95227438", "loaderId": 2, "pid": 43549, "thread": 6}
-{"deferredReferences": 0, "definedClasses": 1, "event": "plugin_admission", "interpretedMethods": 5, "jarSHA256": "a05d597abf9f477c575881a9acfe57c8e1ca0af12fc6c81aab95d4ca95227438", "loaderId": 3, "parentLoaderId": 1, "pid": 43549, "result": "accepted", "shadowedClasses": 0, "thread": 5}
-{"class": "ext/Worker", "event": "class_define", "jarSHA256": "a05d597abf9f477c575881a9acfe57c8e1ca0af12fc6c81aab95d4ca95227438", "loaderId": 3, "pid": 43549, "thread": 5}
-{"depth": 1, "event": "monitor", "method": {"descriptor": "()V", "loaderId": 3, "name": "record", "owner": "ext/Worker"}, "object": 80, "phase": "enter", "pid": 43549, "thread": 9}
-{"depth": 1, "event": "monitor", "method": {"descriptor": "()V", "loaderId": 2, "name": "record", "owner": "ext/Worker"}, "object": 79, "phase": "enter", "pid": 43549, "thread": 10}
+{"deferredReferences": 0, "definedClasses": 1, "event": "plugin_admission", "interpretedMethods": 5, "jarSHA256": "d969024fe13f71d978e21b020d089ff62ad069cd7dc0edc8619d8a4c7cf3a671", "loaderId": 2, "parentLoaderId": 1, "pid": 52082, "result": "accepted", "shadowedClasses": 0, "thread": 5}
+{"class": "ext/Worker", "event": "class_define", "jarSHA256": "d969024fe13f71d978e21b020d089ff62ad069cd7dc0edc8619d8a4c7cf3a671", "loaderId": 2, "pid": 52082, "thread": 5}
+{"deferredReferences": 0, "definedClasses": 1, "event": "plugin_admission", "interpretedMethods": 5, "jarSHA256": "d969024fe13f71d978e21b020d089ff62ad069cd7dc0edc8619d8a4c7cf3a671", "loaderId": 3, "parentLoaderId": 1, "pid": 52082, "result": "accepted", "shadowedClasses": 0, "thread": 6}
+{"class": "ext/Worker", "event": "class_define", "jarSHA256": "d969024fe13f71d978e21b020d089ff62ad069cd7dc0edc8619d8a4c7cf3a671", "loaderId": 3, "pid": 52082, "thread": 6}
+{"depth": 1, "event": "monitor", "method": {"descriptor": "()V", "loaderId": 3, "name": "record", "owner": "ext/Worker"}, "object": 80, "phase": "enter", "pid": 52082, "thread": 9}
+{"depth": 1, "event": "monitor", "method": {"descriptor": "()V", "loaderId": 2, "name": "record", "owner": "ext/Worker"}, "object": 79, "phase": "enter", "pid": 52082, "thread": 10}
 ```
 
 ## Deterministic Go coverage
@@ -216,6 +217,9 @@ the test plan without depending on wall-clock scheduling:
   wait, bounded wait/join segments, Java timeouts beyond Go's duration range,
   interrupted sleep cleanup, termination publication under the peer monitor,
   and 32 real-clock notified waits showing no goroutine accumulation.
+- Second follow-up regressions: wait-set backing-array tail clearing for middle
+  and end removals, direct deadline arithmetic just beyond Go's duration
+  ceiling, and timed wait/join expiry at that deadline.
 
 Timing-dependent tests use the injectable monotonic clock
 (`Runtime.clock`); interleavings use barriers and channels.
@@ -305,6 +309,65 @@ go test -race -count=1 ./...
 go vet ./...
 go test -race -count=1 -v \
   -run 'TestGate4EarlyWaitReleasesTimers|TestGate4RealClockEarlyWaitsDoNotParkTimers|TestGate4EarlyJoinReleasesTimers|TestGate4InterruptedWaitReleasesTimers|TestGate4InterruptedJoinReleasesTimers|TestGate4TimeoutReleasesTimers|TestGate4StaleTimerDoesNotAffectLaterWait|TestGate4BoundedWaitAndJoinSegments|TestGate4HugeWaitSegmentsAndCancellation|TestGate4InterruptedSleepReleasesTimer|TestGate4TerminationPublishesUnderPeerMonitor' \
+  ./rt/
+python3 -B tests/gate4.py --java-home /Users/services/jdks/jdk-21.0.13.1+2/Contents/Home --prepare-only
+python3 -B tests/gate4.py --java-home /Users/services/jdks/jdk-21.0.13.1+2/Contents/Home --race
+python3 -B tests/gate3.py --java-home /Users/services/jdks/jdk-21.0.13.1+2/Contents/Home
+python3 -B tests/gate2.py --java-home /Users/services/jdks/jdk-21.0.13.1+2/Contents/Home
+```
+
+## Second follow-up: wait-set retention and overflow deadlines
+
+### Removed waiters release the backing array
+
+`removeWaiterLocked` previously shortened the wait-set slice with
+`append(waiters[:i], waiters[i+1:]...)`, which shifted the later records but
+left the last pointer in the unused tail. A long-lived monitor therefore kept
+the completed waiter and its Java thread reachable through the backing array
+until the slice was replaced.
+
+The fix copies the surviving tail, writes `nil` into the vacated last slot, and
+then shortens the slice. `TestGate4RemoveWaiterReleasesBackingArray` scans the
+full capacity after removing from the middle and from the end, and rejects any
+retained pointer to the removed record.
+
+### Deadlines beyond Go's duration range
+
+`waitTimer.remaining` computed elapsed time with `now.Sub(start)`, which
+saturates at `MaxInt64` nanoseconds (about 292 years). For a Java timeout 10 ms
+beyond the largest whole-millisecond Go duration, advancing the manual clock to
+the exact deadline still returned `remaining=10ms, expired=false`, so the wait
+could never expire at its real deadline.
+
+The fix keeps the full int64 millisecond timeout. Elapsed time uses the
+monotonic `Sub` reading while that reading is representable, and falls back to
+whole Unix seconds plus nanoseconds (`wallElapsedMillis`) once the monotonic
+difference saturates. The deadline remains one absolute Java time; join wakeups
+recompute from the same start and millisecond timeout, so they cannot extend it.
+This preserves monotonic timing for every representable wait, and exact
+millisecond accounting for the full Java range.
+
+Regressions, all passing under `-race`:
+
+- `TestGate4WaitTimerCrossesDurationCeiling` — at the exact age of
+  `largestWholeMillisecondTimeout()+10ms`, `remaining` is `0` and
+  `expired` is true (the pre-fix behavior was `10ms,false`).
+- `TestGate4TimedWaitCrossesDurationCeiling` — a timed `Object.wait` with that
+  timeout is still waiting at the duration ceiling, then resumes at its exact
+  original deadline.
+- `TestGate4TimedJoinCrossesDurationCeiling` — the same deadline for a timed
+  join against a live target, with no early exit and no timer work left after
+  expiry.
+
+### Commands for this follow-up
+
+All exited 0; full output is in the linked logs and `STATUS.txt`.
+
+```sh
+go test -race -count=1 ./...
+go vet ./...
+go test -race -count=1 -v \
+  -run 'TestGate4RemoveWaiterReleasesBackingArray|TestGate4WaitTimerCrossesDurationCeiling|TestGate4TimedWaitCrossesDurationCeiling|TestGate4TimedJoinCrossesDurationCeiling' \
   ./rt/
 python3 -B tests/gate4.py --java-home /Users/services/jdks/jdk-21.0.13.1+2/Contents/Home --prepare-only
 python3 -B tests/gate4.py --java-home /Users/services/jdks/jdk-21.0.13.1+2/Contents/Home --race

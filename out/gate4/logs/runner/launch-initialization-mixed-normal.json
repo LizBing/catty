@@ -1,16 +1,16 @@
 {
   "command": [
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/images/initialization-mixed/app"
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-cjso4_fs/images/initialization-mixed/app"
   ],
-  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/images/initialization-mixed",
+  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-cjso4_fs/images/initialization-mixed",
   "environment": {
-    "LC_ALL": "C",
-    "PATH": "",
-    "JDK_HOME": "",
     "JAVA_HOME": "",
-    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/initialization-mixed-normal.jsonl"
+    "LC_ALL": "C",
+    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-cjso4_fs/initialization-mixed-normal.jsonl",
+    "JDK_HOME": "",
+    "PATH": ""
   },
-  "pid": 43361,
+  "pid": 51889,
   "status": 0,
   "stdout": "initialization\n",
   "stderr": ""

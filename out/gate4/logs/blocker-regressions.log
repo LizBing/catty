@@ -1,0 +1,10 @@
+=== RUN   TestGate4RemoveWaiterReleasesBackingArray
+--- PASS: TestGate4RemoveWaiterReleasesBackingArray (0.00s)
+=== RUN   TestGate4WaitTimerCrossesDurationCeiling
+--- PASS: TestGate4WaitTimerCrossesDurationCeiling (0.00s)
+=== RUN   TestGate4TimedWaitCrossesDurationCeiling
+--- PASS: TestGate4TimedWaitCrossesDurationCeiling (0.00s)
+=== RUN   TestGate4TimedJoinCrossesDurationCeiling
+--- PASS: TestGate4TimedJoinCrossesDurationCeiling (0.00s)
+PASS
+ok  	catty/rt	1.240s

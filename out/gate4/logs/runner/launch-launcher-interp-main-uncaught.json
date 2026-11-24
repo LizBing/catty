@@ -1,17 +1,17 @@
 {
   "command": [
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/images/launcher-interp/app",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-cjso4_fs/images/launcher-interp/app",
     "fail-main"
   ],
-  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/images/launcher-interp",
+  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-cjso4_fs/images/launcher-interp",
   "environment": {
-    "LC_ALL": "C",
-    "PATH": "",
-    "JDK_HOME": "",
     "JAVA_HOME": "",
-    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/launcher-interp-main-uncaught.jsonl"
+    "LC_ALL": "C",
+    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-cjso4_fs/launcher-interp-main-uncaught.jsonl",
+    "JDK_HOME": "",
+    "PATH": ""
   },
-  "pid": 43486,
+  "pid": 52019,
   "status": 1,
   "stdout": "main\nworker\ndescendant\n",
   "stderr": "Exception in thread \"main\" java.lang.RuntimeException\n\tat Launcher.main([Ljava/lang/String;)V\n"
