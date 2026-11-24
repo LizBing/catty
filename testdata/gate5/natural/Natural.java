@@ -6,13 +6,38 @@ public final class Natural {
     static volatile boolean daemonReady;
     static volatile boolean descendantDone;
     static volatile boolean workerDone;
+    static volatile boolean waitForever;
+    static volatile boolean hookWaiting;
+    static final Object HOOK_WAIT = new Object();
 
     static final class Hook implements Runnable {
         public void run() {
+            if (waitForever) {
+                System.out.println("hook-wait");
+                hookWaiting = true;
+                synchronized (HOOK_WAIT) {
+                    for (;;) {
+                        try {
+                            HOOK_WAIT.wait();
+                        } catch (InterruptedException ignored) {
+                        }
+                    }
+                }
+            }
             while (!workerDone) {
                 Thread.yield();
             }
             System.out.println("hook");
+        }
+    }
+
+    static final class Halter implements Runnable {
+        public void run() {
+            while (!hookWaiting) {
+                Thread.yield();
+            }
+            System.out.println("halter");
+            Runtime.getRuntime().halt(31);
         }
     }
 
@@ -74,6 +99,17 @@ public final class Natural {
     }
 
     public static void main(String[] args) throws InterruptedException {
+        if (args.length > 0 && (args[0].equals("wait") || args[0].equals("wait-halt"))) {
+            waitForever = true;
+            Runtime.getRuntime().addShutdownHook(new Thread(new Hook(), "hook"));
+            if (args[0].equals("wait-halt")) {
+                Thread halter = new Thread(new Halter(), "halter");
+                halter.setDaemon(true);
+                halter.start();
+            }
+            System.out.println("main");
+            return;
+        }
         mainThread = Thread.currentThread();
         Runtime.getRuntime().addShutdownHook(new Thread(new Hook(), "hook"));
         Thread daemon = new Thread(new Daemon(), "daemon");

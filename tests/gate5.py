@@ -317,12 +317,17 @@ def method_engine(events, key, engine):
 
 # ------------------------------------------------------------------- cases
 
+def expect_timeout(label, args):
+    return ((label == "exit-contention" and args and args[0] == "hook-exit")
+            or (label == "natural" and args and args[0] == "wait"))
+
+
 def run_specs(label, jar):
     if label == "startup":
         return [([], None), ([""], None), (["   "], None), (["-x"], None),
                 (["héllo→"], None)]
     if label == "natural":
-        return [([], None), (["fail"], 1)]
+        return [([], None), (["fail"], 1), (["wait"], None), (["wait-halt"], 31)]
     if label == "hooks":
         return [([], 7)]
     if label == "registration":
@@ -367,7 +372,8 @@ def compare_run(suite, label, case, binary, mode, args, expected_status, oracle,
         trace = suite.work / "traces" / f"launch-{label}-{mode}-{run_suffix(args)}.jsonl"
         trace.parent.mkdir(parents=True, exist_ok=True)
         result = run_allow_timeout(suite, f"launch-{label}-{mode}-{run_suffix(args)}",
-                                   [binary, *args], timeout=20, cwd=binary.parent,
+                                   [binary, *args],
+                                   timeout=5 if label == "natural" else 20, cwd=binary.parent,
                                    env={"PATH": "", "JAVA_HOME": "", "JDK_HOME": "",
                                         "CATTY_TRACE": str(trace),
                                         "GORACE": "atexit_sleep_ms=0 halt_on_error=1"})
@@ -436,9 +442,13 @@ def case_checks(label, mode, events, args):
         require(any(event["event"] == "thread_start" and event.get("name") == "hook-worker"
                     and not event["daemon"] for event in events),
                 "hook-started ordinary worker is missing")
-    if label == "natural":
+    if label == "natural" and not (args and (args[0] == "wait" or args[0] == "wait-halt")):
         terminal = [event for event in events if event["event"] == "process_exit"][0]
         require(terminal["reason"] == "natural", "natural case did not record natural shutdown")
+    if label == "natural" and args and args[0] == "wait-halt":
+        terminal = [event for event in events if event["event"] == "process_exit"][0]
+        require(terminal["reason"] == "halt" and terminal["status"] == 31,
+                f"halt after waiting hook: {terminal}")
     if label == "exit":
         variant = args[0]
         process = [event for event in events if event["event"] == "process_exit"][0]
@@ -474,11 +484,12 @@ def oracle_only(suite, label):
     else:
         classpath = os.pathsep.join(str(p) for p in paths)
     for args, expected_status in run_specs(label, jar):
-        timeout = label == "exit-contention" and args[0] == "hook-exit"
+        timeout = expect_timeout(label, args)
         command = ["java", "-Xverify:all", "-Dstdout.encoding=UTF-8", "-Dstderr.encoding=UTF-8",
                  "-cp", classpath, case.main, *args]
         if timeout:
-            result = run_allow_timeout(suite, f"oracle-{label}-{args[0]}", command, timeout=20)
+            result = run_allow_timeout(suite, f"oracle-{label}-{args[0]}", command,
+                                       timeout=5 if label == "natural" else 20)
             require(result.timed_out, f"oracle did not stall for {label} {args}")
         else:
             result = suite.run(f"oracle-{label}-{'-'.join(args) or 'plain'}", command, timeout=30)
@@ -506,7 +517,7 @@ def exercise(suite, label, race):
     else:
         classpath = os.pathsep.join(str(p) for p in paths)
     for args, expected_status in run_specs(label, jar):
-        timeout = label == "exit-contention" and args[0] == "hook-exit"
+        timeout = expect_timeout(label, args)
         oracle_command = ["java", "-Xverify:all", "-Dstdout.encoding=UTF-8", "-Dstderr.encoding=UTF-8",
                  "-cp", classpath, case.main, *args]
         if timeout:

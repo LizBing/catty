@@ -132,6 +132,11 @@ func (r *Runtime) publishTerminal(reason string, status int32, requester int64) 
 	r.hooks = nil
 	r.hookSet = nil
 	r.thrMu.Unlock()
+	// A halt may win the race after the registry froze but before the
+	// coordinator recorded shutdown_begin. Emit the frozen begin record first,
+	// so process_exit can never precede it. A halt in the running state has no
+	// pending begin and still skips the event.
+	r.ensureShutdownBegin()
 	select {
 	case r.lifecycleTerminal <- terminalResult{reason: reason, status: status, requester: requester}:
 	default:
@@ -169,6 +174,14 @@ func (r *Runtime) freezeHooksLocked(reason string, status int32, requester int64
 	}
 	r.hooks = nil
 	r.hookSet = nil
+	r.beginMu.Lock()
+	r.shutdownBeginPending = true
+	r.shutdownBeginWritten = false
+	r.frozenReason = reason
+	r.frozenStatus = status
+	r.frozenRequester = requester
+	r.frozenHookCount = len(plan.hooks)
+	r.beginMu.Unlock()
 	for _, hook := range plan.hooks {
 		p, ok := peerOfObject(hook)
 		if !ok || p == nil {
@@ -203,14 +216,22 @@ func (r *Runtime) activateShutdown(plan *lifecyclePlan) {
 	if plan == nil {
 		return
 	}
+	r.keepShutdownAlive()
+	if hook := r.ActivateShutdownHook; hook != nil {
+		hook()
+	}
+	// Record the shutdown event before checking for a terminal race. A halt
+	// that already won still owes the trace the begin record for the frozen
+	// snapshot; terminal publication emits it if this coordinator is late.
+	r.ensureShutdownBegin()
 	r.thrMu.Lock()
 	terminal := r.lifeState == lifecycleTerminal
 	r.thrMu.Unlock()
 	if terminal {
 		return
 	}
-	if tr := r.trace; tr != nil {
-		tr.shutdownBegin(plan.reason, plan.status, len(plan.hooks), plan.requester)
+	if hook := r.BeforeHookStartHook; hook != nil {
+		hook()
 	}
 
 	// Publish the new-to-started transition for every eligible snapshot member
@@ -226,14 +247,19 @@ func (r *Runtime) activateShutdown(plan *lifecyclePlan) {
 			// A concurrent manual start won; its hookDone is already waited on.
 			continue
 		}
+		// Capture the daemon flag at the one new-to-started transition, after
+		// any successful setDaemon that raced the frozen snapshot. The trace
+		// and the live non-daemon accounting must use the same value.
+		daemon := p.daemon
 		p.state = threadStarted
-		if !p.daemon {
+		if !daemon {
 			r.liveNonDaemon++
 		}
 		worker := r.NewThread()
 		p.thread = worker
 		worker.peer = start.peer
 		start.worker = worker
+		start.daemon = daemon
 		r.noteLiveThreadStartLocked()
 		started = append(started, start)
 	}
@@ -252,6 +278,36 @@ func (r *Runtime) activateShutdown(plan *lifecyclePlan) {
 		}
 		r.publishTerminal(plan.reason, plan.status, plan.requester)
 	}()
+}
+
+// ensureShutdownBegin records the one frozen-registry shutdown event. It is
+// safe to call from both the shutdown coordinator and terminal publication:
+// beginMu serializes the check and the write, so exactly one event precedes
+// the final process_exit record.
+func (r *Runtime) ensureShutdownBegin() {
+	r.beginMu.Lock()
+	defer r.beginMu.Unlock()
+	if !r.shutdownBeginPending || r.shutdownBeginWritten {
+		return
+	}
+	r.shutdownBeginWritten = true
+	if tr := r.trace; tr != nil {
+		tr.shutdownBegin(r.frozenReason, r.frozenStatus, r.frozenHookCount, r.frozenRequester)
+	}
+}
+
+// keepShutdownAlive guarantees one runnable-later wakeup while graceful
+// shutdown waits on a hook. Without it, an untimed Object.wait or a parked
+// caller with no timer can leave every Go goroutine asleep and make the Go
+// runtime abort the process instead of matching the JVM's live shutdown.
+func (r *Runtime) keepShutdownAlive() {
+	r.shutdownKeeperOnce.Do(func() {
+		go func() {
+			for {
+				time.Sleep(time.Hour)
+			}
+		}()
+	})
 }
 
 func peerOfObjectUnsafe(o *Object) *threadPeer {

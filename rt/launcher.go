@@ -100,6 +100,10 @@ func RunAppConfigured(img *Image, args []string, configure func(*Runtime)) int {
 }
 
 func runApp(img *Image, args []string, configure func(*Runtime)) int {
+	if img == nil {
+		fmt.Fprintln(os.Stderr, "catty: nil image")
+		return 2
+	}
 	r := NewRuntime(img)
 	if configure != nil {
 		configure(r)

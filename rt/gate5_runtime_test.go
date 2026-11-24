@@ -2,6 +2,7 @@ package rt
 
 import (
 	"encoding/json"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -790,5 +791,296 @@ func TestGate5TraceSealsAtTerminal(t *testing.T) {
 	}
 	if tr.enabled() {
 		t.Fatal("trace remained enabled after the terminal record")
+	}
+}
+
+// --------------------------------------------------------- review findings
+
+func captureStderr(t *testing.T, f func()) string {
+	t.Helper()
+	old := os.Stderr
+	read, write, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	os.Stderr = write
+	defer func() { os.Stderr = old }()
+	f()
+	_ = write.Close()
+	data, err := io.ReadAll(read)
+	_ = read.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(data)
+}
+
+func TestGate5RunAppNilImage(t *testing.T) {
+	var status int
+	diagnostic := captureStderr(t, func() {
+		status = RunApp(nil, nil)
+	})
+	if status != 2 {
+		t.Fatalf("RunApp(nil, nil) = %d, want 2", status)
+	}
+	if !strings.Contains(diagnostic, "nil image") {
+		t.Fatalf("RunApp(nil, nil) diagnostic = %q", diagnostic)
+	}
+}
+
+func TestGate5HaltRaceKeepsShutdownBegin(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "race-trace.jsonl")
+	r := gate5Runtime(t)
+	if err := r.SetTracePath(path); err != nil {
+		t.Fatal(err)
+	}
+	defer r.CloseTrace()
+	reached := make(chan struct{})
+	release := make(chan struct{})
+	r.ActivateShutdownHook = func() {
+		close(reached)
+		<-release
+	}
+	caller := testThread(r, "exit")
+	go intrinsicSystemExit(caller, r.mustClass("java/lang/System").MethodIndex["exit(I)V"], nil, []Value{IntValue(5)})
+	<-reached
+	if !r.publishTerminal("halt", 19, testThread(r, "halter").ID) {
+		t.Fatal("halt did not commit")
+	}
+	result := gate5WaitTerminal(t, r)
+	if result.reason != "halt" || result.status != 19 {
+		t.Fatalf("halt result = %+v", result)
+	}
+	// The launcher writes the terminal record after receiving the result.
+	r.trace.processExit(result.reason, result.status, result.requester)
+	close(release)
+	time.Sleep(50 * time.Millisecond)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var events []map[string]any
+	for _, line := range strings.Split(strings.TrimSpace(string(data)), "\n") {
+		if line == "" {
+			continue
+		}
+		var event map[string]any
+		if err := json.Unmarshal([]byte(line), &event); err != nil {
+			t.Fatal(err)
+		}
+		events = append(events, event)
+	}
+	begins, exits := 0, 0
+	beginIndex, exitIndex := -1, -1
+	for i, event := range events {
+		switch event["event"] {
+		case "shutdown_begin":
+			begins++
+			beginIndex = i
+			if event["reason"] != "exit" || event["status"] != float64(5) {
+				t.Fatalf("shutdown_begin after halt = %v", event)
+			}
+		case "process_exit":
+			exits++
+			exitIndex = i
+			if event["reason"] != "halt" || event["status"] != float64(19) {
+				t.Fatalf("process_exit = %v", event)
+			}
+		}
+	}
+	if begins != 1 || exits != 1 || beginIndex >= exitIndex {
+		t.Fatalf("begin/exit ordering = %d begins at %d, %d exits at %d\n%s", begins, beginIndex, exits, exitIndex, data)
+	}
+
+	// A halt that wins while the application is running still skips the event.
+	running := gate5Runtime(t)
+	runningPath := filepath.Join(t.TempDir(), "running-trace.jsonl")
+	if err := running.SetTracePath(runningPath); err != nil {
+		t.Fatal(err)
+	}
+	defer running.CloseTrace()
+	if !running.publishTerminal("halt", 23, testThread(running, "halter").ID) {
+		t.Fatal("running halt did not commit")
+	}
+	runningResult := gate5WaitTerminal(t, running)
+	running.trace.processExit(runningResult.reason, runningResult.status, runningResult.requester)
+	runningData, err := os.ReadFile(runningPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(runningData), "shutdown_begin") {
+		t.Fatalf("running halt emitted shutdown_begin:\n%s", runningData)
+	}
+}
+
+func TestGate5HookDaemonCapturedAtStart(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "daemon-trace.jsonl")
+	started := make(chan struct{})
+	releaseHook := make(chan struct{})
+	r := gate5Runtime(t, gate5RunnableClass("app/Hook", func(*Thread) {
+		close(started)
+		<-releaseHook
+	}))
+	if err := r.SetTracePath(path); err != nil {
+		t.Fatal(err)
+	}
+	defer r.CloseTrace()
+	hook := gate5Peer(r, "hook", false, gate5Runnable(r, "app/Hook"))
+	gate5Register(t, r, hook)
+	reached := make(chan struct{})
+	proceed := make(chan struct{})
+	r.BeforeHookStartHook = func() {
+		close(reached)
+		<-proceed
+	}
+	caller := testThread(r, "exit")
+	go intrinsicSystemExit(caller, r.mustClass("java/lang/System").MethodIndex["exit(I)V"], nil, []Value{IntValue(0)})
+	<-reached
+	setDaemon := r.mustClass("java/lang/Thread").MethodIndex["setDaemon(Z)V"]
+	if out := intrinsicThreadSetDaemon(testThread(r, "daemoner"), setDaemon, hook, []Value{IntValue(1)}); out.Thrown != nil {
+		t.Fatalf("setDaemon between freeze and start: %v", out.Thrown.Class.Name)
+	}
+	close(proceed)
+	<-started
+	if live := r.LiveNonDaemon(); live != 0 {
+		t.Fatalf("daemon hook counted as non-daemon: %d", live)
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var hookStart map[string]any
+	for _, line := range strings.Split(strings.TrimSpace(string(data)), "\n") {
+		var event map[string]any
+		if err := json.Unmarshal([]byte(line), &event); err != nil {
+			t.Fatal(err)
+		}
+		if event["event"] == "thread_start" && event["shutdownHook"] == true && event["name"] == "hook" {
+			hookStart = event
+		}
+	}
+	if hookStart == nil || hookStart["daemon"] != true {
+		t.Fatalf("hook thread_start daemon flag = %v; events:\n%s", hookStart, data)
+	}
+	close(releaseHook)
+	result := gate5WaitTerminal(t, r)
+	if result.reason != "exit" || result.status != 0 {
+		t.Fatalf("result = %+v", result)
+	}
+}
+
+func newMetricsRuntime(t *testing.T, path string) *Runtime {
+	t.Helper()
+	img := &Image{
+		ABI: Gate5ABI, Profile: Gate5ProfileID, Plugins: true, Threads: true,
+		Lifecycle: true, Limits: Gate3PluginLimits,
+	}
+	r := NewRuntime(img)
+	if err := r.SetMetricsPath(path); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install(); err != nil {
+		t.Fatal(err)
+	}
+	return r
+}
+
+func readMetrics(t *testing.T, path string) metricsDocument {
+	t.Helper()
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc metricsDocument
+	if err := json.Unmarshal(data, &doc); err != nil {
+		t.Fatalf("metrics JSON: %v\n%s", err, data)
+	}
+	return doc
+}
+
+func TestGate5MonitorContentionCountedAtFirstBlock(t *testing.T) {
+	// A contender still blocked when halt commits is still counted.
+	path := filepath.Join(t.TempDir(), "halt-metrics.json")
+	r := newMetricsRuntime(t, path)
+	defer r.CloseMetrics()
+	main := r.MainThread()
+	guard := newTestObject(r)
+	if thrown := main.MonitorEnter(nil, 0, RefValue(guard)); thrown != nil {
+		t.Fatal(thrown)
+	}
+	contender := testThread(r, "contender")
+	done := make(chan struct{})
+	go func() {
+		if thrown := contender.MonitorEnter(nil, 1, RefValue(guard)); thrown == nil {
+			contender.MonitorExit(nil, 2, RefValue(guard))
+		}
+		close(done)
+	}()
+	waitFor(t, "contender parked", func() bool {
+		r.thrMu.Lock()
+		defer r.thrMu.Unlock()
+		return guard.monitor != nil && guard.monitor.contenders > 0
+	})
+	if !r.publishTerminal("halt", 23, main.ID) {
+		t.Fatal("halt did not commit")
+	}
+	result := gate5WaitTerminal(t, r)
+	if result.reason != "halt" || result.status != 23 {
+		t.Fatalf("terminal = %+v", result)
+	}
+	if err := r.finishMetrics(result); err != nil {
+		t.Fatal(err)
+	}
+	doc := readMetrics(t, path)
+	if got := doc.Counters.MonitorContentions; got != 1 {
+		t.Fatalf("halt-terminal monitorContentions = %d, want 1", got)
+	}
+	if thrown := main.MonitorExit(nil, 3, RefValue(guard)); thrown != nil {
+		t.Fatal(thrown)
+	}
+	select {
+	case <-done:
+	case <-time.After(5 * time.Second):
+		t.Fatal("contender did not resume")
+	}
+
+	// Wakeups and retries while several contenders compete count once each.
+	path2 := filepath.Join(t.TempDir(), "wake-metrics.json")
+	r2 := newMetricsRuntime(t, path2)
+	defer r2.CloseMetrics()
+	main2 := r2.MainThread()
+	guard2 := newTestObject(r2)
+	if thrown := main2.MonitorEnter(nil, 0, RefValue(guard2)); thrown != nil {
+		t.Fatal(thrown)
+	}
+	entered := make(chan struct{}, 2)
+	for i := 0; i < 2; i++ {
+		worker := testThread(r2, "contender")
+		go func() {
+			if thrown := worker.MonitorEnter(nil, 1, RefValue(guard2)); thrown == nil {
+				entered <- struct{}{}
+				worker.MonitorExit(nil, 2, RefValue(guard2))
+			}
+		}()
+	}
+	waitFor(t, "two contenders parked", func() bool {
+		r2.thrMu.Lock()
+		defer r2.thrMu.Unlock()
+		return guard2.monitor != nil && guard2.monitor.contenders == 2
+	})
+	main2.MonitorExit(nil, 3, RefValue(guard2))
+	for i := 0; i < 2; i++ {
+		select {
+		case <-entered:
+		case <-time.After(5 * time.Second):
+			t.Fatal("contender did not enter after wakeups")
+		}
+	}
+	if err := r2.finishMetrics(terminalResult{reason: "natural", status: 0}); err != nil {
+		t.Fatal(err)
+	}
+	doc2 := readMetrics(t, path2)
+	if got := doc2.Counters.MonitorContentions; got != 2 {
+		t.Fatalf("wake/retry monitorContentions = %d, want 2", got)
 	}
 }

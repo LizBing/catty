@@ -243,7 +243,16 @@ func (t *Thread) monitorEnter(o *Object, m *Method, pc int32, traced bool) *Obje
 	mo := r.monitorForLocked(o)
 	contended := false
 	for mo.owner != nil && mo.owner != t {
-		contended = true
+		if !contended {
+			// Count the acquisition when it first must block, not when it
+			// finally succeeds: a contender still waiting at terminal
+			// publication is still a contention, and spurious wakeups or
+			// retries must not count the same acquisition twice.
+			contended = true
+			if r.metrics != nil {
+				r.metrics.monitorContention()
+			}
+		}
 		if mo.cond == nil {
 			mo.cond = sync.NewCond(&r.thrMu)
 		}
@@ -259,9 +268,6 @@ func (t *Thread) monitorEnter(o *Object, m *Method, pc int32, traced bool) *Obje
 	t.held[o] = mo
 	depth := mo.depth
 	r.thrMu.Unlock()
-	if contended && r.metrics != nil {
-		r.metrics.monitorContention()
-	}
 	if traced {
 		if tr := t.trace(); tr != nil {
 			if contended {

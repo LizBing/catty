@@ -112,6 +112,18 @@ type Runtime struct {
 	appStartOnce      sync.Once
 	metrics           *metricsRecorder
 
+	// beginMu serializes the one shutdown_begin record against terminal
+	// publication so a halt cannot overtake the begin event. The frozen fields
+	// are written at freeze under thrMu and beginMu.
+	beginMu              sync.Mutex
+	shutdownBeginPending bool
+	shutdownBeginWritten bool
+	frozenReason         string
+	frozenStatus         int32
+	frozenRequester      int64
+	frozenHookCount      int
+	shutdownKeeperOnce   sync.Once
+
 	liveNonDaemon int
 	liveCond      *sync.Cond
 	clock         runtimeClock
@@ -145,6 +157,14 @@ type Runtime struct {
 	// entry of an explicit exit request before the lifecycle guard is
 	// acquired.
 	ExitRequestHook func(status int32)
+	// ActivateShutdownHook is an optional deterministic-race hook invoked at
+	// the entry of the shutdown coordinator, before the shutdown event is
+	// recorded or hooks are started.
+	ActivateShutdownHook func()
+	// BeforeHookStartHook is an optional deterministic-race hook invoked after
+	// the shutdown event and terminal check but before snapshot hooks are
+	// started.
+	BeforeHookStartHook func()
 
 	// AllocHook is an optional testing hook invoked after each instance
 	// allocation. It must not retain the object; the garbage-collection
