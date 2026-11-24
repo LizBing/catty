@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/images/lifecycle-mixed/app"
+  ],
+  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/images/lifecycle-mixed",
+  "environment": {
+    "JDK_HOME": "",
+    "JAVA_HOME": "",
+    "PATH": "",
+    "LC_ALL": "C",
+    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/lifecycle-mixed-normal.jsonl"
+  },
+  "pid": 30770,
+  "status": 0,
+  "stdout": "lifecycle\n",
+  "stderr": ""
+}

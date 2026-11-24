@@ -1,0 +1,18 @@
+{
+  "command": [
+    "go",
+    "version",
+    "-m",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/images/lifecycle-interp-race/app"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C"
+  },
+  "pid": 30749,
+  "status": 0,
+  "stdout": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/images/lifecycle-interp-race/app: go1.27.1\n\tpath\tcattyapp\n\tmod\tcattyapp\t(devel)\t\n\tdep\tcatty\tv0.0.0\n\t=>\t/Users/services/Projects/catty\t(devel)\t\n\t\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\t-race=true\n\tbuild\t-trimpath=true\n\tbuild\tDefaultGODEBUG=containermaxprocs=0,cryptocustomrand=1,decoratemappings=0,gotestjsonbuildtext=1,httpcookiemaxnum=0,httplaxcontentlength=1,httpmuxgo121=1,httpservecontentkeepheaders=1,multipathtcp=0,randseednop=0,rsa1024min=0,tlsmlkem=0,tlssecpmlkem=0,tlssha1=1,tracebacklabels=0,updatemaxprocs=0,urlmaxqueryparams=0,urlstrictcolons=0,winreadlinkvolume=0,winsymlink=0,x509negativeserial=1,x509rsacrt=0,x509sha256skid=0,x509sslcertoverrideplatform=0,x509usepolicies=0\n\tbuild\tCGO_ENABLED=1\n\tbuild\tGOARCH=arm64\n\tbuild\tGOOS=darwin\n\tbuild\tGOARM64=v8.0\n",
+  "stderr": ""
+}

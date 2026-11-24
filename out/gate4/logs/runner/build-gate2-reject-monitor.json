@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/catty",
+    "build",
+    "--classpath",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/classes/profile-monitor",
+    "--main",
+    "BlockOnly",
+    "--mode",
+    "auto",
+    "--report",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/builds/gate2-reject-monitor/report.json",
+    "--output",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/builds/gate2-reject-monitor/app"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C"
+  },
+  "pid": 30354,
+  "status": 1,
+  "stdout": "",
+  "stderr": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/classes/profile-monitor/BlockOnly.class: method 1: BlockOnly.main([Ljava/lang/String;)V: attribute Code: pc 3: monitor opcode 0xc2 is unsupported\n"
+}

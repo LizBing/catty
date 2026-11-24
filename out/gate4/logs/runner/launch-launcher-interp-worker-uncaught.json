@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/images/launcher-interp/app"
+  ],
+  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/images/launcher-interp",
+  "environment": {
+    "JDK_HOME": "",
+    "JAVA_HOME": "",
+    "PATH": "",
+    "LC_ALL": "C",
+    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/launcher-interp-worker-uncaught.jsonl"
+  },
+  "pid": 31064,
+  "status": 0,
+  "stdout": "main\nworker\ndescendant\n",
+  "stderr": "Exception in thread \"Thread-3\" java.lang.RuntimeException\n\tat Launcher$Worker.run()V\n"
+}

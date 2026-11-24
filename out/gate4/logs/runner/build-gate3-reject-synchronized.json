@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/catty",
+    "build",
+    "--classpath",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/classes/legacy-synchronized",
+    "--main",
+    "Locked",
+    "--mode",
+    "auto",
+    "--report",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/builds/gate3-reject-synchronized/report.json",
+    "--output",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/builds/gate3-reject-synchronized/app",
+    "--enable-plugins"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C"
+  },
+  "pid": 30355,
+  "status": 1,
+  "stdout": "",
+  "stderr": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/classes/legacy-synchronized/Locked.class: Locked.main([Ljava/lang/String;)V: synchronized methods are unsupported\n"
+}

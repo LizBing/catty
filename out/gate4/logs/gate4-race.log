@@ -1,0 +1,16 @@
+Gate 4 artifacts in /var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8
+go version go1.27.1 darwin/arm64
+openjdk version "21.0.13.1" 2026-11-17 LTS
+OpenJDK Runtime Environment Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS, mixed mode, sharing)
+javac 21.0.13.1
+21.0.13.1
+jar 21.0.13.1
+lifecycle passed
+monitors passed
+wait-set passed
+initialization passed
+memory passed
+launcher passed
+plugin passed
+Gate 4 differential tests passed.

@@ -1,0 +1,29 @@
+{
+  "command": [
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/catty",
+    "build",
+    "--enable-threads",
+    "--classpath",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/classes/monitors",
+    "--main",
+    "Monitors",
+    "--mode",
+    "interp",
+    "--report",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/images/monitors-interp-race/report.json",
+    "--generated-source",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/images/monitors-interp-race/source",
+    "--output",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/images/monitors-interp-race/app"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C"
+  },
+  "pid": 30800,
+  "status": 0,
+  "stdout": "",
+  "stderr": ""
+}

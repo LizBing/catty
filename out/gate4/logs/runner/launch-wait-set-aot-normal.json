@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/images/wait-set-aot/app"
+  ],
+  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/images/wait-set-aot",
+  "environment": {
+    "JDK_HOME": "",
+    "JAVA_HOME": "",
+    "PATH": "",
+    "LC_ALL": "C",
+    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/wait-set-aot-normal.jsonl"
+  },
+  "pid": 30889,
+  "status": 0,
+  "stdout": "wait-set\n",
+  "stderr": ""
+}

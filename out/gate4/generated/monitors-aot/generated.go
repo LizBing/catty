@@ -1,0 +1,2755 @@
+package main
+
+import "catty/rt"
+
+func cattyMethod0(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Value) rt.Outcome {
+	var locals [1]rt.Value
+	var stack [1]rt.Value
+	_ = locals
+	_ = stack
+	locals[0] = rt.RefValue(receiver)
+	block := 0
+	for {
+		switch block {
+		case 0:
+			stack[0] = locals[0]
+			{
+			out := t.InvokeSpecial(m, 1, 1, stack[0], "java/lang/Object", "<init>", "()V", stack[1:1])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			return rt.Normal()
+		}
+	}
+}
+
+func cattyMethod1(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Value) rt.Outcome {
+	var locals [2]rt.Value
+	var stack [3]rt.Value
+	_ = locals
+	_ = stack
+	locals[0] = args[0]
+	locals[1] = args[1]
+	block := 0
+	for {
+		switch block {
+		case 0:
+			stack[0] = locals[0]
+			if rt.AsInt(stack[0]) != 0 {
+			block = 2
+			continue
+			}
+			block = 1
+			continue
+		case 1:
+			{
+			obj, thrown := t.NewObject(m, 7, "java/lang/RuntimeException")
+			if thrown != nil {
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = rt.RefValue(obj)
+			}
+			stack[1] = stack[0]
+			stack[2] = locals[1]
+			{
+			out := t.InvokeSpecial(m, 9, 9, stack[1], "java/lang/RuntimeException", "<init>", "(Ljava/lang/String;)V", stack[2:3])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			thrown := stack[0].Ref
+			if thrown == nil {
+			thrown = t.Throwable("java/lang/NullPointerException")
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+		case 2:
+			return rt.Normal()
+		}
+	}
+}
+
+func cattyMethod2(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Value) rt.Outcome {
+	var locals [1]rt.Value
+	var stack [1]rt.Value
+	_ = locals
+	_ = stack
+	locals[0] = rt.RefValue(receiver)
+	block := 0
+	for {
+		switch block {
+		case 0:
+			stack[0] = locals[0]
+			{
+			out := t.InvokeSpecial(m, 1, 1, stack[0], "java/lang/Thread", "<init>", "()V", stack[1:1])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			return rt.Normal()
+		}
+	}
+}
+
+func cattyMethod3(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Value) rt.Outcome {
+	var locals [6]rt.Value
+	var stack [2]rt.Value
+	_ = locals
+	_ = stack
+	locals[0] = rt.RefValue(receiver)
+	block := 0
+	for {
+		switch block {
+		case 0:
+			stack[0] = rt.IntValue(1)
+			{
+			thrown := t.PutStatic(m, 7, "Monitors", "entering", "Z", stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 1, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			v, thrown := t.GetStatic(m, 13, "Monitors", "BLOCK", "Ljava/lang/Object;")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 4, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			stack[1] = stack[0]
+			locals[1] = stack[1]
+			{
+			thrown := t.MonitorEnter(m, 9, stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 9, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			out := t.InvokeStatic(m, 10, 17, "java/lang/Thread", "interrupted", "()Z", stack[0:0])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 10, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = out.Value
+			}
+			{
+			thrown := t.PutStatic(m, 21, "Monitors", "blockedInterrupt", "Z", stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 13, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			stack[0] = rt.IntValue(0)
+			locals[2] = stack[0]
+			block = 1
+			continue
+		case 1:
+			stack[0] = locals[2]
+			stack[1] = rt.IntValue(500)
+			if rt.AsInt(stack[0]) >= rt.AsInt(stack[1]) {
+			block = 3
+			continue
+			}
+			block = 2
+			continue
+		case 2:
+			{
+			v, thrown := t.GetStatic(m, 13, "Monitors", "BLOCK", "Ljava/lang/Object;")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 25, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			{
+			out := t.InvokeStatic(m, 28, 24, "Monitors", "block", "(Ljava/lang/Object;)V", stack[0:1])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 28, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			locals[2] = rt.IntValue(rt.AsInt(locals[2]) + 1)
+			block = 1
+			continue
+		case 3:
+			stack[0] = locals[1]
+			{
+			thrown := t.MonitorExit(m, 38, stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 38, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			block = 5
+			continue
+		case 4:
+			locals[3] = stack[0]
+			stack[0] = locals[1]
+			{
+			thrown := t.MonitorExit(m, 44, stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 44, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			stack[0] = locals[3]
+			{
+			thrown := stack[0].Ref
+			if thrown == nil {
+			thrown = t.Throwable("java/lang/NullPointerException")
+			}
+			if hpc, ok := t.HandleThrow(m, 46, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+		case 5:
+			{
+			v, thrown := t.GetStatic(m, 28, "Monitors", "BOX", "LMonitors;")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 47, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			stack[1] = stack[0]
+			locals[1] = stack[1]
+			{
+			thrown := t.MonitorEnter(m, 52, stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 52, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			v, thrown := t.ClassConstant(m, 8, "Monitors")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 53, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			stack[1] = stack[0]
+			locals[2] = stack[1]
+			{
+			thrown := t.MonitorEnter(m, 57, stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 57, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			v, thrown := t.GetStatic(m, 28, "Monitors", "BOX", "LMonitors;")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 58, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			{
+			out := t.InvokeStatic(m, 61, 32, "java/lang/Thread", "holdsLock", "(Ljava/lang/Object;)Z", stack[0:1])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 61, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = out.Value
+			}
+			stack[1] = t.StringConstant([]uint16{119, 111, 114, 107, 101, 114, 32, 99, 111, 117, 108, 100, 32, 110, 111, 116, 32, 97, 99, 113, 117, 105, 114, 101, 32, 105, 110, 115, 116, 97, 110, 99, 101, 32, 109, 111, 110, 105, 116, 111, 114})
+			{
+			out := t.InvokeStatic(m, 66, 38, "Check", "that", "(ZLjava/lang/String;)V", stack[0:2])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 66, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			stack[0] = locals[2]
+			{
+			thrown := t.MonitorExit(m, 70, stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 70, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			block = 7
+			continue
+		case 6:
+			locals[4] = stack[0]
+			stack[0] = locals[2]
+			{
+			thrown := t.MonitorExit(m, 77, stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 77, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			stack[0] = locals[4]
+			{
+			thrown := stack[0].Ref
+			if thrown == nil {
+			thrown = t.Throwable("java/lang/NullPointerException")
+			}
+			if hpc, ok := t.HandleThrow(m, 80, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+		case 7:
+			stack[0] = locals[1]
+			{
+			thrown := t.MonitorExit(m, 82, stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 82, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			block = 9
+			continue
+		case 8:
+			locals[5] = stack[0]
+			stack[0] = locals[1]
+			{
+			thrown := t.MonitorExit(m, 89, stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 89, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			stack[0] = locals[5]
+			{
+			thrown := stack[0].Ref
+			if thrown == nil {
+			thrown = t.Throwable("java/lang/NullPointerException")
+			}
+			if hpc, ok := t.HandleThrow(m, 92, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 42:
+			block = 4
+			case 74:
+			block = 6
+			case 86:
+			block = 8
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+		case 9:
+			return rt.Normal()
+		}
+	}
+}
+
+func cattyMethod4(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Value) rt.Outcome {
+	var locals [1]rt.Value
+	var stack [1]rt.Value
+	_ = locals
+	_ = stack
+	locals[0] = rt.RefValue(receiver)
+	block := 0
+	for {
+		switch block {
+		case 0:
+			stack[0] = locals[0]
+			{
+			out := t.InvokeSpecial(m, 1, 1, stack[0], "java/lang/Object", "<init>", "()V", stack[1:1])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			return rt.Normal()
+		}
+	}
+}
+
+func cattyMethod5(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Value) rt.Outcome {
+	var locals [1]rt.Value
+	var stack [2]rt.Value
+	_ = locals
+	_ = stack
+	locals[0] = rt.RefValue(receiver)
+	block := 0
+	for {
+		switch block {
+		case 0:
+			stack[0] = locals[0]
+			{
+			out := t.InvokeStatic(m, 1, 7, "java/lang/Thread", "holdsLock", "(Ljava/lang/Object;)Z", stack[0:1])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = out.Value
+			}
+			stack[1] = t.StringConstant([]uint16{105, 110, 115, 116, 97, 110, 99, 101, 32, 109, 101, 116, 104, 111, 100, 32, 109, 111, 110, 105, 116, 111, 114})
+			{
+			out := t.InvokeStatic(m, 6, 15, "Check", "that", "(ZLjava/lang/String;)V", stack[0:2])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			stack[0] = locals[0]
+			{
+			out := t.InvokeVirtual(m, 10, 21, stack[0], "Monitors", "nested", "()V", stack[1:1])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			return rt.Normal()
+		}
+	}
+}
+
+func cattyMethod6(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Value) rt.Outcome {
+	var locals [3]rt.Value
+	var stack [2]rt.Value
+	_ = locals
+	_ = stack
+	locals[0] = rt.RefValue(receiver)
+	block := 0
+	for {
+		switch block {
+		case 0:
+			stack[0] = locals[0]
+			stack[1] = stack[0]
+			locals[1] = stack[1]
+			{
+			thrown := t.MonitorEnter(m, 3, stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 3, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 17:
+			block = 1
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			stack[0] = locals[0]
+			{
+			out := t.InvokeStatic(m, 5, 7, "java/lang/Thread", "holdsLock", "(Ljava/lang/Object;)Z", stack[0:1])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 5, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 17:
+			block = 1
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = out.Value
+			}
+			stack[1] = t.StringConstant([]uint16{114, 101, 101, 110, 116, 114, 97, 110, 116, 32, 98, 108, 111, 99, 107, 32, 109, 111, 110, 105, 116, 111, 114})
+			{
+			out := t.InvokeStatic(m, 10, 15, "Check", "that", "(ZLjava/lang/String;)V", stack[0:2])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 10, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 17:
+			block = 1
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			v, thrown := t.GetStatic(m, 28, "Monitors", "TOKEN", "Ljava/lang/RuntimeException;")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 13, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 17:
+			block = 1
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			{
+			thrown := stack[0].Ref
+			if thrown == nil {
+			thrown = t.Throwable("java/lang/NullPointerException")
+			}
+			if hpc, ok := t.HandleThrow(m, 16, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 17:
+			block = 1
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+		case 1:
+			locals[2] = stack[0]
+			stack[0] = locals[1]
+			{
+			thrown := t.MonitorExit(m, 19, stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 19, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 17:
+			block = 1
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			stack[0] = locals[2]
+			{
+			thrown := stack[0].Ref
+			if thrown == nil {
+			thrown = t.Throwable("java/lang/NullPointerException")
+			}
+			if hpc, ok := t.HandleThrow(m, 21, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 17:
+			block = 1
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+		}
+	}
+}
+
+func cattyMethod7(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Value) rt.Outcome {
+	var locals [0]rt.Value
+	var stack [2]rt.Value
+	_ = locals
+	_ = stack
+	block := 0
+	for {
+		switch block {
+		case 0:
+			{
+			v, thrown := t.ClassConstant(m, 22, "Monitors")
+			if thrown != nil {
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			{
+			out := t.InvokeStatic(m, 2, 7, "java/lang/Thread", "holdsLock", "(Ljava/lang/Object;)Z", stack[0:1])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = out.Value
+			}
+			stack[1] = t.StringConstant([]uint16{115, 116, 97, 116, 105, 99, 32, 109, 101, 116, 104, 111, 100, 32, 109, 111, 110, 105, 116, 111, 114})
+			{
+			out := t.InvokeStatic(m, 7, 15, "Check", "that", "(ZLjava/lang/String;)V", stack[0:2])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			v, thrown := t.GetStatic(m, 28, "Monitors", "TOKEN", "Ljava/lang/RuntimeException;")
+			if thrown != nil {
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			{
+			thrown := stack[0].Ref
+			if thrown == nil {
+			thrown = t.Throwable("java/lang/NullPointerException")
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+		}
+	}
+}
+
+func cattyMethod8(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Value) rt.Outcome {
+	var locals [3]rt.Value
+	var stack [2]rt.Value
+	_ = locals
+	_ = stack
+	locals[0] = args[0]
+	block := 0
+	for {
+		switch block {
+		case 0:
+			stack[0] = locals[0]
+			stack[1] = stack[0]
+			locals[1] = stack[1]
+			{
+			thrown := t.MonitorEnter(m, 3, stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 3, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 17:
+			block = 1
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			v, thrown := t.GetStatic(m, 34, "Monitors", "count", "I")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 4, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 17:
+			block = 1
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			stack[1] = rt.IntValue(1)
+			stack[0] = rt.IntValue(rt.AsInt(stack[0]) + rt.AsInt(stack[1]))
+			{
+			thrown := t.PutStatic(m, 34, "Monitors", "count", "I", stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 9, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 17:
+			block = 1
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			stack[0] = locals[1]
+			{
+			thrown := t.MonitorExit(m, 13, stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 13, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 17:
+			block = 1
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			block = 2
+			continue
+		case 1:
+			locals[2] = stack[0]
+			stack[0] = locals[1]
+			{
+			thrown := t.MonitorExit(m, 19, stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 19, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 17:
+			block = 1
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			stack[0] = locals[2]
+			{
+			thrown := stack[0].Ref
+			if thrown == nil {
+			thrown = t.Throwable("java/lang/NullPointerException")
+			}
+			if hpc, ok := t.HandleThrow(m, 21, thrown); ok {
+			stack = [2]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 17:
+			block = 1
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+		case 2:
+			return rt.Normal()
+		}
+	}
+}
+
+func cattyMethod9(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Value) rt.Outcome {
+	var locals [5]rt.Value
+	var stack [3]rt.Value
+	_ = locals
+	_ = stack
+	locals[0] = args[0]
+	block := 0
+	for {
+		switch block {
+		case 0:
+			{
+			v, thrown := t.GetStatic(m, 38, "Monitors", "BOX", "LMonitors;")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 0, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			stack[1] = stack[0]
+			locals[1] = stack[1]
+			{
+			thrown := t.MonitorEnter(m, 5, stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 5, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			v, thrown := t.GetStatic(m, 38, "Monitors", "BOX", "LMonitors;")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 6, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			{
+			out := t.InvokeVirtual(m, 9, 42, stack[0], "Monitors", "fail", "()V", stack[1:1])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 9, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			obj, thrown := t.NewObject(m, 45, "java/lang/RuntimeException")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 12, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = rt.RefValue(obj)
+			}
+			stack[1] = stack[0]
+			stack[2] = t.StringConstant([]uint16{109, 105, 115, 115, 105, 110, 103, 32, 105, 110, 115, 116, 97, 110, 99, 101, 32, 116, 104, 114, 111, 119})
+			{
+			out := t.InvokeSpecial(m, 18, 49, stack[1], "java/lang/RuntimeException", "<init>", "(Ljava/lang/String;)V", stack[2:3])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 18, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			thrown := stack[0].Ref
+			if thrown == nil {
+			thrown = t.Throwable("java/lang/NullPointerException")
+			}
+			if hpc, ok := t.HandleThrow(m, 21, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+		case 1:
+			locals[2] = stack[0]
+			stack[0] = locals[2]
+			{
+			v, thrown := t.GetStatic(m, 28, "Monitors", "TOKEN", "Ljava/lang/RuntimeException;")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 24, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[1] = v
+			}
+			if stack[0].Ref != stack[1].Ref {
+			block = 4
+			continue
+			}
+			block = 2
+			continue
+		case 2:
+			{
+			v, thrown := t.GetStatic(m, 38, "Monitors", "BOX", "LMonitors;")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 30, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			{
+			out := t.InvokeStatic(m, 33, 7, "java/lang/Thread", "holdsLock", "(Ljava/lang/Object;)Z", stack[0:1])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 33, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = out.Value
+			}
+			if rt.AsInt(stack[0]) == 0 {
+			block = 4
+			continue
+			}
+			block = 3
+			continue
+		case 3:
+			stack[0] = rt.IntValue(1)
+			block = 5
+			continue
+		case 4:
+			stack[0] = rt.IntValue(0)
+			block = 5
+			continue
+		case 5:
+			stack[1] = t.StringConstant([]uint16{117, 110, 119, 105, 110, 100, 32, 100, 114, 111, 112, 112, 101, 100, 32, 116, 104, 101, 32, 101, 110, 99, 108, 111, 115, 105, 110, 103, 32, 108, 111, 99, 107, 32, 111, 114, 32, 114, 101, 112, 108, 97, 99, 101, 100, 32, 116, 104, 114, 111, 119, 97, 98, 108, 101})
+			{
+			out := t.InvokeStatic(m, 46, 15, "Check", "that", "(ZLjava/lang/String;)V", stack[0:2])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 46, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			stack[0] = locals[1]
+			{
+			thrown := t.MonitorExit(m, 50, stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 50, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			block = 7
+			continue
+		case 6:
+			locals[3] = stack[0]
+			stack[0] = locals[1]
+			{
+			thrown := t.MonitorExit(m, 56, stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 56, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			stack[0] = locals[3]
+			{
+			thrown := stack[0].Ref
+			if thrown == nil {
+			thrown = t.Throwable("java/lang/NullPointerException")
+			}
+			if hpc, ok := t.HandleThrow(m, 58, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+		case 7:
+			{
+			v, thrown := t.ClassConstant(m, 22, "Monitors")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 59, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			stack[1] = t.StringConstant([]uint16{102, 97, 105, 108, 83, 116, 97, 116, 105, 99})
+			stack[2] = rt.IntValue(0)
+			{
+			obj, thrown := t.NewReferenceArray(m, 56, "java/lang/Class", rt.AsInt(stack[2]))
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 64, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[2] = rt.RefValue(obj)
+			}
+			{
+			out := t.InvokeVirtual(m, 67, 58, stack[0], "java/lang/Class", "getMethod", "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;", stack[1:3])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 67, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = out.Value
+			}
+			locals[1] = stack[0]
+			stack[0] = locals[1]
+			stack[1] = rt.RefValue(nil)
+			stack[2] = rt.IntValue(0)
+			{
+			obj, thrown := t.NewReferenceArray(m, 2, "java/lang/Object", rt.AsInt(stack[2]))
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 74, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[2] = rt.RefValue(obj)
+			}
+			{
+			out := t.InvokeVirtual(m, 77, 62, stack[0], "java/lang/reflect/Method", "invoke", "(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;", stack[1:3])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 77, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = out.Value
+			}
+			{
+			obj, thrown := t.NewObject(m, 45, "java/lang/RuntimeException")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 81, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = rt.RefValue(obj)
+			}
+			stack[1] = stack[0]
+			stack[2] = t.StringConstant([]uint16{109, 105, 115, 115, 105, 110, 103, 32, 114, 101, 102, 108, 101, 99, 116, 105, 118, 101, 32, 116, 104, 114, 111, 119})
+			{
+			out := t.InvokeSpecial(m, 87, 49, stack[1], "java/lang/RuntimeException", "<init>", "(Ljava/lang/String;)V", stack[2:3])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 87, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			thrown := stack[0].Ref
+			if thrown == nil {
+			thrown = t.Throwable("java/lang/NullPointerException")
+			}
+			if hpc, ok := t.HandleThrow(m, 90, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+		case 8:
+			locals[2] = stack[0]
+			stack[0] = locals[2]
+			{
+			out := t.InvokeVirtual(m, 93, 72, stack[0], "java/lang/reflect/InvocationTargetException", "getCause", "()Ljava/lang/Throwable;", stack[1:1])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 93, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = out.Value
+			}
+			{
+			v, thrown := t.GetStatic(m, 28, "Monitors", "TOKEN", "Ljava/lang/RuntimeException;")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 96, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[1] = v
+			}
+			if stack[0].Ref != stack[1].Ref {
+			block = 10
+			continue
+			}
+			block = 9
+			continue
+		case 9:
+			stack[0] = rt.IntValue(1)
+			block = 11
+			continue
+		case 10:
+			stack[0] = rt.IntValue(0)
+			block = 11
+			continue
+		case 11:
+			stack[1] = t.StringConstant([]uint16{114, 101, 102, 108, 101, 99, 116, 105, 111, 110, 32, 114, 101, 112, 108, 97, 99, 101, 100, 32, 116, 104, 114, 111, 119, 32, 99, 97, 117, 115, 101})
+			{
+			out := t.InvokeStatic(m, 109, 15, "Check", "that", "(ZLjava/lang/String;)V", stack[0:2])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 109, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			v, thrown := t.GetStatic(m, 38, "Monitors", "BOX", "LMonitors;")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 112, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			{
+			out := t.InvokeStatic(m, 115, 7, "java/lang/Thread", "holdsLock", "(Ljava/lang/Object;)Z", stack[0:1])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 115, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = out.Value
+			}
+			if rt.AsInt(stack[0]) != 0 {
+			block = 14
+			continue
+			}
+			block = 12
+			continue
+		case 12:
+			{
+			v, thrown := t.ClassConstant(m, 22, "Monitors")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 121, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			{
+			out := t.InvokeStatic(m, 123, 7, "java/lang/Thread", "holdsLock", "(Ljava/lang/Object;)Z", stack[0:1])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 123, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = out.Value
+			}
+			if rt.AsInt(stack[0]) != 0 {
+			block = 14
+			continue
+			}
+			block = 13
+			continue
+		case 13:
+			stack[0] = rt.IntValue(1)
+			block = 15
+			continue
+		case 14:
+			stack[0] = rt.IntValue(0)
+			block = 15
+			continue
+		case 15:
+			stack[1] = t.StringConstant([]uint16{109, 101, 116, 104, 111, 100, 32, 109, 111, 110, 105, 116, 111, 114, 32, 108, 101, 97, 107, 101, 100})
+			{
+			out := t.InvokeStatic(m, 136, 15, "Check", "that", "(ZLjava/lang/String;)V", stack[0:2])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 136, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			obj, thrown := t.NewObject(m, 80, "Monitors$Worker")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 139, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = rt.RefValue(obj)
+			}
+			stack[1] = stack[0]
+			{
+			out := t.InvokeSpecial(m, 143, 82, stack[1], "Monitors$Worker", "<init>", "()V", stack[2:2])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 143, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			locals[2] = stack[0]
+			{
+			v, thrown := t.GetStatic(m, 83, "Monitors", "BLOCK", "Ljava/lang/Object;")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 147, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			stack[1] = stack[0]
+			locals[3] = stack[1]
+			{
+			thrown := t.MonitorEnter(m, 152, stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 152, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			stack[0] = locals[2]
+			{
+			out := t.InvokeVirtual(m, 154, 87, stack[0], "Monitors$Worker", "start", "()V", stack[1:1])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 154, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			block = 16
+			continue
+		case 16:
+			{
+			v, thrown := t.GetStatic(m, 90, "Monitors", "entering", "Z")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 157, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			if rt.AsInt(stack[0]) != 0 {
+			block = 18
+			continue
+			}
+			block = 17
+			continue
+		case 17:
+			{
+			out := t.InvokeStatic(m, 163, 94, "java/lang/Thread", "yield", "()V", stack[0:0])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 163, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			block = 16
+			continue
+		case 18:
+			stack[0] = locals[2]
+			{
+			out := t.InvokeVirtual(m, 170, 97, stack[0], "Monitors$Worker", "interrupt", "()V", stack[1:1])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 170, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			v, thrown := t.GetStatic(m, 34, "Monitors", "count", "I")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 173, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			if rt.AsInt(stack[0]) != 0 {
+			block = 20
+			continue
+			}
+			block = 19
+			continue
+		case 19:
+			stack[0] = rt.IntValue(1)
+			block = 21
+			continue
+		case 20:
+			stack[0] = rt.IntValue(0)
+			block = 21
+			continue
+		case 21:
+			stack[1] = t.StringConstant([]uint16{99, 111, 110, 116, 101, 110, 100, 101, 114, 32, 101, 110, 116, 101, 114, 101, 100, 32, 116, 111, 111, 32, 101, 97, 114, 108, 121})
+			{
+			out := t.InvokeStatic(m, 186, 15, "Check", "that", "(ZLjava/lang/String;)V", stack[0:2])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 186, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			stack[0] = locals[3]
+			{
+			thrown := t.MonitorExit(m, 190, stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 190, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			block = 23
+			continue
+		case 22:
+			locals[4] = stack[0]
+			stack[0] = locals[3]
+			{
+			thrown := t.MonitorExit(m, 197, stack[0])
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 197, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			stack[0] = locals[4]
+			{
+			thrown := stack[0].Ref
+			if thrown == nil {
+			thrown = t.Throwable("java/lang/NullPointerException")
+			}
+			if hpc, ok := t.HandleThrow(m, 200, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+		case 23:
+			stack[0] = rt.IntValue(0)
+			locals[3] = stack[0]
+			block = 24
+			continue
+		case 24:
+			stack[0] = locals[3]
+			stack[1] = rt.IntValue(500)
+			if rt.AsInt(stack[0]) >= rt.AsInt(stack[1]) {
+			block = 26
+			continue
+			}
+			block = 25
+			continue
+		case 25:
+			{
+			v, thrown := t.GetStatic(m, 83, "Monitors", "BLOCK", "Ljava/lang/Object;")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 210, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			{
+			out := t.InvokeStatic(m, 213, 102, "Monitors", "block", "(Ljava/lang/Object;)V", stack[0:1])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 213, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			locals[3] = rt.IntValue(rt.AsInt(locals[3]) + 1)
+			block = 24
+			continue
+		case 26:
+			stack[0] = locals[2]
+			{
+			out := t.InvokeVirtual(m, 223, 106, stack[0], "Monitors$Worker", "join", "()V", stack[1:1])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 223, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			v, thrown := t.GetStatic(m, 109, "Monitors", "blockedInterrupt", "Z")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 226, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			if rt.AsInt(stack[0]) == 0 {
+			block = 29
+			continue
+			}
+			block = 27
+			continue
+		case 27:
+			{
+			v, thrown := t.GetStatic(m, 34, "Monitors", "count", "I")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 232, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			stack[1] = rt.IntValue(1000)
+			if rt.AsInt(stack[0]) != rt.AsInt(stack[1]) {
+			block = 29
+			continue
+			}
+			block = 28
+			continue
+		case 28:
+			stack[0] = rt.IntValue(1)
+			block = 30
+			continue
+		case 29:
+			stack[0] = rt.IntValue(0)
+			block = 30
+			continue
+		case 30:
+			stack[1] = t.StringConstant([]uint16{109, 111, 110, 105, 116, 111, 114, 32, 101, 110, 116, 114, 121, 32, 105, 103, 110, 111, 114, 101, 100, 32, 111, 119, 110, 101, 114, 115, 104, 105, 112, 32, 111, 114, 32, 115, 119, 97, 108, 108, 111, 119, 101, 100, 32, 105, 110, 116, 101, 114, 114, 117, 112, 116})
+			{
+			out := t.InvokeStatic(m, 248, 15, "Check", "that", "(ZLjava/lang/String;)V", stack[0:2])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 248, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			stack[0] = rt.RefValue(nil)
+			{
+			out := t.InvokeStatic(m, 252, 102, "Monitors", "block", "(Ljava/lang/Object;)V", stack[0:1])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 252, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			obj, thrown := t.NewObject(m, 45, "java/lang/RuntimeException")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 255, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = rt.RefValue(obj)
+			}
+			stack[1] = stack[0]
+			stack[2] = t.StringConstant([]uint16{110, 117, 108, 108, 32, 109, 111, 110, 105, 116, 111, 114, 32, 101, 110, 116, 101, 114, 101, 100})
+			{
+			out := t.InvokeSpecial(m, 261, 49, stack[1], "java/lang/RuntimeException", "<init>", "(Ljava/lang/String;)V", stack[2:3])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 261, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			thrown := stack[0].Ref
+			if thrown == nil {
+			thrown = t.Throwable("java/lang/NullPointerException")
+			}
+			if hpc, ok := t.HandleThrow(m, 264, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+		case 31:
+			locals[3] = stack[0]
+			{
+			v, thrown := t.GetStatic(m, 118, "java/lang/System", "out", "Ljava/io/PrintStream;")
+			if thrown != nil {
+			if hpc, ok := t.HandleThrow(m, 266, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = v
+			}
+			stack[1] = t.StringConstant([]uint16{109, 111, 110, 105, 116, 111, 114, 115})
+			{
+			out := t.InvokeVirtual(m, 271, 126, stack[0], "java/io/PrintStream", "println", "(Ljava/lang/String;)V", stack[1:2])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			if hpc, ok := t.HandleThrow(m, 271, thrown); ok {
+			stack = [3]rt.Value{}
+			stack[0] = rt.RefValue(thrown)
+			switch hpc {
+			case 22:
+			block = 1
+			case 54:
+			block = 6
+			case 91:
+			block = 8
+			case 194:
+			block = 22
+			case 265:
+			block = 31
+			default:
+			panic("catty: generated handler transfer has no target block")
+			}
+			continue
+			}
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			return rt.Normal()
+		}
+	}
+}
+
+func cattyMethod10(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Value) rt.Outcome {
+	var locals [0]rt.Value
+	var stack [2]rt.Value
+	_ = locals
+	_ = stack
+	block := 0
+	for {
+		switch block {
+		case 0:
+			{
+			obj, thrown := t.NewObject(m, 45, "java/lang/RuntimeException")
+			if thrown != nil {
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = rt.RefValue(obj)
+			}
+			stack[1] = stack[0]
+			{
+			out := t.InvokeSpecial(m, 4, 131, stack[1], "java/lang/RuntimeException", "<init>", "()V", stack[2:2])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			thrown := t.PutStatic(m, 28, "Monitors", "TOKEN", "Ljava/lang/RuntimeException;", stack[0])
+			if thrown != nil {
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			obj, thrown := t.NewObject(m, 2, "java/lang/Object")
+			if thrown != nil {
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = rt.RefValue(obj)
+			}
+			stack[1] = stack[0]
+			{
+			out := t.InvokeSpecial(m, 14, 1, stack[1], "java/lang/Object", "<init>", "()V", stack[2:2])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			thrown := t.PutStatic(m, 83, "Monitors", "BLOCK", "Ljava/lang/Object;", stack[0])
+			if thrown != nil {
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			obj, thrown := t.NewObject(m, 22, "Monitors")
+			if thrown != nil {
+			return rt.ThrowOutcome(thrown)
+			}
+			stack[0] = rt.RefValue(obj)
+			}
+			stack[1] = stack[0]
+			{
+			out := t.InvokeSpecial(m, 24, 132, stack[1], "Monitors", "<init>", "()V", stack[2:2])
+			if out.Thrown != nil {
+			thrown := out.Thrown
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			{
+			thrown := t.PutStatic(m, 38, "Monitors", "BOX", "LMonitors;", stack[0])
+			if thrown != nil {
+			return rt.ThrowOutcome(thrown)
+			}
+			}
+			return rt.Normal()
+		}
+	}
+}
+

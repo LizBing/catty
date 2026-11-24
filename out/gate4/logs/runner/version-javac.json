@@ -1,0 +1,16 @@
+{
+  "command": [
+    "javac",
+    "-version"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C"
+  },
+  "pid": 30153,
+  "status": 0,
+  "stdout": "javac 21.0.13.1\n",
+  "stderr": ""
+}

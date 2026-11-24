@@ -1,0 +1,20 @@
+{
+  "command": [
+    "java",
+    "-Xverify:all",
+    "-cp",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/classes/launcher",
+    "Launcher",
+    "fail-main"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C"
+  },
+  "pid": 31070,
+  "status": 1,
+  "stdout": "main\nworker\ndescendant\n",
+  "stderr": "Exception in thread \"main\" java.lang.RuntimeException: main failed\n\tat Launcher.main(Launcher.java:83)\n"
+}

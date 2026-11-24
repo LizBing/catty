@@ -1,0 +1,12 @@
+== go version
+go version go1.27.1 darwin/arm64
+== java -version
+openjdk version "21.0.13.1" 2026-11-17 LTS
+OpenJDK Runtime Environment Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS, mixed mode, sharing)
+== javac -version
+javac 21.0.13.1
+== jar -version
+jar 21.0.13.1
+== python3
+Python 3.9.6
