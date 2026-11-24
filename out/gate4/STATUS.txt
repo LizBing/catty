@@ -1,5 +1,14 @@
 go-test-race: exit 0
+  cmd: go test -race -count=1 ./...
 go-vet: exit 0
+  cmd: go vet ./...
+followup-timer-tests: exit 0
+  cmd: go test -race -count=1 -v -run 'TestGate4EarlyWaitReleasesTimers|TestGate4RealClockEarlyWaitsDoNotParkTimers|TestGate4EarlyJoinReleasesTimers|TestGate4InterruptedWaitReleasesTimers|TestGate4InterruptedJoinReleasesTimers|TestGate4TimeoutReleasesTimers|TestGate4StaleTimerDoesNotAffectLaterWait|TestGate4BoundedWaitAndJoinSegments|TestGate4HugeWaitSegmentsAndCancellation|TestGate4InterruptedSleepReleasesTimer|TestGate4TerminationPublishesUnderPeerMonitor' ./rt/
+gate4-race: exit 0
+  cmd: python3 -B tests/gate4.py --java-home /Users/services/jdks/jdk-21.0.13.1+2/Contents/Home --race
 gate4-reference: exit 0
+  cmd: python3 -B tests/gate4.py --java-home /Users/services/jdks/jdk-21.0.13.1+2/Contents/Home --prepare-only
 gate3: exit 0
+  cmd: python3 -B tests/gate3.py --java-home /Users/services/jdks/jdk-21.0.13.1+2/Contents/Home
 gate2: exit 0
+  cmd: python3 -B tests/gate2.py --java-home /Users/services/jdks/jdk-21.0.13.1+2/Contents/Home

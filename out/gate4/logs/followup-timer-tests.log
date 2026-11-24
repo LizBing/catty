@@ -1,0 +1,26 @@
+=== RUN   TestGate4EarlyWaitReleasesTimers
+    gate4_runtime_test.go:2593: 32 notified long waits: armed timers=0 timer workers=0
+--- PASS: TestGate4EarlyWaitReleasesTimers (0.04s)
+=== RUN   TestGate4EarlyJoinReleasesTimers
+--- PASS: TestGate4EarlyJoinReleasesTimers (0.02s)
+=== RUN   TestGate4InterruptedWaitReleasesTimers
+--- PASS: TestGate4InterruptedWaitReleasesTimers (0.00s)
+=== RUN   TestGate4TimeoutReleasesTimers
+--- PASS: TestGate4TimeoutReleasesTimers (0.00s)
+=== RUN   TestGate4StaleTimerDoesNotAffectLaterWait
+--- PASS: TestGate4StaleTimerDoesNotAffectLaterWait (0.02s)
+=== RUN   TestGate4BoundedWaitAndJoinSegments
+--- PASS: TestGate4BoundedWaitAndJoinSegments (0.01s)
+=== RUN   TestGate4HugeWaitSegmentsAndCancellation
+--- PASS: TestGate4HugeWaitSegmentsAndCancellation (0.01s)
+=== RUN   TestGate4InterruptedSleepReleasesTimer
+--- PASS: TestGate4InterruptedSleepReleasesTimer (0.00s)
+=== RUN   TestGate4TerminationPublishesUnderPeerMonitor
+--- PASS: TestGate4TerminationPublishesUnderPeerMonitor (0.03s)
+=== RUN   TestGate4RealClockEarlyWaitsDoNotParkTimers
+    gate4_runtime_test.go:3036: 32 real-clock notified waits: goroutines before=2 after=2 timer workers=0
+--- PASS: TestGate4RealClockEarlyWaitsDoNotParkTimers (0.02s)
+=== RUN   TestGate4InterruptedJoinReleasesTimers
+--- PASS: TestGate4InterruptedJoinReleasesTimers (0.00s)
+PASS
+ok  	catty/rt	1.344s

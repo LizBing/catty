@@ -1,17 +1,17 @@
 {
   "command": [
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/images/plugin-mixed/app",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/plugin-worker.jar"
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/images/plugin-mixed/app",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/plugin-worker.jar"
   ],
-  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/images/plugin-mixed",
+  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/images/plugin-mixed",
   "environment": {
+    "LC_ALL": "C",
+    "PATH": "",
     "JDK_HOME": "",
     "JAVA_HOME": "",
-    "PATH": "",
-    "LC_ALL": "C",
-    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/plugin-mixed-normal.jsonl"
+    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/plugin-mixed-normal.jsonl"
   },
-  "pid": 31135,
+  "pid": 43550,
   "status": 0,
   "stdout": "plugin\n",
   "stderr": ""

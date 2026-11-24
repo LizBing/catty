@@ -1,16 +1,16 @@
 {
   "command": [
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/images/lifecycle-interp/app"
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/images/lifecycle-interp/app"
   ],
-  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/images/lifecycle-interp",
+  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/images/lifecycle-interp",
   "environment": {
+    "LC_ALL": "C",
+    "PATH": "",
     "JDK_HOME": "",
     "JAVA_HOME": "",
-    "PATH": "",
-    "LC_ALL": "C",
-    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/lifecycle-interp-normal.jsonl"
+    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/lifecycle-interp-normal.jsonl"
   },
-  "pid": 30769,
+  "pid": 43182,
   "status": 0,
   "stdout": "lifecycle\n",
   "stderr": ""

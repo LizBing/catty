@@ -3,16 +3,16 @@
     "java",
     "-Xverify:all",
     "-cp",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/classes/bad-monitor-operand",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/bad-monitor-operand",
     "BlockOnly"
   ],
   "cwd": "/Users/services/Projects/catty",
   "environment": {
-    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "LC_ALL": "C",
     "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-    "LC_ALL": "C"
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home"
   },
-  "pid": 30351,
+  "pid": 42764,
   "status": 1,
   "stdout": "",
   "stderr": "Error: Unable to initialize main class BlockOnly\nCaused by: java.lang.VerifyError: Bad type on operand stack\nException Details:\n  Location:\n    BlockOnly.main([Ljava/lang/String;)V @3: monitorenter\n  Reason:\n    Type integer (current frame, stack[0]) is not assignable to reference type\n  Current Frame:\n    bci: @3\n    flags: { }\n    locals: { '[Ljava/lang/String;', '[Ljava/lang/String;' }\n    stack: { integer }\n  Bytecode:\n    0000000: 2a4c 03c2 b200 0710 49b6 000d 2bc3 a700\n    0000010: 084d 2bc3 2cbf b1                      \n  Exception Handler Table:\n    bci [4, 14] => handler: 17\n    bci [17, 20] => handler: 17\n  Stackmap Table:\n    full_frame(@17,{Object[#31],Object[#2]},{Object[#32]})\n    chop_frame(@22,1)\n\n"

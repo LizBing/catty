@@ -29,18 +29,18 @@
   },
   "inputs": [
     {
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/classes/plugin",
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/plugin",
       "digest": "9c0608381f36f4192d654b055c80ae06b0ea8ccc52524872a181a18ff47bdff2"
     }
   ],
   "classes": [
     {
       "name": "app/Main$Registrar",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/classes/plugin/app/Main$Registrar.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/plugin/app/Main$Registrar.class"
     },
     {
       "name": "app/Main",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/classes/plugin/app/Main.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/plugin/app/Main.class"
     }
   ],
   "methods": [

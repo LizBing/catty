@@ -5,11 +5,11 @@
   ],
   "cwd": "/Users/services/Projects/catty",
   "environment": {
-    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "LC_ALL": "C",
     "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-    "LC_ALL": "C"
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home"
   },
-  "pid": 30151,
+  "pid": 42551,
   "status": 0,
   "stdout": "go version go1.27.1 darwin/arm64\n",
   "stderr": ""

@@ -5,17 +5,17 @@
     "21",
     "-g",
     "-d",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/classes/initialization",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/initialization",
     "/Users/services/Projects/catty/testdata/gate4/Check.java",
     "/Users/services/Projects/catty/testdata/gate4/initialization/Initialization.java"
   ],
   "cwd": "/Users/services/Projects/catty",
   "environment": {
-    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "LC_ALL": "C",
     "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-    "LC_ALL": "C"
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home"
   },
-  "pid": 30893,
+  "pid": 43307,
   "status": 0,
   "stdout": "",
   "stderr": ""

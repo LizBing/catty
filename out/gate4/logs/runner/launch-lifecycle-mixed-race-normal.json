@@ -1,14 +1,14 @@
 {
   "command": [
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/images/lifecycle-mixed-race/app"
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/images/lifecycle-mixed-race/app"
   ],
-  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/images/lifecycle-mixed-race",
+  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/images/lifecycle-mixed-race",
   "environment": {
-    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "LC_ALL": "C",
     "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-    "LC_ALL": "C"
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home"
   },
-  "pid": 30773,
+  "pid": 43187,
   "status": 0,
   "stdout": "lifecycle\n",
   "stderr": ""

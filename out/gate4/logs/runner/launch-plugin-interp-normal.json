@@ -1,17 +1,17 @@
 {
   "command": [
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/images/plugin-interp/app",
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/plugin-worker.jar"
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/images/plugin-interp/app",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/plugin-worker.jar"
   ],
-  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/images/plugin-interp",
+  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/images/plugin-interp",
   "environment": {
+    "LC_ALL": "C",
+    "PATH": "",
     "JDK_HOME": "",
     "JAVA_HOME": "",
-    "PATH": "",
-    "LC_ALL": "C",
-    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/plugin-interp-normal.jsonl"
+    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/plugin-interp-normal.jsonl"
   },
-  "pid": 31134,
+  "pid": 43549,
   "status": 0,
   "stdout": "plugin\n",
   "stderr": ""

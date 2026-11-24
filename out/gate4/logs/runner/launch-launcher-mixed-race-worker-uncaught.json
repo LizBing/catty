@@ -1,14 +1,14 @@
 {
   "command": [
-    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/images/launcher-mixed-race/app"
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/images/launcher-mixed-race/app"
   ],
-  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/images/launcher-mixed-race",
+  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/images/launcher-mixed-race",
   "environment": {
-    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "LC_ALL": "C",
     "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-    "LC_ALL": "C"
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home"
   },
-  "pid": 31068,
+  "pid": 43483,
   "status": 0,
   "stdout": "main\nworker\ndescendant\n",
   "stderr": "Exception in thread \"Thread-3\" java.lang.RuntimeException\n\tat Launcher$Worker.run()V\n"

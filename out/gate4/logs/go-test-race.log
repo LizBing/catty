@@ -1,10 +1,10 @@
 ?   	catty/cmd/catty	[no test files]
-ok  	catty/internal/admission	1.308s
-ok  	catty/internal/aot	1.170s
+ok  	catty/internal/admission	1.303s
+ok  	catty/internal/aot	1.167s
 ?   	catty/internal/build	[no test files]
 ?   	catty/internal/classfile	[no test files]
-ok  	catty/internal/hierarchy	1.160s
-ok  	catty/internal/verify	1.178s
+ok  	catty/internal/hierarchy	1.158s
+ok  	catty/internal/verify	1.174s
 ?   	catty/out/gate3/round3/generated/hierarchy-depth-aot	[no test files]
 ?   	catty/out/gate3/round3/generated/hierarchy-depth-interp	[no test files]
 ?   	catty/out/gate3/round3/generated/hierarchy-depth-mixed	[no test files]
@@ -12,4 +12,4 @@ ok  	catty/internal/verify	1.178s
 ?   	catty/out/gate3/round3/generated/inherited-interface-interp	[no test files]
 ?   	catty/out/gate3/round3/generated/inherited-interface-mixed	[no test files]
 ?   	catty/plugin	[no test files]
-ok  	catty/rt	1.376s
+ok  	catty/rt	1.502s

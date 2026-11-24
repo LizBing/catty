@@ -29,30 +29,30 @@
   },
   "inputs": [
     {
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/classes/initialization",
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/initialization",
       "digest": "5d9cb089692bd3c868b21c398606e2cf8171e205631869d7cda746e8325f8c1d"
     }
   ],
   "classes": [
     {
       "name": "Check",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/classes/initialization/Check.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/initialization/Check.class"
     },
     {
       "name": "Initialization$Broken",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/classes/initialization/Initialization$Broken.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/initialization/Initialization$Broken.class"
     },
     {
       "name": "Initialization$Reader",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/classes/initialization/Initialization$Reader.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/initialization/Initialization$Reader.class"
     },
     {
       "name": "Initialization$Ready",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/classes/initialization/Initialization$Ready.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/initialization/Initialization$Ready.class"
     },
     {
       "name": "Initialization",
-      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-pom29oq8/classes/initialization/Initialization.class"
+      "origin": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate4-3aq2ioeb/classes/initialization/Initialization.class"
     }
   ],
   "methods": [
