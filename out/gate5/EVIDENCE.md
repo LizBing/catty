@@ -8,6 +8,7 @@ Branch: `codex/gate-5`
 | `f28e8fc` | Gate 5 profile, lifecycle/shutdown, diagnostics, metrics, runtime tests, differential suite |
 | `cec09d2` | Gate 5 application benchmark workload and runner |
 | `7469e36` | Gate 5 race-enabled acceptance artifacts (this directory's `acceptance/`) |
+| `a9dcee0` | Generated-body inspection checks, executable digest stability and their retained evidence |
 
 The measurement run recorded below was taken from the clean `7469e36` revision
 (`environment.repository.dirty = false`). Implementation and fixture sources
