@@ -1,0 +1,44 @@
+Gate 5 review findings reproduced on starting revision f649a35
+================================================================
+
+These are the observed failures before the fixes in 651f706. They were
+reproduced with the regression tests/case that now guard the behavior.
+
+1. Natural shutdown with an untimed hook wait (natural ["wait"], interp)
+   Command: python3 -B tests/gate5.py --java-home <jdk21> --case natural
+   Observed Catty result: status 2, stdout "main\nhook-wait\n", stderr:
+       fatal error: all goroutines are asleep - deadlock!
+       goroutine 1 [chan receive]:
+       catty/rt.runApp(...) rt/launcher.go:161
+       goroutine 20 [chan receive]:
+       catty/rt.(*Thread).objectWait(...) rt/monitor.go:511
+   Test harness message:
+       Gate 5 failed. Catty did not stall for natural ['wait'].
+   OpenJDK 21 stays alive until the watchdog and prints the same markers.
+
+2. Halt racing coordinator startup (Go regression)
+   Test: TestGate5HaltRaceKeepsShutdownBegin
+   Observed failure:
+       begin/exit ordering = 0 begins at -1, 1 exits at 0
+       {"event":"process_exit","pid":...,"reason":"halt","requesterThread":3,"status":19}
+
+3. RunApp(nil, nil) (Go regression)
+   Test: TestGate5RunAppNilImage
+   Observed failure: nil-pointer panic before a status was returned
+       panic: runtime error: invalid memory address or nil pointer dereference
+       catty/rt.runApp(0x0, {0x0,0x0,0x0}, 0x0) rt/launcher.go:118
+       catty/rt.RunApp(...) rt/launcher.go:93
+
+4. Hook daemon flag captured before the start transition (Go regression)
+   Test: TestGate5HookDaemonCapturedAtStart
+   Observed failure:
+       hook thread_start daemon flag = map[daemon:false event:thread_start
+         name:hook shutdownHook:true thread:8]
+   The successful setDaemon(true) was reflected in live accounting but not
+   in the trace event.
+
+5. Monitor contention counted only after acquisition (Go regression)
+   Test: TestGate5MonitorContentionCountedAtFirstBlock
+   Observed failure:
+       halt-terminal monitorContentions = 0, want 1
+   A contender still blocked when halt commits was not counted.

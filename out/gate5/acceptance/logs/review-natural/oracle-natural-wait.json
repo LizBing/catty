@@ -1,0 +1,17 @@
+{
+  "command": [
+    "java",
+    "-Xverify:all",
+    "-Dstdout.encoding=UTF-8",
+    "-Dstderr.encoding=UTF-8",
+    "-cp",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-m9wbrd_9/classes/natural",
+    "Natural",
+    "wait"
+  ],
+  "pid": 95747,
+  "status": -9,
+  "timed_out": true,
+  "stdout": "main\nhook-wait\n",
+  "stderr": ""
+}

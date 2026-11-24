@@ -9,13 +9,14 @@ Branch: `codex/gate-5`
 | `cec09d2` | Gate 5 application benchmark workload and runner |
 | `7469e36` | Gate 5 race-enabled acceptance artifacts (this directory's `acceptance/`) |
 | `a9dcee0` | Generated-body inspection checks, executable digest stability and their retained evidence |
+| `651f706` | Review fixes: live shutdown keeper, shutdown_begin ordering, nil-image setup error, hook daemon capture, contention-at-block |
 
-The measurement run recorded below was taken from the clean `7469e36` revision
-(`environment.repository.dirty = false`). The runtime implementation and Java
-fixture sources are unchanged since `f28e8fc`; `a9dcee0` only adds generated-
-body/digest checks to the differential runner and their retained evidence after
-the measurement run. The benchmark workload and the measured executables are
-unchanged from the recorded run.
+The measurement run recorded in §4 was taken from the clean `7469e36` revision
+(`environment.repository.dirty = false`). The review fixes in `651f706` change
+runtime code after that measurement; the full four-mode benchmark results stay
+attributed to `7469e36` and were not rerun. Post-fix validation in §6 used the
+benchmark smoke matrix only. The benchmark workload and measured executables in
+§4 are unchanged from their recorded run.
 
 ## 1. Delivered surface
 
@@ -82,7 +83,7 @@ diagnostics, required markers and trace order are asserted.
 | Case | Evidence |
 | --- | --- |
 | `startup` | args `[]`, `""`, whitespace, `-x`, Unicode; `clinit` before `main`; mixed AOT main → interpreted `Startup.step` → AOT `Startup$Box.bump` on one logical thread |
-| `natural` | non-daemon drain with a descendant and a main joiner, blocked daemon left live, both main outcomes (`0`, `1`), hook after last worker |
+| `natural` | non-daemon drain with a descendant and a main joiner, blocked daemon left live, both main outcomes (`0`, `1`), hook after last worker; untimed `Object.wait` hook reaches the watchdog timeout with its marker; coordinated halt of that hook ends with status `31` |
 | `registration` | singleton, add/remove/absent/duplicate/live/retired peers, identity-equal hooks, frozen-registry add/remove `IllegalStateException` including null |
 | `hooks` | two-hook barrier, daemon hook, virtual `run` overrides, identity via `Thread.currentThread`, throwing hook with one named-frame diagnostic, status preserved, hook-started worker left live |
 | `exit` | worker and reflective exits, exit during main-class initialization, statuses `0`, `7`, `-3` and `300` (POSIX `0/7/253/44`), no `finally`/after markers, monitor-holding caller observed live, coordinated `halt(23)` |
@@ -149,11 +150,14 @@ snapshot, manual vs. VM-owned hook start, simultaneous exits, halt cutting short
 graceful shutdown, exit-from-hook stall, parked-caller frame/monitor retention,
 metrics counters and trace sealing. They run under `-race`.
 
-## 4. Application measurements (measured, not smoke)
+## 4. Application measurements (measured for `7469e36`, not smoke)
 
 Runner: `tests/gate5_bench.py`. Evidence:
 [`bench/SUMMARY.txt`](bench/SUMMARY.txt), [`bench/SUMMARY.json`](bench/SUMMARY.json),
 [`bench/raw/`](bench/raw/) and [`bench/logs/`](bench/logs/).
+
+These are the original full measurements from revision `7469e36`, before the
+`651f706` review fixes. They are not a measurement of the current revision.
 
 Protocol: one `javac --release 21 -g` compilation of the checked-in sources,
 21 classes, class manifest SHA-256
@@ -259,3 +263,48 @@ by Gate 5; these are baseline observations from one macOS arm64 host.
   only to validate the runner; its numbers are not reported as evidence. The
   table in §4 is the full 7-process/30-batch measurement from clean revision
   `7469e36`. No benchmark result was fabricated or inferred.
+
+
+## 6. Review-fix round (`f649a35` → `651f706`)
+
+Revision tested: `651f706` on `codex/gate-5`. The starting revision was
+`f649a35`. The observed starting-revision failures are retained verbatim in
+[`acceptance/logs/review-reproductions.txt`](acceptance/logs/review-reproductions.txt);
+focused fixed-test output is in
+[`acceptance/logs/review-regressions.txt`](acceptance/logs/review-regressions.txt).
+
+| Finding | Starting-revision failure | Fix and controlling regression |
+| --- | --- | --- |
+| 1. Untimed hook wait kills natural shutdown | Catty exited `2` with `fatal error: all goroutines are asleep - deadlock!` after printing `hook-wait`; OpenJDK stayed alive | Start one shutdown keeper with a long timer when the coordinator begins, so a timer remains pending while hooks wait. `natural --case` differential variant `wait` asserts the marker and watchdog timeout; `wait-halt` asserts prompt `halt(31)` termination in all three modes |
+| 2. Halt during coordinator startup loses `shutdown_begin` | Trace contained only `process_exit` (`0 begins`) when halt was committed after freeze but before the coordinator emitted the event | Freeze stores a pending begin; terminal publication emits it under a dedicated ordering mutex before publishing the terminal result. `TestGate5HaltRaceKeepsShutdownBegin` pauses the coordinator, commits halt, and requires exactly one `shutdown_begin` (exit status `5`) before final `process_exit` (halt `19`); a running-state halt still emits none |
+| 3. `RunApp(nil, nil)` panics | Nil-pointer panic at `rt/launcher.go:118` before returning a status | Reject a nil image before creating the runtime or reading metadata; return `2` and print `catty: nil image`. `TestGate5RunAppNilImage` captures the status and diagnostic |
+| 4. Hook daemon flag stale in trace | Trace `thread_start` said `daemon:false` after a successful `setDaemon(true)` between freeze and start, while accounting used the new flag | Capture the daemon flag once at the new-to-started transition and use that value for both trace and live non-daemon accounting. `TestGate5HookDaemonCapturedAtStart` pauses before hook start, performs the successful `setDaemon(true)`, then requires `daemon:true` and `LiveNonDaemon()==0` while the hook runs |
+| 5. Contention missed while still blocked | Terminal metrics reported `monitorContentions=0` for a contender blocked at halt | Count the acquisition when it first blocks, once per acquisition. `TestGate5MonitorContentionCountedAtFirstBlock` asserts `1` with the contender still blocked at halt, and `2` for two contenders released through wakeups/retries |
+
+New retained artifacts:
+
+- [`acceptance/logs/review-natural/`](acceptance/logs/review-natural/) — OpenJDK
+  and Catty logs for `wait` (watchdog timeout after `main\nhook-wait`, status
+  `-9`) and `wait-halt` (status `31`, `main\nhook-wait\nhalter`).
+- [`acceptance/traces/launch-natural-*-wait*.jsonl`](acceptance/traces/) — open
+  trace prefixes for the waiting hook and terminal halt traces.
+
+Validation commands and outcomes for `651f706`:
+
+```sh
+go vet ./...                                                       # exit 0
+go test -race -count=1 ./...                                       # ok catty/rt, all packages
+go test -race -count=1 -v -run 'TestGate5RunAppNilImage|TestGate5HaltRaceKeepsShutdownBegin|TestGate5HookDaemonCapturedAtStart|TestGate5MonitorContentionCountedAtFirstBlock' ./rt/
+                                                                    # PASS (4/4)
+python3 -B tests/gate5.py --java-home <jdk21> --case natural --race --keep
+                                                                    # natural passed
+python3 -B tests/gate5.py --java-home <jdk21> --race               # Gate 5 differential tests passed
+python3 -B tests/gate4.py --java-home <jdk21> --race               # Gate 4 differential tests passed
+python3 -B tests/gate3.py --java-home <jdk21>                      # Gate 3 passed
+python3 -B tests/gate2.py --java-home <jdk21>                      # Gate 2 passed (Gate 1 regression)
+python3 -B tests/gate5_bench.py --java-home <jdk21> --smoke        # Gate 5 application benchmark (smoke): OK
+```
+
+No required suite failed. The full benchmark table in §4 remains the
+`7469e36` measurement; the post-fix benchmark check is smoke-only by design.
+Known behavior and environment limits in §5 are unchanged by this round.

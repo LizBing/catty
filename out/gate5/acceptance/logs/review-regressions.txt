@@ -1,0 +1,10 @@
+=== RUN   TestGate5RunAppNilImage
+--- PASS: TestGate5RunAppNilImage (0.00s)
+=== RUN   TestGate5HaltRaceKeepsShutdownBegin
+--- PASS: TestGate5HaltRaceKeepsShutdownBegin (0.06s)
+=== RUN   TestGate5HookDaemonCapturedAtStart
+--- PASS: TestGate5HookDaemonCapturedAtStart (0.00s)
+=== RUN   TestGate5MonitorContentionCountedAtFirstBlock
+--- PASS: TestGate5MonitorContentionCountedAtFirstBlock (0.01s)
+PASS
+ok  	catty/rt	1.525s

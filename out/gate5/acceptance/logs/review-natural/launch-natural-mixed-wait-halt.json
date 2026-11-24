@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-m9wbrd_9/images/natural-mixed-race/app",
+    "wait-halt"
+  ],
+  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-m9wbrd_9/images/natural-mixed-race",
+  "environment": {
+    "PATH": "",
+    "JAVA_HOME": "",
+    "JDK_HOME": "",
+    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-m9wbrd_9/traces/launch-natural-mixed-wait-halt.jsonl",
+    "LC_ALL": "C"
+  },
+  "pid": 95767,
+  "status": 31,
+  "stdout": "main\nhook-wait\nhalter\n",
+  "stderr": ""
+}
