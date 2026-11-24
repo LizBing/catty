@@ -1,0 +1,16 @@
+Gate 5 halt-to-hook-start race reproduced on starting revision a65c445
+=====================================================================
+
+The regression test and the test-only coordinator hooks were added without
+the activation fix, then run on a65c445 behaviour:
+
+  $ go test -count=1 -run '^TestGate5HaltBeforeHookStartLeavesPeerNew$' ./rt/
+  --- FAIL: TestGate5HaltBeforeHookStartLeavesPeerNew (0.00s)
+      gate5_runtime_test.go:1146: peer state after halt = 1, want new
+  FAIL
+
+At that point the coordinator had already passed its terminal-state check
+before BeforeHookStartHook paused it. halt(31) committed in the window, but
+the coordinator then reacquired thrMu and published the new-to-started
+transition anyway: peer state 1 is threadStarted, so the hook body could run
+and live non-daemon accounting was incremented for a terminated process.

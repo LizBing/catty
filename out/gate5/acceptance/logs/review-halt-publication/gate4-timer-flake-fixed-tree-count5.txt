@@ -1,0 +1,23 @@
+?   	catty/cmd/catty	[no test files]
+ok  	catty/internal/admission	1.955s
+ok  	catty/internal/aot	1.373s
+?   	catty/internal/build	[no test files]
+?   	catty/internal/classfile	[no test files]
+ok  	catty/internal/hierarchy	1.385s
+ok  	catty/internal/verify	1.399s
+?   	catty/out/gate3/round3/generated/hierarchy-depth-aot	[no test files]
+?   	catty/out/gate3/round3/generated/hierarchy-depth-interp	[no test files]
+?   	catty/out/gate3/round3/generated/hierarchy-depth-mixed	[no test files]
+?   	catty/out/gate3/round3/generated/inherited-interface-aot	[no test files]
+?   	catty/out/gate3/round3/generated/inherited-interface-interp	[no test files]
+?   	catty/out/gate3/round3/generated/inherited-interface-mixed	[no test files]
+?   	catty/plugin	[no test files]
+--- FAIL: TestGate4WaitSetWinnerTransitions (5.00s)
+    gate4_runtime_test.go:807: timed out waiting for timeout transition
+--- FAIL: TestGate4WaitSetTimeoutAndInterrupt (5.00s)
+    gate4_runtime_test.go:650: timed out waiting for timeout transition
+--- FAIL: TestGate4WaitSetTimeoutAndInterrupt (5.00s)
+    gate4_runtime_test.go:650: timed out waiting for timeout transition
+FAIL
+FAIL	catty/rt	18.581s
+FAIL

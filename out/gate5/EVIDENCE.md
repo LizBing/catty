@@ -10,6 +10,7 @@ Branch: `codex/gate-5`
 | `7469e36` | Gate 5 race-enabled acceptance artifacts (this directory's `acceptance/`) |
 | `a9dcee0` | Generated-body inspection checks, executable digest stability and their retained evidence |
 | `651f706` | Review fixes: live shutdown keeper, shutdown_begin ordering, nil-image setup error, hook daemon capture, contention-at-block |
+| `af643e7` | Close the halt-to-hook-start publication race and add its deterministic regression |
 
 The measurement run recorded in §4 was taken from the clean `7469e36` revision
 (`environment.repository.dirty = false`). The review fixes in `651f706` change
@@ -308,3 +309,78 @@ python3 -B tests/gate5_bench.py --java-home <jdk21> --smoke        # Gate 5 appl
 No required suite failed. The full benchmark table in §4 remains the
 `7469e36` measurement; the post-fix benchmark check is smoke-only by design.
 Known behavior and environment limits in §5 are unchanged by this round.
+
+
+## 7. Halt-to-hook-start race (`a65c445` → `af643e7`)
+
+Revision tested: `af643e7` on `codex/gate-5`; starting revision `a65c445`.
+
+`activateShutdown` previously checked the terminal state, released `thrMu`, and
+then reacquired it to publish new-to-started hook transitions. A `halt` that
+committed in that window let the coordinator mark snapshot hooks started after
+the process result was already terminal: the peer left `threadNew`, the body
+could run, and live non-daemon accounting was incremented for a terminated
+application.
+
+The fix moves the terminal-state check into the same `thrMu` critical section
+that publishes the new-to-started transitions. `shutdown_begin` ordering is
+unchanged: it is recorded before the publication window and terminal
+publication emits the pending begin record before publishing the result.
+
+Reproduction on the starting behaviour (test and coordinator hooks present,
+activation fix absent):
+
+```
+$ go test -count=1 -run '^TestGate5HaltBeforeHookStartLeavesPeerNew$' ./rt/
+--- FAIL: TestGate5HaltBeforeHookStartLeavesPeerNew (0.00s)
+    gate5_runtime_test.go:1146: peer state after halt = 1, want new
+```
+
+`TestGate5HaltBeforeHookStartLeavesPeerNew` freezes the registry with a
+registered, unstarted hook, pauses the coordinator in `BeforeHookStartHook`,
+commits `halt(31)`, releases the coordinator, and waits for its completion hook.
+It asserts:
+
+- the peer remains `threadNew` and its body never runs;
+- `LiveNonDaemon()` is zero before and after the halt;
+- the trace has exactly one `shutdown_begin` (the frozen exit status `5`)
+  before one final `process_exit` with halt status `31`;
+- no `shutdownHook` `thread_start` and no `app/Hook` `enter` event exist.
+
+Validation for `af643e7`:
+
+```sh
+go test -race -count=100 -run '^TestGate5HaltBeforeHookStartLeavesPeerNew$' ./rt/
+                                                                    # ok
+go test -race -count=20 -run 'TestGate5HaltRaceKeepsShutdownBegin|TestGate5HaltCutsShortGracefulShutdown|TestGate5HookDaemonCapturedAtStart|TestGate5SimultaneousExitRequests|TestGate5ExitFromHookStallsUntilHalt|TestGate5TraceSealsAtTerminal|TestGate5ShutdownHookRegistrationRules' ./rt/
+                                                                    # ok
+go test -race -count=1 ./...                                       # ok catty/rt, all packages
+go vet ./...                                                       # exit 0
+python3 -B tests/gate5.py --java-home <jdk21> --race               # Gate 5 differential tests passed
+```
+
+Retained under [`acceptance/logs/review-halt-publication/`](acceptance/logs/review-halt-publication/):
+
+- `reproduction-a65c445.txt` — starting-revision failure transcript.
+- `fixed-stress-new-regression.txt`, `fixed-stress-existing.txt` — 100× and
+  20× race stress results.
+- `fixed-go-test-race.txt`, `fixed-vet.txt`, `fixed-gate5-race.txt` — required
+  single-pass suite, vet and full Gate 5 race outputs.
+
+### Pre-existing Gate 4 timer-arming flake (recorded separately)
+
+A stress run exposed a Gate 4 wait-set test flake unrelated to this fix;
+`go test -race -count=5 ./...` failed with
+`TestGate4WaitSetWinnerTransitions`/`TestGate4WaitSetTimeoutAndInterrupt`
+timing out on a timeout transition. The same command failed in 2 of 3 attempts
+on a clean `a65c445` worktree, so it pre-dates the halt-race change. The test
+helper closes `ready` before `objectWait` arms the manual-clock timer, so an
+advanced clock can miss the timer. Details and logs are in
+[`gate4-timer-flake-note.txt`](acceptance/logs/review-halt-publication/gate4-timer-flake-note.txt),
+`gate4-timer-flake-a65c445-count5.txt` and
+`gate4-timer-flake-fixed-tree-count5.txt`. It is not counted as a remaining
+Gate 5 failure: the required single-pass `go test -race -count=1 ./...` passes,
+and the serial targeted Gate 4 timeout tests pass.
+
+The full benchmark table in §4 remains the original `7469e36` measurement and
+was not rerun for this lifecycle-only race fix.

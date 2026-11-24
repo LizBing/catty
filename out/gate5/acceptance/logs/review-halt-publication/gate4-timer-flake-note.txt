@@ -1,0 +1,30 @@
+Pre-existing Gate 4 timer-arming flake (recorded separately)
+============================================================
+
+This is not caused by the Gate 5 halt-race fix. It was observed while
+stress-running the full package matrix and independently reproduced on a
+clean a65c445 worktree before any Gate 5 changes were applied.
+
+Observed failures:
+  TestGate4WaitSetWinnerTransitions
+      gate4_runtime_test.go:807: timed out waiting for timeout transition
+  TestGate4WaitSetTimeoutAndInterrupt
+      gate4_runtime_test.go:650: timed out waiting for timeout transition
+
+Runs:
+  fixed tree, go test -race -count=5 ./...   -> FAIL (see fixed-tree log)
+  a65c445 worktree, same command, attempt 1  -> FAIL (log copied)
+  a65c445 worktree, same command, attempt 2  -> FAIL
+  a65c445 worktree, same command, attempt 3  -> pass
+  fixed tree, go test -race -count=1 ./...   -> pass
+
+Cause visible in the check-in test helper: startWaiter closes its `ready`
+channel before calling objectWait, so the test can advance the manual clock
+before the wait timer is armed. A late-armed timer then has a deadline in the
+already-advanced clock and the 5 s waitFor watchdog fires. The production
+wait/timer code is unchanged by the Gate 5 halt-race fix, and the flake does
+not reproduce serially (targeted -count=20 passed). It is recorded here as a
+pre-existing test-ordering flake, not a remaining Gate 5 failure.
+
+The required single-pass command `go test -race -count=1 ./...` passes on the
+final fix (see fixed-go-test-race.txt).
