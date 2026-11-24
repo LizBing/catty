@@ -4,6 +4,7 @@
 import argparse
 from collections import Counter
 from dataclasses import dataclass, field
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -494,6 +495,8 @@ def exercise(suite, label, race):
     images = {}
     for mode in MODES:
         images[mode] = build_image(suite, label, case, paths, mode)
+    digests = {mode: hashlib.sha256(tag_binary[1].read_bytes()).hexdigest()
+               for mode, tag_binary in images.items()}
     race_images = {}
     if race:
         for mode in MODES:
@@ -533,9 +536,53 @@ def exercise(suite, label, race):
                                          expected_status, oracle,
                                          timeout=timeout, sorted_stdout=sorted_stdout)
             case_checks(label, mode, events, args)
+    for mode, tag_binary in images.items():
+        after = hashlib.sha256(tag_binary[1].read_bytes()).hexdigest()
+        require(after == digests[mode],
+                f"{label} {mode}: executable changed during isolated runs")
     print(f"{label} passed", flush=True)
 
 
+# ----------------------------------------------------- generated code checks
+
+def generated_checks(suite):
+    """Inspect representative mixed/AOT generated bodies with the shared tool."""
+    startup = CASES["startup"]
+    paths, _, _ = prepare(suite, "startup", startup)
+    _, binary, report = build_image(suite, "startup-generated", startup, paths, "mixed",
+                                    generated=True)
+    data = json.loads(report.read_text(encoding="utf-8"))
+    records = {method_id(record): record for record in data["methods"]}
+    source = binary.parent / "source"
+    for key, check in (((("Startup", "main", MAIN_DESC)), "control-flow"),
+                       (("Startup$Box", "bump", "()V"), "mutation")):
+        record = records.get(key)
+        require(record and record.get("generated"),
+                f"missing generated record for {key} in {report}")
+        generated = record["generated"]
+        suite.run(f"inspect-{key[1]}", [
+            "go", "run", str(ROOT / "tests" / "inspect_generated.go"),
+            generated["symbol"], check, str(source / generated["file"])]).succeeded()
+    require(records[("Startup", "step", "(LStartup$Box;)V")]["engine"] == "interp",
+            f"mixed crossing target is not interpreted in {report}")
+
+    hooks = CASES["hooks"]
+    paths, _, _ = prepare(suite, "hooks", hooks)
+    _, binary, report = build_image(suite, "hooks-generated", hooks, paths, "mixed",
+                                    generated=True)
+    data = json.loads(report.read_text(encoding="utf-8"))
+    records = {method_id(record): record for record in data["methods"]}
+    source = binary.parent / "source"
+    for key, check in ((("Hooks$HookA", "run", "()V"), "monitors"),
+                       (("Hooks$HookB", "run", "()V"), "control-flow")):
+        record = records.get(key)
+        require(record and record.get("generated"),
+                f"missing generated record for {key} in {report}")
+        generated = record["generated"]
+        suite.run(f"inspect-{key[1]}-{key[0].split('/')[-1]}", [
+            "go", "run", str(ROOT / "tests" / "inspect_generated.go"),
+            generated["symbol"], check, str(source / generated["file"])]).succeeded()
+    print("generated-code checks passed", flush=True)
 
 
 # -------------------------------------------------------------- telemetry
@@ -770,6 +817,7 @@ def main():
             if not args.case:
                 profile_checks(suite, args.race)
                 setup_failure_checks(suite)
+                generated_checks(suite)
                 telemetry_checks(suite, args.race)
             for label in ((args.case,) if args.case else CASES):
                 exercise(suite, label, args.race)

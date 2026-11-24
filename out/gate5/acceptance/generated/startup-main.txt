@@ -1,0 +1,146 @@
+/tmp/g5gen/startup-source/generated.go
+func cattyMethod5(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Value) rt.Outcome {
+	var locals [2]rt.Value
+	var stack [3]rt.Value
+	_ = locals
+	_ = stack
+	locals[0] = args[0]
+	block := 0
+	for {
+		switch block {
+		case 0:
+			{
+				v, thrown := t.GetStatic(m, 12, "java/lang/System", "out", "Ljava/io/PrintStream;")
+				if thrown != nil {
+					return rt.ThrowOutcome(thrown)
+				}
+				stack[0] = v
+			}
+			stack[1] = t.StringConstant([]uint16{109, 97, 105, 110})
+			{
+				out := t.InvokeVirtual(m, 5, 20, stack[0], "java/io/PrintStream", "println", "(Ljava/lang/String;)V", stack[1:2])
+				if out.Thrown != nil {
+					thrown := out.Thrown
+					return rt.ThrowOutcome(thrown)
+				}
+			}
+			{
+				v, thrown := t.GetStatic(m, 12, "java/lang/System", "out", "Ljava/io/PrintStream;")
+				if thrown != nil {
+					return rt.ThrowOutcome(thrown)
+				}
+				stack[0] = v
+			}
+			stack[1] = locals[0]
+			{
+				n, thrown := t.ArrayLength(stack[1])
+				if thrown != nil {
+					return rt.ThrowOutcome(thrown)
+				}
+				stack[1] = rt.IntValue(n)
+			}
+			{
+				out := t.InvokeVirtual(m, 13, 26, stack[0], "java/io/PrintStream", "println", "(I)V", stack[1:2])
+				if out.Thrown != nil {
+					thrown := out.Thrown
+					return rt.ThrowOutcome(thrown)
+				}
+			}
+			stack[0] = rt.IntValue(0)
+			locals[1] = stack[0]
+			block = 1
+			continue
+		case 1:
+			stack[0] = locals[1]
+			stack[1] = locals[0]
+			{
+				n, thrown := t.ArrayLength(stack[1])
+				if thrown != nil {
+					return rt.ThrowOutcome(thrown)
+				}
+				stack[1] = rt.IntValue(n)
+			}
+			if rt.AsInt(stack[0]) >= rt.AsInt(stack[1]) {
+				block = 3
+				continue
+			}
+			block = 2
+			continue
+		case 2:
+			{
+				v, thrown := t.GetStatic(m, 12, "java/lang/System", "out", "Ljava/io/PrintStream;")
+				if thrown != nil {
+					return rt.ThrowOutcome(thrown)
+				}
+				stack[0] = v
+			}
+			stack[1] = locals[0]
+			stack[2] = locals[1]
+			{
+				v, thrown := t.ArrayLoad(stack[1], rt.AsInt(stack[2]), 'L')
+				if thrown != nil {
+					return rt.ThrowOutcome(thrown)
+				}
+				stack[1] = v
+			}
+			{
+				out := t.InvokeVirtual(m, 30, 20, stack[0], "java/io/PrintStream", "println", "(Ljava/lang/String;)V", stack[1:2])
+				if out.Thrown != nil {
+					thrown := out.Thrown
+					return rt.ThrowOutcome(thrown)
+				}
+			}
+			locals[1] = rt.IntValue(rt.AsInt(locals[1]) + 1)
+			block = 1
+			continue
+		case 3:
+			{
+				obj, thrown := t.NewObject(m, 8, "Startup$Box")
+				if thrown != nil {
+					return rt.ThrowOutcome(thrown)
+				}
+				stack[0] = rt.RefValue(obj)
+			}
+			stack[1] = stack[0]
+			{
+				out := t.InvokeSpecial(m, 43, 29, stack[1], "Startup$Box", "<init>", "()V", stack[2:2])
+				if out.Thrown != nil {
+					thrown := out.Thrown
+					return rt.ThrowOutcome(thrown)
+				}
+			}
+			locals[1] = stack[0]
+			stack[0] = locals[1]
+			{
+				out := t.InvokeStatic(m, 48, 30, "Startup", "step", "(LStartup$Box;)V", stack[0:1])
+				if out.Thrown != nil {
+					thrown := out.Thrown
+					return rt.ThrowOutcome(thrown)
+				}
+			}
+			{
+				v, thrown := t.GetStatic(m, 12, "java/lang/System", "out", "Ljava/io/PrintStream;")
+				if thrown != nil {
+					return rt.ThrowOutcome(thrown)
+				}
+				stack[0] = v
+			}
+			stack[1] = locals[1]
+			{
+				v, thrown := t.GetField(m, 36, stack[1], "Startup$Box", "count", "I")
+				if thrown != nil {
+					return rt.ThrowOutcome(thrown)
+				}
+				stack[1] = v
+			}
+			{
+				out := t.InvokeVirtual(m, 58, 26, stack[0], "java/io/PrintStream", "println", "(I)V", stack[1:2])
+				if out.Thrown != nil {
+					thrown := out.Thrown
+					return rt.ThrowOutcome(thrown)
+				}
+			}
+			return rt.Normal()
+		}
+	}
+}

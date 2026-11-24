@@ -1,0 +1,32 @@
+/tmp/g5gen/startup-source/generated.go
+func cattyMethod3(t *rt.Thread, m *rt.Method, receiver *rt.Object, args []rt.Value) rt.Outcome {
+	var locals [1]rt.Value
+	var stack [3]rt.Value
+	_ = locals
+	_ = stack
+	locals[0] = rt.RefValue(receiver)
+	block := 0
+	for {
+		switch block {
+		case 0:
+			stack[0] = locals[0]
+			stack[1] = stack[0]
+			{
+				v, thrown := t.GetField(m, 7, stack[1], "Startup$Box", "count", "I")
+				if thrown != nil {
+					return rt.ThrowOutcome(thrown)
+				}
+				stack[1] = v
+			}
+			stack[2] = rt.IntValue(1)
+			stack[1] = rt.IntValue(rt.AsInt(stack[1]) + rt.AsInt(stack[2]))
+			{
+				thrown := t.PutField(m, 7, stack[0], "Startup$Box", "count", "I", stack[1])
+				if thrown != nil {
+					return rt.ThrowOutcome(thrown)
+				}
+			}
+			return rt.Normal()
+		}
+	}
+}

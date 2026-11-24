@@ -118,7 +118,17 @@ per-thread balanced frame stacks, hook starts with no ordinary parent thread,
 `shutdown_begin` before attributed hook starts, one final `process_exit` with
 signed status encoding, and no event after the terminal record. Open frame
 prefixes are accepted for parked exit/halt callers and live ordinary peers.
-Trace order is verified against the subprocess PID.
+Trace order is verified against the subprocess PID. Every isolated executable
+digest is hashed before and after the run to prove the process did not modify
+its own executable; the digest check runs for all modes of every case.
+
+Representative generated bodies and the shared inspector output are retained
+under [`generated/`](generated/): the mixed `Startup.main` control flow and
+`Startup$Box.bump` field mutation, and the forced-AOT `Hooks$HookA.run`
+monitor/exception-transfer lowering and `Hooks$HookB.run` control flow from the
+hook path. These use the same `tests/inspect_generated.go` checks as Gates 1–4;
+the mixed report also proves `Startup.step` is the interpreted crossing target
+while caller and callback are AOT.
 
 Telemetry artifacts are under [`metrics/`](metrics/). Example
 `telemetry-mixed-plain.json`: `classesLoaded=74`, `crossEngineCalls=3`,
