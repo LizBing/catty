@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/images/exit-contention-mixed-race/app",
+    "status"
+  ],
+  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/images/exit-contention-mixed-race",
+  "environment": {
+    "JAVA_HOME": "",
+    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/traces/launch-exit-contention-mixed-status.jsonl",
+    "PATH": "",
+    "JDK_HOME": "",
+    "LC_ALL": "C"
+  },
+  "pid": 79129,
+  "status": 3,
+  "stdout": "main-exit\nhook-start\nsecond\nhook-end\n",
+  "stderr": ""
+}

@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/images/exit-mixed-race/app",
+    "reflect0"
+  ],
+  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/images/exit-mixed-race",
+  "environment": {
+    "JAVA_HOME": "",
+    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/traces/launch-exit-mixed-reflect0.jsonl",
+    "PATH": "",
+    "JDK_HOME": "",
+    "LC_ALL": "C"
+  },
+  "pid": 79037,
+  "status": 0,
+  "stdout": "main-reflect\nreflected\nhook\n",
+  "stderr": ""
+}

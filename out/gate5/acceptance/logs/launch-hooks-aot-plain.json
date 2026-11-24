@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/images/hooks-aot-race/app"
+  ],
+  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/images/hooks-aot-race",
+  "environment": {
+    "JAVA_HOME": "",
+    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/traces/launch-hooks-aot-plain.jsonl",
+    "PATH": "",
+    "JDK_HOME": "",
+    "LC_ALL": "C"
+  },
+  "pid": 78951,
+  "status": 7,
+  "stdout": "main\nthrowing\nidentity-a=1\nidentity-b=1\nhook-b\nhook-a\n",
+  "stderr": "Exception in thread \"bad-hook\" java.lang.RuntimeException: hook-boom\n\tat Hooks$Throwing.run()V\n"
+}

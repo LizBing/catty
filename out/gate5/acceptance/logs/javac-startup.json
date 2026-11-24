@@ -1,0 +1,22 @@
+{
+  "command": [
+    "javac",
+    "--release",
+    "21",
+    "-g",
+    "-d",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/classes/startup",
+    "/Users/services/Projects/catty/testdata/gate5/Check.java",
+    "/Users/services/Projects/catty/testdata/gate5/startup/Startup.java"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C"
+  },
+  "pid": 78688,
+  "status": 0,
+  "stdout": "",
+  "stderr": ""
+}

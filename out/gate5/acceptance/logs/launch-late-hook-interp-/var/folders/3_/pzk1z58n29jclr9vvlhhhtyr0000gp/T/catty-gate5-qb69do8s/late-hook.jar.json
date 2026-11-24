@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/images/late-hook-interp-race/app",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/late-hook.jar"
+  ],
+  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/images/late-hook-interp-race",
+  "environment": {
+    "JAVA_HOME": "",
+    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/traces/launch-late-hook-interp-/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/late-hook.jar.jsonl",
+    "PATH": "",
+    "JDK_HOME": "",
+    "LC_ALL": "C"
+  },
+  "pid": 79306,
+  "status": 5,
+  "stdout": "registered\nplugin-identity=1\nplugin-hook\n",
+  "stderr": ""
+}

@@ -1,0 +1,22 @@
+{
+  "command": [
+    "java",
+    "-Xverify:all",
+    "-Dstdout.encoding=UTF-8",
+    "-Dstderr.encoding=UTF-8",
+    "-cp",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/classes/exit-contention",
+    "ExitContention",
+    "status"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C"
+  },
+  "pid": 79124,
+  "status": 3,
+  "stdout": "main-exit\nhook-start\nsecond\nhook-end\n",
+  "stderr": ""
+}

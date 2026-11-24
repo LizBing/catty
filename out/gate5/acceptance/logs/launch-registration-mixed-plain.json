@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/images/registration-mixed-race/app"
+  ],
+  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/images/registration-mixed-race",
+  "environment": {
+    "JAVA_HOME": "",
+    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/traces/launch-registration-mixed-plain.jsonl",
+    "PATH": "",
+    "JDK_HOME": "",
+    "LC_ALL": "C"
+  },
+  "pid": 78893,
+  "status": 0,
+  "stdout": "singleton=1\nnonnull=1\nadd=1\nremove=1\nremove-absent=0\nadd-null-npe\nremove-null-npe\nduplicate-iae\nlive-iae\nretired-ran\nretired-registered\nequal-registered\nequal-hooks=2\nfrozen-add-null-ise\nfrozen-add-thread-ise\nfrozen-remove-null-ise\n",
+  "stderr": ""
+}

@@ -1,0 +1,22 @@
+{
+  "command": [
+    "javac",
+    "--release",
+    "21",
+    "-g",
+    "-d",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/telemetry-stub",
+    "/Users/services/Projects/catty/testdata/gate3/stub/catty/runtime/PluginAdmissionException.java",
+    "/Users/services/Projects/catty/testdata/gate3/stub/catty/runtime/Plugins.java"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C"
+  },
+  "pid": 78435,
+  "status": 0,
+  "stdout": "",
+  "stderr": ""
+}

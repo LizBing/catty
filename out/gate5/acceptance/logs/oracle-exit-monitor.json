@@ -1,0 +1,22 @@
+{
+  "command": [
+    "java",
+    "-Xverify:all",
+    "-Dstdout.encoding=UTF-8",
+    "-Dstderr.encoding=UTF-8",
+    "-cp",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/classes/exit",
+    "ExitCase",
+    "monitor"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C"
+  },
+  "pid": 79060,
+  "status": 23,
+  "stdout": "main-blocked\nworker-exit\nhook\ncaller-alive=1\nhalt-hook\n",
+  "stderr": ""
+}

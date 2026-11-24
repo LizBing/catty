@@ -1,0 +1,17 @@
+{
+  "command": [
+    "java",
+    "-Xverify:all",
+    "-Dstdout.encoding=UTF-8",
+    "-Dstderr.encoding=UTF-8",
+    "-cp",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/classes/exit-contention",
+    "ExitContention",
+    "hook-exit"
+  ],
+  "pid": 79131,
+  "status": -9,
+  "timed_out": true,
+  "stdout": "main-exit\npre-exit\n",
+  "stderr": ""
+}

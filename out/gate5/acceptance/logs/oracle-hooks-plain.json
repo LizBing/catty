@@ -1,0 +1,21 @@
+{
+  "command": [
+    "java",
+    "-Xverify:all",
+    "-Dstdout.encoding=UTF-8",
+    "-Dstderr.encoding=UTF-8",
+    "-cp",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/classes/hooks",
+    "Hooks"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C"
+  },
+  "pid": 78945,
+  "status": 7,
+  "stdout": "main\nthrowing\nidentity-a=1\nidentity-b=1\nhook-b\nhook-a\n",
+  "stderr": "Exception in thread \"bad-hook\" java.lang.RuntimeException: hook-boom\n\tat Hooks$Throwing.run(Hooks.java:67)\n"
+}

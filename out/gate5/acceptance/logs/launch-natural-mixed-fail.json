@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/images/natural-mixed-race/app",
+    "fail"
+  ],
+  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/images/natural-mixed-race",
+  "environment": {
+    "JAVA_HOME": "",
+    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/traces/launch-natural-mixed-fail.jsonl",
+    "PATH": "",
+    "JDK_HOME": "",
+    "LC_ALL": "C"
+  },
+  "pid": 78836,
+  "status": 1,
+  "stdout": "main\ndescendant\njoined\nworker\nhook\n",
+  "stderr": "Exception in thread \"main\" java.lang.RuntimeException: main failed\n\tat Natural.main([Ljava/lang/String;)V\n"
+}

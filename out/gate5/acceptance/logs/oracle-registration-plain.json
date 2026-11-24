@@ -1,0 +1,21 @@
+{
+  "command": [
+    "java",
+    "-Xverify:all",
+    "-Dstdout.encoding=UTF-8",
+    "-Dstderr.encoding=UTF-8",
+    "-cp",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/classes/registration",
+    "Registration"
+  ],
+  "cwd": "/Users/services/Projects/catty",
+  "environment": {
+    "JAVA_HOME": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home",
+    "PATH": "/Users/services/jdks/jdk-21.0.13.1+2/Contents/Home/bin:/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "LC_ALL": "C"
+  },
+  "pid": 78888,
+  "status": 0,
+  "stdout": "singleton=1\nnonnull=1\nadd=1\nremove=1\nremove-absent=0\nadd-null-npe\nremove-null-npe\nduplicate-iae\nlive-iae\nretired-ran\nretired-registered\nequal-registered\nequal-hooks=2\nfrozen-add-null-ise\nfrozen-add-thread-ise\nfrozen-remove-null-ise\n",
+  "stderr": ""
+}

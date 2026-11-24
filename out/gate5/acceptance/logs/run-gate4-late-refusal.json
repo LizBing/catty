@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/profile-late/gate4/app",
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/gate4-late-bad.jar"
+  ],
+  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/profile-late/gate4",
+  "environment": {
+    "JAVA_HOME": "",
+    "CATTY_TRACE": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/traces/gate4-late-refusal.jsonl",
+    "PATH": "",
+    "JDK_HOME": "",
+    "LC_ALL": "C"
+  },
+  "pid": 78402,
+  "status": 1,
+  "stdout": "",
+  "stderr": "Exception in thread \"main\" catty.runtime.PluginAdmissionException: unavailable bootstrap method\n\tat catty.runtime.Plugins.register([BLjava/lang/ClassLoader;)Ljava/lang/ClassLoader;\n\tat app.Main.main([Ljava/lang/String;)V\n"
+}

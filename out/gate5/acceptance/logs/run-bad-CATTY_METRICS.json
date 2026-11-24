@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/images/setup-diagnostics-aot-plain/app"
+  ],
+  "cwd": "/var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/images/setup-diagnostics-aot-plain",
+  "environment": {
+    "JAVA_HOME": "",
+    "PATH": "",
+    "JDK_HOME": "",
+    "LC_ALL": "C"
+  },
+  "pid": 78427,
+  "status": 2,
+  "stdout": "",
+  "stderr": "catty: cannot open metrics /var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/missing/nested/out: open /var/folders/3_/pzk1z58n29jclr9vvlhhhtyr0000gp/T/catty-gate5-qb69do8s/missing/nested/out: no such file or directory\n"
+}
