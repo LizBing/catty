@@ -147,7 +147,7 @@ func readArchive(data []byte, parent *rt.Loader, parentClasses map[string]*class
 	sort.Strings(names)
 	for _, name := range names {
 		body := classBodies[name]
-		c, err := classfile.Parse(body, name)
+		c, err := classfile.ParseFor(body, name, profile)
 		if err != nil {
 			code := "CLASS_FORMAT"
 			if isProfileParseError(err.Error()) {

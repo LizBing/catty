@@ -23,16 +23,32 @@ func (r *Runtime) Install() error {
 	if r.Image.Plugins != profile.Plugins {
 		return fmt.Errorf("catty: image profile %q plugin flag %v is inconsistent", r.Image.Profile, r.Image.Plugins)
 	}
+	if r.Image.Threads != profile.Threads {
+		return fmt.Errorf("catty: image profile %q threading flag %v is inconsistent", r.Image.Profile, r.Image.Threads)
+	}
 	if profile.Plugins && r.Image.Limits == nil {
 		r.Image.Limits = profile.Limits
 	}
 	if len(r.Image.Opcodes) > 0 {
-		supported := supportedOpcodeSet()
 		for _, name := range r.Image.Opcodes {
-			if !supported[name] {
+			if !admittedOpcodeName(profile, name) {
 				return fmt.Errorf("catty: image opcode inventory contains unsupported opcode %q", name)
 			}
 		}
+	}
+	if len(r.Image.Capabilities) > 0 {
+		canonical := map[string]bool{}
+		for _, name := range ProfileCapabilities(profile.ID) {
+			canonical[name] = true
+		}
+		for _, name := range r.Image.Capabilities {
+			if !canonical[name] {
+				return fmt.Errorf("catty: image capability %q is not published by profile %q", name, profile.ID)
+			}
+		}
+	}
+	if err := r.validateRetainedThreading(profile); err != nil {
+		return err
 	}
 	r.profile = profile
 	r.bootstrapDefs = profile.bootstrapByName()
@@ -66,6 +82,73 @@ func (r *Runtime) Install() error {
 	}
 	r.initializeImageStatics()
 	r.installed = true
+	return nil
+}
+
+// admittedOpcodeName reports whether the profile publishes name as an admitted
+// opcode.
+func admittedOpcodeName(profile *Profile, name string) bool {
+	for op, n := range opcodeNames {
+		if n == name {
+			return AdmitsOpcodeFor(profile.ID, op)
+		}
+	}
+	return false
+}
+
+// validateRetainedThreading checks the actual retained image content against
+// the declared profile. A supplied image may omit its opcode inventory, so the
+// monitor opcodes and synchronized method flags are also checked directly;
+// earlier profiles must keep rejecting both even for hand-authored images.
+func (r *Runtime) validateRetainedThreading(profile *Profile) error {
+	for _, def := range r.Image.Classes {
+		if def == nil {
+			continue
+		}
+		for _, md := range def.Methods {
+			if md == nil {
+				continue
+			}
+			if md.Flags&AccSynchronized != 0 {
+				if !profile.Threads {
+					return fmt.Errorf("catty: image method %s.%s%s is synchronized, which profile %q does not admit",
+						def.Name, md.Name, md.Descriptor, profile.ID)
+				}
+				switch {
+				case md.Flags&AccNative != 0:
+					return fmt.Errorf("catty: image method %s.%s%s is synchronized native, which is unsupported",
+						def.Name, md.Name, md.Descriptor)
+				case md.Name == "<init>":
+					return fmt.Errorf("catty: image instance constructor %s.%s%s must not be synchronized",
+						def.Name, md.Name, md.Descriptor)
+				case md.Flags&AccAbstract != 0:
+					return fmt.Errorf("catty: image abstract method %s.%s%s must not be synchronized",
+						def.Name, md.Name, md.Descriptor)
+				case def.Flags&AccInterface != 0 && md.Name != "<clinit>":
+					return fmt.Errorf("catty: image interface method %s.%s%s must not be synchronized",
+						def.Name, md.Name, md.Descriptor)
+				}
+			}
+			if profile.Threads && md.Name == "<clinit>" {
+				if md.Flags&AccStatic == 0 || md.Descriptor != "()V" {
+					return fmt.Errorf("catty: image class initializer %s.<clinit>%s must be static ()V",
+						def.Name, md.Descriptor)
+				}
+				if md.Flags&AccAbstract != 0 {
+					return fmt.Errorf("catty: image class initializer %s.<clinit> must not be abstract", def.Name)
+				}
+			}
+			for _, insn := range md.Insns {
+				if insn.Op != OpMonitorenter && insn.Op != OpMonitorexit {
+					continue
+				}
+				if !profile.Threads {
+					return fmt.Errorf("catty: image method %s.%s%s retains %s, which profile %q does not admit",
+						def.Name, md.Name, md.Descriptor, OpcodeName(insn.Op), profile.ID)
+				}
+			}
+		}
+	}
 	return nil
 }
 
@@ -319,9 +402,13 @@ func (r *Runtime) installAllMethods(profile *Profile) error {
 			if err != nil {
 				return fmt.Errorf("catty: bootstrap method %s.%s: %w", c.Name, bm.name, err)
 			}
+			engine, reason := "intrinsic", "bootstrap intrinsic"
+			if bm.flags&AccAbstract != 0 {
+				engine, reason = "abstract", "bootstrap abstract declaration"
+			}
 			m := &Method{
 				Owner: c, Name: bm.name, Descriptor: bm.descriptor, Flags: bm.flags,
-				Engine: "intrinsic", Reason: "bootstrap intrinsic", Intrinsic: bm.intrinsic, Type: mt,
+				Engine: engine, Reason: reason, Intrinsic: bm.intrinsic, Type: mt,
 			}
 			if err := c.addMethod(m); err != nil {
 				return err
@@ -403,10 +490,16 @@ func (r *Runtime) resolveAllParameterClasses() error {
 }
 
 func (r *Runtime) resolveClassMetadata(c *Class, strict bool) error {
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	return r.resolveClassMetadataLocked(c, strict)
+}
+
+func (r *Runtime) resolveClassMetadataLocked(c *Class, strict bool) error {
 	for _, m := range c.Methods {
 		m.ParamClass = make([]*Class, len(m.Type.Params))
 		for i, p := range m.Type.Params {
-			pc, err := r.classForTypeInLoader(c.Loader, p)
+			pc, err := r.classForTypeInLoaderLocked(c.Loader, p)
 			if err != nil {
 				if strict {
 					return fmt.Errorf("catty: method %s.%s%s parameter %d: %w", c.Name, m.Name, m.Descriptor, i, err)
@@ -418,12 +511,12 @@ func (r *Runtime) resolveClassMetadata(c *Class, strict bool) error {
 	}
 	if strict {
 		for _, f := range c.StaticField {
-			if _, err := r.classForTypeInLoader(c.Loader, f.Type); err != nil {
+			if _, err := r.classForTypeInLoaderLocked(c.Loader, f.Type); err != nil {
 				return fmt.Errorf("catty: field %s.%s: %w", c.Name, f.Name, err)
 			}
 		}
 		for _, f := range c.InstanceField {
-			if _, err := r.classForTypeInLoader(c.Loader, f.Type); err != nil {
+			if _, err := r.classForTypeInLoaderLocked(c.Loader, f.Type); err != nil {
 				return fmt.Errorf("catty: field %s.%s: %w", c.Name, f.Name, err)
 			}
 		}

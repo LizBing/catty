@@ -29,10 +29,13 @@ type dispatchEntry struct {
 
 // AdmissionRequest is the read-only input the runtime hands to the registered
 // admission callback. Bytes are a private copy owned by the callback.
+// ParentClasses is the detached nearest-first snapshot of the parent chain's
+// published definitions, so the adapter never reads live loader tables.
 type AdmissionRequest struct {
-	Bytes   []byte
-	Parent  *Loader
-	Profile string
+	Bytes         []byte
+	Parent        *Loader
+	Profile       string
+	ParentClasses map[string]*Class
 }
 
 // DeferredReference is one symbolic dependency retained for lazy runtime

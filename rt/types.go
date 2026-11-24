@@ -7,6 +7,7 @@ package rt
 import (
 	"fmt"
 	"math"
+	"sync"
 	"unicode/utf16"
 )
 
@@ -115,6 +116,11 @@ type Object struct {
 	Payload  any
 	Identity uint64
 	TraceID  int64
+	// monitor is the optional monitor state. It is nil until the object is
+	// first used as a monitor, so ordinary objects pay no monitor cost and a
+	// monitored object's state follows its own lifetime. Every field of the
+	// monitor is guarded by Runtime.thrMu.
+	monitor *monitor
 }
 
 // ArrayData is the storage of a Java array. Reference arrays retain
@@ -332,6 +338,7 @@ type Image struct {
 	Opcodes      []string      `json:"opcodes,omitempty"`
 	Capabilities []string      `json:"capabilities,omitempty"`
 	Plugins      bool          `json:"plugins,omitempty"`
+	Threads      bool          `json:"threads,omitempty"`
 	Limits       *PluginLimits `json:"pluginLimits,omitempty"`
 	Classes      []*ClassDef   `json:"classes,omitempty"`
 	Main         MethodKey     `json:"main,omitempty"`
@@ -355,6 +362,9 @@ type Class struct {
 	Statics       []Value
 	State         classState
 	InitError     *Object
+	initMu        sync.Mutex
+	initDone      chan struct{}
+	initOwner     *Thread
 	Mirror        *Object
 	IsArray       bool
 	IsPrimitive   bool

@@ -3,12 +3,39 @@ package rt
 import (
 	"fmt"
 	"strings"
+	"sync"
+	"sync/atomic"
+	"time"
 	"unicode/utf16"
 )
 
+// runtimeClock is the monotonic clock used for every Java timer wait. Tests
+// inject a manual clock so timeout transitions are deterministic.
+type runtimeClock interface {
+	Now() time.Time
+	After(d time.Duration) <-chan time.Time
+}
+
+type realRuntimeClock struct{}
+
+func (realRuntimeClock) Now() time.Time                         { return time.Now() }
+func (realRuntimeClock) After(d time.Duration) <-chan time.Time { return time.After(d) }
+
 // Runtime owns loader state, class metadata, static storage, mirrors, strings
-// and the single logical Java thread used by the launcher.
+// and the logical Java threads used by the launcher.
+//
+// Three runtime mutexes partition the shared runtime state. memMu orders every
+// access to published Java instance/static slots and array elements. metaMu
+// guards resolution and dispatch caches, loader publication and counters,
+// loading constraints, lazy array/mirror interning and string/boxing caches.
+// thrMu guards logical thread state, monitor ownership and wait sets. The three
+// are never nested with one another and never held across Java execution,
+// monitor/class-initialization waits or host I/O.
 type Runtime struct {
+	memMu  sync.Mutex
+	metaMu sync.Mutex
+	thrMu  sync.Mutex
+
 	Image *Image
 	// Classes is the application loader's class table. Bootstrap is the
 	// bootstrap loader's class table. Both are retained for host-facing code
@@ -46,11 +73,25 @@ type Runtime struct {
 
 	admit func(*AdmissionRequest) (*AdmissionResult, error)
 
-	nextIdentity uint64
+	nextIdentity atomic.Uint64
 	nextThread   int64
 	installed    bool
 	trace        *trace
 	mainThread   *Thread
+
+	liveNonDaemon int
+	liveCond      *sync.Cond
+	clock         runtimeClock
+
+	// ClassInitWaitHook is a deterministic-test hook invoked immediately
+	// before a competing thread parks on an in-progress class initialization.
+	ClassInitWaitHook func(c *Class, waiter *Thread)
+	threadAudit       []*Thread
+	unnamedPeers      int64
+	exitHook          func()
+
+	// diagMu serializes uncaught-thread diagnostics.
+	diagMu sync.Mutex
 
 	// AllocHook is an optional testing hook invoked after each instance
 	// allocation. It must not retain the object; the garbage-collection
@@ -90,6 +131,8 @@ func NewRuntime(img *Image) *Runtime {
 		constraints:         map[constraintKey]struct{}{},
 		admit:               defaultAdmission,
 	}
+	r.liveCond = sync.NewCond(&r.thrMu)
+	r.clock = realRuntimeClock{}
 	r.BootstrapLoader = &Loader{ID: 0, Name: "bootstrap", Runtime: r, Classes: r.Bootstrap}
 	r.Loader = &Loader{ID: 1, Name: "app", Runtime: r, Parent: r.BootstrapLoader, Classes: r.Classes}
 	r.nextLoaderID = 1
@@ -98,14 +141,6 @@ func NewRuntime(img *Image) *Runtime {
 
 // Installed reports whether Install completed.
 func (r *Runtime) Installed() bool { return r.installed }
-
-func supportedOpcodeSet() map[string]bool {
-	out := map[string]bool{}
-	for _, name := range SupportedOpcodeNames() {
-		out[name] = true
-	}
-	return out
-}
 
 func (r *Runtime) constantValue(c *Constant) (Value, error) {
 	switch c.Kind {
@@ -141,8 +176,14 @@ func zeroValueFor(desc string) Value {
 }
 
 func (r *Runtime) lookupClassShell(name string) (*Class, bool) {
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	return r.lookupClassShellLocked(name)
+}
+
+func (r *Runtime) lookupClassShellLocked(name string) (*Class, bool) {
 	if strings.HasPrefix(name, "[") {
-		if c, err := r.classForLoaderName(r.Loader, name); err == nil {
+		if c, err := r.classForLoaderNameLocked(r.Loader, name); err == nil {
 			return c, true
 		}
 		return nil, false
@@ -227,8 +268,7 @@ func (r *Runtime) checkHierarchies() error {
 }
 
 func (r *Runtime) newIdentity() uint64 {
-	r.nextIdentity++
-	return r.nextIdentity
+	return r.nextIdentity.Add(1)
 }
 
 // Class returns an installed class by internal name.
@@ -242,6 +282,16 @@ func (r *Runtime) Class(name string) (*Class, error) {
 
 func (r *Runtime) mustClass(name string) *Class {
 	c, ok := r.lookupClassShell(name)
+	if !ok {
+		panic("catty: missing required class " + name)
+	}
+	return c
+}
+
+// mustClassLocked is mustClass for a caller that already holds the metadata
+// mutex.
+func (r *Runtime) mustClassLocked(name string) *Class {
+	c, ok := r.lookupClassShellLocked(name)
 	if !ok {
 		panic("catty: missing required class " + name)
 	}
@@ -270,6 +320,12 @@ func (r *Runtime) classForType(t Type) (*Class, error) {
 
 // classForTypeInLoader resolves a parsed type through loader.
 func (r *Runtime) classForTypeInLoader(loader *Loader, t Type) (*Class, error) {
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	return r.classForTypeInLoaderLocked(loader, t)
+}
+
+func (r *Runtime) classForTypeInLoaderLocked(loader *Loader, t Type) (*Class, error) {
 	switch t.Kind {
 	case 'V':
 		return nil, nil
@@ -284,7 +340,7 @@ func (r *Runtime) classForTypeInLoader(loader *Loader, t Type) (*Class, error) {
 		}
 		return c, nil
 	case 'L', 'A':
-		return r.classForLoaderName(loader, t.DescriptorOrName())
+		return r.classForLoaderNameLocked(loader, t.DescriptorOrName())
 	default:
 		return nil, fmt.Errorf("unsupported type %q", t.Descriptor)
 	}
@@ -311,6 +367,13 @@ func (r *Runtime) classForName(name string) (*Class, error) {
 // interned by immediate component identity, so equal descriptors from two
 // sibling loaders produce distinct array classes.
 func (r *Runtime) classForLoaderName(loader *Loader, name string) (*Class, error) {
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	return r.classForLoaderNameLocked(loader, name)
+}
+
+// classForLoaderNameLocked is classForLoaderName for a caller holding metaMu.
+func (r *Runtime) classForLoaderNameLocked(loader *Loader, name string) (*Class, error) {
 	if loader == nil {
 		loader = r.Loader
 	}
@@ -320,12 +383,12 @@ func (r *Runtime) classForLoaderName(loader *Loader, name string) (*Class, error
 		var err error
 		switch componentDesc[0] {
 		case '[':
-			component, err = r.classForLoaderName(loader, componentDesc)
+			component, err = r.classForLoaderNameLocked(loader, componentDesc)
 		case 'L':
 			if !strings.HasSuffix(componentDesc, ";") {
 				return nil, fmt.Errorf("malformed array descriptor: %s", name)
 			}
-			component, err = r.classForLoaderName(loader, componentDesc[1:len(componentDesc)-1])
+			component, err = r.classForLoaderNameLocked(loader, componentDesc[1:len(componentDesc)-1])
 		default:
 			c, ok := r.primitives[componentDesc[0]]
 			if !ok {
@@ -336,7 +399,7 @@ func (r *Runtime) classForLoaderName(loader *Loader, name string) (*Class, error
 		if err != nil {
 			return nil, err
 		}
-		return r.arrayClassForComponent(component), nil
+		return r.arrayClassForComponentLocked(component), nil
 	}
 	if desc, ok := PrimitiveDescriptor(name); ok {
 		if c, ok := r.primitives[desc]; ok {
@@ -352,6 +415,12 @@ func (r *Runtime) classForLoaderName(loader *Loader, name string) (*Class, error
 // arrayClassForComponent interns a reference array by immediate component
 // identity and a primitive array by its canonical primitive class.
 func (r *Runtime) arrayClassForComponent(component *Class) *Class {
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	return r.arrayClassForComponentLocked(component)
+}
+
+func (r *Runtime) arrayClassForComponentLocked(component *Class) *Class {
 	if component == nil {
 		return nil
 	}
@@ -360,7 +429,7 @@ func (r *Runtime) arrayClassForComponent(component *Class) *Class {
 		if c, ok := r.primitiveArrayClass[desc]; ok {
 			return c
 		}
-		c := r.newArrayClass("["+component.Descriptor, component, r.BootstrapLoader)
+		c := r.newArrayClassLocked("["+component.Descriptor, component, r.BootstrapLoader)
 		r.primitiveArrayClass[desc] = c
 		return c
 	}
@@ -371,24 +440,24 @@ func (r *Runtime) arrayClassForComponent(component *Class) *Class {
 	if loader == nil {
 		loader = r.BootstrapLoader
 	}
-	c := r.newArrayClass(arrayDescriptorOf(component), component, loader)
+	c := r.newArrayClassLocked(arrayDescriptorOf(component), component, loader)
 	r.arrayClasses[component] = c
 	return c
 }
 
-func (r *Runtime) newArrayClass(desc string, component *Class, loader *Loader) *Class {
+func (r *Runtime) newArrayClassLocked(desc string, component *Class, loader *Loader) *Class {
 	c := &Class{
 		Name:       desc,
 		Descriptor: desc,
 		IsArray:    true,
 		Component:  component,
-		Super:      r.mustClass("java/lang/Object"),
-		Interfaces: []*Class{r.mustClass("java/lang/Cloneable"), r.mustClass("java/io/Serializable")},
+		Super:      r.mustClassLocked("java/lang/Object"),
+		Interfaces: []*Class{r.mustClassLocked("java/lang/Cloneable"), r.mustClassLocked("java/io/Serializable")},
 		Flags:      AccPublic | AccFinal,
 		State:      classInitialized,
 		Loader:     loader,
 	}
-	classClass := r.mustClass("java/lang/Class")
+	classClass := r.mustClassLocked("java/lang/Class")
 	c.Mirror = &Object{Class: classClass, Payload: c, Identity: r.newIdentity()}
 	return c
 }
@@ -399,6 +468,12 @@ func (r *Runtime) NewInstance(c *Class) *Object {
 		Class:    c,
 		Fields:   make([]Value, c.InstanceSize),
 		Identity: r.newIdentity(),
+	}
+	// Throwable payloads are frozen before publication: every allocation of a
+	// throwable has its data attached here, and only constructors running before
+	// publication may fill in the cause, message or frames.
+	if isThrowableClass(c) {
+		o.Payload = &ThrowableData{}
 	}
 	for i := range o.Fields {
 		desc := ""
@@ -565,31 +640,43 @@ func (c *Class) addMethod(m *Method) error {
 	return nil
 }
 
-// NewStringUnits creates a Java string from UTF-16 units.
+// NewStringUnits creates a Java string from UTF-16 units. Interned strings are
+// canonical and shared, so the cache transition is a metadata operation.
 func (r *Runtime) NewStringUnits(units []uint16, intern bool) *Object {
-	if intern {
-		key := unitsKey(units)
-		if o, ok := r.strings[key]; ok {
-			return o
-		}
-		o := &Object{
+	if !intern {
+		return &Object{
 			Class:    r.mustClass("java/lang/String"),
 			Payload:  &stringData{Units: append([]uint16(nil), units...)},
 			Identity: r.newIdentity(),
 		}
-		r.strings[key] = o
+	}
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	return r.newStringUnitsLocked(units)
+}
+
+func (r *Runtime) newStringUnitsLocked(units []uint16) *Object {
+	key := unitsKey(units)
+	if o, ok := r.strings[key]; ok {
 		return o
 	}
-	return &Object{
-		Class:    r.mustClass("java/lang/String"),
+	o := &Object{
+		Class:    r.mustClassLocked("java/lang/String"),
 		Payload:  &stringData{Units: append([]uint16(nil), units...)},
 		Identity: r.newIdentity(),
 	}
+	r.strings[key] = o
+	return o
 }
 
 // NewStringGo creates a Java string from Go text.
 func (r *Runtime) NewStringGo(s string) *Object {
 	return r.NewStringUnits(utf16.Encode([]rune(s)), false)
+}
+
+// NewStringGoInterned creates a canonical Java string from Go text.
+func (r *Runtime) NewStringGoInterned(s string) *Object {
+	return r.NewStringUnits(utf16.Encode([]rune(s)), true)
 }
 
 type stringData struct {
@@ -691,6 +778,12 @@ func primitiveDescOfBox(class string) byte {
 
 // BoxValue boxes v as the boxed class of the given primitive descriptor.
 func (r *Runtime) BoxValue(desc byte, v Value) *Object {
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	return r.boxValueLocked(desc, v)
+}
+
+func (r *Runtime) boxValueLocked(desc byte, v Value) *Object {
 	switch desc {
 	case 'Z':
 		b := AsInt(v) != 0
@@ -725,7 +818,7 @@ func (r *Runtime) BoxValue(desc byte, v Value) *Object {
 		r.boxedShorts[s] = o
 		return o
 	case 'I':
-		return r.BoxedInteger(AsInt(v))
+		return r.boxedIntegerLocked(AsInt(v))
 	case 'J':
 		l := AsLong(v)
 		if o, ok := r.boxedLongs[l]; ok {
@@ -751,7 +844,7 @@ func boolBits(b bool) uint64 {
 
 func (r *Runtime) boxedObject(desc byte, bits uint64) *Object {
 	name := boxedClassName(desc)
-	o := r.NewInstance(r.mustClass(name))
+	o := r.NewInstance(r.mustClassLocked(name))
 	o.Payload = &boxData{Kind: desc, Bits: bits}
 	return o
 }
@@ -792,6 +885,12 @@ func (d boxData) Value() Value {
 // BoxedInteger returns a java.lang.Integer for v. Java guarantees identity for
 // the standard cache range; values outside it receive a fresh box.
 func (r *Runtime) BoxedInteger(v int32) *Object {
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	return r.boxedIntegerLocked(v)
+}
+
+func (r *Runtime) boxedIntegerLocked(v int32) *Object {
 	if v >= -128 && v <= 127 {
 		if o, ok := r.boxedInts[v]; ok {
 			return o
@@ -834,7 +933,15 @@ type FrameInfo struct {
 // NewThrowable allocates a throwable of the named bootstrap class and captures
 // the current Java stack. A nil thread captures no frames.
 func (r *Runtime) NewThrowable(t *Thread, className string) *Object {
-	c, err := r.classForName(className)
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	return r.newThrowableLocked(t, className)
+}
+
+// newThrowableLocked is NewThrowable for a caller holding metaMu. It performs no
+// Java execution and acquires no other runtime lock.
+func (r *Runtime) newThrowableLocked(t *Thread, className string) *Object {
+	c, err := r.classForLoaderNameLocked(r.Loader, className)
 	if err != nil {
 		panic("catty: missing throwable class " + className)
 	}
@@ -847,17 +954,25 @@ func (r *Runtime) NewThrowable(t *Thread, className string) *Object {
 	return o
 }
 
-// ThrowableOf returns throwable payload data, creating it if necessary.
+// ThrowableOf returns throwable payload data. The payload is attached at
+// allocation and never created after publication, so this read is race-free.
 func ThrowableOf(o *Object) *ThrowableData {
 	if o == nil {
 		return nil
 	}
-	if d, ok := o.Payload.(*ThrowableData); ok {
-		return d
-	}
-	d := &ThrowableData{}
-	o.Payload = d
+	d, _ := o.Payload.(*ThrowableData)
 	return d
+}
+
+// isThrowableClass walks the immutable superclass chain without taking a
+// runtime lock; NewInstance may be called with the metadata mutex held.
+func isThrowableClass(c *Class) bool {
+	for x := c; x != nil; x = x.Super {
+		if x.Name == "java/lang/Throwable" {
+			return true
+		}
+	}
+	return false
 }
 
 // CauseOf returns a throwable's cause (nil when absent).
@@ -868,9 +983,12 @@ func CauseOf(o *Object) *Object {
 	return nil
 }
 
-// SetCause records a throwable cause.
+// SetCause records a throwable cause. Callers set causes during construction,
+// before the throwable is published.
 func SetCause(o, cause *Object) {
-	ThrowableOf(o).Cause = cause
+	if d := ThrowableOf(o); d != nil {
+		d.Cause = cause
+	}
 }
 
 func (t *Thread) FramesSnapshot() []FrameInfo {
@@ -879,8 +997,70 @@ func (t *Thread) FramesSnapshot() []FrameInfo {
 	return out
 }
 
+// fieldRead reads one published instance slot under the runtime memory mutex.
+func (r *Runtime) fieldRead(o *Object, offset int) Value {
+	r.memMu.Lock()
+	defer r.memMu.Unlock()
+	return o.Fields[offset]
+}
+
+// fieldWrite writes one published instance slot under the runtime memory mutex.
+func (r *Runtime) fieldWrite(o *Object, offset int, v Value) {
+	r.memMu.Lock()
+	defer r.memMu.Unlock()
+	o.Fields[offset] = v
+}
+
+// staticRead reads one published static slot under the runtime memory mutex.
+func (r *Runtime) staticRead(c *Class, index int) Value {
+	r.memMu.Lock()
+	defer r.memMu.Unlock()
+	return c.Statics[index]
+}
+
+// staticWrite writes one published static slot under the runtime memory mutex.
+func (r *Runtime) staticWrite(c *Class, index int, v Value) {
+	r.memMu.Lock()
+	defer r.memMu.Unlock()
+	c.Statics[index] = v
+}
+
+// arrayRead reads one published array element under the runtime memory mutex.
+func (r *Runtime) arrayRead(a *ArrayData, index int) Value {
+	r.memMu.Lock()
+	defer r.memMu.Unlock()
+	return arrayValueLocked(a, index)
+}
+
+// arrayWrite writes one published array element under the runtime memory
+// mutex. Callers have already performed the reference assignability check.
+func (r *Runtime) arrayWrite(a *ArrayData, index int, v Value) {
+	r.memMu.Lock()
+	defer r.memMu.Unlock()
+	setArrayValueLocked(a, index, v)
+}
+
+// arrayLength reads the fixed array length. Length, kind and component are
+// immutable after allocation and need no memory mutex.
+func arrayLength(a *ArrayData) int { return a.Len() }
+
+// arraySnapshotElems copies a reference array's element slots under the memory
+// mutex. Reflection uses it to detach its argument view from concurrent Java
+// mutation.
+func (r *Runtime) arraySnapshotElems(a *ArrayData) []Value {
+	r.memMu.Lock()
+	defer r.memMu.Unlock()
+	out := make([]Value, len(a.Elems))
+	copy(out, a.Elems)
+	return out
+}
+
 // ArrayValue reads one array element as an engine Value.
 func ArrayValue(a *ArrayData, index int) Value {
+	return arrayValueLocked(a, index)
+}
+
+func arrayValueLocked(a *ArrayData, index int) Value {
 	switch a.Kind {
 	case 'L':
 		return a.Elems[index]
@@ -905,6 +1085,10 @@ func ArrayValue(a *ArrayData, index int) Value {
 // SetArrayValue writes one array element after masking it to the element
 // width; callers have already performed reference assignability checks.
 func SetArrayValue(a *ArrayData, index int, v Value) {
+	setArrayValueLocked(a, index, v)
+}
+
+func setArrayValueLocked(a *ArrayData, index int, v Value) {
 	switch a.Kind {
 	case 'L':
 		a.Elems[index] = v

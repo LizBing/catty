@@ -27,6 +27,16 @@ func parentClassTable(parent *rt.Loader) map[string]*classfile.Class {
 	return out
 }
 
+// parentClassTableSnapshot converts a detached nearest-first class snapshot
+// into the read-only class-file metadata view admission consumes.
+func parentClassTableSnapshot(snapshot map[string]*rt.Class) map[string]*classfile.Class {
+	out := make(map[string]*classfile.Class, len(snapshot))
+	for name, c := range snapshot {
+		out[name] = classfileOf(c)
+	}
+	return out
+}
+
 func classfileOf(c *rt.Class) *classfile.Class {
 	out := &classfile.Class{
 		Name:        c.Name,
@@ -177,10 +187,26 @@ func checkCandidate(a *archive, candidate []*sourceClass, parent map[string]*cla
 			mloc := loc
 			mloc.Method, mloc.Descriptor, mloc.PC = m.Name, m.Descriptor, 0
 			if m.Flags&rt.AccSynchronized != 0 {
-				return locFailure("PROFILE", mloc, "synchronized methods are unsupported")
+				if !rt.ProfileHasThreads(profile) {
+					return locFailure("PROFILE", mloc, "synchronized methods are unsupported")
+				}
+				switch {
+				case m.Flags&rt.AccNative != 0:
+					return locFailure("PROFILE", mloc, "synchronized native methods are unsupported")
+				case m.Name == "<init>":
+					return locFailure("VERIFY", mloc, "an instance constructor must not be synchronized")
+				case m.Flags&rt.AccAbstract != 0:
+					return locFailure("VERIFY", mloc, "an abstract method must not be synchronized")
+				case c.Flags&rt.AccInterface != 0 && m.Name != "<clinit>":
+					return locFailure("VERIFY", mloc, "an interface method must not be synchronized")
+				}
 			}
 			if m.Flags&rt.AccNative != 0 {
 				return locFailure("PROFILE", mloc, "native methods are unsupported")
+			}
+			if rt.ProfileHasThreads(profile) && m.Name == "<clinit>" &&
+				(m.Flags&rt.AccStatic == 0 || m.Descriptor != "()V") {
+				return locFailure("VERIFY", mloc, "a class initializer must be static with descriptor ()V")
 			}
 			if _, err := rt.ParseMethodType(m.Descriptor); err != nil {
 				return locFailure("CLASS_FORMAT", mloc, err.Error())

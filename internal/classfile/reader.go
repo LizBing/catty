@@ -58,8 +58,15 @@ type Class struct {
 }
 
 // Parse reads one class file. The caller supplies the origin used in
-// diagnostics.
+// diagnostics. It applies the default (Gate 2) opcode inventory.
 func Parse(data []byte, origin string) (*Class, error) {
+	return ParseFor(data, origin, "")
+}
+
+// ParseFor reads one class file under one profile's opcode inventory. Gate 4
+// decodes monitorenter and monitorexit as single-byte instructions; earlier
+// profiles keep rejecting them at the same offset.
+func ParseFor(data []byte, origin, profile string) (*Class, error) {
 	r := &reader{data: data}
 	magic, err := r.u4()
 	if err != nil {
@@ -137,7 +144,7 @@ func Parse(data []byte, origin string) (*Class, error) {
 		return nil, err
 	}
 	for i := 0; i < int(methodCount); i++ {
-		m, err := parseMethod(r, cp, name)
+		m, err := parseMethod(r, cp, name, profile)
 		if err != nil {
 			return nil, fmt.Errorf("method %d: %w", i, err)
 		}
@@ -399,7 +406,7 @@ func constantValueFor(ft rt.Type, e *cpEntry, cp *constantPool, idx uint16) (*rt
 	}
 }
 
-func parseMethod(r *reader, cp *constantPool, owner string) (*Method, error) {
+func parseMethod(r *reader, cp *constantPool, owner, profile string) (*Method, error) {
 	flags, err := r.u2()
 	if err != nil {
 		return nil, err
@@ -429,7 +436,7 @@ func parseMethod(r *reader, cp *constantPool, owner string) (*Method, error) {
 				return fmt.Errorf("duplicate Code attribute on %s%s", name, desc)
 			}
 			seenCode = true
-			return parseCodeAttribute(cp, m, body)
+			return parseCodeAttribute(cp, m, body, profile)
 		}
 		return nil
 	})
@@ -439,7 +446,7 @@ func parseMethod(r *reader, cp *constantPool, owner string) (*Method, error) {
 	return m, nil
 }
 
-func parseCodeAttribute(cp *constantPool, m *Method, body []byte) error {
+func parseCodeAttribute(cp *constantPool, m *Method, body []byte, profile string) error {
 	r := &reader{data: body}
 	maxStack, err := r.u2()
 	if err != nil {
@@ -493,7 +500,7 @@ func parseCodeAttribute(cp *constantPool, m *Method, body []byte) error {
 	m.MaxStack = int(maxStack)
 	m.MaxLocals = int(maxLocals)
 	m.CodeLength = int(codeLen)
-	insns, refs, err := decodeInstructions(cp, code, m)
+	insns, refs, err := decodeInstructions(cp, code, m, profile)
 	if err != nil {
 		return err
 	}

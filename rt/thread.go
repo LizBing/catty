@@ -2,31 +2,98 @@ package rt
 
 import (
 	"fmt"
+	"sync/atomic"
 )
 
-// Thread is one logical Java thread. Gate 2 runs one thread, but the explicit
-// parameter is retained for the threaded profiles.
+// Thread is one logical Java thread. Each live execution owns its frames and
+// locals exclusively; the Java peer, lifecycle state, interrupt status and
+// monitor/blocker state are shared and guarded by Runtime.thrMu.
 type Thread struct {
 	RT     *Runtime
 	ID     int64
 	depth  int
 	frames []FrameInfo
+
+	// peer is the java.lang.Thread object for this logical thread. It is
+	// created at Thread construction or by Thread.currentThread for a host
+	// thread that entered Java without a peer.
+	peer *Object
+
+	// The following fields are guarded by RT.thrMu.
+	blocker       *threadBlocker
+	hostInterrupt bool // pending interrupt for a host thread without a peer
+	// held maps each object whose monitor this logical thread owns at depth
+	// one or more to that monitor. Java releases every monitor when a thread
+	// terminates, even if hand-authored code failed to exit it. The map roots
+	// only objects whose monitor is currently held; object-lifetime monitor
+	// state itself is stored on the object.
+	held map[*Object]*monitor
+}
+
+// interruptPendingLocked reports the logical thread's Java interrupt status.
+// The caller holds thrMu.
+func (t *Thread) interruptPendingLocked() bool {
+	if p, ok := peerOfObject(t.peer); ok {
+		return p.pendingInterrupt
+	}
+	return t.hostInterrupt
+}
+
+// setInterruptLocked records the Java interrupt status. The caller holds thrMu.
+func (t *Thread) setInterruptLocked() {
+	if p, ok := peerOfObject(t.peer); ok {
+		p.pendingInterrupt = true
+		return
+	}
+	t.hostInterrupt = true
+}
+
+// clearInterruptLocked consumes the Java interrupt status. The caller holds
+// thrMu.
+func (t *Thread) clearInterruptLocked() {
+	if p, ok := peerOfObject(t.peer); ok {
+		p.pendingInterrupt = false
+		return
+	}
+	t.hostInterrupt = false
 }
 
 const maxJavaDepth = 20000
 
-// NewThread creates a logical Java thread with a fresh identity.
+// NewThread creates a logical Java thread with a fresh runtime-local identity.
+// The returned thread has no Java peer until it is bound by Thread.start, the
+// launcher, or Thread.currentThread.
 func (r *Runtime) NewThread() *Thread {
-	r.nextThread++
-	return &Thread{RT: r, ID: r.nextThread}
+	id := atomic.AddInt64(&r.nextThread, 1)
+	return &Thread{RT: r, ID: id}
 }
 
-// MainThread returns the launcher thread, creating it on first use.
+// MainThread returns the launcher thread, creating it and its canonical "main"
+// peer on first use.
 func (r *Runtime) MainThread() *Thread {
-	if r.mainThread == nil {
-		r.mainThread = r.NewThread()
+	r.thrMu.Lock()
+	if r.mainThread != nil {
+		t := r.mainThread
+		r.thrMu.Unlock()
+		return t
 	}
-	return r.mainThread
+	r.thrMu.Unlock()
+	var peer *Object
+	if r.profile != nil && r.profile.Threads {
+		peer = r.newPeerObject("main", false, threadStarted)
+	}
+	t := r.NewThread()
+	r.thrMu.Lock()
+	if r.mainThread == nil {
+		r.mainThread = t
+		if p, ok := peerOfObject(peer); ok {
+			p.thread = t
+		}
+		t.peer = peer
+	}
+	result := r.mainThread
+	r.thrMu.Unlock()
+	return result
 }
 
 // SetTracePath opens the opt-in JSON-lines trace. It is used by RunApp.
@@ -39,22 +106,43 @@ func (r *Runtime) SetTracePath(path string) error {
 	return nil
 }
 
-// CloseTrace flushes and closes the trace channel.
+// CloseTrace flushes and closes the trace channel. The trace object stays
+// reachable so a daemon that is still running can safely emit into a closed
+// channel: emit observes the closed file under the trace mutex and drops the
+// record.
 func (r *Runtime) CloseTrace() {
-	if r.trace != nil {
-		r.trace.close()
-		r.trace = nil
+	if tr := r.trace; tr != nil {
+		tr.close()
 	}
 }
 
 // Call is the one owner of Java frame push/pop and trace enter/exit for every
 // engine. The selected method's entry runs synchronously on the same thread.
+// A synchronized method acquires its implicit monitor after resolution,
+// receiver/access checks and active-use initialization have already happened in
+// the caller, and releases exactly one acquisition on Java return or unwind
+// before the outcome reaches the caller. The synchronization flag on <clinit>
+// is ignored for execution.
 func (t *Thread) Call(m *Method, receiver *Object, args []Value) Outcome {
 	if m == nil {
 		return ThrowOutcome(t.RT.NewThrowable(t, "java/lang/NullPointerException"))
 	}
 	if t.depth >= maxJavaDepth {
 		return ThrowOutcome(t.RT.NewThrowable(t, "java/lang/StackOverflowError"))
+	}
+	var lock *Object
+	if m.Flags&AccSynchronized != 0 && m.Name != "<clinit>" {
+		if m.Flags&AccStatic != 0 {
+			lock = m.Owner.Mirror
+		} else {
+			lock = receiver
+		}
+		if lock == nil {
+			return ThrowOutcome(t.RT.NewThrowable(t, "java/lang/NullPointerException"))
+		}
+		if thrown := t.monitorEnterObject(lock, m, -1); thrown != nil {
+			return ThrowOutcome(thrown)
+		}
 	}
 	t.depth++
 	t.frames = append(t.frames, FrameInfo{Method: m})
@@ -82,6 +170,13 @@ func (t *Thread) Call(m *Method, receiver *Object, args []Value) Outcome {
 		out = ThrowOutcome(t.RT.NewThrowable(t, "java/lang/AbstractMethodError"))
 	default:
 		out = ThrowOutcome(t.RT.NewThrowable(t, "java/lang/NoSuchMethodError"))
+	}
+	if lock != nil {
+		// Release exactly one implicit acquisition. A body that already
+		// relinquished ownership is reported at the method boundary.
+		if thrown := t.monitorExitObject(lock, m, -1); thrown != nil {
+			out = ThrowOutcome(thrown)
+		}
 	}
 	if tr := t.trace(); tr != nil {
 		if out.Thrown != nil {
@@ -140,45 +235,89 @@ func (r *Runtime) bootstrapThrowable(class string) *Object {
 // ---------------------------------------------------------------- class init
 
 // EnsureInitialized performs the JVMS 5.5 initialization procedure for c. It
-// returns a Java throwable on failure and nil on success. The owning thread may
-// reenter while state is initializing.
+// returns a Java throwable on failure and nil on success. Each defining class
+// owns its own initialization guard, owning logical thread and completion
+// signal. A competing thread copies the completion signal and waits outside the
+// guard, then rechecks state; its interrupt status is untouched. Reentry by the
+// owning thread succeeds with the current static values.
 func (t *Thread) EnsureInitialized(c *Class) *Object {
 	if c == nil || c.IsPrimitive || c.IsArray {
 		return nil
 	}
-	switch c.State {
-	case classInitialized:
-		return nil
-	case classInitializing:
-		return nil
-	case classErroneous:
-		return t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError")
+	for {
+		c.initMu.Lock()
+		switch c.State {
+		case classInitialized:
+			c.initMu.Unlock()
+			return nil
+		case classErroneous:
+			c.initMu.Unlock()
+			// Every later active use receives a fresh error, never a rerun.
+			return t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError")
+		case classInitializing:
+			if c.initOwner == t {
+				c.initMu.Unlock()
+				return nil
+			}
+			done, owner := c.initDone, c.initOwner
+			// Emit the competing wait while still holding the initialization
+			// guard, so the owner cannot publish completion first and the
+			// trace demonstrates start < wait < complete.
+			if tr := t.trace(); tr != nil {
+				tr.classInitWait(t.ID, c, owner)
+			}
+			c.initMu.Unlock()
+			if hook := t.RT.ClassInitWaitHook; hook != nil {
+				hook(c, t)
+			}
+			<-done
+			continue
+		}
+		// First active use: publish the initializing state and owner, and
+		// record the start while the guard is held so no competing waiter can
+		// precede it in the trace.
+		c.State = classInitializing
+		c.initOwner = t
+		c.initDone = make(chan struct{})
+		if tr := t.trace(); tr != nil {
+			tr.classInit(t.ID, c, true, nil)
+		}
+		c.initMu.Unlock()
+		err := t.runClassInitialization(c)
+		c.initMu.Lock()
+		if err != nil {
+			c.State = classErroneous
+			c.InitError = err
+		} else {
+			c.State = classInitialized
+		}
+		done := c.initDone
+		c.initOwner = nil
+		// Publish the completion observation before any waiter can proceed.
+		if tr := t.trace(); tr != nil {
+			tr.classInit(t.ID, c, false, err)
+		}
+		c.initMu.Unlock()
+		close(done)
+		return err
 	}
-	c.State = classInitializing
-	if tr := t.trace(); tr != nil {
-		tr.classInit(t.ID, c, true, nil)
-	}
-	// JVMS 5.5 step 6: apply ConstantValue attributes, in field order, before
-	// superclass/superinterface initialization and before <clinit>.
+}
+
+// runClassInitialization executes JVMS 5.5 steps 6-9 outside the guard: apply
+// ConstantValue attributes in declaration order through the shared memory path,
+// initialize the required superclass and default-method interfaces in order,
+// then invoke <clinit> through Thread.Call. The synchronization flag on
+// <clinit> is ignored for execution.
+func (t *Thread) runClassInitialization(c *Class) *Object {
 	t.RT.applyConstants(c)
 	if !c.IsInterface() {
 		if c.Super != nil {
 			if err := t.EnsureInitialized(c.Super); err != nil {
-				c.State = classErroneous
-				c.InitError = err
-				if tr := t.trace(); tr != nil {
-					tr.classInit(t.ID, c, false, err)
-				}
 				return err
 			}
 		}
 		for _, in := range t.RT.superInterfacesWithDefaults(c) {
 			if err := t.EnsureInitialized(in); err != nil {
-				c.State = classErroneous
-				c.InitError = err
-				if tr := t.trace(); tr != nil {
-					tr.classInit(t.ID, c, false, err)
-				}
 				return err
 			}
 		}
@@ -192,24 +331,20 @@ func (t *Thread) EnsureInitialized(c *Class) *Object {
 				SetCause(wrapper, err)
 				err = wrapper
 			}
-			c.State = classErroneous
-			c.InitError = err
-			if tr := t.trace(); tr != nil {
-				tr.classInit(t.ID, c, false, err)
-			}
 			return err
 		}
-	}
-	c.State = classInitialized
-	if tr := t.trace(); tr != nil {
-		tr.classInit(t.ID, c, false, nil)
 	}
 	return nil
 }
 
 // applyConstants installs ConstantValue attributes during initialization. The
 // builder has already validated every constant against its field descriptor.
+// The whole sequence is one ordered memory operation so a concurrently
+// publishing initializer observes either none or all of the preceding writes,
+// never a torn intermediate state.
 func (r *Runtime) applyConstants(c *Class) {
+	r.memMu.Lock()
+	defer r.memMu.Unlock()
 	for i, f := range c.StaticField {
 		if f.Constant == nil || i >= len(c.Statics) {
 			continue
@@ -456,29 +591,38 @@ func (r *Runtime) protectedReceiverOK(caller *Method, owner *Class, receiver *Cl
 
 // resolveClassSymbol resolves a class operand and caches the outcome by the
 // referring runtime class and constant-pool entry. A failed lookup is sticky
-// just like a failed field or method resolution.
+// just like a failed field or method resolution. Resolution, initiation
+// recording and the cache transition are one metadata transaction.
 func (t *Thread) resolveClassSymbol(caller *Method, cp int, name string) (*Class, *Object) {
 	key := resolutionKey{Kind: 'C', CP: cp, Owner: name}
 	if caller != nil && caller.Owner != nil {
 		key.Class = caller.Owner
 	}
-	if res, ok := t.RT.resolutions[key]; ok {
+	r := t.RT
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	if res, ok := r.resolutions[key]; ok {
 		return res.Class, res.Thrown
 	}
 	loader := loaderOf(caller)
-	c, err := t.RT.classForLoaderName(loader, name)
+	c, err := r.classForLoaderNameLocked(loader, name)
 	if err != nil {
-		thrown := t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError")
-		t.RT.resolutions[key] = &Resolution{Thrown: thrown}
-		return nil, thrown
+		return nil, t.cacheResolutionFailure(key, "java/lang/NoClassDefFoundError")
 	}
-	if t.RT.recordClassInitiation(loader, name, c) {
-		thrown := t.RT.NewThrowable(t, "java/lang/LinkageError")
-		t.RT.resolutions[key] = &Resolution{Thrown: thrown}
-		return nil, thrown
+	if r.recordClassInitiationLocked(loader, name, c) {
+		return nil, t.cacheResolutionFailure(key, "java/lang/LinkageError")
 	}
-	t.RT.resolutions[key] = &Resolution{Class: c}
+	r.resolutions[key] = &Resolution{Class: c}
 	return c, nil
+}
+
+// cacheResolutionFailure allocates a fresh throwable while holding metaMu,
+// records it as the sticky outcome and returns it. newThrowableLocked performs
+// no Java execution and acquires no other runtime lock.
+func (t *Thread) cacheResolutionFailure(key resolutionKey, className string) *Object {
+	thrown := t.RT.newThrowableLocked(t, className)
+	t.RT.resolutions[key] = &Resolution{Thrown: thrown}
+	return thrown
 }
 
 // resolveMethodSymbol resolves a method reference and caches the outcome for the
@@ -489,35 +633,39 @@ func (t *Thread) resolveMethodSymbol(caller *Method, cp int, ownerName, name, de
 	if caller != nil && caller.Owner != nil {
 		key.Class = caller.Owner
 	}
-	if res, ok := t.RT.resolutions[key]; ok {
+	r := t.RT
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	if res, ok := r.resolutions[key]; ok {
 		return res.Method, res.Thrown
 	}
-	fail := func(thrown *Object) (*Method, *Object) {
-		t.RT.resolutions[key] = &Resolution{Thrown: thrown}
+	fail := func(className string) (*Method, *Object) {
+		thrown := r.newThrowableLocked(t, className)
+		r.resolutions[key] = &Resolution{Thrown: thrown}
 		return nil, thrown
 	}
-	loader := t.RT.Loader
+	loader := r.Loader
 	if caller != nil && caller.Owner != nil && caller.Owner.Loader != nil {
 		loader = caller.Owner.Loader
 	}
-	owner, err := t.RT.classForLoaderName(loader, ownerName)
+	owner, err := r.classForLoaderNameLocked(loader, ownerName)
 	if err != nil {
-		return fail(t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError"))
+		return fail("java/lang/NoClassDefFoundError")
 	}
-	if t.RT.recordInitiation(loader, ownerName, owner) {
-		return fail(t.RT.NewThrowable(t, "java/lang/LinkageError"))
+	if r.recordInitiationLocked(loader, ownerName, owner) {
+		return fail("java/lang/LinkageError")
 	}
-	m := t.RT.findMethod(owner, name, descriptor)
+	m := r.findMethod(owner, name, descriptor)
 	if m == nil {
-		return fail(t.RT.NewThrowable(t, "java/lang/NoSuchMethodError"))
+		return fail("java/lang/NoSuchMethodError")
 	}
-	if !t.RT.memberAccessible(caller, m.Owner, m.Flags) {
-		return fail(t.RT.NewThrowable(t, "java/lang/IllegalAccessError"))
+	if !r.memberAccessible(caller, m.Owner, m.Flags) {
+		return fail("java/lang/IllegalAccessError")
 	}
-	if t.RT.imposeMethodConstraints(loader, m.Owner.Loader, m.Type) {
-		return fail(t.RT.NewThrowable(t, "java/lang/LinkageError"))
+	if r.imposeMethodConstraintsLocked(loader, m.Owner.Loader, m.Type) {
+		return fail("java/lang/LinkageError")
 	}
-	t.RT.resolutions[key] = &Resolution{Method: m}
+	r.resolutions[key] = &Resolution{Method: m}
 	return m, nil
 }
 
@@ -527,35 +675,39 @@ func (t *Thread) resolveFieldSymbol(caller *Method, cp int, ownerName, name, des
 	if caller != nil && caller.Owner != nil {
 		key.Class = caller.Owner
 	}
-	if res, ok := t.RT.resolutions[key]; ok {
+	r := t.RT
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	if res, ok := r.resolutions[key]; ok {
 		return res.Field, res.Thrown
 	}
-	fail := func(thrown *Object) (*Field, *Object) {
-		t.RT.resolutions[key] = &Resolution{Thrown: thrown}
+	fail := func(className string) (*Field, *Object) {
+		thrown := r.newThrowableLocked(t, className)
+		r.resolutions[key] = &Resolution{Thrown: thrown}
 		return nil, thrown
 	}
-	loader := t.RT.Loader
+	loader := r.Loader
 	if caller != nil && caller.Owner != nil && caller.Owner.Loader != nil {
 		loader = caller.Owner.Loader
 	}
-	owner, err := t.RT.classForLoaderName(loader, ownerName)
+	owner, err := r.classForLoaderNameLocked(loader, ownerName)
 	if err != nil {
-		return fail(t.RT.NewThrowable(t, "java/lang/NoClassDefFoundError"))
+		return fail("java/lang/NoClassDefFoundError")
 	}
-	if t.RT.recordInitiation(loader, ownerName, owner) {
-		return fail(t.RT.NewThrowable(t, "java/lang/LinkageError"))
+	if r.recordInitiationLocked(loader, ownerName, owner) {
+		return fail("java/lang/LinkageError")
 	}
-	f := t.RT.findField(owner, name, descriptor)
+	f := r.findField(owner, name, descriptor)
 	if f == nil {
-		return fail(t.RT.NewThrowable(t, "java/lang/NoSuchFieldError"))
+		return fail("java/lang/NoSuchFieldError")
 	}
-	if !t.RT.memberAccessible(caller, f.Owner, f.Flags) {
-		return fail(t.RT.NewThrowable(t, "java/lang/IllegalAccessError"))
+	if !r.memberAccessible(caller, f.Owner, f.Flags) {
+		return fail("java/lang/IllegalAccessError")
 	}
-	if t.RT.imposeFieldConstraints(loader, f.Owner.Loader, f.Type) {
-		return fail(t.RT.NewThrowable(t, "java/lang/LinkageError"))
+	if r.imposeFieldConstraintsLocked(loader, f.Owner.Loader, f.Type) {
+		return fail("java/lang/LinkageError")
 	}
-	t.RT.resolutions[key] = &Resolution{Field: f}
+	r.resolutions[key] = &Resolution{Field: f}
 	return f, nil
 }
 
@@ -583,11 +735,8 @@ func (r *Runtime) ResolveMethod(owner, name, descriptor string) (*Method, error)
 // even when that superclass does not implement the interface. If no class
 // declaration matches, the maximally-specific superinterface defaults are
 // considered.
-func (r *Runtime) selectVirtual(receiver *Class, declaration *Method) (*Method, *Object) {
-	if m := r.selectedMethod(receiver, declaration); m != nil {
-		return m, nil
-	}
-	return nil, r.bootstrapThrowable("java/lang/AbstractMethodError")
+func (r *Runtime) selectVirtual(receiver *Class, declaration *Method) *Method {
+	return r.selectedMethod(receiver, declaration)
 }
 
 // selectedMethod performs the receiver-scoped JVMS 5.4.6 search described for
@@ -599,7 +748,15 @@ func (r *Runtime) selectVirtual(receiver *Class, declaration *Method) (*Method, 
 func (r *Runtime) selectedMethod(receiver *Class, declaration *Method) *Method {
 	key := methodKey(declaration.Name, declaration.Descriptor)
 	for c := receiver; c != nil; c = c.Super {
-		if m := c.MethodIndex[key]; m != nil && m.Flags&AccStatic == 0 && m.Flags&AccPrivate == 0 {
+		if m := c.MethodIndex[key]; m != nil {
+			if m == declaration && m.Flags&AccStatic == 0 {
+				// A private nestmate or same-class invocation resolves to the
+				// declaration itself; selection cannot move it to a subclass.
+				return m
+			}
+			if m.Flags&(AccStatic|AccPrivate) != 0 {
+				continue
+			}
 			// Selection uses the JVMS 5.4.5 can-override relation between the
 			// candidate and the resolved declaration. In particular a
 			// package-private class declaration is overridden only by
@@ -920,18 +1077,21 @@ func (t *Thread) InvokeInterface(caller *Method, pc int32, cp int, receiver Valu
 // selection, and a new receiver takes the full selection path.
 func (t *Thread) selectGuarded(caller *Method, pc int32, op uint8, receiver *Class, decl *Method) (*Method, bool, *Object) {
 	key := dispatchKey{Caller: caller, PC: pc, Op: op}
-	if entry, ok := t.RT.dispatch[key]; ok && entry.Declaration == decl && entry.Receiver == receiver {
+	r := t.RT
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	if entry, ok := r.dispatch[key]; ok && entry.Declaration == decl && entry.Receiver == receiver {
 		return entry.Target, true, nil
 	}
-	target, thrown := t.RT.selectVirtual(receiver, decl)
-	if thrown != nil {
-		return nil, false, thrown
+	target := r.selectVirtual(receiver, decl)
+	if target == nil {
+		return nil, false, r.newThrowableLocked(t, "java/lang/AbstractMethodError")
 	}
 	if target != decl && target.Owner.Loader != decl.Owner.Loader &&
-		t.RT.imposeMethodConstraints(target.Owner.Loader, decl.Owner.Loader, target.Type) {
-		return nil, false, t.RT.bootstrapThrowable("java/lang/LinkageError")
+		r.imposeMethodConstraintsLocked(target.Owner.Loader, decl.Owner.Loader, target.Type) {
+		return nil, false, r.newThrowableLocked(t, "java/lang/LinkageError")
 	}
-	t.RT.dispatch[key] = &dispatchEntry{Declaration: decl, Receiver: receiver, Target: target}
+	r.dispatch[key] = &dispatchEntry{Declaration: decl, Receiver: receiver, Target: target}
 	return target, false, nil
 }
 
@@ -973,7 +1133,7 @@ func (t *Thread) GetField(caller *Method, cp int, ref Value, owner, name, descri
 	if f.Offset < 0 || f.Offset >= len(obj.Fields) {
 		return Value{}, t.RT.NewThrowable(t, "java/lang/NoSuchFieldError")
 	}
-	return obj.Fields[f.Offset], nil
+	return t.RT.fieldRead(obj, f.Offset), nil
 }
 
 // PutField implements putfield.
@@ -995,7 +1155,7 @@ func (t *Thread) PutField(caller *Method, cp int, ref Value, owner, name, descri
 	if f.Offset < 0 || f.Offset >= len(obj.Fields) {
 		return t.RT.NewThrowable(t, "java/lang/NoSuchFieldError")
 	}
-	obj.Fields[f.Offset] = coerceFieldValue(f.Type, v)
+	t.RT.fieldWrite(obj, f.Offset, coerceFieldValue(f.Type, v))
 	return nil
 }
 
@@ -1011,7 +1171,7 @@ func (t *Thread) GetStatic(caller *Method, cp int, owner, name, descriptor strin
 	if thrown := t.EnsureInitialized(f.Owner); thrown != nil {
 		return Value{}, thrown
 	}
-	return f.Owner.Statics[f.Index], nil
+	return t.RT.staticRead(f.Owner, f.Index), nil
 }
 
 // PutStatic implements putstatic, including class initialization.
@@ -1026,7 +1186,7 @@ func (t *Thread) PutStatic(caller *Method, cp int, owner, name, descriptor strin
 	if thrown := t.EnsureInitialized(f.Owner); thrown != nil {
 		return thrown
 	}
-	f.Owner.Statics[f.Index] = coerceFieldValue(f.Type, v)
+	t.RT.staticWrite(f.Owner, f.Index, coerceFieldValue(f.Type, v))
 	return nil
 }
 
@@ -1044,7 +1204,7 @@ func (r *Runtime) StaticValue(owner, name, descriptor string) (Value, error) {
 	if !f.Static {
 		return Value{}, fmt.Errorf("catty: field %s.%s%s is not static", owner, name, descriptor)
 	}
-	return f.Owner.Statics[f.Index], nil
+	return r.staticRead(f.Owner, f.Index), nil
 }
 
 // ---------------------------------------------------------------- allocation
@@ -1218,23 +1378,8 @@ func (t *Thread) ArrayLoad(array Value, index int32, kind byte) (Value, *Object)
 		return Value{}, thrown
 	}
 	switch kind {
-	case 'L':
-		return obj.Array.Elems[index], nil
-	case 'B':
-		// baload reads byte[] or boolean[].
-		return IntValue(int32(obj.Array.Bytes[index])), nil
-	case 'C':
-		return IntValue(int32(obj.Array.Chars[index])), nil
-	case 'S':
-		return IntValue(int32(obj.Array.Shorts[index])), nil
-	case 'I':
-		return IntValue(obj.Array.Ints[index]), nil
-	case 'J':
-		return LongValue(obj.Array.Longs[index]), nil
-	case 'F':
-		return FloatValue(obj.Array.Floats[index]), nil
-	case 'D':
-		return DoubleValue(obj.Array.Doubles[index]), nil
+	case 'L', 'B', 'C', 'S', 'I', 'J', 'F', 'D':
+		return t.RT.arrayRead(obj.Array, int(index)), nil
 	}
 	panic(fmt.Sprintf("catty: unknown array load kind %q", kind))
 }
@@ -1257,9 +1402,9 @@ func (t *Thread) ArrayStore(array Value, index int32, value Value, kind byte) *O
 		if value.Ref != nil && !t.RT.IsAssignable(value.Ref.Class, obj.Array.Component) {
 			return t.RT.NewThrowable(t, "java/lang/ArrayStoreException")
 		}
-		obj.Array.Elems[index] = value
+		t.RT.arrayWrite(obj.Array, int(index), value)
 	case 'B', 'C', 'S', 'I', 'J', 'F', 'D':
-		SetArrayValue(obj.Array, int(index), value)
+		t.RT.arrayWrite(obj.Array, int(index), value)
 	default:
 		panic(fmt.Sprintf("catty: unknown array store kind %q", kind))
 	}
@@ -1272,7 +1417,7 @@ func (t *Thread) ArrayLength(array Value) (int32, *Object) {
 	if thrown != nil {
 		return 0, thrown
 	}
-	return int32(obj.Array.Len()), nil
+	return int32(arrayLength(obj.Array)), nil
 }
 
 // ---------------------------------------------------------------- constants

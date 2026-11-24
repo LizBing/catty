@@ -18,6 +18,14 @@ published Gate 2 profile `catty-jvm21-gate2` and ABI `2` stay unchanged. See the
 [Gate 3 implementation specification](GATE3.md) and
 [Gate 3 test plan](GATE3-TESTING.md).
 
+Gate 4 adds Java platform threads, monitors, wait/notify/interrupt, shared
+memory ordering and concurrent plugin admission. Build with `--enable-threads`
+to select the `catty-jvm21-gate4` profile and image ABI `4`; it includes the
+Gate 3 plugin admission surface. See the
+[implementation specification](GATE4.md) and
+[test plan](GATE4-TESTING.md), and run the differential suite with
+`python3 -B tests/gate4.py --java-home /path/to/jdk-21 --race`.
+
 ## Requirements
 
 - Go 1.21 or newer (validated with **go1.27.1** on darwin/arm64).
@@ -48,6 +56,27 @@ Build a plugin-enabled image by hand:
 
 ```sh
 out/bin/catty build --enable-plugins --classpath app-classes --main app.Main \
+  --mode auto --report report.json --output app
+```
+
+## Run the Gate 4 suite
+
+```sh
+python3 -B tests/gate4.py --java-home /path/to/jdk-21 --prepare-only
+python3 -B tests/gate4.py --java-home /path/to/jdk-21 --case wait-set
+python3 -B tests/gate4.py --java-home /path/to/jdk-21 --race
+```
+
+The runner compiles the thread fixtures, records the OpenJDK 21 oracle, and
+runs all-interpreted, mixed and forced-AOT images against the same class files
+with tracing enabled. With `--race` it also builds and runs race-instrumented
+executables in all three modes and checks their Go metadata for `-race=true`.
+A full run ends with `Gate 4 differential tests passed.`
+
+Build a threaded image by hand:
+
+```sh
+out/bin/catty build --enable-threads --classpath app-classes --main app.Main \
   --mode auto --report report.json --output app
 ```
 

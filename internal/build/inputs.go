@@ -220,7 +220,7 @@ func (l *Loaded) loadJar(path string) error {
 }
 
 func (l *Loaded) admit(data []byte, origin string, sameEntry map[string]bool) error {
-	c, err := classfile.Parse(data, origin)
+	c, err := classfile.ParseFor(data, origin, l.Profile.ID)
 	if err != nil {
 		return fmt.Errorf("%s: %w", origin, err)
 	}

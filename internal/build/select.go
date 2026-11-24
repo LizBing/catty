@@ -55,9 +55,13 @@ func (b *Build) prepare() error {
 	if b.opts.ReportPath == "" || b.opts.OutputPath == "" {
 		return fmt.Errorf("catty: --report and --output are required")
 	}
-	if b.opts.EnablePlugins {
+	switch {
+	case b.opts.EnableThreads:
+		// Gate 4 includes Gate 3 plugin admission.
+		b.profile = rt.Gate4Profile
+	case b.opts.EnablePlugins:
 		b.profile = rt.Gate3Profile
-	} else {
+	default:
 		b.profile = rt.Gate2Profile
 	}
 	loaded, err := LoadClasspathFor(b.opts.Classpath, b.profile)
@@ -541,7 +545,7 @@ func (b *Build) buildImage() error {
 		ABI:     b.profile.ABI,
 		Profile: b.profile.ID,
 		Plugins: b.profile.Plugins,
-		Opcodes: rt.SupportedOpcodeNames(),
+		Opcodes: rt.SupportedOpcodeNamesFor(b.profile.ID),
 		Classes: classes,
 		Main: rt.MethodKey{
 			Owner:      strings.ReplaceAll(b.opts.Main, ".", "/"),
@@ -549,8 +553,9 @@ func (b *Build) buildImage() error {
 			Descriptor: "([Ljava/lang/String;)V",
 		},
 	}
+	image.Threads = b.profile.Threads
 	if b.profile.Plugins {
-		image.Capabilities = []string{"plugin-admission", "loader-identity", "guarded-dispatch"}
+		image.Capabilities = rt.ProfileCapabilities(b.profile.ID)
 		image.Limits = b.profile.Limits
 	}
 	b.image = image
@@ -562,6 +567,7 @@ type Report struct {
 	Profile      string             `json:"profile"`
 	ImageABI     int                `json:"imageABI"`
 	Plugins      bool               `json:"plugins"`
+	Threads      bool               `json:"threads"`
 	Capabilities []string           `json:"capabilities,omitempty"`
 	PluginLimits *rt.PluginLimits   `json:"pluginLimits,omitempty"`
 	Main         string             `json:"main"`
@@ -638,16 +644,17 @@ func (b *Build) buildReport() {
 		Profile:  b.profile.ID,
 		ImageABI: b.profile.ABI,
 		Plugins:  b.profile.Plugins,
+		Threads:  b.profile.Threads,
 		Main:     b.opts.Main,
 		Toolchains: Toolchains{
 			Go: runtime.Version(),
 		},
 		Inputs:     append([]Input(nil), b.loaded.Inputs...),
-		Opcodes:    rt.SupportedOpcodeNames(),
+		Opcodes:    rt.SupportedOpcodeNamesFor(b.profile.ID),
 		Unresolved: append([]UnresolvedRecord(nil), b.unresolved...),
 	}
 	if b.profile.Plugins {
-		r.Capabilities = []string{"plugin-admission", "loader-identity", "guarded-dispatch"}
+		r.Capabilities = rt.ProfileCapabilities(b.profile.ID)
 		r.PluginLimits = b.profile.Limits
 	}
 	for _, c := range b.loaded.Classes {

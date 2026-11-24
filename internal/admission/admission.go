@@ -71,18 +71,30 @@ type location struct {
 	Limit      string
 }
 
-// Admit validates one candidate under the Gate 3 profile.
+// Admit validates one candidate under a plugin-enabled profile.
 func Admit(data []byte, parent *rt.Loader, profile string) (*rt.AdmissionResult, error) {
 	return AdmitWithLimits(data, parent, profile, DefaultLimits())
 }
 
+// AdmitSnapshot validates one candidate against a detached snapshot of the
+// parent chain's published definitions. The runtime supplies the snapshot so
+// the adapter never reads a live loader table while concurrent registration or
+// resolution is running.
+func AdmitSnapshot(data []byte, parent *rt.Loader, snapshot map[string]*rt.Class, profile string) (*rt.AdmissionResult, error) {
+	return admit(data, parent, snapshot, profile, DefaultLimits())
+}
+
 // AdmitWithLimits is Admit with explicit ceilings, used by the Go tests.
 func AdmitWithLimits(data []byte, parent *rt.Loader, profile string, limits Limits) (*rt.AdmissionResult, error) {
+	return admit(data, parent, nil, profile, limits)
+}
+
+func admit(data []byte, parent *rt.Loader, snapshot map[string]*rt.Class, profile string, limits Limits) (*rt.AdmissionResult, error) {
 	if parent == nil {
 		return nil, failure("VERIFY", "", "", "nil parent loader")
 	}
-	if profile != rt.Gate3ProfileID {
-		return nil, failure("PROFILE", "", "", "plugin admission requires the Gate 3 profile")
+	if !rt.ProfileAdmitsPlugins(profile) {
+		return nil, failure("PROFILE", "", "", "plugin admission requires a plugin-enabled profile")
 	}
 	if limits.CompressedBytes > 0 && int64(len(data)) > limits.CompressedBytes {
 		return nil, failure("LIMIT", "", "", fmt.Sprintf("compressed input exceeds %d bytes", limits.CompressedBytes))
@@ -94,7 +106,12 @@ func AdmitWithLimits(data []byte, parent *rt.Loader, profile string, limits Limi
 	sum := sha256.Sum256(data)
 	digest := hex.EncodeToString(sum[:])
 
-	parentClasses := parentClassTable(parent)
+	var parentClasses map[string]*classfile.Class
+	if snapshot != nil {
+		parentClasses = parentClassTableSnapshot(snapshot)
+	} else {
+		parentClasses = parentClassTable(parent)
+	}
 	archive, err := readArchive(data, parent, parentClasses, profile, limits)
 	if err != nil {
 		return nil, err

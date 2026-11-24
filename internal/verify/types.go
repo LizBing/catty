@@ -1683,7 +1683,17 @@ func (t *typeChecker) applyStep() (succs []successor, terminal bool, err error) 
 	case rt.OpInvokedynamic:
 		return nil, false, fmt.Errorf("invokedynamic/bootstrap constants are unsupported")
 	case rt.OpMonitorenter, rt.OpMonitorexit:
-		return nil, false, fmt.Errorf("monitor instruction 0x%02x is unsupported", insn.Op)
+		if !rt.ProfileHasThreads(t.ctx.profile()) {
+			return nil, false, fmt.Errorf("monitor instruction 0x%02x is unsupported", insn.Op)
+		}
+		// Both monitor instructions consume exactly one operand of the JVM
+		// reference verification type and produce no value. A null constant is
+		// a valid reference operand; the runtime throws NullPointerException.
+		if _, e := t.popRef(false); e != nil {
+			return nil, false, e
+		}
+		addNext()
+		return finishOK()
 	default:
 		return nil, false, fmt.Errorf("unsupported opcode 0x%02x", insn.Op)
 	}

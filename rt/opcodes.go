@@ -209,7 +209,7 @@ var opcodeNames = map[uint8]string{
 	OpIushr: "iushr", OpLushr: "lushr",
 	OpIand: "iand", OpLand: "land", OpIor: "ior", OpLor: "lor", OpIxor: "ixor", OpLxor: "lxor",
 	OpIinc: "iinc",
-	OpI2l: "i2l", OpI2f: "i2f", OpI2d: "i2d", OpL2i: "l2i", OpL2f: "l2f", OpL2d: "l2d",
+	OpI2l:  "i2l", OpI2f: "i2f", OpI2d: "i2d", OpL2i: "l2i", OpL2f: "l2f", OpL2d: "l2d",
 	OpF2i: "f2i", OpF2l: "f2l", OpF2d: "f2d", OpD2i: "d2i", OpD2l: "d2l", OpD2f: "d2f",
 	OpI2b: "i2b", OpI2c: "i2c", OpI2s: "i2s",
 	OpLcmp: "lcmp", OpFcmpl: "fcmpl", OpFcmpg: "fcmpg", OpDcmpl: "dcmpl", OpDcmpg: "dcmpg",
@@ -239,29 +239,44 @@ func OpcodeName(op uint8) string {
 }
 
 // SupportedOpcodeNames returns the sorted opcode inventory published by the
-// profile. Rejected opcodes (jsr, ret, invokedynamic, monitorenter/exit,
-// reserved opcodes) are deliberately absent.
+// default (Gate 2) profile. Rejected opcodes (jsr, ret, invokedynamic,
+// monitorenter/exit, reserved opcodes) are deliberately absent.
 func SupportedOpcodeNames() []string {
+	return SupportedOpcodeNamesFor(ProfileID)
+}
+
+// SupportedOpcodeNamesFor returns the sorted opcode inventory published by one
+// profile. Gate 4 adds exactly the two monitor opcodes; every earlier profile
+// keeps rejecting them.
+func SupportedOpcodeNamesFor(profile string) []string {
 	out := make([]string, 0, len(opcodeNames))
-	for op, name := range opcodeNames {
-		if !AdmitsOpcode(op) {
+	for op := range opcodeNames {
+		if !AdmitsOpcodeFor(profile, op) {
 			continue
 		}
-		out = append(out, name)
+		out = append(out, opcodeNames[op])
 	}
 	sort.Strings(out)
 	return out
 }
 
-// AdmitsOpcode reports whether the profile admits op.
+// AdmitsOpcode reports whether the default (Gate 2) profile admits op.
 func AdmitsOpcode(op uint8) bool {
-	switch op {
-	case OpJsr, OpRet, OpInvokedynamic, OpMonitorenter, OpMonitorexit,
-		OpJsrW, OpBreakpoint, OpImpdep1, OpImpdep2:
+	return AdmitsOpcodeFor(ProfileID, op)
+}
+
+// AdmitsOpcodeFor reports whether the named profile admits op.
+func AdmitsOpcodeFor(profile string, op uint8) bool {
+	if _, ok := opcodeNames[op]; !ok {
 		return false
 	}
-	_, ok := opcodeNames[op]
-	return ok
+	switch op {
+	case OpJsr, OpRet, OpInvokedynamic, OpJsrW, OpBreakpoint, OpImpdep1, OpImpdep2:
+		return false
+	case OpMonitorenter, OpMonitorexit:
+		return ProfileHasThreads(profile)
+	}
+	return true
 }
 
 // LocalIndex decodes the effective local index of a local variable

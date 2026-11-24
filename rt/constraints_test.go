@@ -177,6 +177,7 @@ func newPrepFixture(t *testing.T) *prepFixture {
 	l2 := &Loader{ID: 2, Name: "prep-root", Runtime: r, Parent: r.Loader, Classes: map[string]*Class{}}
 	l1 := &Loader{ID: 3, Name: "prep-base", Runtime: r, Parent: l2, Classes: map[string]*Class{}}
 	r.nextLoaderID = 3
+	r.pluginLoaders = append(r.pluginLoaders, l2, l1)
 	base := testHiddenClass(l1, "ext/Base", AccPublic, object)
 	iface := testHiddenClass(l2, "ext/IFace", AccPublic|AccInterface|AccAbstract, object)
 	testHiddenMethod(base, "p", "(Lext/Pending;)V", AccPublic)
@@ -214,6 +215,7 @@ func TestPluginPreparationStagesPendingEqualities(t *testing.T) {
 	l2 := &Loader{ID: 2, Name: "prep-root", Runtime: r, Parent: r.Loader, Classes: map[string]*Class{}}
 	l1 := &Loader{ID: 3, Name: "prep-base", Runtime: r, Parent: l2, Classes: map[string]*Class{}}
 	r.nextLoaderID = 3
+	r.pluginLoaders = append(r.pluginLoaders, l2, l1)
 	base := testHiddenClass(l1, "ext/Base", AccPublic, object)
 	testHiddenMethod(base, "m", "(Lext/Sig;)V", AccPublic)
 	testHiddenMethod(base, "arr", "([[Lext/Arr;)V", AccPublic)
@@ -282,6 +284,7 @@ func TestPluginPreparationPendingEqualityDiscardedOnRejection(t *testing.T) {
 	f := newPrepFixture(t)
 	beforeInit := len(f.r.initiations)
 	beforeEdges := len(f.r.constraints)
+	loadersBefore := len(f.r.pluginLoaders)
 
 	defs := append(pendingOverrideDefs(), conflictingOverrideDef())
 	_, thrown := f.r.installPlugin(f.l1, &AdmissionResult{
@@ -301,7 +304,7 @@ func TestPluginPreparationPendingEqualityDiscardedOnRejection(t *testing.T) {
 		t.Fatalf("rejected candidate changed initiations: %d -> %d",
 			beforeInit, len(f.r.initiations))
 	}
-	if len(f.r.pluginLoaders) != 0 || f.r.nextLoaderID != 3 {
+	if len(f.r.pluginLoaders) != loadersBefore || f.r.nextLoaderID != 3 {
 		t.Fatal("rejected candidate was published")
 	}
 
@@ -414,7 +417,7 @@ func TestPluginPreparationInheritedInterfaceImplementationConflict(t *testing.T)
 	loadersBefore := len(f.r.pluginLoaders)
 	bytesBefore := f.r.pluginClassBytes
 	idBefore := f.r.nextLoaderID
-	identityBefore := f.r.nextIdentity
+	identityBefore := f.r.nextIdentity.Load()
 	if len(beforeInitiations) != 2 || len(beforeConstraints) != 0 {
 		t.Fatalf("fixture state is not the expected two unresolved initiations: %d initiations, %d edges",
 			len(beforeInitiations), len(beforeConstraints))
@@ -444,8 +447,10 @@ func TestPluginPreparationInheritedInterfaceImplementationConflict(t *testing.T)
 	if !sameConstraints(f.r.constraints, beforeConstraints) {
 		t.Fatalf("rejected candidate changed the constraint graph: %v -> %v", beforeConstraints, f.r.constraints)
 	}
-	if f.r.nextIdentity != identityBefore {
-		t.Fatalf("rejected candidate allocated identities: %d -> %d", identityBefore, f.r.nextIdentity)
+	// Gate 4 permits a failed admission to consume internal, unobservable
+	// object identities; it must never rewind the counter.
+	if f.r.nextIdentity.Load() < identityBefore {
+		t.Fatalf("rejected candidate rewound the identity cursor: %d -> %d", identityBefore, f.r.nextIdentity.Load())
 	}
 }
 

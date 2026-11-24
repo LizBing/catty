@@ -10,7 +10,9 @@ import (
 	"catty/rt"
 )
 
-// Admit validates and stages one plugin JAR candidate.
+// Admit validates and stages one plugin JAR candidate. The runtime supplies a
+// detached parent-class snapshot so admission runs outside shared runtime
+// locks.
 func Admit(req *rt.AdmissionRequest) (*rt.AdmissionResult, error) {
-	return admission.Admit(req.Bytes, req.Parent, req.Profile)
+	return admission.AdmitSnapshot(req.Bytes, req.Parent, req.ParentClasses, req.Profile)
 }

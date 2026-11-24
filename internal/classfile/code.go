@@ -11,7 +11,7 @@ func s16(v uint16) int32 { return int32(int16(v)) }
 
 // decodeInstructions validates operand lengths and produces retained,
 // offset-preserving instructions plus a per-method symbolic reference table.
-func decodeInstructions(cp *constantPool, code []byte, m *Method) ([]rt.Insn, []rt.Ref, error) {
+func decodeInstructions(cp *constantPool, code []byte, m *Method, profile string) ([]rt.Insn, []rt.Ref, error) {
 	var insns []rt.Insn
 	var refs []rt.Ref
 	r := &reader{data: code}
@@ -227,7 +227,13 @@ func decodeInstructions(cp *constantPool, code []byte, m *Method) ([]rt.Insn, []
 		case rt.OpJsr, rt.OpRet, rt.OpJsrW:
 			return fail(pc, "legacy subroutine opcode 0x%02x is unsupported", op)
 		case rt.OpMonitorenter, rt.OpMonitorexit:
-			return fail(pc, "monitor opcode 0x%02x is unsupported", op)
+			if !rt.ProfileHasThreads(profile) {
+				return fail(pc, "monitor opcode 0x%02x is unsupported", op)
+			}
+			// Both monitor instructions are one byte with no operands. The
+			// verifier consumes exactly one reference operand. An explicitly
+			// retained length keeps the decoder independent of a typed nil
+			// value so a hand-authored body still round-trips exactly.
 		case rt.OpBreakpoint, rt.OpImpdep1, rt.OpImpdep2:
 			return fail(pc, "reserved opcode 0x%02x is unsupported", op)
 		default:

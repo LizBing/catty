@@ -28,14 +28,26 @@ func openTrace(path string) (*trace, error) {
 }
 
 func (tr *trace) close() {
-	if tr == nil || tr.file == nil {
+	if tr == nil {
+		return
+	}
+	tr.mu.Lock()
+	defer tr.mu.Unlock()
+	if tr.file == nil {
 		return
 	}
 	_ = tr.file.Close()
 	tr.file = nil
 }
 
-func (tr *trace) enabled() bool { return tr != nil && tr.file != nil }
+func (tr *trace) enabled() bool {
+	if tr == nil {
+		return false
+	}
+	tr.mu.Lock()
+	defer tr.mu.Unlock()
+	return tr.file != nil
+}
 
 func (t *Thread) trace() *trace {
 	if t == nil || t.RT == nil {
@@ -45,12 +57,15 @@ func (t *Thread) trace() *trace {
 }
 
 func (tr *trace) emit(fields map[string]any) {
-	if !tr.enabled() {
+	if tr == nil {
 		return
 	}
 	fields["pid"] = tr.pid
 	tr.mu.Lock()
 	defer tr.mu.Unlock()
+	if tr.file == nil {
+		return
+	}
 	data, err := json.Marshal(fields)
 	if err != nil {
 		return
@@ -280,6 +295,85 @@ func (tr *trace) classInit(thread int64, c *Class, start bool, thrown *Object) {
 	if thrown != nil {
 		fields["failed"] = true
 		fields["throwable"] = tr.throwableID(thrown)
+	}
+	tr.emit(fields)
+}
+
+// classInitWait records one competing thread blocked on another thread's
+// in-progress class initialization.
+func (tr *trace) classInitWait(thread int64, c *Class, owner *Thread) {
+	if !tr.enabled() {
+		return
+	}
+	ownerID := int64(0)
+	if owner != nil {
+		ownerID = owner.ID
+	}
+	tr.emit(map[string]any{
+		"event":       "class_init_wait",
+		"thread":      thread,
+		"class":       c.Name,
+		"loaderId":    loaderID(c.Loader),
+		"ownerThread": ownerID,
+	})
+}
+
+// threadStart records a logical thread's first event including the parent
+// worker that scheduled it.
+func (tr *trace) threadStart(thread int64, parent int64, daemon bool, name string) {
+	if !tr.enabled() {
+		return
+	}
+	fields := map[string]any{
+		"event":  "thread_start",
+		"thread": thread,
+		"daemon": daemon,
+		"name":   name,
+	}
+	if parent != 0 {
+		fields["parentThread"] = parent
+	}
+	tr.emit(fields)
+}
+
+// threadEnd records a logical thread's last event. result is "terminated" for a
+// normal return and "uncaught" for a Java throwable escaping the thread body.
+func (tr *trace) threadEnd(thread int64, result string, thrown *Object) {
+	if !tr.enabled() {
+		return
+	}
+	fields := map[string]any{
+		"event":  "thread_end",
+		"thread": thread,
+		"result": result,
+	}
+	if thrown != nil {
+		fields["throwable"] = tr.throwableID(thrown)
+	}
+	tr.emit(fields)
+}
+
+// monitor records one monitor transition. method is nil for a runtime-internal
+// transition that has no owning Java method; pc is -1 for implicit method locks.
+func (tr *trace) monitor(thread int64, object uint64, phase string, depth int, method *Method, pc int32, reason string) {
+	if !tr.enabled() {
+		return
+	}
+	fields := map[string]any{
+		"event":  "monitor",
+		"thread": thread,
+		"object": object,
+		"phase":  phase,
+		"depth":  depth,
+	}
+	if method != nil {
+		fields["method"] = methodFields(method)
+	}
+	if pc >= 0 {
+		fields["pc"] = pc
+	}
+	if reason != "" {
+		fields["reason"] = reason
 	}
 	tr.emit(fields)
 }

@@ -593,6 +593,14 @@ func emitInsn(insn rt.Insn, m *classfile.Method, h int, widths []int, heights ma
 		code := fmt.Sprintf("{\nn, thrown := t.ArrayLength(stack[%d])\nif thrown != nil {\n%s\n}\nstack[%d] = rt.IntValue(n)\n}",
 			h-1, transfer, h-1)
 		return code, h, false, nil
+	case rt.OpMonitorenter:
+		code := fmt.Sprintf("{\nthrown := t.MonitorEnter(m, %d, stack[%d])\nif thrown != nil {\n%s\n}\n}",
+			pc, h-1, transfer)
+		return code, h - 1, false, nil
+	case rt.OpMonitorexit:
+		code := fmt.Sprintf("{\nthrown := t.MonitorExit(m, %d, stack[%d])\nif thrown != nil {\n%s\n}\n}",
+			pc, h-1, transfer)
+		return code, h - 1, false, nil
 	case rt.OpAthrow:
 		code := fmt.Sprintf("{\nthrown := stack[%d].Ref\nif thrown == nil {\nthrown = t.Throwable(\"java/lang/NullPointerException\")\n}\n%s\n}",
 			h-1, transfer)

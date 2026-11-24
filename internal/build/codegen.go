@@ -21,6 +21,7 @@ type Options struct {
 	OutputPath      string
 	GeneratedSource string
 	EnablePlugins   bool
+	EnableThreads   bool
 }
 
 // generateSource renders the standalone application module: an embedded image

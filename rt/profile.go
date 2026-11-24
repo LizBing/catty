@@ -24,6 +24,7 @@ type Profile struct {
 	ID      string
 	ABI     int
 	Plugins bool
+	Threads bool
 	Limits  *PluginLimits
 }
 
@@ -34,6 +35,8 @@ const (
 	Gate2ABI       = 2
 	Gate3ProfileID = "catty-jvm21-gate3"
 	Gate3ABI       = 3
+	Gate4ProfileID = "catty-jvm21-gate4"
+	Gate4ABI       = 4
 
 	// ABIRevision and ProfileID name the default (Gate 2) pair.
 	ABIRevision = Gate2ABI
@@ -56,6 +59,7 @@ var Gate3PluginLimits = &PluginLimits{
 var (
 	Gate2Profile = &Profile{ID: Gate2ProfileID, ABI: Gate2ABI}
 	Gate3Profile = &Profile{ID: Gate3ProfileID, ABI: Gate3ABI, Plugins: true, Limits: Gate3PluginLimits}
+	Gate4Profile = &Profile{ID: Gate4ProfileID, ABI: Gate4ABI, Plugins: true, Threads: true, Limits: Gate3PluginLimits}
 )
 
 // ProfileByID returns the published profile with the exact identity.
@@ -65,8 +69,35 @@ func ProfileByID(id string) (*Profile, bool) {
 		return Gate2Profile, true
 	case Gate3ProfileID:
 		return Gate3Profile, true
+	case Gate4ProfileID:
+		return Gate4Profile, true
 	}
 	return nil, false
+}
+
+// ProfileHasThreads reports whether the profile enables Java platform threads.
+// An unknown profile never admits the threaded feature set.
+func ProfileHasThreads(id string) bool {
+	return id == Gate4ProfileID
+}
+
+// ProfileAdmitsPlugins reports whether the profile enables plugin admission.
+func ProfileAdmitsPlugins(id string) bool {
+	return id == Gate3ProfileID || id == Gate4ProfileID
+}
+
+// ProfileCapabilities returns the canonical capability inventory for one
+// profile. Gate 2 publishes none; Gate 3 publishes its admission capabilities
+// and Gate 4 appends the threading capabilities it adds.
+func ProfileCapabilities(id string) []string {
+	switch id {
+	case Gate3ProfileID:
+		return []string{"plugin-admission", "loader-identity", "guarded-dispatch"}
+	case Gate4ProfileID:
+		return []string{"plugin-admission", "loader-identity", "guarded-dispatch",
+			"threads", "monitors", "synchronized-memory"}
+	}
+	return nil
 }
 
 // ProfileForImage validates the profile/ABI pair carried by an image.
@@ -154,6 +185,9 @@ func BootstrapClassesFor(profile string) []BootstrapClassInfo {
 }
 
 func (p *Profile) bootstrapInventory() []*bsClass {
+	if p.Threads {
+		return gate4BootstrapInventory()
+	}
 	if p.Plugins {
 		return gate3BootstrapInventory()
 	}
@@ -161,6 +195,9 @@ func (p *Profile) bootstrapInventory() []*bsClass {
 }
 
 func (p *Profile) bootstrapByName() map[string]*bsClass {
+	if p.Threads {
+		return gate4BootstrapByName()
+	}
 	if p.Plugins {
 		return gate3BootstrapByName()
 	}

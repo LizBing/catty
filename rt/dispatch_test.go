@@ -27,9 +27,9 @@ func TestSelectVirtualInheritedInterfaceImplementation(t *testing.T) {
 	child := dispatchClass(r, "ext/Child", &Loader{ID: 2, Runtime: r, Parent: r.Loader},
 		base, AccPublic, step)
 
-	selected, thrown := r.selectVirtual(child, stepValue)
-	if thrown != nil {
-		t.Fatalf("inherited interface implementation was not selected: %v", thrown)
+	selected := r.selectVirtual(child, stepValue)
+	if selected == nil {
+		t.Fatal("inherited interface implementation was not selected")
 	}
 	if selected != baseValue {
 		t.Fatalf("selected %s.%s, want inherited app/Base.value", selected.Owner.Name, selected.Name)
@@ -37,9 +37,9 @@ func TestSelectVirtualInheritedInterfaceImplementation(t *testing.T) {
 
 	// Once the receiver class declares its own implementation it wins.
 	childValue := dispatchMethod(child, "value", "()I", AccPublic)
-	selected, thrown = r.selectVirtual(child, stepValue)
-	if thrown != nil || selected != childValue {
-		t.Fatalf("declared override not selected: target=%v thrown=%v", selected, thrown)
+	selected = r.selectVirtual(child, stepValue)
+	if selected != childValue {
+		t.Fatalf("declared override not selected: target=%v", selected)
 	}
 }
 
@@ -52,10 +52,7 @@ func TestSelectVirtualPackagePrivateOverrideRules(t *testing.T) {
 	child := dispatchClass(r, "demo/Child", childLoader, pkgBase, AccPublic)
 	dispatchMethod(child, "value", "()I", AccPublic)
 
-	selected, thrown := r.selectVirtual(child, pkgValue)
-	if thrown != nil {
-		t.Fatal(thrown)
-	}
+	selected := r.selectVirtual(child, pkgValue)
 	if selected != pkgValue {
 		t.Fatalf("package-private declaration was overridden across defining loaders: %s", selected.Owner.Name)
 	}
@@ -65,9 +62,9 @@ func TestSelectVirtualPackagePrivateOverrideRules(t *testing.T) {
 	publicValue := dispatchMethod(publicBase, "value", "()I", AccPublic)
 	publicChild := dispatchClass(r, "demo/PublicChild", childLoader, publicBase, AccPublic)
 	childOverride := dispatchMethod(publicChild, "value", "()I", AccPublic)
-	selected, thrown = r.selectVirtual(publicChild, publicValue)
-	if thrown != nil || selected != childOverride {
-		t.Fatalf("public override not selected: target=%v thrown=%v", selected, thrown)
+	selected = r.selectVirtual(publicChild, publicValue)
+	if selected != childOverride {
+		t.Fatalf("public override not selected: target=%v", selected)
 	}
 }
 
@@ -77,10 +74,8 @@ func TestSelectVirtualMissingInterfaceImplementation(t *testing.T) {
 	step := dispatchClass(r, "app/Step", r.Loader, object, AccInterface|AccAbstract|AccPublic)
 	stepValue := dispatchMethod(step, "value", "()I", AccPublic|AccAbstract)
 	orphan := dispatchClass(r, "ext/Orphan", &Loader{ID: 2, Runtime: r, Parent: r.Loader}, object, AccPublic, step)
-	if _, thrown := r.selectVirtual(orphan, stepValue); thrown == nil {
-		t.Fatal("missing interface implementation did not raise AbstractMethodError")
-	} else if thrown.Class == nil || thrown.Class.Name != "java/lang/AbstractMethodError" {
-		t.Fatalf("wrong throwable: %v", thrown.Class)
+	if selected := r.selectVirtual(orphan, stepValue); selected != nil {
+		t.Fatalf("missing interface implementation selected %s", selected.Owner.Name)
 	}
 }
 

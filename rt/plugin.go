@@ -74,10 +74,12 @@ func (r *Runtime) loaderHandle(l *Loader) *Object {
 	if l == nil || l == r.BootstrapLoader {
 		return nil
 	}
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
 	if l.Mirror != nil {
 		return l.Mirror
 	}
-	class := r.mustClass("java/lang/ClassLoader")
+	class := r.mustClassLocked("java/lang/ClassLoader")
 	l.Mirror = &Object{Class: class, Payload: l, Identity: r.newIdentity()}
 	return l.Mirror
 }
@@ -188,7 +190,11 @@ func intrinsicPluginsReadJar(t *Thread, m *Method, receiver *Object, args []Valu
 }
 
 // intrinsicPluginsRegister implements
-// Plugins.register(byte[],ClassLoader)ClassLoader.
+// Plugins.register(byte[],ClassLoader)ClassLoader. It takes one bounded
+// snapshot of the caller's byte array under the memory mutex and a snapshot of
+// the parent chain's published immutable definitions under the metadata mutex,
+// then runs the bounded admission adapter outside every shared runtime lock.
+// The commit itself is one metadata transaction.
 func intrinsicPluginsRegister(t *Thread, m *Method, receiver *Object, args []Value) Outcome {
 	if len(args) != 2 {
 		return ThrowOutcome(t.RT.NewThrowable(t, "java/lang/IllegalArgumentException"))
@@ -210,12 +216,18 @@ func intrinsicPluginsRegister(t *Thread, m *Method, receiver *Object, args []Val
 			"plugin admission is not enabled"))
 	}
 	// The candidate owns a private copy of the caller's bytes.
-	jar := make([]byte, args[0].Ref.Array.Len())
-	for i := range jar {
-		jar[i] = byte(args[0].Ref.Array.Bytes[i])
+	r := t.RT
+	r.memMu.Lock()
+	jar := make([]byte, len(args[0].Ref.Array.Bytes))
+	for i, b := range args[0].Ref.Array.Bytes {
+		jar[i] = byte(b)
 	}
+	r.memMu.Unlock()
 	digest := sha256.Sum256(jar)
-	res, err := t.RT.admit(&AdmissionRequest{Bytes: jar, Parent: parent, Profile: t.RT.profile.ID})
+	parentClasses := r.snapshotParentClasses(parent)
+	res, err := r.admit(&AdmissionRequest{
+		Bytes: jar, Parent: parent, Profile: r.profile.ID, ParentClasses: parentClasses,
+	})
 	if err != nil {
 		pe, _ := err.(*PluginError)
 		code := pluginCode(err)
@@ -231,7 +243,7 @@ func intrinsicPluginsRegister(t *Thread, m *Method, receiver *Object, args []Val
 	if res.Digest == "" {
 		res.Digest = hex.EncodeToString(digest[:])
 	}
-	loader, thrown := t.RT.installPlugin(parent, res)
+	loader, thrown := r.installPlugin(parent, res)
 	if thrown != nil {
 		if tr := t.trace(); tr != nil {
 			code := "VERIFY"
@@ -254,7 +266,29 @@ func intrinsicPluginsRegister(t *Thread, m *Method, receiver *Object, args []Val
 			}
 		}
 	}
-	return OkValue(RefValue(t.RT.loaderHandle(loader)))
+	return OkValue(RefValue(r.loaderHandle(loader)))
+}
+
+// snapshotParentClasses copies the nearest-first published definition table the
+// parent chain exposes. It is called under metaMu so the copy is atomic with
+// concurrent admission publication.
+func (r *Runtime) snapshotParentClasses(parent *Loader) map[string]*Class {
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	return r.snapshotParentClassesLocked(parent)
+}
+
+func (r *Runtime) snapshotParentClassesLocked(parent *Loader) map[string]*Class {
+	out := map[string]*Class{}
+	chain := parent.Chain()
+	for i := len(chain) - 1; i >= 0; i-- {
+		for name, c := range chain[i].Classes {
+			if _, ok := out[name]; !ok {
+				out[name] = c
+			}
+		}
+	}
+	return out
 }
 
 func (t *Thread) pluginParent(v Value) (*Loader, *Object) {
@@ -275,6 +309,12 @@ func (t *Thread) pluginParent(v Value) (*Loader, *Object) {
 }
 
 func (r *Runtime) loaderPublished(l *Loader) bool {
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	return r.loaderPublishedLocked(l)
+}
+
+func (r *Runtime) loaderPublishedLocked(l *Loader) bool {
 	if l == r.BootstrapLoader || l == r.Loader {
 		return true
 	}
@@ -286,41 +326,37 @@ func (r *Runtime) loaderPublished(l *Loader) bool {
 	return false
 }
 
-// installPlugin commits one validated candidate. All definitions are built in
-// a detached loader first; nothing is published until every step succeeds. A
-// failed commit restores the array intern caches and identity cursor so the
-// runtime transaction leaves the pre-registration snapshot intact.
+// installPlugin commits one validated candidate. The caller has run the
+// bounded admission adapter outside shared runtime locks; this method performs
+// the entire transactional commit under the metadata mutex: it rechecks the
+// parent handle and current limits, validates the candidate's loading
+// constraints against current state, builds all class and method metadata,
+// stages array classes and canonical mirrors, and publishes quota accounting
+// and the loader together. A rejection discards candidate-only changes without
+// undoing unrelated concurrent resolutions or admissions. No Java code runs
+// here.
 func (r *Runtime) installPlugin(parent *Loader, res *AdmissionResult) (*Loader, *Object) {
-	arrays := make(map[*Class]*Class, len(r.arrayClasses))
-	for k, v := range r.arrayClasses {
-		arrays[k] = v
-	}
-	primitiveArrays := make(map[byte]*Class, len(r.primitiveArrayClass))
-	for k, v := range r.primitiveArrayClass {
-		primitiveArrays[k] = v
-	}
-	identity := r.nextIdentity
-	loader, thrown := r.installPluginTx(parent, res)
-	if thrown != nil {
-		r.arrayClasses = arrays
-		r.primitiveArrayClass = primitiveArrays
-		r.nextIdentity = identity
-	}
-	return loader, thrown
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	return r.installPluginLocked(parent, res)
 }
 
-func (r *Runtime) installPluginTx(parent *Loader, res *AdmissionResult) (*Loader, *Object) {
+func (r *Runtime) installPluginLocked(parent *Loader, res *AdmissionResult) (*Loader, *Object) {
+	if !r.loaderPublishedLocked(parent) {
+		return nil, r.newPluginAdmissionExceptionLocked("PROFILE", "plugin parent loader is no longer published")
+	}
 	limits := r.pluginLimits()
 	if limits.Loaders > 0 && len(r.pluginLoaders)+1 > limits.Loaders {
-		return nil, r.NewPluginAdmissionException(nil, "LIMIT",
+		return nil, r.newPluginAdmissionExceptionLocked("LIMIT",
 			fmt.Sprintf("published plugin loader limit %d reached", limits.Loaders))
 	}
 	if limits.CumulativeClassBytes > 0 && r.pluginClassBytes+res.ClassBytes > limits.CumulativeClassBytes {
-		return nil, r.NewPluginAdmissionException(nil, "LIMIT",
+		return nil, r.newPluginAdmissionExceptionLocked("LIMIT",
 			fmt.Sprintf("cumulative admitted class bytes limit %d reached", limits.CumulativeClassBytes))
 	}
+	loaderID := r.nextLoaderID + 1
 	loader := &Loader{
-		ID:      r.nextLoaderID + 1,
+		ID:      loaderID,
 		Name:    fmt.Sprintf("plugin-%d", len(r.pluginLoaders)+1),
 		Runtime: r,
 		Parent:  parent,
@@ -333,17 +369,17 @@ func (r *Runtime) installPluginTx(parent *Loader, res *AdmissionResult) (*Loader
 	seen := map[string]bool{}
 	for _, def := range res.Classes {
 		if def == nil || def.Name == "" {
-			return nil, r.NewPluginAdmissionException(nil, "CLASS_FORMAT", "plugin contains an unnamed class")
+			return nil, r.newPluginAdmissionExceptionLocked("CLASS_FORMAT", "plugin contains an unnamed class")
 		}
 		if seen[def.Name] {
-			return nil, r.NewPluginAdmissionException(nil, "CLASS_FORMAT", "duplicate plugin class definition "+def.Name)
+			return nil, r.newPluginAdmissionExceptionLocked("CLASS_FORMAT", "duplicate plugin class definition "+def.Name)
 		}
 		seen[def.Name] = true
 		if _, ok := loader.Parent.Lookup(def.Name); ok {
-			return nil, r.NewPluginAdmissionException(nil, "CLASS_FORMAT", "effective plugin class shadows a parent definition: "+def.Name)
+			return nil, r.newPluginAdmissionExceptionLocked("CLASS_FORMAT", "effective plugin class shadows a parent definition: "+def.Name)
 		}
 		if reservedImageName(r.profile, def.Name) {
-			return nil, r.NewPluginAdmissionException(nil, "PACKAGE", "reserved class name "+def.Name)
+			return nil, r.newPluginAdmissionExceptionLocked("PACKAGE", "reserved class name "+def.Name)
 		}
 		c := &Class{
 			Name:        def.Name,
@@ -363,49 +399,51 @@ func (r *Runtime) installPluginTx(parent *Loader, res *AdmissionResult) (*Loader
 		if def.Super != "" {
 			s, ok := loader.Lookup(def.Super)
 			if !ok {
-				return nil, r.NewPluginAdmissionException(nil, "DEPENDENCY", "missing superclass "+def.Super)
+				return nil, r.newPluginAdmissionExceptionLocked("DEPENDENCY", "missing superclass "+def.Super)
 			}
 			c.Super = s
 		}
 		for _, in := range def.Interfaces {
 			i, ok := loader.Lookup(in)
 			if !ok {
-				return nil, r.NewPluginAdmissionException(nil, "DEPENDENCY", "missing interface "+in)
+				return nil, r.newPluginAdmissionExceptionLocked("DEPENDENCY", "missing interface "+in)
 			}
 			c.Interfaces = append(c.Interfaces, i)
 		}
 	}
 	// Hierarchy cycles, depth and final-superclass constraints.
 	if perr := r.checkPluginHierarchies(loader, created); perr != nil {
-		return nil, r.NewPluginAdmissionException(nil, perr.Code, perr.Message)
+		return nil, r.newPluginAdmissionExceptionLocked(perr.Code, perr.Message)
 	}
 	for _, c := range created {
 		if err := r.layoutDefinition(c, defs[c.Name]); err != nil {
-			return nil, r.NewPluginAdmissionException(nil, "VERIFY", err.Error())
+			return nil, r.newPluginAdmissionExceptionLocked("VERIFY", err.Error())
 		}
 	}
 	for _, c := range created {
 		def := defs[c.Name]
 		for _, md := range def.Methods {
 			if md.Engine != "interp" && md.Engine != "abstract" {
-				return nil, r.NewPluginAdmissionException(nil, "PROFILE", "plugin method is not interpreted")
+				return nil, r.newPluginAdmissionExceptionLocked("PROFILE", "plugin method is not interpreted")
 			}
 			if err := r.installMethodDef(c, md); err != nil {
-				return nil, r.NewPluginAdmissionException(nil, "VERIFY", err.Error())
+				return nil, r.newPluginAdmissionExceptionLocked("VERIFY", err.Error())
 			}
 		}
 	}
 	for _, c := range created {
-		if err := r.resolveClassMetadata(c, false); err != nil {
-			return nil, r.NewPluginAdmissionException(nil, "DEPENDENCY", err.Error())
+		if err := r.resolveClassMetadataLocked(c, false); err != nil {
+			return nil, r.newPluginAdmissionExceptionLocked("DEPENDENCY", err.Error())
 		}
 	}
-	constraints := r.newConstraintTx()
+	// Stage the candidate's loading-constraint equalities against the current
+	// published graph; nothing is committed until every check has passed.
+	constraints := r.newConstraintTxLocked()
 	if err := r.checkOverrideConstraints(created, constraints); err != nil {
-		return nil, r.NewPluginAdmissionException(nil, "VERIFY", err.Error())
+		return nil, r.newPluginAdmissionExceptionLocked("VERIFY", err.Error())
 	}
 	for _, c := range created {
-		c.Mirror = &Object{Class: r.mustClass("java/lang/Class"), Payload: c, Identity: r.newIdentity()}
+		c.Mirror = &Object{Class: r.mustClassLocked("java/lang/Class"), Payload: c, Identity: r.newIdentity()}
 		for i := range c.StaticField {
 			c.Statics[i] = zeroValueFor(c.StaticField[i].Descriptor)
 		}
@@ -414,11 +452,25 @@ func (r *Runtime) installPluginTx(parent *Loader, res *AdmissionResult) (*Loader
 	// state, quota accounting and staged loading constraints together. A
 	// rejected candidate never reaches this point, so its transaction is
 	// discarded with every pending equality it staged.
-	constraints.commit(r)
+	constraints.commitLocked(r)
 	r.nextLoaderID = loader.ID
 	r.pluginLoaders = append(r.pluginLoaders, loader)
 	r.pluginClassBytes += res.ClassBytes
 	return loader, nil
+}
+
+// newPluginAdmissionExceptionLocked creates the Java diagnostic while holding
+// metaMu without acquiring it again. No other runtime lock is taken.
+func (r *Runtime) newPluginAdmissionExceptionLocked(code, message string) *Object {
+	o := r.newThrowableLocked(nil, "catty/runtime/PluginAdmissionException")
+	if o != nil {
+		data := ThrowableOf(o)
+		data.Code = code
+		if message != "" {
+			data.Message = message
+		}
+	}
+	return o
 }
 
 // checkOverrideConstraints stages the loading-constraint equalities required by

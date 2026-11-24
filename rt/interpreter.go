@@ -649,6 +649,22 @@ func (r *Runtime) execute(t *Thread, m *Method, receiver *Object, args []Value) 
 				continue
 			}
 			push(IntValue(n))
+		case OpMonitorenter:
+			ref := pop()
+			if thrown := t.MonitorEnter(m, pc, ref); thrown != nil {
+				if out, ok := abort(pc, thrown); !ok {
+					return out
+				}
+				continue
+			}
+		case OpMonitorexit:
+			ref := pop()
+			if thrown := t.MonitorExit(m, pc, ref); thrown != nil {
+				if out, ok := abort(pc, thrown); !ok {
+					return out
+				}
+				continue
+			}
 		case OpAthrow:
 			thrown := popRef()
 			if thrown == nil {

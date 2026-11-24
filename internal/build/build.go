@@ -16,14 +16,14 @@ import (
 // Run is the catty command entry point.
 func Run(args []string) int {
 	if len(args) == 0 {
-		fmt.Fprintln(os.Stderr, "usage: catty build --classpath PATH --main CLASS [--mode auto|aot|interp] [--policy FILE] [--enable-plugins] --report FILE --output FILE [--generated-source DIR]")
+		fmt.Fprintln(os.Stderr, "usage: catty build --classpath PATH --main CLASS [--mode auto|aot|interp] [--policy FILE] [--enable-plugins] [--enable-threads] --report FILE --output FILE [--generated-source DIR]")
 		return 2
 	}
 	switch args[0] {
 	case "build":
 		return runBuild(args[1:])
 	case "-h", "--help", "help":
-		fmt.Println("usage: catty build --classpath PATH --main CLASS [--mode auto|aot|interp] [--policy FILE] [--enable-plugins] --report FILE --output FILE [--generated-source DIR]")
+		fmt.Println("usage: catty build --classpath PATH --main CLASS [--mode auto|aot|interp] [--policy FILE] [--enable-plugins] [--enable-threads] --report FILE --output FILE [--generated-source DIR]")
 		return 0
 	default:
 		fmt.Fprintf(os.Stderr, "catty: unknown command %q\n", args[0])
@@ -42,6 +42,7 @@ func runBuild(args []string) int {
 	output := fs.String("output", "", "standalone executable output path")
 	generated := fs.String("generated-source", "", "optional directory for generated Go source")
 	enablePlugins := fs.Bool("enable-plugins", false, "select the Gate 3 plugin-admission profile")
+	enableThreads := fs.Bool("enable-threads", false, "select the Gate 4 threading profile")
 	if err := fs.Parse(args); err != nil {
 		return 2
 	}
@@ -57,6 +58,7 @@ func runBuild(args []string) int {
 		OutputPath:      *output,
 		GeneratedSource: *generated,
 		EnablePlugins:   *enablePlugins,
+		EnableThreads:   *enableThreads,
 	}
 	if *classpath != "" {
 		opts.Classpath = filepath.SplitList(*classpath)

@@ -114,6 +114,9 @@ func VerifyClass(c *classfile.Class, ctx *Context) error {
 		if f.Constant != nil && f.Flags&rt.AccStatic == 0 {
 			return fmt.Errorf("%s.%s: ConstantValue requires a static field", c.Name, f.Name)
 		}
+		if rt.ProfileHasThreads(ctx.profile()) && f.Flags&rt.AccFinal != 0 && f.Flags&rt.AccVolatile != 0 {
+			return fmt.Errorf("%s.%s: a field must not be both final and volatile", c.Name, f.Name)
+		}
 	}
 	for _, m := range c.Methods {
 		if err := verifyMethod(c, m, ctx); err != nil {
@@ -133,10 +136,30 @@ func verifyMethod(c *classfile.Class, m *classfile.Method, ctx *Context) error {
 		return fmt.Errorf("%s: %w", display, err)
 	}
 	if m.Flags&rt.AccSynchronized != 0 {
-		return fmt.Errorf("%s: synchronized methods are unsupported", display)
+		if !rt.ProfileHasThreads(ctx.profile()) {
+			return fmt.Errorf("%s: synchronized methods are unsupported", display)
+		}
+		switch {
+		case m.Flags&rt.AccNative != 0:
+			return fmt.Errorf("%s: synchronized native methods are unsupported", display)
+		case m.Name == "<init>":
+			return fmt.Errorf("%s: an instance constructor must not be synchronized", display)
+		case m.Flags&rt.AccAbstract != 0:
+			return fmt.Errorf("%s: an abstract method must not be synchronized", display)
+		case c.Flags&rt.AccInterface != 0 && m.Name != "<clinit>":
+			return fmt.Errorf("%s: an interface method must not be synchronized", display)
+		}
 	}
 	if m.Flags&rt.AccNative != 0 {
 		return fmt.Errorf("%s: native methods are unsupported", display)
+	}
+	if rt.ProfileHasThreads(ctx.profile()) && m.Name == "<clinit>" {
+		if m.Flags&rt.AccStatic == 0 || m.Descriptor != "()V" {
+			return fmt.Errorf("%s: a class initializer must be static with descriptor ()V", display)
+		}
+		if m.Flags&rt.AccAbstract != 0 {
+			return fmt.Errorf("%s: a class initializer must not be abstract", display)
+		}
 	}
 	abstract := m.Flags&rt.AccAbstract != 0
 	if abstract {

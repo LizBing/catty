@@ -5,7 +5,12 @@ import (
 	"math"
 	"os"
 	"strconv"
+	"sync"
 )
+
+// javaOutputMu makes each PrintStream write one unit so concurrent Java threads
+// cannot interleave a line.
+var javaOutputMu sync.Mutex
 
 // intrinsicObjectInit implements Object.<init> and every bootstrap throwable
 // constructor: allocation happened at `new`, so construction is a no-op that
@@ -26,10 +31,14 @@ func intrinsicObjectGetClass(t *Thread, m *Method, receiver *Object, args []Valu
 }
 
 func writeJavaString(s string) {
+	javaOutputMu.Lock()
+	defer javaOutputMu.Unlock()
 	_, _ = os.Stdout.WriteString(s)
 }
 
 func writeJavaUnits(units []uint16) {
+	javaOutputMu.Lock()
+	defer javaOutputMu.Unlock()
 	_, _ = os.Stdout.WriteString(string(utf16Decode(units)))
 }
 
@@ -309,7 +318,10 @@ func intrinsicClassGetMethod(t *Thread, m *Method, receiver *Object, args []Valu
 		if args[1].Ref.Array == nil {
 			return ThrowOutcome(t.RT.NewThrowable(t, "java/lang/IllegalArgumentException"))
 		}
-		for _, elem := range args[1].Ref.Array.Elems {
+		// Snapshot the caller-visible parameter array under the memory mutex and
+		// release it before resolving Java methods.
+		paramRefs := t.RT.arraySnapshotElems(args[1].Ref.Array)
+		for _, elem := range paramRefs {
 			if elem.Kind != KindRef {
 				return ThrowOutcome(t.RT.NewThrowable(t, "java/lang/IllegalArgumentException"))
 			}
@@ -505,7 +517,9 @@ func intrinsicMethodInvoke(t *Thread, m *Method, receiver *Object, args []Value)
 		if args[1].Ref.Array == nil {
 			return ThrowOutcome(t.RT.NewThrowable(t, "java/lang/IllegalArgumentException"))
 		}
-		rawArgs = args[1].Ref.Array.Elems
+		// One detached snapshot under the memory mutex; resolution and the
+		// reflective invocation run after the mutex is released.
+		rawArgs = t.RT.arraySnapshotElems(args[1].Ref.Array)
 	}
 	if len(rawArgs) != len(decl.Type.Params) {
 		if !(len(rawArgs) == 0 && len(decl.Type.Params) == 0) {
@@ -532,11 +546,10 @@ func intrinsicMethodInvoke(t *Thread, m *Method, receiver *Object, args []Value)
 		}
 		target = decl
 	} else {
-		var thrown *Object
-		target, thrown = t.RT.selectVirtual(realReceiver.Class, decl)
-		if thrown != nil {
+		target = t.RT.selectVirtual(realReceiver.Class, decl)
+		if target == nil {
 			wrapper := t.RT.NewThrowable(t, "java/lang/reflect/InvocationTargetException")
-			SetCause(wrapper, thrown)
+			SetCause(wrapper, t.RT.NewThrowable(t, "java/lang/AbstractMethodError"))
 			return ThrowOutcome(wrapper)
 		}
 	}

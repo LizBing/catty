@@ -16,6 +16,10 @@ type constraintKey struct {
 }
 
 func (r *Runtime) ensureConstraintState() {
+	r.ensureConstraintStateLocked()
+}
+
+func (r *Runtime) ensureConstraintStateLocked() {
 	if r.initiations == nil {
 		r.initiations = map[initiationKey]*Class{}
 	}
@@ -42,7 +46,13 @@ type constraintTx struct {
 }
 
 func (r *Runtime) newConstraintTx() *constraintTx {
-	r.ensureConstraintState()
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	return r.newConstraintTxLocked()
+}
+
+func (r *Runtime) newConstraintTxLocked() *constraintTx {
+	r.ensureConstraintStateLocked()
 	tx := &constraintTx{
 		initiations: make(map[initiationKey]*Class, len(r.initiations)),
 		constraints: make(map[constraintKey]struct{}, len(r.constraints)),
@@ -59,6 +69,12 @@ func (r *Runtime) newConstraintTx() *constraintTx {
 // commit hands the staged maps to the runtime. The transaction must not be used
 // again afterwards.
 func (tx *constraintTx) commit(r *Runtime) {
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	tx.commitLocked(r)
+}
+
+func (tx *constraintTx) commitLocked(r *Runtime) {
 	r.initiations = tx.initiations
 	r.constraints = tx.constraints
 }
@@ -120,10 +136,17 @@ func componentConflict(constraints map[constraintKey]struct{}, initiations map[i
 // full connected equality component for the binary name. A conflict leaves both
 // maps unchanged.
 func (r *Runtime) recordInitiation(loader *Loader, name string, c *Class) bool {
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	return r.recordInitiationLocked(loader, name, c)
+}
+
+// recordInitiationLocked is recordInitiation for a caller holding metaMu.
+func (r *Runtime) recordInitiationLocked(loader *Loader, name string, c *Class) bool {
 	if loader == nil || c == nil {
 		return false
 	}
-	r.ensureConstraintState()
+	r.ensureConstraintStateLocked()
 	key := initiationKey{Loader: loader, Name: name}
 	if existing, ok := r.initiations[key]; ok {
 		return existing != c
@@ -138,12 +161,18 @@ func (r *Runtime) recordInitiation(loader *Loader, name string, c *Class) bool {
 // recordClassInitiation records the class name and, for an array descriptor,
 // its reference leaf. It returns true on a constraint conflict.
 func (r *Runtime) recordClassInitiation(loader *Loader, name string, c *Class) bool {
-	if r.recordInitiation(loader, name, c) {
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	return r.recordClassInitiationLocked(loader, name, c)
+}
+
+func (r *Runtime) recordClassInitiationLocked(loader *Loader, name string, c *Class) bool {
+	if r.recordInitiationLocked(loader, name, c) {
 		return true
 	}
 	if leaf := arrayLeafName(name); leaf != "" {
-		lc, err := r.classForLoaderName(loader, leaf)
-		if err == nil && r.recordInitiation(loader, leaf, lc) {
+		lc, err := r.classForLoaderNameLocked(loader, leaf)
+		if err == nil && r.recordInitiationLocked(loader, leaf, lc) {
 			return true
 		}
 	}
@@ -161,12 +190,28 @@ func (r *Runtime) imposeMethodConstraints(callerLoader, declaringLoader *Loader,
 	return r.stageConstraints(callerLoader, declaringLoader, types)
 }
 
+func (r *Runtime) imposeMethodConstraintsLocked(callerLoader, declaringLoader *Loader, mt *MethodType) bool {
+	if mt == nil || callerLoader == nil || declaringLoader == nil || callerLoader == declaringLoader {
+		return false
+	}
+	types := append([]Type(nil), mt.Params...)
+	types = append(types, mt.Return)
+	return r.stageConstraintsLocked(callerLoader, declaringLoader, types)
+}
+
 // imposeFieldConstraints is the field-descriptor equivalent.
 func (r *Runtime) imposeFieldConstraints(callerLoader, declaringLoader *Loader, ft Type) bool {
 	if callerLoader == nil || declaringLoader == nil || callerLoader == declaringLoader {
 		return false
 	}
 	return r.stageConstraints(callerLoader, declaringLoader, []Type{ft})
+}
+
+func (r *Runtime) imposeFieldConstraintsLocked(callerLoader, declaringLoader *Loader, ft Type) bool {
+	if callerLoader == nil || declaringLoader == nil || callerLoader == declaringLoader {
+		return false
+	}
+	return r.stageConstraintsLocked(callerLoader, declaringLoader, []Type{ft})
 }
 
 // stageConstraints adds an equality edge for each reference leaf type. It never
@@ -183,11 +228,21 @@ func (r *Runtime) stageConstraints(a, b *Loader, types []Type) bool {
 }
 
 func (r *Runtime) stageConstraintsTx(a, b *Loader, types []Type) bool {
-	tx := r.newConstraintTx()
+	r.metaMu.Lock()
+	defer r.metaMu.Unlock()
+	return r.stageConstraintsLocked(a, b, types)
+}
+
+// stageConstraintsLocked is stageConstraints for a caller holding metaMu.
+func (r *Runtime) stageConstraintsLocked(a, b *Loader, types []Type) bool {
+	if a == nil || b == nil || a == b {
+		return false
+	}
+	tx := r.newConstraintTxLocked()
 	if tx.stage(a, b, types) != nil {
 		return true
 	}
-	tx.commit(r)
+	tx.commitLocked(r)
 	return false
 }
 
