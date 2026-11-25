@@ -33,6 +33,9 @@ image ABI `5`; it inherits Gate 4 threading and Gate 3 plugin admission. See the
 plan](GATE5-TESTING.md), and the checked-in
 [Gate 5 evidence](out/gate5/EVIDENCE.md).
 
+The [Catty 0.1 preview plan](CATTY-PREVIEW.md) covers packaging, installation,
+the first pilot workload, and release acceptance.
+
 ## Requirements
 
 - Go 1.21 or newer (validated with **go1.27.1** on darwin/arm64).
