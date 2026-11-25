@@ -4,7 +4,7 @@ Gate 4 requires the checked-in Java cases to pass in OpenJDK 21 and Catty, plus 
 
 ## Executable suite
 
-[tests/gate4.py](tests/gate4.py) compiles the fixtures in [testdata/gate4](testdata/gate4) with `javac --release 21 -g`, runs them with `java -Xverify:all`, and compares Catty exit status and stdout against the same fixture. The checked-in expectations validate the oracle too. Successful cases require empty stderr. Uncaught cases check the Java exception class, thread name, and application frame. The process watchdog treats a hang as a failure and keeps command logs with timeout details.
+[tests/gate4.py](../tests/gate4.py) compiles the fixtures in [testdata/gate4](../testdata/gate4) with `javac --release 21 -g`, runs them with `java -Xverify:all`, and compares Catty exit status and stdout against the same fixture. The checked-in expectations validate the oracle too. Successful cases require empty stderr. Uncaught cases check the Java exception class, thread name, and application frame. The process watchdog treats a hang as a failure and keeps command logs with timeout details.
 
 Each mixed policy forces the method named below to interpretation while main is AOT-compiled. The runner checks the profile, opcode inventory, capabilities, method selections, and engine use. Normal Catty binaries run with trace enabled and without a JDK on `PATH`. With `--race`, the suite also executes race-instrumented binaries in all three modes with tracing disabled. It checks Go binary metadata for `-race=true`, so a Go package test alone cannot satisfy the generated-code requirement. [Go race detector](https://go.dev/doc/articles/race_detector)
 

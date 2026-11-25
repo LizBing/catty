@@ -34,7 +34,7 @@ runtime and runs without Java or Go installed.
   pilot runs under a supervisor that requires it.
 
 [Compatibility contract](ARCHITECTURE.md#1-compatibility-contract) ·
-[CLI and profile details](README.md#gate-5-lifecycle-profile) ·
+[CLI and profile details](../README.md#cli-reference) ·
 [Plugin admission contract](GATE3.md#1-profile-and-build-contract)
 
 ## Install Catty
@@ -109,7 +109,7 @@ catty-0.1.0-preview.1-darwin-arm64/
   rt/
   plugin/
   internal/{admission,classfile,hierarchy,verify}/
-  CATTY-PREVIEW.md
+  README.md
   LICENSE
 ```
 
@@ -128,7 +128,7 @@ mkdir -p "$root/bin" "$root/libexec"
 GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 GOWORK=off GOTOOLCHAIN=local \
   go build -trimpath -buildvcs=false -o "$root/libexec/catty" ./cmd/catty
 
-cp go.mod CATTY-PREVIEW.md "$root/"
+cp go.mod README.md "$root/"
 if [ -f LICENSE ]; then
   cp LICENSE "$root/"
 fi
@@ -191,8 +191,8 @@ Ship the preview when an independent developer can build and deploy a real
 application from the release archive and the published checks pass. Use that
 experience to decide which Java APIs and deployment targets to support next.
 
-[Gate 5 evidence and benchmarks](out/gate5/EVIDENCE.md) ·
-[Recorded Gate 4 test flake](out/gate5/EVIDENCE.md#pre-existing-gate-4-timer-arming-flake-recorded-separately)
+[Gate 5 evidence and benchmarks](../out/gate5/EVIDENCE.md) ·
+[Recorded Gate 4 test flake](../out/gate5/EVIDENCE.md#pre-existing-gate-4-timer-arming-flake-recorded-separately)
 
 ## Local installation dry run
 

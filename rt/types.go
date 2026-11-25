@@ -1,7 +1,7 @@
 // Package rt implements the Catty Java runtime shared by generated Go code and
 // the bytecode interpreter. It supports one logical Java thread, version 65.0
 // class files, the primitive and reference value set published by the Gate 2
-// profile, and the bootstrap inventory documented in GATE2.md.
+// profile, and the bootstrap inventory documented in docs/GATE2.md.
 package rt
 
 import (

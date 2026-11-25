@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Catty Gate 1 acceptance tests. See ACCEPTANCE.md for the wire contracts."""
+"""Catty Gate 1 acceptance tests. See docs/ACCEPTANCE.md for the wire contracts."""
 
 import argparse
 from collections import Counter

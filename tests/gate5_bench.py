@@ -15,7 +15,7 @@ forced-AOT images.  The runner:
 * writes ``out/gate5/bench/SUMMARY.json`` plus raw evidence for the full run,
 * uses reduced repeats across the full matrix with ``--smoke``.
 
-See GATE5-TESTING.md section "Application measurement".  Only the workload
+See docs/GATE5-TESTING.md section "Application measurement".  Only the workload
 sources under ``testdata/gate5/benchmark`` and this runner belong to the
 benchmark; no Go source is modified.
 

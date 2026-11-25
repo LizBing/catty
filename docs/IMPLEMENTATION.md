@@ -167,4 +167,4 @@ When generating secondary fixtures, inspect their actual `javap` output. Choose 
 
 **Prompt to give the implementing agent**
 
-> Implement the Catty prototype described in IMPLEMENTATION.md in this repository. Use ARCHITECTURE.md revision 2 for shared runtime semantics and its Crossing.java fixture. Deliver the builder and standalone application runtime, execute the §7 acceptance suite, and report the commands, results, mixed-engine trace evidence and remaining profile limitations. The required deployment is one Java application in one Go process.
+> Implement the Catty prototype described in docs/IMPLEMENTATION.md in this repository. Use docs/ARCHITECTURE.md revision 2 for shared runtime semantics and its Crossing.java fixture. Deliver the builder and standalone application runtime, execute the §7 acceptance suite, and report the commands, results, mixed-engine trace evidence and remaining profile limitations. The required deployment is one Java application in one Go process.

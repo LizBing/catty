@@ -46,7 +46,7 @@ const (
 	ProfileID   = Gate2ProfileID
 )
 
-// Gate3PluginLimits are the initial profile ceilings from GATE3.md.
+// Gate3PluginLimits are the initial profile ceilings from docs/GATE3.md.
 var Gate3PluginLimits = &PluginLimits{
 	CompressedBytes:      16 << 20,
 	ExpandedBytes:        64 << 20,
