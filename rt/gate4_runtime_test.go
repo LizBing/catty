@@ -646,6 +646,7 @@ func TestGate4WaitSetTimeoutAndInterrupt(t *testing.T) {
 	if thrown := owner.MonitorEnter(nil, 0, RefValue(obj)); thrown != nil {
 		t.Fatal(thrown)
 	}
+	waitFor(t, "timed wait timer armed", func() bool { return clock.pendingTimers() == 1 })
 	clock.Advance(time.Second)
 	waitFor(t, "timeout transition", func() bool {
 		r.thrMu.Lock()
@@ -803,6 +804,7 @@ func TestGate4WaitSetWinnerTransitions(t *testing.T) {
 	if thrown := owner.MonitorEnter(nil, 4, RefValue(obj)); thrown != nil {
 		t.Fatal(thrown)
 	}
+	waitFor(t, "timed wait timer armed", func() bool { return clock.pendingTimers() == 1 })
 	clock.Advance(time.Second)
 	waitFor(t, "timeout transition", func() bool {
 		r.thrMu.Lock()
@@ -1077,11 +1079,13 @@ func TestGate4TimedJoinOneDeadline(t *testing.T) {
 
 	done := make(chan Outcome, 1)
 	go func() { done <- main.joinPeer(peer, 10000, true) }()
-	waitFor(t, "join enrolled", func() bool {
+	joinTimerArmed := func() bool {
 		r.thrMu.Lock()
 		defer r.thrMu.Unlock()
-		return peer.monitor != nil && len(peer.monitor.waiters) == 1
-	})
+		return peer.monitor != nil && len(peer.monitor.waiters) == 1 && peer.monitor.waiters[0].timer != nil
+	}
+	waitFor(t, "join timer armed", joinTimerArmed)
+	clock.Advance(4 * time.Second)
 	// An unrelated notify wakes the joiner early; the single deadline means it
 	// recomputes the remaining time and waits again instead of restarting.
 	notifier := testThread(r, "notifier")
@@ -1094,12 +1098,7 @@ func TestGate4TimedJoinOneDeadline(t *testing.T) {
 	if thrown := notifier.MonitorExit(nil, 1, RefValue(peer)); thrown != nil {
 		t.Fatal(thrown)
 	}
-	clock.Advance(4 * time.Second)
-	waitFor(t, "join re-enrolled", func() bool {
-		r.thrMu.Lock()
-		defer r.thrMu.Unlock()
-		return len(peer.monitor.waiters) == 1
-	})
+	waitFor(t, "join timer rearmed", joinTimerArmed)
 	select {
 	case <-done:
 		t.Fatal("join returned before its single deadline")

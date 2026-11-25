@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  macos-arm64:
+    name: macOS arm64
+    runs-on: macos-15
+    timeout-minutes: 25
+    env:
+      CGO_ENABLED: '1'
+      GOTOOLCHAIN: local
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - name: Share the Go cache and collect test logs
+        run: |
+          {
+            printf 'GOCACHE=%s/catty-go-cache\n' "$RUNNER_TEMP"
+            printf 'TMPDIR=%s\n' "$RUNNER_TEMP"
+          } >> "$GITHUB_ENV"
+      - uses: actions/setup-go@v7.1.0
+        with:
+          go-version: '1.27.1'
+          cache-dependency-path: go.mod
+      - uses: actions/setup-java@v6.3.0
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Go vet
+        run: go vet ./...
+      - name: Go tests with race detection
+        run: go test -race -count=1 ./...
+
+      - name: Gate 1 and 2 acceptance
+        run: python3 -B tests/gate2.py --java-home "$JAVA_HOME"
+      - name: Gate 3 acceptance
+        run: python3 -B tests/gate3.py --java-home "$JAVA_HOME"
+      - name: Gate 4 acceptance with race detection
+        run: python3 -B tests/gate4.py --java-home "$JAVA_HOME" --race
+      - name: Gate 5 acceptance with race detection
+        run: python3 -B tests/gate5.py --java-home "$JAVA_HOME" --race
+
+      - name: Install and test the preview archive
+        shell: bash
+        run: |
+          work="$RUNNER_TEMP/catty-ci-preview"
+          version=0.1.0-ci
+          release="catty-$version-darwin-arm64"
+          install="$work/installed preview"
+          mkdir -p "$install" "$work/classes" "$work/project" "$work/deploy" "$work/tools"
+
+          sh scripts/package-preview.sh "$version" "$work"
+          (
+            cd "$work"
+            shasum -a 256 -c "$release.tar.gz.sha256"
+            tar -xzf "$release.tar.gz" -C "$install"
+          )
+          cmp README.md "$install/$release/README.md"
+
+          javac --release 21 -d "$work/classes" testdata/gate2/long-crossing/LongCrossing.java
+          jar --create --file "$work/project/app.jar" -C "$work/classes" .
+          java -cp "$work/project/app.jar" LongCrossing > "$work/openjdk.txt"
+
+          ln -s "$(command -v go)" "$work/tools/go"
+          ln -s "$(command -v dirname)" "$work/tools/dirname"
+          (
+            cd "$work/project"
+            PATH="$install/$release/bin:$work/tools" CGO_ENABLED=0 GOPROXY=off GOSUMDB=off \
+              catty build --enable-lifecycle \
+              --classpath app.jar --main LongCrossing --report report.json --output app
+          )
+          cp "$work/project/app" "$work/deploy/app"
+          rm "$work/project/app.jar"
+          rm -r "$work/classes"
+          (
+            cd "$work/deploy"
+            env -i PATH=/nonexistent ./app > "$work/catty.txt"
+          )
+          diff -u "$work/openjdk.txt" "$work/catty.txt"
+
+      - name: Upload failure logs
+        if: failure()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: macos-arm64-failure-logs
+          path: |
+            ${{ runner.temp }}/catty-gate*/logs/
+            ${{ runner.temp }}/catty-acceptance-*/logs/
+            ${{ runner.temp }}/catty-ci-preview/*.txt
+            ${{ runner.temp }}/catty-ci-preview/project/report.json
+          if-no-files-found: ignore
+          retention-days: 7

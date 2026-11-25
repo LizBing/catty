@@ -3,6 +3,11 @@
 See the [project README](../README.md) for installation, the quickstart, and
 the CLI reference. Run the development commands below from the repository root.
 
+The [CI workflow](../.github/workflows/ci.yml) runs on pull requests and
+pushes to `main`. It uses macOS arm64, Go 1.27.1, and Temurin 21 to run Go vet,
+race-enabled tests, Gates 1–5 acceptance, and the preview archive install check.
+Failed runs retain the available acceptance logs as a workflow artifact.
+
 This repository implements the Gate 2 delivery in [GATE2.md](GATE2.md) against
 [ARCHITECTURE.md](ARCHITECTURE.md); the Gate 1 contract remains in
 [ACCEPTANCE.md](ACCEPTANCE.md) and [IMPLEMENTATION.md](IMPLEMENTATION.md).

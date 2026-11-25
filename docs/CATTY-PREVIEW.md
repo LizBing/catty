@@ -113,48 +113,12 @@ catty-0.1.0-preview.1-darwin-arm64/
   LICENSE
 ```
 
-Run this packaging recipe from the root of the source revision being tested.
-The optional license copy allows a local dry run of the current checkout.
-Include the approved license in every distributed archive.
+Run the packaging script from the source revision being tested. It writes
+the archive and its checksum to the output directory and copies `LICENSE`
+when present. Add the approved license before distributing the archive.
 
 ```sh
-set -eu
-
-release=catty-0.1.0-preview.1-darwin-arm64
-work=$(mktemp -d "${TMPDIR:-/tmp}/catty-preview.XXXXXX")
-root="$work/$release"
-mkdir -p "$root/bin" "$root/libexec"
-
-GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 GOWORK=off GOTOOLCHAIN=local \
-  go build -trimpath -buildvcs=false -o "$root/libexec/catty" ./cmd/catty
-
-cp go.mod README.md "$root/"
-if [ -f LICENSE ]; then
-  cp LICENSE "$root/"
-fi
-for pkg in rt plugin internal/admission internal/classfile internal/hierarchy internal/verify; do
-  mkdir -p "$root/$pkg"
-  for source in "$pkg"/*.go; do
-    case "$source" in
-      *_test.go) ;;
-      *) cp "$source" "$root/$pkg/" ;;
-    esac
-  done
-done
-
-cat > "$root/bin/catty" <<'EOF'
-#!/bin/sh
-root=$(CDPATH= cd -P "$(dirname "$0")/.." && pwd -P) || exit 1
-CATTY_MODULE_ROOT="$root" exec "$root/libexec/catty" "$@"
-EOF
-chmod 755 "$root/bin/catty"
-
-(
-  cd "$work"
-  tar -czf "$release.tar.gz" "$release"
-  shasum -a 256 "$release.tar.gz" > "$release.tar.gz.sha256"
-)
-printf 'Archive and checksum are in %s\n' "$work"
+sh scripts/package-preview.sh 0.1.0-preview.1 dist
 ```
 
 The runtime package list is the dependency closure of `./rt` and `./plugin`
@@ -175,10 +139,9 @@ the tagged release.
    with their own app. Compare stdout, stderr, and exit status with OpenJDK 21
    on representative inputs. Include one unsupported-input case and check that
    the diagnostic identifies the blocking dependency or feature.
-3. **Verify the release revision.** Run the Go race suite and vet, Gates 1–5
-   differential and acceptance tests, and the archive smoke check in CI.
-   Resolve the recorded Gate 4 manual-clock test flake so repeated CI runs
-   give a reliable signal.
+3. **Verify the release revision.** Require a passing CI run for the tagged
+   revision. The workflow runs Go vet and race tests, Gates 1–5 acceptance tests,
+   and an archive smoke check on macOS arm64. [CI workflow](../.github/workflows/ci.yml)
 4. **Measure what matters to the pilot.** Compare startup to the first useful
    result, package size, peak RSS, and sustained throughput on the advertised
    target. Set acceptable limits with the pilot before tagging. Keep the
